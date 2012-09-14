@@ -1,0 +1,53 @@
+<html>
+	<head>
+		<title>Test page</title>
+		<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+		<script type="text/javascript" src="http://localhost/tangibleLib.js"></script>
+		<script type="text/javascript">
+			$(document).ready( function() {
+				err = function(e) {console.log(e.msg);}
+				
+				// Connect to
+				api = new TangibleAPI('127.0.0.1');
+				devices = []; device_id = '';
+				api.register('My API', 'Desc', function(d) {
+					list();
+				}, err);
+				
+				list = function() {
+					// Load a list of devices and request first
+					api.listDevices(function(d) {
+						request();
+						devices = d.msg;
+					}, err);
+				}
+				
+				request = function(index_in_list) {
+					// Request index_in_list device (or first)
+					if (!index_in_list) {
+						index_in_list = 0;
+					}
+					api.reserveDevice(devices[index_in_list].id ,function (r) {
+						device_id = r.msg;
+						console.log("requested device " + r.msg);
+					}, err);
+				}
+				
+				// Set colors
+				green = function() {api.showColor(device_id,"00ff00",err,err);}
+				blue = function() {api.showColor(device_id,"0000ff",err,err);}
+				red = function() {api.showColor(device_id,"ff0000",err,err);}
+				// Set picture
+				picture = function(url) {
+					api.showPicture(device_id,url,err,err);
+				}
+				// Release devices
+				exit = function() {api.releaseAllDevices(err,err);}
+			});
+		</script>
+	</head>
+	<body>
+		<p>Test page</p>
+		<a href="javascript:exit()">Release all devices by pressing here!</a>
+	</body>
+</html>
