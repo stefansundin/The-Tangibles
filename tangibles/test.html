@@ -17,8 +17,8 @@
 				list = function() {
 					// Load a list of devices and request first
 					api.listDevices(function(d) {
-						request();
 						devices = d.msg;
+						request();
 					}, err);
 				}
 				
@@ -29,7 +29,28 @@
 					}
 					api.reserveDevice(devices[index_in_list].id ,function (r) {
 						device_id = r.msg;
-						console.log("requested device " + r.msg);
+					}, err);
+				}
+				
+				start = function() {
+					api.subscribeToEvents(device_id, function(d) {
+						socket = new WebSocket('ws://127.0.0.1:' + d.msg.port + '/streaming');
+						socket.onopen = function (evt) {
+							console.log('Opened websocket');
+							socket.send(JSON.stringify({'flow': 'ctrl', 'msg' : api.getAppUUID()}));
+						};
+						socket.onerror = function (e) {
+							console.log('Error: ' + e.data);
+						}
+						socket.onclose = function (e) {
+							console.log('Close: ' + e.data);
+						}
+						socket.onmessage = function(e) {
+							console.log('Recived: ' + e.data);
+							if($.parseJSON(e.data).msg.event == 'pressed') {
+								alert("Pressed sifteo!");
+							}
+						}
 					}, err);
 				}
 				
@@ -48,6 +69,7 @@
 	</head>
 	<body>
 		<p>Test page</p>
-		<a href="javascript:exit()">Release all devices by pressing here!</a>
+		<a href="javascript:exit();">Release all devices by pressing here!</a>
+		<a href="javascript:start();">Start!</a>
 	</body>
 </html>
