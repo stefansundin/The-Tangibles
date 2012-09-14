@@ -41,7 +41,7 @@ if (parallable === undefined) {
 								executed++;
 								if (executed == worker_num)
 									complete(ctrl.post.apply(scope, [outputs]));
-							}
+							};
 						})(i);
 						var msg = { "input" : inputs[i],
 									"name" : funct.toString(),
@@ -54,11 +54,11 @@ if (parallable === undefined) {
 							worker.postMessage(JSON.stringify(msg));
 						}
 					}
-				}
+				};
 			} else {
 				return ctrl.post.apply(scope, [[ctrl.core.apply(scope, [ctrl.pre.apply(scope, [1])[0], 0, 1])]]);
 			}
-		}
+		};
 	};
 	parallable.core = {};
 }
@@ -446,7 +446,7 @@ var ccv = {
 		};
 		return { "pre" : pre, "core" : core, "post" : post };
 	})
-}
+};
 
 onmessage = function (event) {
 	var data = (typeof event.data == "string") ? JSON.parse(event.data) : event.data;
@@ -457,4 +457,4 @@ onmessage = function (event) {
 	} catch (e) {
 		postMessage(JSON.stringify(result));
 	}
-}
+};
