@@ -18,7 +18,6 @@ import org.glassfish.grizzly.http.server.HttpServer;
  */
 public class TangibleAPI {
 
-    private static String pathToResources;
     private static String ipAddress = "localhost";
 
     /**
@@ -29,11 +28,6 @@ public class TangibleAPI {
         ipAddress = InetAddress.getLocalHost().getHostAddress();
         ipAddress = "0.0.0.0";
         System.out.println("IP address is: " + ipAddress);
-        if (args.length == 1) {
-            pathToResources = args[0];
-        } else {
-            pathToResources = "resources";
-        }
         try {
             DeviceFinder finder = DeviceFinderAccess.getInstance();
             finder.start();
