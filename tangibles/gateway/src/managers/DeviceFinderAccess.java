@@ -14,8 +14,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-//import java.util.logging.Level;
-//import java.util.logging.Logger;
 import tangible.devices.TangibleDevice;
 import tangible.protocols.DeviceAuthenticationProtocol;
 import tangible.utils.AbsLoopingThread;

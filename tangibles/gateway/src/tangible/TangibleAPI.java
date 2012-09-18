@@ -11,7 +11,6 @@ import java.util.logging.Logger;
 import javax.ws.rs.core.UriBuilder;
 import managers.*;
 import org.glassfish.grizzly.http.server.HttpServer;
-import org.glassfish.grizzly.http.server.StaticHttpHandler;
 
 /**
  *
@@ -38,61 +37,30 @@ public class TangibleAPI {
         try {
             DeviceFinder finder = DeviceFinderAccess.getInstance();
             finder.start();
+
             //let's initialise all the singleton to avoid delay error later on.. 
             ApplicationManagerAccess.getInstance();
             ReservationManagerAccess.getInstance();
-//			SubscriptionManager subsMgr = 
             SubscriptionManagerAccess.getInstance();
-            //    System.out.println("DeviceFinder is started!");
 
-            //let's start the REST part
-//			HttpServer restServer = 
             startServer();
-            //    System.out.println("the Rest Server is started!");
-
             System.out.println("TANGIBLE_API_READY");
-
-
-//			BufferedReader reader = 
-//					new BufferedReader(new InputStreamReader(System.in));
-//			System.out.println("Press enter to shut down the TangibleAPI daemon");
-//			try {
-//				reader.readLine();
-//				finder.stopASAP();
-//				restServer.stop();
-//				subsMgr.stopASAP();
-//				System.out.println("The system should turn off soon");
-//			} catch (IOException ex) {
-//				Logger.getLogger(TangibleAPI.class.getName())
-//						.log(Level.SEVERE, null, ex);
-//			}
-//			
+		
         } catch (Exception e) {
             System.out.println("TANGIBLE_API_FAILED");
             Logger.getLogger(TangibleAPI.class.getName()).log(Level.INFO,
                     "an exception occured when initializing tangibleAPI", e);
         }
-
-
-
     }
 
     private static URI getBaseURI() {
-//    return UriBuilder.fromUri("http://130.240.94.8/").port(9998).build();
         return UriBuilder.fromUri("http://" + ipAddress + "/").port(9998).build();
     }
-//  public static final URI BASE_URI = getBaseURI();
 
     protected static HttpServer startServer() throws IOException {
-//    System.out.println("Starting grizzly...");
         ResourceConfig rc = new PackagesResourceConfig("restful");
 
         HttpServer server = GrizzlyServerFactory.createHttpServer(getBaseURI(), rc);
-//    server.getServerConfiguration()
-//			.addHttpHandler(new StaticHttpHandler("resources\\"), "/resources");
-        server.getServerConfiguration()
-                .addHttpHandler(new StaticHttpHandler(pathToResources), "/resources");
-
         return server;
     }
 }
