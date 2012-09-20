@@ -98,8 +98,7 @@ public enum ReservationManagerAccess {
             }
             //otherwise let's remove that from both the busy list and the reservation map!
             _reservations.get(app_id).remove(_busyDevices.remove(device_id));
-            //<FOR DEBUG>
-            System.out.println("Reservation deleted!");
+            
             _devFinder.getDevice(device_id).getTalk().showColor(0xDA0000);
         }
 
