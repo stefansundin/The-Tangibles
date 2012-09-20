@@ -1,0 +1,15 @@
+{
+	"app": {
+		"title": "SiftDriver",
+		"version": "0.0.1",
+		"runtime": "executable",
+		"server": "127.0.0.1:7000",
+		"description": "First Design of the SiftDriver App",
+		"appModule": "UNUSED",
+		"coverArt": "cover.png",
+	    "requiredSiftCount" : 1,
+	    "soundsPath": "assets/sounds",
+	    "imagesPath": "assets/images"
+	}
+
+}
