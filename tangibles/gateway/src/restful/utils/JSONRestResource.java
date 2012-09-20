@@ -52,19 +52,11 @@ public class JSONRestResource {
         }
     }
     protected Gson _gson = new Gson();
-    /*WARN : the two following fields (corsHeaders and currentOrigin) 
-     * are used in an ugly side-effect way this should be change (one day)
-     */
-    //protected String corsHeaders;
-    //protected String currentOrigin;
     protected final String[] allowedOrigins = {
         "http://localhost",
         "http://localhost/",
-        "http://satin.codemill.se",
-        "http://satin.codemill.se/",
-        "http://satin.codemill.se:81",
-        "http://satin.codemill.se:81/",
-        "http://cdn.satin.codemill.se"};
+        "http://localhost:8080/",
+        "http://localhost:8080"};
 
     protected String assertOrigin(String origin) {
         String currentOrigin = null;
@@ -115,7 +107,6 @@ public class JSONRestResource {
                 .header("Access-Control-Allow-Origin", assertOrigin(origin))
                 .header("Access-Control-Allow-Methods",
                 "GET, POST, PUT, DELETE, OPTIONS")
-                //.header("Access-Control-Allow-Headers", corsHeaders)
                 .build();
     }
 
@@ -126,7 +117,7 @@ public class JSONRestResource {
     protected Response createMissingCompulsoryParamMsg(String origin, String field) {
         return createErrorMsg(origin, "Missing a required parameter", field);
     }
-    
+
     protected Response createErrorMsg(String origin, String err_msg, String reason) {
         return createErrorMsg(origin, err_msg, reason, Status.BAD_REQUEST);
     }

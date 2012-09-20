@@ -17,7 +17,6 @@ public class DeviceContainer implements Collection<TangibleDevice> {
 
         private Map<String, Set<TangibleDevice>> _container;
         private Iterator<String> _map_keys_ite;
-        private String _current_key;
         private Iterator<TangibleDevice> _current_set_ite;
 
         public DeviceContainerIterator(Map<String, Set<TangibleDevice>> devices) {
@@ -114,7 +113,12 @@ public class DeviceContainer implements Collection<TangibleDevice> {
 
     @Override
     public Object[] toArray() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        Object[] arr;
+        arr = new Object[_devices.size()];
+        for (int i = 0; i < _devices.size(); i++) {
+            arr[i] = _devices.get(i);
+        }
+        return arr;
     }
 
     @Override
@@ -192,7 +196,6 @@ public class DeviceContainer implements Collection<TangibleDevice> {
     public TangibleDevice getById(String id) throws DeviceNotFoundException {
         Iterator<TangibleDevice> ite = this.iterator();
         while (ite.hasNext()) {
-            //System.out.println("next!");
             TangibleDevice dev = ite.next();
             if (dev.getId().equals(id)) {
                 //we found it!
