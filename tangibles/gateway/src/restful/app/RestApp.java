@@ -8,6 +8,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import managers.ApplicationManager;
+import managers.ApplicationManager.UnsuccessfulApplicationUnRegistration;
 import managers.ApplicationManagerAccess;
 import restful.utils.JSONRestResource;
 
@@ -62,7 +63,6 @@ public class RestApp extends JSONRestResource {
     @Path("/registration/{appUUID}")
     public Response removeApplication(@PathParam("appUUID") String uuid,
             @HeaderParam("Origin") String origin) {
-        //TODO_LATER error handling!
         System.out.println("unregistration: " + uuid);
         try {
             return createJsonCtrlResponseMsg(origin, app.removeApplication(uuid), Status.OK);

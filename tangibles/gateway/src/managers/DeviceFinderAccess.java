@@ -96,32 +96,7 @@ public enum DeviceFinderAccess implements SingletonAccessor<DeviceFinder> {
 
         private void loadProperties() {
             properties = new DeviceFinderProperties();
-            String[] propertiesURI = {
-                "../tangibleProperties.properties",
-                "./tangibleProperties.properties",
-                "../../tangibleProperties.properties",
-                "../src/tangible/tangibleProperties.properties",
-                "/Users/leo/Documents/master-thesis/01-code/02-FirstDesign/TangibleAPI/src/tangible/tangibleProperties.properties"
-            };
-            boolean success = false;
-            for (int i = 0; !success && i < propertiesURI.length; i++) {
-                try {
-                    properties.load(this.getClass().getClassLoader().getResourceAsStream(propertiesURI[i]));
-                    //if no exception occured
-                    success = true;
-                } catch (NullPointerException ex) {
-                    Logger.getLogger(DeviceFinderImpl.class.getName()).log(Level.INFO, "loading <<{0}>> wasn''t a success", propertiesURI[i]);
-                } catch (IOException ex) {
-                    Logger.getLogger(DeviceFinderImpl.class.getName()).log(Level.INFO, "loading <<{0}>> wasn''t a success", propertiesURI[i]);
-                }
-            }
-            if (!success) {
-                loadDefaultProperties();
-            }
-        }
-
-        private void loadDefaultProperties() {
-            //load defaults
+            
             //properties.setProperty("discovery_behaviour", "AT_START_UP");
             properties.setProperty("discovery_behaviour", "ALWAYS");
             properties.setProperty("discovery_port", "60000");
@@ -131,23 +106,7 @@ public enum DeviceFinderAccess implements SingletonAccessor<DeviceFinder> {
         }
 
         @Override
-        @Deprecated
-        public String getProperty(String key) {
-            return properties.getProperty(key);
-        }
-
-        private boolean arePropertiesLoaded() {
-            return properties != null;
-        }
-
-        @Override
         protected void runningSetup() {
-            /*
-             * TODO - start the server socket and wait incomming connection from
-             * devices for 30 seconds - for each connection create the matching
-             * DeviceHandler and add it to the global list of connected devices - then
-             * put the thread to sleep, - is waked up: back to the first step!
-             */
 //      Logger.getLogger(DeviceFinderImpl.class.getName()).log(Level.INFO, "DeviceFinder starting now");
             try {
                 int timeout = properties.timeout() * 1000;
@@ -208,7 +167,6 @@ public enum DeviceFinderAccess implements SingletonAccessor<DeviceFinder> {
 
         @Override
         public void removeDevice(TangibleDevice dev) {
-            //TODO Check that not everyone could call this method... 
             _devices.remove(dev);
         }
     }

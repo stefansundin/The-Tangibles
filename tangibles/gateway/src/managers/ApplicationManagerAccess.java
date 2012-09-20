@@ -44,9 +44,8 @@ public enum ApplicationManagerAccess implements SingletonAccessor<ApplicationMan
                     mgr.endReservation(dev, appId);
                 }
                 _apps.remove(appId);
-                return "det är en bra succes";
+                return "Sucess";
             } else {
-                //TODO throw exception and catch it in the RESTful part
                 throw new UnsuccessfulApplicationUnRegistration(uuid);
             }
         }

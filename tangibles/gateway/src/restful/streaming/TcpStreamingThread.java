@@ -34,7 +34,6 @@ public class TcpStreamingThread extends AbstractStreamingThread {
         @Override
         public void sendEvent(JsonElement event) {
             super.sendJsonEventMsg(event);
-//			System.out.println("event sent to "+TcpStreamingThread.this._appuuid.toString());
         }
 
         @Override
@@ -59,24 +58,23 @@ public class TcpStreamingThread extends AbstractStreamingThread {
     }
     private ServerSocket _sock;
     private UUID _appuuid;
+    private StreamingHolder _streamholder;
 
-    public TcpStreamingThread(UUID appuuid, ServerSocket sSock) throws IOException {
+    public TcpStreamingThread(UUID appuuid, ServerSocket sSock, StreamingHolder streamHolder) throws IOException {
         super();
         _sock = sSock;
         _appuuid = appuuid;
+        _streamholder = streamHolder;
     }
 
     @Override
     public void run() {
         try {
             Socket clientSock = _sock.accept();
-//      System.out.println("Socket.accept worked!!!! hurra");
             EventStreaming oldTalk = _talk;
             TcpEventStreamingProtocol tempTalk = new TcpEventStreamingProtocol(clientSock);
             //first read and make sure that this is the correct appuuid
             JsonElement elm = tempTalk.readJSON();
-//			System.out.println("we read something from the socket");
-//			System.out.println(elm.toString());
             try {
                 elm = JsonProtocolHelper.assertCtrlMsg(elm);
                 String uuidStr = JsonProtocolHelper.assertString(elm);
@@ -85,10 +83,8 @@ public class TcpStreamingThread extends AbstractStreamingThread {
                     Logger.getLogger(TcpStreamingThread.class.getName()).log(Level.INFO, "The given UUID doesn't match the expected one");
                     unregister();
                 }
-//				System.out.println("almost there!");
                 this._talk = tempTalk;
                 this.setupCompleted(oldTalk);
-//				System.out.println("setup done!");
             } catch (WrongProtocolJsonSyntaxException ex) {
                 Logger.getLogger(TcpStreamingThread.class.getName()).log(Level.INFO, "a bad json was received");
                 tempTalk.sendJsonCtrlMsg(new JsonPrimitive("the received UUID was not the expected one!"));
@@ -110,10 +106,7 @@ public class TcpStreamingThread extends AbstractStreamingThread {
 
     @Override
     public void unregister() {
-        //TODO 
-		/*
-         * - remove this thread from the map in streamingholder... 
-         * - kill the thread
-         */
+        _streamholder.deleteTcpStream(_appuuid);
+        // Stop the _talk
     }
 }

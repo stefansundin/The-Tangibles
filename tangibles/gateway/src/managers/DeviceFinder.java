@@ -45,18 +45,9 @@ public interface DeviceFinder extends LoopingThread {
         public int timeout() {
             return Integer.parseInt(super.getProperty("discovery_timeout"));
         }
-
-        @Override
-        @Deprecated
-        public String getProperty(String string) {
-            return super.getProperty(string);
-        }
     }
 
     void makeManualDeviceAuthenticationAttempt();
-
-    @Deprecated
-    String getProperty(String property);
 
     DeviceFinderProperties getProperty();
 

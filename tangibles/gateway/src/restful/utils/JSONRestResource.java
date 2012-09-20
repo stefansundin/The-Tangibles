@@ -126,14 +126,17 @@ public class JSONRestResource {
     protected Response createMissingCompulsoryParamMsg(String origin, String field) {
         return createErrorMsg(origin, "Missing a required parameter", field);
     }
-
+    
     protected Response createErrorMsg(String origin, String err_msg, String reason) {
+        return createErrorMsg(origin, err_msg, reason, Status.BAD_REQUEST);
+    }
+
+    protected Response createErrorMsg(String origin, String err_msg, String reason, Status status) {
         JsonObject err = new JsonObject();
         err.addProperty("err_msg", err_msg);
         err.addProperty("err_source", reason);
 
-        return createJsonCtrlResponseMsg(origin, err, Status.BAD_REQUEST);
-        //TODO_LATER maybe move that status to the parameter to enable a specific status code to be set...
+        return createJsonCtrlResponseMsg(origin, err, status);
     }
 
     protected Response createErrorMsg(String origin, ApiException e) {

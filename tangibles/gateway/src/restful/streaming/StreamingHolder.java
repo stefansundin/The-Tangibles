@@ -117,10 +117,14 @@ public class StreamingHolder {
             throw new SubscriptionManager.AlreadyExistingSocket(appuuid.toString());
         }
         //else
-        newSocket = new TcpStreamingThread(appuuid, _tcpServer);
+        newSocket = new TcpStreamingThread(appuuid, _tcpServer, this);
         newSocket.start();
         _appSockets.put(appuuid, newSocket);
         return newSocket;
+    }
+    
+    void deleteTcpStream(UUID uuid) {
+        _appSockets.remove(uuid);
     }
 
     public WebSocketStreamingThread createWsStream(final UUID appuuid)

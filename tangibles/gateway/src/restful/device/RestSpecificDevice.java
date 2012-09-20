@@ -124,7 +124,6 @@ public class RestSpecificDevice extends ConditionalAccessResource {
         if (r_value == null || g_value == null || b_value == null) {
             //one of the component is null ... let's try to use color instead
             if (color_value == null) {
-                //TODO send an error message
                 return this.createMissingCompulsoryParamMsg(origin, "a color must be specified "
                         + "using the parameters r, g & b or color");
             } else {

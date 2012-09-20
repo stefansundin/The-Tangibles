@@ -49,7 +49,7 @@ public class JsonMessageReadingThread extends StreamReadingThread<BufferedReader
                 return;
             }
         } catch (JsonIOException e) {
-            System.out.println("This parse is over...");
+            Logger.getLogger(JsonMessageReadingThread.class.getName()).log(Level.INFO, "The parse is over!");
             this._running = false;
             this.handleStreamOver();
             return;

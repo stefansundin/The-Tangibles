@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import managers.DeviceFinder;
 import managers.DeviceFinderAccess;
 import tangible.devices.TangibleDevice;
 import tangible.enums.Capacity;
@@ -25,8 +24,6 @@ import tangible.utils.exceptions.WrongProtocolVersionException;
  */
 public class DeviceAuthenticationProtocol extends AbsJsonTCPProtocol {
 
-    @Deprecated
-    private DeviceFinder _finder;
     private String _api_protocol_version;
     private TangibleGateway gateway;
 
