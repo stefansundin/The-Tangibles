@@ -148,16 +148,17 @@ function TangibleAPI(server_ip) {
 					var idx = -1, i;
 					for (i = 0; i < reservedDevices.length && idx === -1; i += 1) {
 						if (reservedDevices[i] === data.msg) {
+							console.log('found');
 							idx = i;
 						}
 					}
 					if (idx === -1) {
 						onError({
-							msg : 'internal problem occured during the releasing proccess'
+							msg : 'The released device is not reserved'
 						});
 					} else {
 						reservedDevices.splice(idx, 1);
-						onSuccess(data);
+						onSuccess();
 					}
 				}, onError, async);
 		}
@@ -227,20 +228,16 @@ function TangibleAPI(server_ip) {
 		}
 	};
 	this.releaseAllDevices = function (onSuccess, onError, async) {
-		if (reservedDevices.length === 0) {
-			onSuccess({
-				msg : 'all devices released successfully'
-			});
-		} else {
-			this.releaseDevice(reservedDevices.shift(),
-				function () {
-					this.releaseAllDevices(onSuccess, onError, async);
-				},
-				function (data) {
-					onError({
-						msg : 'impossible to unrealease all the devices: ' + data.msg
-					});
-				}, async);
+		for(var dev in reservedDevices) {
+			this.releaseDevice(reservedDevices[dev] , function(data) {
+				onSuccess({
+					msg : 'Released one'
+				});
+			}, function(error) {
+				onError({
+					msg : 'Not released one'
+				});
+			}, async);
 		}
 	};
 	this.subscribeToEvents = function (devId, onSuccess, onError, async) {
@@ -398,19 +395,6 @@ var tangibleComponent = function () {
 					return;
 				}
 				var listener, dev, list = '';
-
-				// <for debug code>
-//				if (labeledDevices.length !== 0) {
-//					for (dev in labeledDevices) {
-//						if (labeledDevices.hasOwnProperty(dev)) {
-//							list += dev + ' -> ' + labeledDevices[dev] + '   ';
-//						}
-//					}
-//					console.log("labeledDevices has the following entries : " + list);
-//				} else {
-//					console.log("There are no device reserved yet");
-//				}
-				// </for debug code>
 
 				//first, check is the device is already available
 				if (labeledDevices[label] !== undefined) {

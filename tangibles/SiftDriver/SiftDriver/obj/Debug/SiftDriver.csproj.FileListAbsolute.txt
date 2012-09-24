@@ -1,0 +1,10 @@
+C:\Users\lab\Documents\SiftDriver\SiftDriver\obj\Debug\ResolveAssemblyReference.cache
+C:\Users\lab\Documents\SiftDriver\bin\SiftDriver.exe
+C:\Users\lab\Documents\SiftDriver\bin\SiftDriver.pdb
+C:\Users\lab\Documents\SiftDriver\SiftDriver\obj\Debug\SiftDriver.exe
+C:\Users\lab\Documents\SiftDriver\SiftDriver\obj\Debug\SiftDriver.pdb
+C:\Users\lab\Documents\nginx-1.2.3\html\The-Tangibles\tangibles\SiftDriver\SiftDriver\obj\Debug\SiftDriver.exe
+C:\Users\lab\Documents\nginx-1.2.3\html\The-Tangibles\tangibles\SiftDriver\SiftDriver\obj\Debug\SiftDriver.pdb
+C:\Users\lab\Documents\nginx-1.2.3\html\The-Tangibles\tangibles\SiftDriver\bin\SiftDriver.exe
+C:\Users\lab\Documents\nginx-1.2.3\html\The-Tangibles\tangibles\SiftDriver\bin\SiftDriver.pdb
+C:\Users\lab\Documents\nginx-1.2.3\html\The-Tangibles\tangibles\SiftDriver\SiftDriver\obj\Debug\ResolveAssemblyReference.cache

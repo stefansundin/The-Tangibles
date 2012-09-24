@@ -1,20 +1,24 @@
 application: the-tangibles
 version: 1
-runtime: python
+runtime: python27
 api_version: 1
+threadsafe: false
+
+libraries:
+- name: webapp2
+  version: 2.5.1
 
 handlers:
-
 - url: /room.*
-  script: apprtc.py
+  script: tangibles.py
   secure: always
   
 - url: /workspace.*
-  script: apprtc.py
+  script: tangibles.py
   secure: always
 
 - url: /.*
-  script: apprtc.py
+  script: tangibles.py
   secure: always
   
 inbound_services:
