@@ -131,6 +131,8 @@ body {
 	var icePwds = [];
 	var needFormatCandidate = false;
 	
+	var workspaceWindow;
+	
 	function initialize() {
 		console.log("Initializing; room={{ room_key }}.");
 		card = document.getElementById("card");
@@ -332,12 +334,24 @@ body {
 		// Caller creates PeerConnection.
 		if (initiator) maybeStart();
 		
-		setOpenWorkspace("Open! https://the-tangibles.appspot.com/workspace/?r={{ room_key }}_desk");
+		setOpenWorkspace("<input type=\"button\" id=\"openWorkspace\" value=\"Open shared workspace\" onclick=\"onOpenWorkspace()\" />");
+		//setOpenWorkspace("Open! https://the-tangibles.appspot.com/workspace/?r={{ room_key }}_desk");
 	}
 	function onUserMediaError(error) {
 		console.log("Failed to get access to local media. Error code was " + error.code);
 		alert("Failed to get access to local media. Error code was " + error.code + ".");
 	}
+	
+	function onOpenWorkspace() {
+		workspaceWindow=window.open("https://the-tangibles.appspot.com/workspace/?r={{ room_key }}_desk");
+		setOpenWorkspace("<input type=\"button\" id=\"closeWorkspace\" value=\"close shared workspace\" onclick=\"onCloseWorkspace()\" />");
+	}
+	
+	function onCloseWorkspace() {
+		workspaceWindow.close();
+		setOpenWorkspace("<input type=\"button\" id=\"closeWorkspace\" value=\"Open shared workspace\" onclick=\"onOpenWorkspace()\" />");
+	}
+	
 	
 	function onIceCandidate(candidate, moreToFollow) {
 		if (candidate) {

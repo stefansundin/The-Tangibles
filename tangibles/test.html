@@ -10,31 +10,24 @@
 				
 				// Connect to
 				api = new TangibleAPI('127.0.0.1');
-				devices = []; device_id = '';
+				devices = [];
 				api.register('My API', 'Desc', function(d) {
-					list();
+					setTimeout(register_all_avaliable, 1);
 				}, err);
 				
-				list = function() {
-					// Load a list of devices and request first
+				register_all_avaliable = function() {
 					api.listDevices(function(d) {
-						devices = d.msg;
-						request();
+						for (i = 0; i < 6; i++) {
+							api.reserveDevice(d.msg[i].id, function (r) {
+								console.log('Got device: ' + r.msg);
+								devices.push(r.msg);
+							}, err);
+						}
 					}, err);
 				}
 				
-				request = function(index_in_list) {
-					// Request index_in_list device (or first)
-					if (!index_in_list) {
-						index_in_list = 0;
-					}
-					api.reserveDevice(devices[index_in_list].id ,function (r) {
-						device_id = r.msg;
-					}, err);
-				}
-				
-				start = function() {
-					api.subscribeToEvents(device_id, function(d) {
+				listenToEvents = function(device_id) {
+					api.subscribeToEvents(devices[device_id], function(d) {
 						socket = new WebSocket('ws://127.0.0.1:' + d.msg.port + '/streaming');
 						socket.onopen = function (evt) {
 							console.log('Opened websocket');
@@ -56,21 +49,24 @@
 				}
 				
 				// Set colors
-				green = function() {api.showColor(device_id,"00ff00",err,err);}
-				blue = function() {api.showColor(device_id,"0000ff",err,err);}
-				red = function() {api.showColor(device_id,"ff0000",err,err);}
+				green = function(device_id) {api.showColor(devices[device_id],"00ff00",err,err);}
+				blue = function(device_id) {api.showColor(devices[device_id],"0000ff",err,err);}
+				red = function(device_id) {api.showColor(devices[device_id],"ff0000",err,err);}
 				// Set picture
-				picture = function(url) {
-					api.showPicture(device_id,url,err,err);
+				picture = function(device_id, url) {
+					api.showPicture(devices[device_id],url,err,err);
 				}
 				// Release devices
 				exit = function() {api.releaseAllDevices(err,err);}
+				
+				window.onbeforeunload = function() {
+					exit();
+				}
 			});
 		</script>
 	</head>
 	<body>
 		<p>Test page</p>
 		<a href="javascript:exit();">Release all devices by pressing here!</a>
-		<a href="javascript:start();">Start!</a>
 	</body>
 </html>
