@@ -6,103 +6,53 @@
 <title>Room</title>
 
 <style type="text/css">
-html,body {
-	height: 100%;
-	font-family: Verdana, Arial, Helvetica, sans-serif;
-}
-
 body {
+	height: 100%;
+	width: 100%;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
 	margin: 0;
 	padding: 0;
 }
 
-#container {
-	position: relative;
-	min-height: 100%;
-	width: 100%;
-	margin: 0px auto;
-	-webkit-perspective: 1000;
+video {
+	max-height: 100%;
+	max-width: 100%;
+	margin: 0;
+	padding: 0;
 }
 
-#card {
-	-webkit-transition-property: rotation;
-	-webkit-transition-duration: 2s;
+#main {
+	margin: 0;
+	padding: 10px;
 }
 
-#local {
-	position: absolute;
-	width: 100%;
+#local_video {
 	-webkit-transform: scale(-1, 1);
-	-webkit-backface-visibility: hidden;
 }
 
-#remote {
-	position: absolute;
-	width: 100%;
-	-webkit-transform: rotateY(180deg);
-	-webkit-backface-visibility: hidden;
+#video_container {
+	display: -webkit-box;
+	-webkit-box-orient: horizontal;
+	margin: 0;
+	padding: 0;
 }
 
-#mini {
-	position: absolute;
-	height: 30%;
-	width: 30%;
-	bottom: 32px;
-	right: 4px;
-	-webkit-transform: scale(-1, 1);
-	opacity: 1.0;
-}
-
-#localVideo {
-	opacity: 0;
-	-webkit-transition-property: opacity;
-	-webkit-transition-duration: 2s;
-}
-
-#remoteVideo {
-	opacity: 0;
-	-webkit-transition-property: opacity;
-	-webkit-transition-duration: 2s;
-}
-
-#miniVideo {
-	opacity: 0;
-	-webkit-transition-property: opacity;
-	-webkit-transition-duration: 2s;
-}
-
-#footer {
-	position: absolute;
-	bottom: 0;
-	width: 100%;
-}
-
-#foot1 {
-	background-color: #3F3F3F;
-	color: rgb(255, 255, 255);
-	spacing: 4px;
-	position: absolute;
-	bottom: 28px;
-	width: 100%;
-	height: 28px;
-	font-size: 13px;
-	font-weight: bold;
-	line-height: 28px;
+#video_container>div {
+	-webkit-box-flex: 1;
 	text-align: center;
 }
 
-#foot2 {
-	background-color: #3F3F3F;
-	color: rgb(255, 255, 255);
-	spacing: 4px;
+#video_container>div>p {
+	margin: 0;
+	padding: 0;
+	font-weight: bold;
+}
+
+#bottom {
 	position: absolute;
 	bottom: 0;
-	width: 100%;
-	height: 28px;
-	font-size: 13px;
-	font-weight: bold;
-	line-height: 28px;
-	text-align: center;
+	left: 0;
+	padding: 10px;
 }
 
 #hangup {
@@ -119,7 +69,6 @@ body {
 <script type="text/javascript">
 	var localVideo;
 	var miniVideo;
-	var remoteVideo;
 	var localStream;
 	var channel;
 	var channelReady = false;
@@ -133,12 +82,26 @@ body {
 	
 	var workspaceWindow;
 	
+	function addVideo(id, name, url) {
+		var new_div = document.createElement("div");
+		new_div.setAttribute("id", "video_cont_" + id);
+		new_div.innerHTML = "<p>" + name
+				+ "</p><video id=\"video_"+id+"\" src=\""+url+"\" autoplay=\"autoplay\"></video>";
+
+		document.getElementById("video_container").appendChild(new_div);
+	}
+
+	function removeVideo(id) {
+		document.getElementById("video_container").removeChild(
+				document.getElementById("video_cont_" + id));
+	}
+	
 	function initialize() {
 		console.log("Initializing; room={{ room_key }}.");
-		card = document.getElementById("card");
-		localVideo = document.getElementById("localVideo");
-		miniVideo = document.getElementById("miniVideo");
-		remoteVideo = document.getElementById("remoteVideo");
+		//card = document.getElementById("card");
+		//localVideo = document.getElementById("localVideo");
+		//miniVideo = document.getElementById("miniVideo");
+		//remoteVideo = document.getElementById("remoteVideo");
 		resetStatus();
 		openChannel();
 		getUserMedia();
@@ -328,9 +291,11 @@ body {
 	function onUserMediaSuccess(stream) {
 		console.log("User has granted access to local media.");
 		var url = webkitURL.createObjectURL(stream);
-		localVideo.style.opacity = 1;
-		localVideo.src = url;
+		//localVideo.style.opacity = 1;
+		//localVideo.src = url;
 		localStream = stream;
+		local_video.src = url;
+		local_name.innerHTML = "You!";
 		// Caller creates PeerConnection.
 		if (initiator) maybeStart();
 		
@@ -374,8 +339,9 @@ body {
 	function onRemoteStreamAdded(event) {
 		console.log("Remote stream added.");
 		var url = webkitURL.createObjectURL(event.stream);
-		miniVideo.src = localVideo.src;
-		remoteVideo.src = url;
+		//miniVideo.src = localVideo.src;
+		//remoteVideo.src = url;
+		addVideo(1, "Karl", url);
 		waitForRemoteVideo();  
 	}
 	function onRemoteStreamRemoved(event) {
@@ -406,31 +372,35 @@ body {
 	}
 	
 	function waitForRemoteVideo() {
-		if (remoteVideo.currentTime > 0) {
+		if (video_1.currentTime > 0) {
 			transitionToActive();
 		} else {
 			setTimeout(waitForRemoteVideo, 100);
 		}
 	}
 	function transitionToActive() {
-		remoteVideo.style.opacity = 1;
-		card.style.webkitTransform = "rotateY(180deg)";
-		setTimeout(function() { localVideo.src = ""; }, 500);
-		setTimeout(function() { miniVideo.style.opacity = 1; }, 1000);
+		console.log("active");
+		//remoteVideo.style.opacity = 1;
+		//card.style.webkitTransform = "rotateY(180deg)";
+		//setTimeout(function() { localVideo.src = ""; }, 500);
+		//setTimeout(function() { miniVideo.style.opacity = 1; }, 1000);
 		setStatus("<input type=\"button\" id=\"hangup\" value=\"Hang up\" onclick=\"onHangup()\" />");
 	}
 	function transitionToWaiting() {
-	
-		card.style.webkitTransform = "rotateY(0deg)";
-		setTimeout(function() { localVideo.src = miniVideo.src; miniVideo.src = ""; remoteVideo.src = "" }, 500);
-		miniVideo.style.opacity = 0;
-		remoteVideo.style.opacity = 0;
+		console.log("waiting");
+		//card.style.webkitTransform = "rotateY(0deg)";
+		//setTimeout(function() { localVideo.src = miniVideo.src; miniVideo.src = ""; remoteVideo.src = "" }, 500);
+		//miniVideo.style.opacity = 0;
+		//remoteVideo.style.opacity = 0;
+		removeVideo(1);
 		resetStatus();
 	}
 	function transitionToDone() {
-		localVideo.style.opacity = 0;
-		remoteVideo.style.opacity = 0;
-		miniVideo.style.opacity = 0;
+		console.log("done");
+		//localVideo.style.opacity = 0;
+		//remoteVideo.style.opacity = 0;
+		//miniVideo.style.opacity = 0;
+		removeVideo(1);
 		setStatus("You have left the call. <a href=\"{{ room_link }}\">Click here</a> to rejoin.");
 		setOpenWorkspace("Hmm!");
 	}
@@ -443,23 +413,15 @@ body {
 
 </head>
 <body>
-	<div id="container" ondblclick="enterFullScreen()">
-		<div id="card">
+	<div id="main">
+		<h1 id="room_name">Room name</h1>
+		<div id="video_container">
 			<div id="local">
-				<video width="100%" height="100%" id="localVideo"
-					autoplay="autoplay" />
-			</div>
-			<div id="remote">
-				<video width="100%" height="100%" id="remoteVideo"
-					autoplay="autoplay">
-				</video>
-				<div id="mini">
-					<video width="100%" height="100%" id="miniVideo"
-						autoplay="autoplay" />
-				</div>
+				<p id="local_name"></p>
+				<video id="local_video" src="" autoplay="autoplay"></video>
 			</div>
 		</div>
-		<div id="footer">
+		<div id="bottom">
 			<div id="foot1"></div>
 			<div id="foot2"></div>
 		</div>
