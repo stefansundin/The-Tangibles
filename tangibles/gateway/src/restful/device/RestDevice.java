@@ -12,7 +12,7 @@ import managers.DeviceFinderAccess;
 import managers.ReservationManager;
 import managers.ReservationManagerAccess;
 import restful.utils.ConditionalAccessResource;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+//import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import tangible.devices.TangibleDevice;
 
 /**
@@ -62,7 +62,7 @@ public class RestDevice extends ConditionalAccessResource {
     @Path("/reservation")
     public Response makeReservationByCapability(
             @HeaderParam("Origin") String origin) {
-        return createJsonCtrlResponseMsg(origin, new NotImplementedException(), Response.Status.SERVICE_UNAVAILABLE);
+        return createJsonCtrlResponseMsg(origin, new Exception(), Response.Status.SERVICE_UNAVAILABLE);
     }
 
     @OPTIONS
@@ -115,7 +115,7 @@ public class RestDevice extends ConditionalAccessResource {
     @Path("/info")
     public Response getInformations(
             @HeaderParam("Origin") String origin) {
-        return createJsonCtrlResponseMsg(origin, new NotImplementedException(), Response.Status.SERVICE_UNAVAILABLE);
+        return createJsonCtrlResponseMsg(origin, new Exception(), Response.Status.SERVICE_UNAVAILABLE);
     }
 
     @OPTIONS
@@ -130,6 +130,6 @@ public class RestDevice extends ConditionalAccessResource {
     @Path("/info/{deviceUUID}")
     public Response getDeviceInformation(
             @HeaderParam("Origin") String origin) {
-        return createJsonCtrlResponseMsg(origin, new NotImplementedException(), Response.Status.SERVICE_UNAVAILABLE);
+        return createJsonCtrlResponseMsg(origin, new Exception(), Response.Status.SERVICE_UNAVAILABLE);
     }
 }

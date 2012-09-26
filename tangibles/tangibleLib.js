@@ -145,13 +145,7 @@ function TangibleAPI(server_ip) {
 		} else {
 			tangibleDELETE(svr_ip, appUUID + "/device/reservation/" + deviceId, {},
 				function (data) {
-					var idx = -1, i;
-					for (i = 0; i < reservedDevices.length && idx === -1; i += 1) {
-						if (reservedDevices[i] === data.msg) {
-							console.log('found');
-							idx = i;
-						}
-					}
+					var idx = reservedDevices.indexOf(data.msg);
 					if (idx === -1) {
 						onError({
 							msg : 'The released device is not reserved'
