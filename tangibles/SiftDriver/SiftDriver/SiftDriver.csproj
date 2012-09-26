@@ -38,20 +38,20 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="Sifteo">
-      <HintPath>..\..\..\..\..\Sifteo\Sifteo-SDK-1_1_3\bin\Runtimes\mono\Current\sifteo\Sifteo.dll</HintPath>
+      <HintPath>C:\Sifteo\Sifteo-SDK-1_1_3\bin\Runtimes\mono\Current\sifteo\Sifteo.dll</HintPath>
     </Reference>
     <Reference Include="JsonFx">
-      <HintPath>..\..\..\..\..\Sifteo\Sifteo-SDK-1_1_3\bin\Runtimes\mono\Current\sifteo\JsonFx.dll</HintPath>
+      <HintPath>C:\Sifteo\Sifteo-SDK-1_1_3\bin\Runtimes\mono\Current\sifteo\JsonFx.dll</HintPath>
     </Reference>
     <Reference Include="Mono.Cairo">
-      <HintPath>..\..\..\..\..\Program Files (x86)\Mono-2.10.8\lib\mono\gac\Mono.Cairo\2.0.0.0__0738eb9f132ed756\Mono.Cairo.dll</HintPath>
+      <HintPath>C:\Program Files (x86)\Mono-2.10.8\lib\mono\gac\Mono.Cairo\2.0.0.0__0738eb9f132ed756\Mono.Cairo.dll</HintPath>
     </Reference>
     <Reference Include="pango-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f">
-      <HintPath>..\..\..\..\..\Program Files (x86)\Mono-2.10.8\lib\mono\gac\pango-sharp\2.12.0.0__35e10195dab3c99f\pango-sharp.dll</HintPath>
+      <HintPath>C:\Program Files (x86)\Mono-2.10.8\lib\mono\gac\pango-sharp\2.12.0.0__35e10195dab3c99f\pango-sharp.dll</HintPath>
     </Reference>
     <Reference Include="glib-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f">
       <Private>False</Private>
-      <HintPath>..\..\..\..\..\..\..\..\..\Program Files (x86)\Mono-2.10.8\lib\mono\gac\glib-sharp\2.12.0.0__35e10195dab3c99f\glib-sharp.dll</HintPath>
+      <HintPath>C:\Program Files (x86)\Mono-2.10.8\lib\mono\gac\glib-sharp\2.12.0.0__35e10195dab3c99f\glib-sharp.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

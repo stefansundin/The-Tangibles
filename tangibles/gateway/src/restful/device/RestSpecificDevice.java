@@ -201,7 +201,7 @@ public class RestSpecificDevice extends ConditionalAccessResource {
             BufferedImage img = ImageIO.read(url);
             TangibleDevice dev = _finder.getDevice(devId);
             dev.getTalk().showPicture(img);
-            return null;
+            return this.createOKCtrlMsg(origin);
         } catch (MalformedURLException ex) {
             return this.createErrorMsg(origin, new ApiException(
                     Response.Status.BAD_REQUEST, "the given URL is not malformed"));

@@ -2,11 +2,11 @@ using System;
 
 namespace SiftDriver.Communication
 {
-	public class AbsCommunication
-	{
-		public AbsCommunication ()
-		{
-		}
-	}
+    public class AbsCommunication
+    {
+        public AbsCommunication()
+        {
+        }
+    }
 }
 

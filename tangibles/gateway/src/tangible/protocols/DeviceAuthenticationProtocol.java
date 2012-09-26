@@ -104,7 +104,7 @@ public class DeviceAuthenticationProtocol extends AbsJsonTCPProtocol {
         String[] devIds =
                 JsonProtocolHelper.assertArrayOfOneKind(devId_json, String.class);
         JsonArray capacities_json =
-                JsonProtocolHelper.assertArrayInObject(content, "capacities");
+               JsonProtocolHelper.assertArrayInObject(content, "capacities");
         String[] capacities_str =
                 JsonProtocolHelper.assertArrayOfOneKind(capacities_json, String.class);
         Capacity[] capacities = new Capacity[capacities_str.length];
