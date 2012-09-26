@@ -269,12 +269,33 @@ class PageWorkspace(webapp.RequestHandler):
     path = os.path.join(os.path.dirname(__file__), 'workspace/index.html')
     self.response.out.write(template.render(path, template_values))
     logging.info('User ' + user + ' added to room ' + room_key);
-    logging.info('Room ' + room_key + ' has state ' + str(room))
+    logging.info('Room ' + room_key + ' has state ' + str(room))	
+	
+class PageLobby(webapp.RequestHandler):
+	def get(self):
+		logging.info('=== NEW ===')
+		myVar = 'asd'
+		userList = []
+		q = Room.all()
+		
+		for p in q.run(limit=5):
+			logging.info(p.user1)
+			userList.append(p.user1)
+			userList.append(p.user2)
+		
+		logging.info(userList)
+		logging.info('== DONE ===')
+		
+		template_values = {'myVar' : myVar, 'userList' : userList }
+		path = os.path.join(os.path.dirname(__file__), 'lobby/index.html')
+		self.response.out.write(template.render(path, template_values))
+		
 
 application = webapp.WSGIApplication([
     ('/', PageRoom),
     ('/room/', PageRoom),
     ('/workspace/', PageWorkspace),
+	('/lobby/', PageLobby),
     ('/message', PageMessage),
     ('/_ah/channel/connected/', PageConnect),
     ('/_ah/channel/disconnected/', PageDisconnect)

@@ -16,6 +16,10 @@ handlers:
 - url: /workspace.*
   script: tangibles.py
   secure: always
+  
+- url: /lobby.*
+  script: tangibles.py
+  secure: always
 
 - url: /.*
   script: tangibles.py
