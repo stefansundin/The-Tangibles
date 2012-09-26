@@ -1,7 +1,7 @@
 /*
  * Master-Thesis work: see https://sites.google.com/site/sifthesis/
  */
-package tangible.gateway;
+package tangible;
 
 import java.util.Collection;
 import java.util.Iterator;

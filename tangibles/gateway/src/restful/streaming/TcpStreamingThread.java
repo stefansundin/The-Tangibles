@@ -16,7 +16,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import tangible.protocols.AbsJsonTCPProtocol;
 import tangible.utils.JsonProtocolHelper;
-import tangible.utils.exceptions.WrongProtocolJsonSyntaxException;
+import utils.exceptions.WrongProtocolJsonSyntaxException;
 
 /**
  *
@@ -107,6 +107,5 @@ public class TcpStreamingThread extends AbstractStreamingThread {
     @Override
     public void unregister() {
         _streamholder.deleteTcpStream(_appuuid);
-        // Stop the _talk
     }
 }

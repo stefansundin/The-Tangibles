@@ -3,12 +3,12 @@
  */
 package managers;
 
-import commons.ApiException;
 import java.io.IOException;
 import java.util.UUID;
 import javax.ws.rs.core.Response;
 import restful.streaming.AbstractStreamingThread;
-import tangible.utils.exceptions.DeviceNotFoundException;
+import utils.exceptions.ApiException;
+import utils.exceptions.DeviceNotFoundException;
 
 /**
  *

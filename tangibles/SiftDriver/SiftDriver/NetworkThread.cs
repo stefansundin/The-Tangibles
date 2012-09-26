@@ -19,7 +19,7 @@ namespace SiftDriver
 
             internal NetworkHandlerImpl()
             {
-                _sock = new TcpClient("localhost", 60000);
+                _sock = new TcpClient("130.240.5.176", 60000);
                 Log.Debug("NetworkHandlerImpl created and socket connected!");
             }
 

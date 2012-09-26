@@ -40,31 +40,11 @@ public class ColorHelper {
         return rgb;
     }
 
-    public static class InvalidColorException extends RuntimeException {
-
-        private static final long serialVersionUID = 1L;
-        public final int value;
-
-        public InvalidColorException(int c) {
-            this.value = c;
-        }
-
-        @Override
-        public String getMessage() {
-            return "the given color : " + value + " is not a valid one!";
-        }
-    }
-
     public static JsonObject toJson(int r, int g, int b) {
         JsonObject rgb = new JsonObject();
         rgb.addProperty("r", r);
         rgb.addProperty("g", g);
         rgb.addProperty("b", b);
         return rgb;
-    }
-
-    public static JsonObject toJson(int color) {
-        int[] rgb = decompose(color);
-        return toJson(rgb[0], rgb[1], rgb[2]);
     }
 }

@@ -3,11 +3,11 @@
  */
 package managers;
 
-import commons.ApiException;
 import java.util.Set;
 import java.util.UUID;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import utils.exceptions.ApiException;
 
 /**
  *

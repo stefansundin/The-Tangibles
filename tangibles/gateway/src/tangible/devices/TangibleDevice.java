@@ -4,7 +4,7 @@
 package tangible.devices;
 
 import com.google.gson.annotations.SerializedName;
-import tangible.gateway.TangibleGateway;
+import tangible.TangibleGateway;
 import tangible.protocols.TangibleDeviceProtocol;
 
 /**

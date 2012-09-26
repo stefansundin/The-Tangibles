@@ -12,7 +12,6 @@ import managers.DeviceFinderAccess;
 import managers.ReservationManager;
 import managers.ReservationManagerAccess;
 import restful.utils.ConditionalAccessResource;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import tangible.devices.TangibleDevice;
 
 /**
@@ -21,14 +20,12 @@ import tangible.devices.TangibleDevice;
  */
 @Path("/tangibleapi/{appuuid}/device")
 public class RestDevice extends ConditionalAccessResource {
-//public class RestDevice extends JSONRestResource {
 
     private DeviceFinder _finder = DeviceFinderAccess.getInstance();
     private ReservationManager _mgr = ReservationManagerAccess.getInstance();
 
     public RestDevice(@PathParam("appuuid") String uuid) {
         super(uuid, new Condition[]{Condition.APP_REGISTERED});
-//    System.out.println("the received uuid is : "+uuid);
     }
 
     @OPTIONS
@@ -62,7 +59,7 @@ public class RestDevice extends ConditionalAccessResource {
     @Path("/reservation")
     public Response makeReservationByCapability(
             @HeaderParam("Origin") String origin) {
-        return createJsonCtrlResponseMsg(origin, new NotImplementedException(), Response.Status.SERVICE_UNAVAILABLE);
+        return createJsonCtrlResponseMsg(origin, new Exception("Not yet implemented"), Response.Status.SERVICE_UNAVAILABLE);
     }
 
     @OPTIONS
@@ -115,7 +112,7 @@ public class RestDevice extends ConditionalAccessResource {
     @Path("/info")
     public Response getInformations(
             @HeaderParam("Origin") String origin) {
-        return createJsonCtrlResponseMsg(origin, new NotImplementedException(), Response.Status.SERVICE_UNAVAILABLE);
+        return createJsonCtrlResponseMsg(origin, new Exception("Not yet implemented"), Response.Status.SERVICE_UNAVAILABLE);
     }
 
     @OPTIONS
@@ -130,6 +127,6 @@ public class RestDevice extends ConditionalAccessResource {
     @Path("/info/{deviceUUID}")
     public Response getDeviceInformation(
             @HeaderParam("Origin") String origin) {
-        return createJsonCtrlResponseMsg(origin, new NotImplementedException(), Response.Status.SERVICE_UNAVAILABLE);
+        return createJsonCtrlResponseMsg(origin, new Exception("Not yet implemented"), Response.Status.SERVICE_UNAVAILABLE);
     }
 }

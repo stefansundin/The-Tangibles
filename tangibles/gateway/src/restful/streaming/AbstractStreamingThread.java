@@ -15,12 +15,8 @@ import tangible.utils.CallBack;
  * @author leo
  */
 public class AbstractStreamingThread extends Thread {
-
-//	protected static class AlreadySetupException extends RuntimeException{
-//    private static final long serialVersionUID = 1L;
-//  }
     /**
-     * A simple interface used to unify every kind of event streaming from the
+     * A simple import managers.*;e interface used to unify every kind of event streaming from the
      * server to the clients
      */
     protected interface EventStreaming {

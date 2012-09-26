@@ -1,6 +1,12 @@
 package tangible.protocols;
 
-import com.google.gson.*;
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonIOException;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.stream.JsonReader;
 import java.io.IOException;
 import java.net.Socket;
@@ -22,7 +28,6 @@ public abstract class AbsJsonTCPProtocol extends AbsTCPProtocol {
     }
 
     protected synchronized void sendJSON(Object o) {
-//      System.out.println("sending an object via Gson encoding");
         try {
             gson.toJson(o, this.getOutput());
             this.getOutput().flush();
@@ -32,8 +37,6 @@ public abstract class AbsJsonTCPProtocol extends AbsTCPProtocol {
     }
 
     protected synchronized void sendJSON(JsonElement elm) {
-        //System.out.println("sending a jsonElement directly");
-//      System.out.println("the JsonElement looks like that: "+elm.toString());
         try {
             gson.toJson(elm, this.getOutput());
             this.getOutput().flush();
@@ -55,7 +58,6 @@ public abstract class AbsJsonTCPProtocol extends AbsTCPProtocol {
     }
 
     protected void sendJsonMsg(JsonElement elm, boolean isControlFlow) {
-        //System.out.println("sendingJsonMsg (JsonElement version)");
         JsonObject msg = new JsonObject();
         if (isControlFlow) {
             msg.add("flow", new JsonPrimitive("ctrl"));
@@ -80,7 +82,6 @@ public abstract class AbsJsonTCPProtocol extends AbsTCPProtocol {
     }
 
     protected void sendJsonCtrlMsg(JsonElement o) {
-        //System.out.println("sendingJsonControlMsg (JsonElement version)");
         sendJsonMsg(o, true);
     }
 

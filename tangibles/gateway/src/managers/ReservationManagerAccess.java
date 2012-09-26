@@ -3,7 +3,11 @@
  */
 package managers;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import tangible.devices.TangibleDevice;
@@ -48,10 +52,7 @@ public enum ReservationManagerAccess {
             TangibleDevice dev = _devFinder.getDevice(device_id);
             addNewReservation(dev, app_id);
             _busyDevices.put(device_id, dev);
-            //<FOR DEBUG>
-//      System.out.println("Reservation made!!!");
             dev.getTalk().showColor(0x00DA55);
-            //</FOR DEBUG>
             return device_id;
         }
 
@@ -98,7 +99,7 @@ public enum ReservationManagerAccess {
             }
             //otherwise let's remove that from both the busy list and the reservation map!
             _reservations.get(app_id).remove(_busyDevices.remove(device_id));
-            
+
             _devFinder.getDevice(device_id).getTalk().showColor(0xDA0000);
         }
 
