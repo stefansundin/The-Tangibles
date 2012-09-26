@@ -24,9 +24,6 @@ namespace SiftDriver.Communication
     {
         private JsonWriter _jsonOut;
         private JsonReader _jsonIn;
-        //public JsonWriter JsonOut { get { return _jsonOut; } }
-        //public JsonReader JsonIn { get {return _jsonIn;} }
-
 
         public JsonTcpCommunication(TcpClient socket)
             : base(socket)
@@ -59,7 +56,6 @@ namespace SiftDriver.Communication
             jsonMsg["msg"] = obj;
 
             _jsonOut.Write(jsonMsg, this.Output);
-            //Log.Info("sending: --> \n\t"+_jsonOut.Write(jsonMsg));
             this.Output.Flush();
         }
 
@@ -72,7 +68,6 @@ namespace SiftDriver.Communication
             catch (Exception e)
             {
                 return new Dictionary<string, object>();
-                //Log.Debug(e.Message);
             }
         }
 

@@ -64,17 +64,7 @@ namespace SiftDriver.Utils
             _isBgPicture = false;
             _bgColor = Sifteo.Color.White;
             _last_data = new Sifteo.Color[Cube.SCREEN_HEIGHT, Cube.SCREEN_WIDTH];
-            //			for (int y = 0; y < _last_data.GetUpperBound(0); y ++) {
-            //				for (int x = 0; x < _last_data.GetUpperBound(1); x ++) {
-            //					_last_data [y, x] = Sifteo.Color.White;
-            //				}
-            //			}
             _bgPicture = new Sifteo.Color[Cube.SCREEN_HEIGHT, Cube.SCREEN_WIDTH];
-            //			for (int y = 0; y < _bgPicture.GetUpperBound(0); y ++) {
-            //				for (int x = 0; x < _bgPicture.GetUpperBound(1); x ++) {
-            //					_bgPicture [y, x] = Sifteo.Color.White;
-            //				}
-            //			}
             DisplayColor(Sifteo.Color.White);
         }
 
@@ -124,7 +114,6 @@ namespace SiftDriver.Utils
                 if (a != 0)
                 {
                     SiftColor sc = new SiftColor(r, g, b);
-                    //Log.Debug("sc = "+r+"|"+g+"|"+b+" for the point "+x+";"+y);
                     pixels[y, x] = sc.ToSifteo();
                 }
                 else
@@ -212,12 +201,7 @@ namespace SiftDriver.Utils
                     color = pair.Key;
                     count = pair.Value;
                 }
-                //				if (pair.Key == Sifteo.Color.White.Data){
-                //					Log.Debug(" there are "+pair.Value+" pixels in White" );
-                //					}
             }
-            //			Log.Debug ("most frequent is: " + color + " with " + count + " pixels");
-            //			Log.Debug ("for information White is: " + Sifteo.Color.White.Data);
             return color;
         }
 

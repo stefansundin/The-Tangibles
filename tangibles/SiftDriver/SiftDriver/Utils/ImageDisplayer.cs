@@ -35,8 +35,6 @@ namespace SiftDriver.Utils
          */
         public JsonColorBlocks[] pictureBlocks { get; set; }
 
-        //public JsonColorBlocks this[int idx] { get{return pictureBlocks[idx]; } }
-
         public void RenderOnCube(Cube c)
         {
             foreach (JsonColorBlocks cBlocks in pictureBlocks)
@@ -55,7 +53,6 @@ namespace SiftDriver.Utils
 
         public void RenderOnCube(Cube c)
         {
-            //Log.Info("preparing to print block of the color "+color.r+","+color.g+","+color.b);
             foreach (JsonSimpleBlock block in this.blocks)
             {
                 block.PrintColorOnCube(c, color.GetSifteoColor());
@@ -79,7 +76,7 @@ namespace SiftDriver.Utils
             if (that == null)
             {
                 return false;
-            }//else
+            }
             return (this.r == that.r) && (this.g == that.g) && (this.b == that.b);
         }
 
@@ -115,3 +112,4 @@ namespace SiftDriver.Utils
         }
     }
 }
+

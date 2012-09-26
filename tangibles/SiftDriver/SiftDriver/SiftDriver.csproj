@@ -61,7 +61,6 @@
     <Compile Include="Communication\AbsCommunication.cs" />
     <Compile Include="Communication\AbsTcpCommunication.cs" />
     <Compile Include="Communication\JsonTcpCommunication.cs" />
-    <Compile Include="Utils\StreamReaderThread.cs" />
     <Compile Include="Applications\Application.cs" />
     <Compile Include="Applications\DefaultApp.cs" />
     <Compile Include="UIComponents\UIText.cs" />

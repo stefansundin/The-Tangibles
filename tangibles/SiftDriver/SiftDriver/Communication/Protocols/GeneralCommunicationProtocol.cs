@@ -160,7 +160,7 @@ namespace SiftDriver.Communication.Protocols
 					return obj.Equals (c.UniqueId);
 				})) {
 					//TODO_LATER : remove the found Id of the affectedCubes array to speed up the process
-					method(c);
+					method (c);
 				}
 			}
 		}
