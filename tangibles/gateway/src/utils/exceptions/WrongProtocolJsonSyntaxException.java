@@ -1,7 +1,7 @@
 /*
  * Master-Thesis work: see https://sites.google.com/site/sifthesis/
  */
-package tangible.utils.exceptions;
+package utils.exceptions;
 
 /**
  *

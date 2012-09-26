@@ -3,8 +3,8 @@
  */
 package managers;
 
-import commons.ApiException;
 import javax.ws.rs.core.Response.Status;
+import utils.exceptions.ApiException;
 
 /**
  *

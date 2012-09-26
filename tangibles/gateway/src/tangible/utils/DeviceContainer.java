@@ -3,9 +3,15 @@
  */
 package tangible.utils;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Set;
 import tangible.devices.TangibleDevice;
-import tangible.utils.exceptions.DeviceNotFoundException;
+import utils.exceptions.DeviceNotFoundException;
 
 /**
  *
@@ -74,7 +80,6 @@ public class DeviceContainer implements Collection<TangibleDevice> {
         }
     }
     private Map<String, Set<TangibleDevice>> _devices;
-    //TODO_LATER change this to Map<String, Set<? extends TangibleDevice>> that should be better
 
     public DeviceContainer() {
         _devices = new LinkedHashMap<String, Set<TangibleDevice>>();
@@ -113,12 +118,7 @@ public class DeviceContainer implements Collection<TangibleDevice> {
 
     @Override
     public Object[] toArray() {
-        Object[] arr;
-        arr = new Object[_devices.size()];
-        for (int i = 0; i < _devices.size(); i++) {
-            arr[i] = _devices.get(i);
-        }
-        return arr;
+        return _devices.values().toArray();
     }
 
     @Override

@@ -3,7 +3,11 @@
  */
 package restful.streaming;
 
-import com.google.gson.*;
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonPrimitive;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.HashMap;
@@ -18,7 +22,7 @@ import org.webbitserver.WebServers;
 import org.webbitserver.WebSocketConnection;
 import tangible.utils.JsonProtocolHelper;
 import tangible.utils.Listener;
-import tangible.utils.exceptions.WrongProtocolJsonSyntaxException;
+import utils.exceptions.WrongProtocolJsonSyntaxException;
 
 /**
  *
@@ -36,7 +40,6 @@ public class StreamingHolder {
 
         @Override
         public void onOpen(WebSocketConnection connection) throws Exception {
-            //connection.send("plocploc");
             System.out.println("a websocket connection just openned! " + connection.toString());
         }
 
@@ -83,7 +86,6 @@ public class StreamingHolder {
         //any port is fine so let's try to take the next one :x
         int wsPort = _tcpServer.getLocalPort() + 1;
         System.out.println("wsPort is: " + wsPort);
-//		wsPort = 8080;
         _webSockerServer = WebServers.createWebServer(wsPort).add("/streaming", _wsStreaningSock);
         _webSockerServer.start();
         _appSockets = new HashMap<UUID, AbstractStreamingThread>();

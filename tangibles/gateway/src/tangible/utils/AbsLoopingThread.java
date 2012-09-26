@@ -36,6 +36,5 @@ public abstract class AbsLoopingThread extends Thread implements LoopingThread {
 
     protected abstract void loopingProcess();
 
-    protected void runningSetup() {
-    }
+    protected void runningSetup() {}
 }

@@ -3,14 +3,20 @@
  */
 package restful.app;
 
-import commons.ApiException;
-import javax.ws.rs.*;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.FormParam;
+import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
+import javax.ws.rs.OPTIONS;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import managers.ApplicationManager;
-import managers.ApplicationManager.UnsuccessfulApplicationUnRegistration;
 import managers.ApplicationManagerAccess;
 import restful.utils.JSONRestResource;
+import utils.exceptions.ApiException;
 
 /**
  *
@@ -24,8 +30,6 @@ public class RestApp extends JSONRestResource {
     @GET
     public Response getAppListing(
             @HeaderParam("Origin") String origin) {
-        //just a dummy method supposed to return all the application currently running on the devices
-
         return createJsonCtrlResponseMsg(origin, "you cannot see the list 'cause I don't want you to do so!", Response.Status.FORBIDDEN);
     }
 

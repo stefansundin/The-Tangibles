@@ -18,8 +18,8 @@ import tangible.devices.TangibleDevice;
 import tangible.protocols.DeviceAuthenticationProtocol;
 import tangible.utils.AbsLoopingThread;
 import tangible.utils.DeviceContainer;
-import tangible.utils.exceptions.DeviceNotFoundException;
-import tangible.utils.exceptions.WrongProtocolException;
+import utils.exceptions.DeviceNotFoundException;
+import utils.exceptions.WrongProtocolException;
 
 /**
  * provide a
@@ -59,8 +59,15 @@ public enum DeviceFinderAccess implements SingletonAccessor<DeviceFinder> {
                 while (true) {//looping the device authentication protocol to connect as many devices as possible
                     Socket sock = _listening_sock.accept();
                     try {
-                        //attemptDeviceAuthenticationV1(sock);
-                        attemptDeviceAuthenticationV2(sock);
+                        DeviceAuthenticationProtocol authProc = new DeviceAuthenticationProtocol(sock, 10000, properties.protocolVersion());
+                        authProc.authenticateDevices(new DeviceAuthenticationProtocol.DeviceFoundCallBack() {
+                            @Override
+                            public Boolean callback(TangibleDevice arg) {
+                                boolean success = _devices.add(arg);
+                                //TODO_LATER check more compatibility things!
+                                return success;
+                            }
+                        });
                     } catch (WrongProtocolException ex) {
                         Logger.getLogger(DeviceFinderImpl.class.getName()).log(Level.SEVERE, "!!!Protocol error!!!", ex);
                         //TODO throw the device away!
@@ -74,19 +81,6 @@ public enum DeviceFinderAccess implements SingletonAccessor<DeviceFinder> {
             }
         }
 
-        private void attemptDeviceAuthenticationV2(Socket sock) throws IOException {
-            DeviceAuthenticationProtocol authProc = new DeviceAuthenticationProtocol(sock, 10000, properties.protocolVersion());
-            authProc.authenticateDevices(new DeviceAuthenticationProtocol.DeviceFoundCallBack() {
-                @Override
-                public Boolean callback(TangibleDevice arg) {
-                    boolean success = _devices.add(arg);
-                    //TODO_LATER check more compatibility things!
-                    //nothing else to do here!
-                    return success;
-                }
-            });
-        }
-
         @Override
         public void makeManualDeviceAuthenticationAttempt() {
             synchronized (_sync) {
@@ -96,18 +90,14 @@ public enum DeviceFinderAccess implements SingletonAccessor<DeviceFinder> {
 
         private void loadProperties() {
             properties = new DeviceFinderProperties();
-            
-            //properties.setProperty("discovery_behaviour", "AT_START_UP");
             properties.setProperty("discovery_behaviour", "ALWAYS");
             properties.setProperty("discovery_port", "60000");
             properties.setProperty("discovery_protocol_version", "0.3");
             properties.setProperty("discovery_timeout", "30");
-            //TODO add more property is needed
         }
 
         @Override
         protected void runningSetup() {
-//      Logger.getLogger(DeviceFinderImpl.class.getName()).log(Level.INFO, "DeviceFinder starting now");
             try {
                 int timeout = properties.timeout() * 1000;
                 _listening_sock.setSoTimeout(timeout);

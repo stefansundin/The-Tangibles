@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Properties;
 import tangible.devices.TangibleDevice;
 import tangible.utils.LoopingThread;
-import tangible.utils.exceptions.DeviceNotFoundException;
+import utils.exceptions.DeviceNotFoundException;
 
 /**
  *

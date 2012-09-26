@@ -4,7 +4,6 @@
 package restful.device;
 
 import com.google.gson.JsonObject;
-import commons.ApiException;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,15 +13,28 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.imageio.stream.ImageInputStream;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.FormParam;
+import javax.ws.rs.HeaderParam;
+import javax.ws.rs.OPTIONS;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import managers.*;
+import managers.DeviceFinder;
+import managers.DeviceFinderAccess;
+import managers.ReservationManager;
+import managers.ReservationManagerAccess;
+import managers.SubscriptionManager;
 import managers.SubscriptionManager.AlreadyExistingSocket;
+import managers.SubscriptionManagerAccess;
 import restful.streaming.AbstractStreamingThread;
 import restful.utils.ConditionalAccessResource;
 import restful.utils.UnauthorizedAccessException;
 import tangible.devices.TangibleDevice;
+import utils.exceptions.ApiException;
 import utils.ColorHelper;
 
 /**
@@ -93,7 +105,6 @@ public class RestSpecificDevice extends ConditionalAccessResource {
     @Path("/show_color")
     public Response showColor(
             @PathParam("device_ID") String devID,
-            //@PathParam("appuuid") String appUUID,
             @FormParam("r") Integer r_value,
             @FormParam("g") Integer g_value,
             @FormParam("b") Integer b_value,
@@ -101,14 +112,7 @@ public class RestSpecificDevice extends ConditionalAccessResource {
             @HeaderParam("Origin") String origin) {
         Integer color_value;
         System.out.println("show_color on #" + devID);
-//    System.out.println("trying to change the cubes'color!");
-//    System.out.println("here are the variables: \n"
-//        + "\t device_ID " + devID + "\n"
-//        + "\t color " + color + "\n"
-//        + "\t appuuid " + _appuuid);
-//    if(appUUID == null){
-//      return this.createMissingCompulsoryParamMsg("appUUID");
-//    }
+        
         //let's check that the device is reserved by the application
         if (!_mgr.isAReservation(devID, _appuuid)) {
             return this.createErrorMsg(origin, "the device is not reserved by "
@@ -175,16 +179,11 @@ public class RestSpecificDevice extends ConditionalAccessResource {
             @HeaderParam("Origin") String origin) {
         System.out.println("show_picture on #" + devId);
         try {
-//      Date startTime = new Date();
-//      DateFormat format = DateFormat.getInstance();
-//      Logger.getLogger(RestSpecificDevice.class.getName()).log(Level.INFO, "Starting to process the showPicture command : time is -> {0}", format.format(startTime));
-            ImageInputStream imgInput = ImageIO.createImageInputStream(input);
+           ImageInputStream imgInput = ImageIO.createImageInputStream(input);
             BufferedImage image = ImageIO.read(imgInput);
             TangibleDevice dev = _finder.getDevice(devId);
             dev.getTalk().showPicture(image);
-//      Date endTime = new Date();
-//      Logger.getLogger(RestSpecificDevice.class.getName()).log(Level.INFO, "Ending to process the showPicture command : time is -> {0}", format.format(endTime));
-            return this.createOKCtrlMsg(origin);
+           return this.createOKCtrlMsg(origin);
         } catch (IOException ex) {
             Logger.getLogger(RestSpecificDevice.class.getName()).log(Level.SEVERE, null, ex);
             return this.createErrorMsg(origin, "Could not procceed the picture", "something didn't work with the given picture");

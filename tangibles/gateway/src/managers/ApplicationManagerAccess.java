@@ -18,7 +18,6 @@ public enum ApplicationManagerAccess implements SingletonAccessor<ApplicationMan
     private ApplicationManager _appMgr;
 
     private static class ApplicationManagerImpl implements ApplicationManager {
-        //add the fields here
 
         private Map<UUID, Application> _apps;
 
@@ -52,9 +51,6 @@ public enum ApplicationManagerAccess implements SingletonAccessor<ApplicationMan
 
         @Override
         public boolean isAppRegistred(String uuid) {
-//      System.out.println("the uuid of the app is:");
-//      System.out.println(uuid);
-
             UUID appID = UUID.fromString(uuid);
             return _apps.containsKey(appID);
         }

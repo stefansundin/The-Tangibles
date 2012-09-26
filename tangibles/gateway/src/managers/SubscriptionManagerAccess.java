@@ -11,7 +11,7 @@ import restful.streaming.AbstractStreamingThread;
 import restful.streaming.StreamingHolder;
 import tangible.devices.TangibleDevice;
 import tangible.protocols.TangibleDeviceProtocol;
-import tangible.utils.exceptions.DeviceNotFoundException;
+import utils.exceptions.DeviceNotFoundException;
 
 /**
  *

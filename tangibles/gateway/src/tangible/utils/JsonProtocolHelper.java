@@ -3,14 +3,18 @@
  */
 package tangible.utils;
 
-import com.google.gson.*;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import tangible.utils.exceptions.WrongProtocolJsonSyntaxException;
+import utils.exceptions.WrongProtocolJsonSyntaxException;
 
 /**
  *
@@ -19,13 +23,10 @@ import tangible.utils.exceptions.WrongProtocolJsonSyntaxException;
 public class JsonProtocolHelper {
 
     private static String printableElement(JsonElement elm) {
-        //System.out.println("printableElement");
         String elmAsString = elm.toString();
-        //System.out.println("elmAsString: << "+elmAsString+" )");
         if (elmAsString.length() > 20) {
             String tmpString = elmAsString.substring(0, 9) + "[...]"
                     + elmAsString.substring(elmAsString.length() - 5);
-            //System.out.println("tmpString : "+tmpString);
             elmAsString = tmpString;
         }
         //TODO perhaps encoding it to avoid JSON syntax exception if we send it...
@@ -34,7 +35,6 @@ public class JsonProtocolHelper {
 
     public static JsonElement assertField(JsonObject elm, String field)
             throws WrongProtocolJsonSyntaxException {
-        //System.out.println("assertField");
         if (!elm.has(field)) {
             throw new WrongProtocolJsonSyntaxException("the JSON element:<<"
                     + printableElement(elm) + ">> was excpected to be have a field "
@@ -161,9 +161,7 @@ public class JsonProtocolHelper {
         return obj;
     }
 
-    @SuppressWarnings("unchecked")
     public static <T> T[] assertArrayOfOneKind(JsonArray jsonArray, Class<T> tClass) {
-        T[] t_array = null;
         Iterator<JsonElement> ite = jsonArray.iterator();
         List<T> t_list = new ArrayList<T>();
         while (ite.hasNext()) {

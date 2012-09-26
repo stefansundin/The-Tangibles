@@ -80,6 +80,7 @@ namespace SiftDriver.Utils
 
         public void WriteText(string txt, Sifteo.Color color)
         {
+            Log.Debug("WriteText(" + txt + ");");
             Sifteo.Color[,] pixels;
             if (_isBgPicture)
             {

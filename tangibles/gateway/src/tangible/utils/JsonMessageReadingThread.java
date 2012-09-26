@@ -55,7 +55,6 @@ public class JsonMessageReadingThread extends StreamReadingThread<BufferedReader
             return;
         }
         JsonElement elm = _parser.next();
-//    Logger.getLogger(JsonMessageReadingThread.class.getName()).log(Level.INFO, "we received the elements: {0}", elm.toString());
         //TODO filter the event and control message and add them in their respective stack
         //the driver will take care of reading them
         if (!elm.isJsonObject()) {

@@ -4,12 +4,15 @@ import com.sun.jersey.api.container.grizzly2.GrizzlyServerFactory;
 import com.sun.jersey.api.core.PackagesResourceConfig;
 import com.sun.jersey.api.core.ResourceConfig;
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.URI;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ws.rs.core.UriBuilder;
-import managers.*;
+import managers.ApplicationManagerAccess;
+import managers.DeviceFinder;
+import managers.DeviceFinderAccess;
+import managers.ReservationManagerAccess;
+import managers.SubscriptionManagerAccess;
 import org.glassfish.grizzly.http.server.HttpServer;
 
 /**
@@ -18,16 +21,9 @@ import org.glassfish.grizzly.http.server.HttpServer;
  */
 public class TangibleAPI {
 
-    private static String ipAddress = "localhost";
+    private static String ipAddress = "0.0.0.0";
 
-    /**
-     * @param args the command line arguments
-     * @throws IOException
-     */
     public static void main(String[] args) throws IOException {
-        ipAddress = InetAddress.getLocalHost().getHostAddress();
-        ipAddress = "0.0.0.0";
-        System.out.println("IP address is: " + ipAddress);
         try {
             DeviceFinder finder = DeviceFinderAccess.getInstance();
             finder.start();
@@ -42,8 +38,6 @@ public class TangibleAPI {
 		
         } catch (Exception e) {
             System.out.println("TANGIBLE_API_FAILED");
-            Logger.getLogger(TangibleAPI.class.getName()).log(Level.INFO,
-                    "an exception occured when initializing tangibleAPI", e);
         }
     }
 

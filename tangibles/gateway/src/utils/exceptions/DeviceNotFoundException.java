@@ -1,9 +1,8 @@
 /*
  * Master-Thesis work: see https://sites.google.com/site/sifthesis/
  */
-package tangible.utils.exceptions;
+package utils.exceptions;
 
-import commons.ApiException;
 import javax.ws.rs.core.Response;
 
 /**

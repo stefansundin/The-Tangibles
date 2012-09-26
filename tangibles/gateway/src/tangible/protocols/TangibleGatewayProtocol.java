@@ -6,10 +6,13 @@ package tangible.protocols;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import commons.ApiException;
 import java.awt.Color;
 import java.awt.geom.AffineTransform;
-import java.awt.image.*;
+import java.awt.image.AffineTransformOp;
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBuffer;
+import java.awt.image.DataBufferByte;
+import java.awt.image.DataBufferInt;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -19,14 +22,15 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ws.rs.core.Response;
 import restful.streaming.AbstractStreamingThread;
+import tangible.TangibleGateway;
 import tangible.enums.Capacity;
-import tangible.gateway.TangibleGateway;
 import tangible.utils.JsonMessageReadingThread;
 import tangible.utils.JsonProtocolHelper;
 import tangible.utils.Listener;
-import tangible.utils.exceptions.WrongProtocolJsonSyntaxException;
 import utils.ColorHelper;
-import utils.Couple;
+import utils.Pair;
+import utils.exceptions.ApiException;
+import utils.exceptions.WrongProtocolJsonSyntaxException;
 
 /**
  *
@@ -44,7 +48,7 @@ public class TangibleGatewayProtocol extends AbsJsonTCPProtocol {
         }
     }
 
-    public static final class ScreenSize extends Couple<Integer, Integer> {
+    public static final class ScreenSize extends Pair<Integer, Integer> {
 
         public ScreenSize(int heigth, int width) {
             super(heigth, width);
@@ -101,7 +105,6 @@ public class TangibleGatewayProtocol extends AbsJsonTCPProtocol {
                     //this is a valid and followed event let's send it!
                     _th.sendEvent(t);
                 } else {
-//          Logger.getLogger(StreamingThreadReporter.class.getName()).log(Level.INFO, "no one following this device... ");
                 }
             } catch (WrongProtocolJsonSyntaxException ex) {
                 Logger.getLogger(StreamingThreadReporter.class.getName()).log(Level.INFO, "ignoring a badly formated message: {0}\n\tthe message was: {1}", new Object[]{ex.getMessage(), t.toString()});
@@ -177,15 +180,6 @@ public class TangibleGatewayProtocol extends AbsJsonTCPProtocol {
     private void sendEventCommand(String command, JsonObject params, String[] devIds) {
         JsonObject msg = buildCommand(command, params, devIds);
         this.sendJsonEventMsg(msg);
-    }
-
-    private void sendControlCommand(String command, JsonObject params) {
-        JsonObject msg = new JsonObject();
-        msg.addProperty("command", command);
-        if (params != null) {
-            msg.add("params", params);
-        }
-        this.sendJsonCtrlMsg(msg);
     }
 
     public void showColor(int r, int g, int b, String[] devs) {
