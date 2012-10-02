@@ -129,7 +129,7 @@ namespace SiftDriver.Utils
 
         public void DisplayColor(Sifteo.Color c)
         {
-            // just fill the damn scree with the color
+            // just fill the damn screen with the color
             _isBgPicture = false;
             _bgColor = c;
             _c.FillScreen(c);
