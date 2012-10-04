@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>The-Tangibles</title>
+
+<style type="text/css">
+#call_list {
+	position: absolute;
+	bottom: 0;
+}
+
+#call_list>div>div { /* Auto decline timeout */
+	display: inline;
+	color: red;
+}
+</style>
+
+<script type="text/javascript">
+	var auto_decline_time = 60;
+	var rooms = [];
+	var remote_users = [];
+
+	function init() {
+		onLobbyLoad([ [ "Test Room", 1 ], [ "Room 2", 2 ] ], [ [ "Karl", 1 ],
+				[ "Jonas", 2 ] ]);
+	}
+
+	function onLobbyLoad(rooms, remote_users) {
+		console.log("Load");
+
+		// Add rooms
+		for ( var i = 0; i < rooms.length; i++) {
+			onRoomAdd(rooms[i][0], rooms[i][1]);
+		}
+
+		// Add users
+		for ( var i = 0; i < remote_users.length; i++) {
+			onRemoteUserEnter(remote_users[i][0], remote_users[i][1]);
+		}
+
+		// Make user select their name
+		var random_name = "User#" + Math.floor((Math.random() * 999) + 1);
+		var user_name; // = prompt("Enter your name", random_name);
+		if (user_name == null || user_name == "") {
+			user_name = random_name;
+		}
+		document.getElementById("welcome_message").innerHTML = "Welcome "
+				+ user_name;
+	}
+
+	function onCreateRoom() {
+		console.log("CreateRoom");
+		var room_name = prompt("Select room name", "Room#"
+				+ Math.floor((Math.random() * 999) + 1));
+		if (room_name != null && room_name != "") {
+			// TODO Create room
+			document.location += "room/?room=" + room_name;
+		}
+	}
+
+	function onRoomAdd(room_name, room_id) {
+		console.log("RoomAdd: " + room_name + " " + room_id);
+
+		// Add to list
+		rooms.push([ room_name, room_id ]);
+		var room_list = document.getElementById("room_list");
+		var new_item = document.createElement("div");
+		new_item.id = "room_list_" + room_id;
+		new_item.innerHTML = "<input type=\"button\" value=\"" + room_name
+				+ "\" onClick=\"onRoomClick(" + room_id + ");\" />";
+		room_list.appendChild(new_item);
+	}
+
+	function onRoomDelete(room_id) {
+		console.log("RoomDelete: " + room_id);
+
+		// Find room with given id
+		var index = -1;
+		for ( var i = 0; i < rooms.length; i++) {
+			if (rooms[i][1] === room_id) {
+				index = i;
+				break;
+			}
+		}
+		if (index != -1) {
+			// Remove from list
+			rooms.splice(index, 1);
+			var room_list = document.getElementById("room_list");
+			var room_item = document.getElementById("room_list_" + room_id);
+			room_list.removeChild(room_item);
+		}
+	}
+
+	function onRoomClick(room_id) {
+		console.log("RoomClick: " + room_id);
+
+		for ( var i = 0; i < rooms.length; i++) {
+			if (rooms[i][1] === room_id) {
+				console.log("RoomClick found: " + rooms[i][0]);
+				break;
+			}
+		}
+	}
+
+	function onRemoteUserEnter(remote_user_name, remote_user_id) {
+		console.log("RemoteUserEnter: " + remote_user_name + " "
+				+ remote_user_id);
+
+		// Add to list
+		remote_users.push([ remote_user_name, remote_user_id ]);
+		var remote_user_list = document.getElementById("remote_user_list");
+		var new_item = document.createElement("div");
+		new_item.id = "remote_user_list_" + remote_user_id;
+		new_item.innerHTML = "<input type=\"button\" value=\""
+				+ remote_user_name + "\" onClick=\"onRemoteUserClick("
+				+ remote_user_id + ");\" />";
+		remote_user_list.appendChild(new_item);
+	}
+
+	function onRemoteUserLeave(remote_user_id) {
+		console.log("RemoteUserLeave: " + remote_user_id);
+
+		// Find remote_user with given id
+		var index = -1;
+		for ( var i = 0; i < remote_users.length; i++) {
+			if (remote_users[i][1] === remote_user_id) {
+				index = i;
+				break;
+			}
+		}
+		if (index != -1) {
+			// Remove from list
+			remote_users.splice(index, 1);
+			var remote_user_list = document.getElementById("remote_user_list");
+			var remote_user_item = document.getElementById("remote_user_list_"
+					+ remote_user_id);
+			remote_user_list.removeChild(remote_user_item);
+		}
+	}
+
+	function onRemoteUserClick(remote_user_id) {
+		console.log("RemoteUserClick: " + remote_user_id);
+
+		for ( var i = 0; i < remote_users.length; i++) {
+			if (remote_users[i][1] === remote_user_id) {
+				console.log("RemoteUserClick found: " + remote_users[i][0]);
+				break;
+			}
+		}
+	}
+
+	function onIncomingCall(remote_user_name, room_name, call_id) {
+		console.log("IncomingCall: " + remote_user_name + " " + room_name + " "
+				+ call_id);
+
+		if (document.getElementById("call_" + call_id) != null) { // Unique ids
+			return;
+		}
+		var call_div = document.createElement("div");
+		call_div.id = "call_" + call_id;
+		call_div.innerHTML = remote_user_name
+				+ " wants you to join "
+				+ room_name
+				+ ". <input type=\"button\" value=\"Accept\" onClick=\"onAccept("
+				+ call_id
+				+ ");\" /> <input type=\"button\" value=\"Decline\" onClick=\"onDecline("
+				+ call_id + ");\" /> <div id=\"call_timer_"+call_id+"\"></div>";
+
+		// Insert above
+		var call_list_div = document.getElementById("call_list")
+		call_list_div.insertBefore(call_div, call_list_div.firstChild);
+
+		// Auto-decline after x seconds
+		onAutoDeclineTimer(call_id, auto_decline_time);
+	}
+
+	function onAccept(call_id) {
+		console.log("Accept: " + call_id);
+
+		var call_div = document.getElementById("call_" + call_id);
+		if (call_div != null) { // Extra check
+			// TODO Accept
+			document.getElementById("call_list").removeChild(
+					document.getElementById("call_" + call_id));
+		}
+	}
+
+	function onDecline(call_id) {
+		console.log("Decline: " + call_id);
+
+		var call_div = document.getElementById("call_" + call_id);
+		if (call_div != null) { // Extra check
+			// TODO Decline
+			document.getElementById("call_list").removeChild(call_div);
+		}
+	}
+
+	function onAutoDeclineTimer(call_id, time_left) {
+		var call_timer_div = document.getElementById("call_timer_" + call_id);
+		if (call_timer_div != null) { // Might have been manually declined
+			time_left--;
+			if (time_left <= 0) { // Time is up, decline
+				onDecline(call_id);
+			} else {
+				if (time_left <= 10) { // Only display last 10 seconds
+					call_timer_div.innerHTML = time_left;
+				}
+
+				setTimeout(function() {
+					onAutoDeclineTimer(call_id, time_left);
+				}, 1000);
+			}
+		}
+	}
+</script>
+
+</head>
+<body onload="init();">
+	<h1>Lobby</h1>
+	<h2 id="welcome_message">Welcome</h2>
+	<input type="button" value="Create room" onclick="onCreateRoom();" />
+	<h3>Rooms</h3>
+	<div id="room_list"></div>
+	<h3>Remote users</h3>
+	<div id="remote_user_list"></div>
+
+	<div id="call_list"></div>
+</body>
+</html>

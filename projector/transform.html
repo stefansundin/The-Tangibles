@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>test</title>
+
+  </head>
+
+  <body>
+    <script src="sylvester.js"></script>
+    <img id="scream" src="the_scream.jpg" alt="The Scream" width="220" height="277" />
+    <canvas id="canvas" width="300" height="300"></canvas>
+    <script type="text/javascript">
+      var canvas = document.getElementById("canvas");
+
+      var ctx = canvas.getContext("2d");
+
+      image = document.getElementById("scream");
+      var c1 = new Object();
+      c1.x = 75;
+      c1.y = 140;
+      var c2 = new Object();
+      c2.x = 150;
+      c2.y = 140;
+      var c3 = new Object();
+      c3.x = 150;
+      c3.y = 180;
+      var c4 = new Object();
+      c4.x = 95;
+      c4.y = 180;
+      function transform(c, i, d1, d2, d3, d4) {
+        var c1 = new Object();
+        c1.x = 0;
+        c1.y = 0; 
+        var c2 = new Object();
+        c2.x = c.width;
+        c2.y = 0;
+        var c4 = new Object();
+        c4.x = 0;
+        c4.y = c.height;
+        var c3 = new Object();
+        c3.x = c.width;
+        c3.y = c.height;
+
+        var M = $M([
+          [c1.x * c1.y, c1.x, c1.y, 1],
+          [c2.x * c2.y, c2.x, c2.y, 1],
+          [c3.x * c3.y, c3.x, c3.y, 1],
+          [c4.x * c4.y, c4.x, c4.y, 1]
+        ]);
+
+        var A = $M([
+          [d1.x],
+          [d2.x],
+          [d3.x],
+          [d4.x]
+        ]);
+
+        var B = $M([
+          [d1.y],
+          [d2.y],
+          [d3.y],
+          [d4.y]
+        ]);
+
+
+	Minv = M.inv();
+        var a = Minv.multiply(A);
+        var b = Minv.multiply(B);
+        
+        var ctx = c.getContext("2d");
+
+        // TODO clean up this code, make it dynamic
+        var canvas = document.createElement("canvas");
+        canvas.height = 277;
+        canvas.width = 220;
+        var ctx2 = canvas.getContext("2d");
+        ctx2.drawImage(i, 0, 0);
+        var imageData2 = ctx2.getImageData(0, 0, canvas.width, canvas.height);
+        var imageData = ctx.createImageData(c.width, c.height);
+
+        for (var i = 0; i < c.width; i++) {
+          for (var j = 0; j < c.height; j++) {
+            var I = Math.round(a.e(1, 1)*i*j + a.e(2, 1)*i + a.e(3, 1)*j + a.e(4, 1));
+            var J = Math.round(b.e(1, 1)*i*j + b.e(2, 1)*i + b.e(3, 1)*j + b.e(4, 1));
+
+            imageData.data[i*4 + j*c.width*4] = imageData2.data[I*4 + J*canvas.width*4];
+            imageData.data[i*4 + j*c.width*4 + 1] = imageData2.data[I*4 + J*canvas.width*4 + 1];
+            imageData.data[i*4 + j*c.width*4 + 2] = imageData2.data[I*4 + J*canvas.width*4 + 2];
+            imageData.data[i*4 + j*c.width*4 + 3] = imageData2.data[I*4 + J*canvas.width*4 + 3];
+          }
+        }
+        ctx.putImageData(imageData, 0, 0);
+      }
+      transform(canvas, image, c1, c2, c3, c4);
+
+    </script>
+
+
+  </body>
+</html>
