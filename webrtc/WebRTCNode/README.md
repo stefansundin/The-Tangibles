@@ -8,15 +8,19 @@ You can have a look at the demo on http://multiwebrtc.nodejitsu.com
 Run in your terminal
 
 ```bash 
-git clone git@github.com:webRTC/webrtc.io-demo.git
+git clone https://github.com/stefansundin/The-Tangibles
 ```
 
 ```bash 
-cd webrtc.io-demo
+cd webrtc/WebRTCNode
 ```
 
 ```bash 
 npm install
+```
+
+```bash 
+Move node_modules folder into example folder
 ```
 
 ```bash 
