@@ -1,0 +1,114 @@
+
+<html>
+
+<head>
+
+<title>Projector Group Test</title>
+
+<script type="text/javascript" src="cv.js"></script>
+<script type="text/javascript" src="aruco.js"></script>
+<script type="text/javascript" src="imageproc.js"></script>
+<script type="text/javascript" src="mediaext.js"></script>
+
+<script>
+
+    var video, canvas, context, detector, filter, imageData;
+    var shouldDetectRectangles = false;
+
+    const kWidth = 320, kHeight = 240;
+    
+	function init() {
+		
+		video = MediaExt.getCameraAccess(kWidth, kHeight, tick);
+		canvas = MediaExt.createCanvas(kWidth, kHeight);
+		context = canvas.getContext("2d");
+		
+		document.getElementById("hoho").appendChild(video);
+		document.getElementById("hoho").appendChild(canvas);
+		
+		detector = new AR.Detector();
+		
+		filter = new ImageProc.HSVFilter();
+        filter.setHueThreshold(340, 10);
+		filter.setSaturationThreshold(0.6, 1);
+		filter.setValueThreshold(0.3, 1);
+	}
+	
+	function tick() {
+		
+		snapshot();
+		
+		if (shouldDetectRectangles) {
+			var polys = detector.findRectangles(imageData);
+            drawPolys(polys);
+		}
+        
+		setTimeout(tick, 1);
+	}
+	
+	
+	
+	function snapshot() {
+		context.drawImage(video, 0, 0, kWidth, kHeight);
+		imageData = context.getImageData(0, 0, kWidth, kHeight);
+		filter.filter(imageData.data);
+		context.putImageData(imageData, 0, 0);
+	}
+	
+	function drawPolys(polys) {
+		
+		var corners, corner, i, j;
+		
+		context.lineWidth = 3;
+		
+		for (i = 0; i < polys.length; i++) {
+			
+			corners = polys[i];
+			
+            // Create a path to draw the poly
+			context.strokeStyle = "blue";
+			context.beginPath();
+            
+			for (j = 0; j < corners.length; j++) {
+				corner = corners[j];
+				context.moveTo(corner.x, corner.y);
+				corner = corners[(j + 1) % corners.length];
+				context.lineTo(corner.x, corner.y);
+			}
+			
+			context.stroke();
+			context.closePath();
+			
+            // Mark the corners with small green rectangles
+			context.strokeStyle = "green";
+			for (j = 0; j < corners.length; j++) {
+				corner = corners[j];
+				context.strokeRect(corners[j].x - 1, corners[j].y - 1, 2, 2);
+			}
+		}
+	}
+
+    function toggleFindRectangles() {
+        shouldDetectRectangles = !shouldDetectRectangles;
+    }
+
+
+</script>
+
+
+
+</head>
+
+<body style="font-family: monospace; background-color: black;" onLoad="init();">
+
+    <center>
+        <div style="margin: 10px; color:#FFF"><strong>HSV thresholding and shape detection</strong></div>
+        <div id="hoho" style="display:block"></div>
+        <button type="button" onClick="toggleFindRectangles();">Toggle shape detection</button>
+    </center>
+
+</body>
+
+
+
+</html>

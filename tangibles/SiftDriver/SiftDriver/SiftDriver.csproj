@@ -1,0 +1,106 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.21022</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{DC1B27F4-E8DF-4B23-AABB-80E7BF11A4C1}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>SiftDriver</RootNamespace>
+    <AssemblyName>SiftDriver</AssemblyName>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <UpgradeBackupLocation />
+    <newfilesearch>OnLoadAutoInsert</newfilesearch>
+    <StartupObject>SiftDriver.SiftDriver</StartupObject>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>True</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>False</Optimize>
+    <OutputPath>..\bin</OutputPath>
+    <DefineConstants>DEBUG</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>False</ConsolePause>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>none</DebugType>
+    <Optimize>True</Optimize>
+    <OutputPath>..\bin</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>False</ConsolePause>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="Sifteo">
+      <HintPath>C:\Sifteo\Sifteo-SDK-1_1_3\bin\Runtimes\mono\Current\sifteo\Sifteo.dll</HintPath>
+    </Reference>
+    <Reference Include="JsonFx">
+      <HintPath>C:\Sifteo\Sifteo-SDK-1_1_3\bin\Runtimes\mono\Current\sifteo\JsonFx.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Cairo">
+      <HintPath>C:\Program Files %28x86%29\Mono-2.10.8\lib\mono\gac\Mono.Cairo\2.0.0.0__0738eb9f132ed756\Mono.Cairo.dll</HintPath>
+    </Reference>
+    <Reference Include="pango-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f">
+      <HintPath>C:\Program Files %28x86%29\Mono-2.10.8\lib\mono\gac\pango-sharp\2.12.0.0__35e10195dab3c99f\pango-sharp.dll</HintPath>
+    </Reference>
+    <Reference Include="glib-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f">
+      <Private>False</Private>
+      <HintPath>C:\Program Files %28x86%29\Mono-2.10.8\lib\mono\gac\glib-sharp\2.12.0.0__35e10195dab3c99f\glib-sharp.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AssemblyInfo.cs" />
+    <Compile Include="SiftDriver.cs" />
+    <Compile Include="AppManager.cs" />
+    <Compile Include="Communication\AbsCommunication.cs" />
+    <Compile Include="Communication\AbsTcpCommunication.cs" />
+    <Compile Include="Communication\JsonTcpCommunication.cs" />
+    <Compile Include="Applications\Application.cs" />
+    <Compile Include="Applications\DefaultApp.cs" />
+    <Compile Include="UIComponents\UIText.cs" />
+    <Compile Include="Utils\CubeInstallator.cs" />
+    <Compile Include="UIComponents\UIBreathing.cs" />
+    <Compile Include="Communication\Protocols\Message.cs" />
+    <Compile Include="Communication\Protocols\AuthenticationProtocol.cs" />
+    <Compile Include="DriverInfromation.cs" />
+    <Compile Include="NetworkThread.cs" />
+    <Compile Include="Communication\Protocols\GeneralCommunicationProtocol.cs" />
+    <Compile Include="Utils\JsonProtocolHelper.cs" />
+    <Compile Include="Events\CubeEventReporter.cs" />
+    <Compile Include="Utils\ImageDisplayer.cs" />
+    <Compile Include="Utils\TextDisplayer.cs" />
+    <Compile Include="Utils\SiftColor.cs" />
+    <Compile Include="Utils\CubeScreenManager.cs" />
+    <Compile Include="Utils\FaderHelper.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <ItemGroup />
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
+  </ItemGroup>
+  <ProjectExtensions>
+    <MonoDevelop>
+      <Properties>
+        <Policies>
+          <DotNetNamingPolicy DirectoryNamespaceAssociation="Flat" ResourceNamePolicy="FileName" />
+          <TextStylePolicy TabWidth="2" inheritsSet="VisualStudio" inheritsScope="text/plain" scope="text/plain" />
+        </Policies>
+        <MonoDevelop.Autotools.MakefileInfo RelativeMakefileName="Makefile" SyncReferences="True">
+          <BuildFilesVar Sync="True" Name="FILES" />
+          <DeployFilesVar />
+          <ResourcesVar Sync="True" Name="RESOURCES" />
+          <OthersVar />
+          <GacRefVar Sync="True" Name="REFERENCES" />
+          <AsmRefVar Sync="True" Name="REFERENCES" />
+          <ProjectRefVar Sync="True" Name="REFERENCES" />
+        </MonoDevelop.Autotools.MakefileInfo>
+      </Properties>
+    </MonoDevelop>
+  </ProjectExtensions>
+</Project>

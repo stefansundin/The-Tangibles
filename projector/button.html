@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>test</title>
+
+  </head>
+
+  <body>
+<img id="scream" src="the_scream.jpg" alt="The Scream" width="220" height="277" />
+    <video id="video1" controls width="270" autoplay loop>
+      <source src="mov_bbb.ogg" type='video/ogg' />
+    </video>
+    <canvas id="canvas" width="300" height="300"></canvas>
+    <script type="text/javascript">
+      var canvas = document.getElementById("canvas");
+
+      var ctx = canvas.getContext("2d");
+      ctx.fillStyle = "#FF0000";
+      //ctx.fillRect(0, 0, 150, 75);
+
+      function buttons(ctx) {
+        this.ctx = ctx;
+        this.listOfButtons = [];
+
+        this.addButton = addButton;
+        function addButton(button) {
+          this.listOfButtons.push(button)
+        }
+
+        //this.deleteButton = deleteButton;
+        //function deleteButton(button) {
+        //  
+        //}
+
+        this.draw = draw;
+        function draw() {
+          for (i in this.listOfButtons) {
+            this.listOfButtons[i].draw(this.ctx);
+          }
+        }
+
+        this.checkPressed;
+        function checkPressed() {
+          for (i in this.listOfButtons) {
+            this.listOfButtons[i].checkedPressed();
+          }
+        }
+      }
+
+      function button(x, y, sizeX, sizeY, image) {
+        this.sizeX = sizeX;
+        this.sizeY = sizeY;
+        this.x = x;
+        this.y = y;
+        this.method; // method to invoke when pressed
+        this.image = image; // image to draw
+
+        this.draw = draw;
+        function draw(ctx) {
+          ctx.strokeRect(x, y, sizeX, sizeY);
+      	  image = document.getElementById("scream");
+          ctx.drawImage(image, x, y, sizeX, sizeY);
+        }
+
+        this.checkPressed = checkPressed;
+        this.pressed = false;
+        function checkPressed() {
+          // TODO
+          // check boundarys to see if pressed!
+          // set pressed to true if being pressed
+          // set pressed to false otherwise
+          // when setting to true call method
+        }
+      }
+
+      function videoButton(x, y, sizeX, sizeY, video) {
+        this.sizeX = sizeX;
+        this.sizeY = sizeY;
+        this.x = x;
+        this.y = y;
+        this.method; // method to invoke when pressed
+        this.v = video; // image to draw
+        this.count = 0;
+
+        this.draw = draw;
+        function draw(ctx) {
+          ctx.strokeRect(x, y, sizeX, sizeY);
+          v.addEventListener('play', function() {var i = window.setInterval(function() {ctx.drawImage(v, x, y, sizeX, sizeY)}, 40);}, false);
+          v.addEventListener('pause', function() {window.clearInterval(i);}, false);
+          v.addEventListener('ended', function() {window.clearInterval(i);}, false);
+        }
+
+        this.checkPressed = checkPressed;
+        this.pressed = false;
+        function checkPressed() {
+          // TODO
+          // check boundarys to see if pressed!
+          // set pressed to true if being pressed
+          // set pressed to false otherwise
+          // when setting to true call methed
+        }
+      }
+
+
+      function test() {
+        alert("test");
+      }
+      image = document.getElementById("scream");
+      v = document.getElementById("video1");
+      var button1 = new button(10, 10, 10, 10, image);
+      var button2 = new button(20, 20, 100, 100, image);
+      var buttons = new buttons(ctx);
+      button1.method = test;
+      button2.method = test;
+
+      var button3 = new videoButton(120, 120, 100, 100, v);
+
+
+      buttons.addButton(button1);
+      buttons.addButton(button2);
+      buttons.addButton(button3);
+      buttons.draw();
+
+
+    </script>
+
+
+  </body>
+</html>

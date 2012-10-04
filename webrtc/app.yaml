@@ -1,22 +1,21 @@
-application: the-tangibles-webrtc
+application: the-tangibles
 version: 1
 runtime: python27
 api_version: 1
-threadsafe: true
+threadsafe: false
 
 libraries:
-  - name: webapp2
+- name: webapp2
   version: 2.5.1
 
 handlers:
-- url: /html
-  static_dir: html
-
-- url: /images
-  static_dir: images 
-
-- url: /js
-  static_dir: js
+- url: /room.*
+  script: tangibles.py
+  secure: always
+  
+- url: /workspace.*
+  script: tangibles.py
+  secure: always
 
 - url: /.*
   script: tangibles.py
