@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.Timer;
 
 import com.intel.bluetooth.btgoep.Connection;
 
@@ -16,6 +17,10 @@ import se.nicklasgavelin.bluetooth.BluetoothDiscoveryListener;
 import se.nicklasgavelin.sphero.Robot;
 import se.nicklasgavelin.sphero.command.RGBLEDCommand;
 import se.nicklasgavelin.sphero.command.RollCommand;
+import se.nicklasgavelin.sphero.command.SetDataStreamingCommand;
+import se.nicklasgavelin.sphero.command.SetDataStreamingCommand.DATA_STREAMING_MASKS;
+import se.nicklasgavelin.sphero.command.SleepCommand;
+import se.nicklasgavelin.sphero.command.SpinLeftCommand;
 import se.nicklasgavelin.sphero.exception.InvalidRobotAddressException;
 import se.nicklasgavelin.sphero.exception.RobotBluetoothException;
 
@@ -28,6 +33,7 @@ public class SpheroDriver extends Thread implements BluetoothDiscoveryListener
 	private AppManager _appMgr = AppManagerImpl.getInstance();
 	private List<Sphero> _availableSpheroDevices;
 	private Bluetooth bt;
+	private RobotListener r = new RobotListener();
 
 	public static void main( String[] args ) throws UnknownHostException, IOException
 	{
@@ -42,9 +48,12 @@ public class SpheroDriver extends Thread implements BluetoothDiscoveryListener
 	@Override
 	public void run()
 	{
+		directConnect();
+		/*
 		bt = new Bluetooth( this, Bluetooth.SERIAL_COM );
-		_availableSpheroDevices = new LinkedList<Sphero>(); //RBR:000666441796 //WBG:000666440db8
+		_availableSpheroDevices = new LinkedList<Sphero>(); //RBR:000666441796 //WBG:000666440DB8
 		BluetoothDevice btd = new BluetoothDevice( bt, "btspp://000666440DB8:1;authenticate=true;encrypt=true;master=false" );
+		
 		try
 		{
 			Sphero s = new Sphero( btd );
@@ -66,6 +75,7 @@ public class SpheroDriver extends Thread implements BluetoothDiscoveryListener
 			registerApplication();
 
 		addShutdownHook();
+		*/
 	}
 
 	private void addShutdownHook()
@@ -149,7 +159,7 @@ public class SpheroDriver extends Thread implements BluetoothDiscoveryListener
 	}
 	
 	public void directConnect(){
-		String id = "<BluetoothIdForSphero>";
+		String id = "000666440DB8";//WBG     "<BluetoothIdForSphero>";
 		Bluetooth bt = new Bluetooth( this, Bluetooth.SERIAL_COM );
 		Logger.getLogger( SpheroDriver.class.getName() ).log( Level.INFO, "comes here!" );
 		BluetoothDevice btd = new BluetoothDevice( bt, "btspp://" + id + ":1;authenticate=true;encrypt=false;master=false" );
@@ -164,16 +174,59 @@ public class SpheroDriver extends Thread implements BluetoothDiscoveryListener
 			    // may start sending commands now
 
 			    // Send a RGB command that will turn the RGB LED red
-			    r.sendCommand( new RGBLEDCommand( 255, 0, 0 ) );
+			    //r.sendCommand( new RGBLEDCommand( 255, 155, 0 ) );
 
 			    // Send a roll command to the Sphero with a given heading
 			    // Notice that we havn't calibrated the Sphero so we don't know
 			    // which way is which atm.
-			    r.sendCommand( new RollCommand( 1, 180, false ) );
+				
+				
+				//blue - roll
+			    r.sendCommand( new RGBLEDCommand( 255, 0, 0 ) );    //turn blue
+			    r.sendCommand( new RollCommand( 180, 1, false ) );
+			    r.sendCommand( new RollCommand( 180, 1, true ),500); //stop after ..
+			    r.sendCommand( new RGBLEDCommand( 255, 0, 0 ), 500);  //turn red
+			    
+			    pause(2000);
+			    
 
-			    // Now send a time delayed command to stop the Sphero from
-			    // rolling after 2500 ms (2.5 seconds)
-			    r.sendCommand( new RollCommand( 1, 180, true ), 2500 );
+			    r.addListener(this.r);
+			    r.sendCommand(new SetDataStreamingCommand(1, 10000, DATA_STREAMING_MASKS.ACCELEROMETER.X.FILTERED, 1000));
+			    
+//			    r.sendCommand( new RGBLEDCommand( 255, 0, 0 ) );    //turn blue
+//			    r.sendCommand( new RollCommand( 180, 1, false ) );
+//			    r.sendCommand( new RollCommand( 180, 1, true ),500); //stop after 2500
+//			    r.sendCommand( new RGBLEDCommand( 255, 0, 0 ), 500);  //turn red
+//			    pause(3000);
+//			    
+//			    //yellow - slow spin
+//			    r.sendCommand(new SpinLeftCommand(155),0);
+//			    r.sendCommand( new RGBLEDCommand( 255, 255, 0 ) );
+//			    pause(1500);
+//			    
+//			    //green - fast spin
+//			    r.sendCommand(new SpinLeftCommand(255),0);
+//			    r.sendCommand( new RGBLEDCommand( 0,255, 0 ) );
+//			    pause(1500);
+//			    
+//			   //yellow - slow spin
+//			    r.sendCommand(new SpinLeftCommand(155),0);
+//			    r.sendCommand( new RGBLEDCommand( 255, 255, 0 ) );
+//			    pause(1500);
+//			    
+//			    //red - stop spin
+//			    r.sendCommand(new SpinLeftCommand(0),0);
+//			    r.sendCommand( new RGBLEDCommand( 255, 0, 0 ) );    //turn red
+//			    pause(1500);
+//			    //r.sendCommand( new RollCommand( 1, 180, true ),0); //stop after 2500
+//			    r.resetHeading();
+//			    
+//			    //blue - roll
+//			    r.sendCommand( new RollCommand( 1, 180, false ) );
+//			    r.sendCommand( new RGBLEDCommand( 255, 0, 0 ) );    //turn blue
+//			    r.sendCommand( new RollCommand( 1, 180, true ),2500); //stop after 2500
+			    
+			    
 			}
 			else{
 			    // Failed to connect to Sphero device due to an error
@@ -186,5 +239,16 @@ public class SpheroDriver extends Thread implements BluetoothDiscoveryListener
 			e.printStackTrace();
 		}
 		
+	}
+	
+	private void pause(int ms){
+		try
+		{
+			Thread.sleep( ms );
+		} catch( Exception e )
+		{
+			// Failure in searching for devices for some reason.
+			e.printStackTrace();
+		}
 	}
 }
