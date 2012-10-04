@@ -26,6 +26,13 @@
 				[ "Jonas", 2 ] ]);
 	}
 
+	/*
+	 * Adds all rooms and remote users to the page.
+	 * Should be called when the page is loaded.
+	 *
+	 * @rooms - A list of pairs [room_name, room_id]
+	 * @remote_users - A list of pairs [remote_user_name, remote_user_id]
+	 */
 	function onLobbyLoad(rooms, remote_users) {
 		console.log("Load");
 
@@ -41,7 +48,7 @@
 
 		// Make user select their name
 		var random_name = "User#" + Math.floor((Math.random() * 999) + 1);
-		var user_name; // = prompt("Enter your name", random_name);
+		var user_name = prompt("Enter your name", random_name);
 		if (user_name == null || user_name == "") {
 			user_name = random_name;
 		}
@@ -49,6 +56,10 @@
 				+ user_name;
 	}
 
+	/*
+	 * Lets the user select a room name. The room is then created.
+	 * Called when the create room button is clicked.
+	 */
 	function onCreateRoom() {
 		console.log("CreateRoom");
 		var room_name = prompt("Select room name", "Room#"
@@ -59,8 +70,20 @@
 		}
 	}
 
+	/*
+	 * Adds a room to the page if the ID doesn't exist.
+	 * Should be called when a new room is available on the server.
+	 *
+	 * @room_name - Name of the added room
+	 * @room_id - ID of the added room
+	 */
 	function onRoomAdd(room_name, room_id) {
 		console.log("RoomAdd: " + room_name + " " + room_id);
+
+		// Unique ids
+		if (document.getElementById("room_list_" + room_id) != null) {
+			return;
+		}
 
 		// Add to list
 		rooms.push([ room_name, room_id ]);
@@ -72,6 +95,12 @@
 		room_list.appendChild(new_item);
 	}
 
+	/*
+	 * Delets a room from the page.
+	 * Should be called when a room is deleted on the server.
+	 *
+	 * @room_id - ID of the deleted room
+	 */
 	function onRoomDelete(room_id) {
 		console.log("RoomDelete: " + room_id);
 
@@ -92,9 +121,15 @@
 		}
 	}
 
+	/*
+	 * Called when a room is clicked.
+	 *
+	 * @room_id - ID of the room
+	 */
 	function onRoomClick(room_id) {
 		console.log("RoomClick: " + room_id);
 
+		// TODO
 		for ( var i = 0; i < rooms.length; i++) {
 			if (rooms[i][1] === room_id) {
 				console.log("RoomClick found: " + rooms[i][0]);
@@ -103,9 +138,21 @@
 		}
 	}
 
+	/*
+	 * Adds a remote user to the list.
+	 * Should be called when a user enters the server.
+	 *
+	 * @remote_user_name - Name of the remote user that entered
+	 * @remote_user_id - ID of the remote user that entered
+	 */
 	function onRemoteUserEnter(remote_user_name, remote_user_id) {
 		console.log("RemoteUserEnter: " + remote_user_name + " "
 				+ remote_user_id);
+
+		// Unique ids
+		if (document.getElementById("remote_user_list_" + remote_user_id) != null) {
+			return;
+		}
 
 		// Add to list
 		remote_users.push([ remote_user_name, remote_user_id ]);
@@ -118,6 +165,12 @@
 		remote_user_list.appendChild(new_item);
 	}
 
+	/*
+	 * Removes a remote user from the list.
+	 * Should be called when a user leaves the server.
+	 *
+	 * @remote_user_id - ID of the remote user that left
+	 */
 	function onRemoteUserLeave(remote_user_id) {
 		console.log("RemoteUserLeave: " + remote_user_id);
 
@@ -139,9 +192,15 @@
 		}
 	}
 
+	/*
+	 * Called when a remote user is clicked.
+	 *
+	 * @remote_user_id - ID of the remote user
+	 */
 	function onRemoteUserClick(remote_user_id) {
 		console.log("RemoteUserClick: " + remote_user_id);
 
+		// TODO
 		for ( var i = 0; i < remote_users.length; i++) {
 			if (remote_users[i][1] === remote_user_id) {
 				console.log("RemoteUserClick found: " + remote_users[i][0]);
@@ -150,13 +209,23 @@
 		}
 	}
 
+	/*
+	 * Notifies the user that there is an incoming call. A call is auto-declined after a specified time.
+	 * Should be called when the user has been invited to a room.
+	 *
+	 * @remote_user_name - Name of the inviter
+	 * @room_name - Name of the room
+	 * @call_id - ID of the call
+	 */
 	function onIncomingCall(remote_user_name, room_name, call_id) {
 		console.log("IncomingCall: " + remote_user_name + " " + room_name + " "
 				+ call_id);
 
-		if (document.getElementById("call_" + call_id) != null) { // Unique ids
+		// Unique ids
+		if (document.getElementById("call_" + call_id) != null) {
 			return;
 		}
+
 		var call_div = document.createElement("div");
 		call_div.id = "call_" + call_id;
 		call_div.innerHTML = remote_user_name
@@ -175,6 +244,12 @@
 		onAutoDeclineTimer(call_id, auto_decline_time);
 	}
 
+	/*
+	 * Removes the notification and accepts the call.
+	 * Called when the user clicked accept.
+	 *
+	 * @call_id - ID of the call that was accepted
+	 */
 	function onAccept(call_id) {
 		console.log("Accept: " + call_id);
 
@@ -186,6 +261,12 @@
 		}
 	}
 
+	/*
+	 * Removes the notification and declines the call.
+	 * Called when the user clicked decline or when the timeout expired.
+	 *
+	 * @call_id - ID of the call that was declined
+	 */
 	function onDecline(call_id) {
 		console.log("Decline: " + call_id);
 
@@ -196,6 +277,13 @@
 		}
 	}
 
+	/*
+	 * Counts down the auto-decline timeout by one second.
+	 * A counter is displayed when there its less or equal to 10 seconds remaining.
+	 *
+	 * @call_id - ID of the call
+	 * @time_left - Number of seconds left on the timeout
+	 */
 	function onAutoDeclineTimer(call_id, time_left) {
 		var call_timer_div = document.getElementById("call_timer_" + call_id);
 		if (call_timer_div != null) { // Might have been manually declined
