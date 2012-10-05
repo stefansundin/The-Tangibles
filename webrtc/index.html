@@ -33,7 +33,7 @@ label,input {
 </style>
 
 <script>
-	var auto_decline_time = 60;
+	var auto_decline_time = 20;
 	var rooms = [];
 	var remote_users = [];
 	var user_name = "User#" + Math.floor((Math.random() * 999) + 1);
@@ -46,6 +46,7 @@ label,input {
 			$("#dialog_create_room").dialog("open");
 		});
 		$("#change_user_name").click(function() {
+			$("#user_name").val(user_name);
 			$("#dialog_select_user_name").dialog("open");
 		});
 
@@ -143,19 +144,20 @@ label,input {
 		console.log("RoomAdd: " + room_name + " " + room_id);
 
 		// Unique ids
-
 		if ($("#room_list_" + room_id).length != 0) {
 			return;
 		}
 
 		// Add to list
 		rooms.push([ room_name, room_id ]);
-		var room_list = document.getElementById("room_list");
-		var new_item = document.createElement("div");
-		new_item.id = "room_list_" + room_id;
-		new_item.innerHTML = "<button onClick=\"onRoomClick(" + room_id
-				+ ");\">" + room_name + "</button>";
-		room_list.appendChild(new_item);
+		$("<button/>", {
+			text : room_name,
+			click : function() {
+				onRoomClick(room_id);
+			}
+		}).button().appendTo($("<div/>", {
+			id : "room_list_" + room_id
+		}).appendTo("#room_list"));
 	}
 
 	/*
@@ -178,9 +180,7 @@ label,input {
 		if (index != -1) {
 			// Remove from list
 			rooms.splice(index, 1);
-			var room_list = document.getElementById("room_list");
-			var room_item = document.getElementById("room_list_" + room_id);
-			room_list.removeChild(room_item);
+			$("#room_list_" + room_id).remove();
 		}
 	}
 
@@ -213,19 +213,20 @@ label,input {
 				+ remote_user_id);
 
 		// Unique ids
-		if (document.getElementById("remote_user_list_" + remote_user_id) != null) {
+		if ($("#remote_user_list_" + remote_user_id).length != 0) {
 			return;
 		}
 
 		// Add to list
 		remote_users.push([ remote_user_name, remote_user_id ]);
-		var remote_user_list = document.getElementById("remote_user_list");
-		var new_item = document.createElement("div");
-		new_item.id = "remote_user_list_" + remote_user_id;
-		new_item.innerHTML = "<input type=\"button\" value=\""
-				+ remote_user_name + "\" onClick=\"onRemoteUserClick("
-				+ remote_user_id + ");\" />";
-		remote_user_list.appendChild(new_item);
+		$("<button/>", {
+			text : remote_user_name,
+			click : function() {
+				onRemoteUserClick(remote_user_id);
+			}
+		}).button().appendTo($("<div/>", {
+			id : "remote_user_list_" + remote_user_id
+		}).appendTo("#remote_user_list"));
 	}
 
 	/*
@@ -248,10 +249,7 @@ label,input {
 		if (index != -1) {
 			// Remove from list
 			remote_users.splice(index, 1);
-			var remote_user_list = document.getElementById("remote_user_list");
-			var remote_user_item = document.getElementById("remote_user_list_"
-					+ remote_user_id);
-			remote_user_list.removeChild(remote_user_item);
+			$("#remote_user_list_" + remote_user_id).remove();
 		}
 	}
 
@@ -285,23 +283,27 @@ label,input {
 				+ call_id);
 
 		// Unique ids
-		if (document.getElementById("call_" + call_id) != null) {
+		if ($("#call_" + call_id).length != 0) {
 			return;
 		}
 
-		var call_div = document.createElement("div");
-		call_div.id = "call_" + call_id;
-		call_div.innerHTML = remote_user_name
-				+ " wants you to join "
-				+ room_name
-				+ ". <input type=\"button\" value=\"Accept\" onClick=\"onAccept("
-				+ call_id
-				+ ");\" /> <input type=\"button\" value=\"Decline\" onClick=\"onDecline("
-				+ call_id + ");\" /> <div id=\"call_timer_"+call_id+"\"></div>";
-
 		// Insert above
-		var call_list_div = document.getElementById("call_list")
-		call_list_div.insertBefore(call_div, call_list_div.firstChild);
+		$("<div/>", {
+			id : "call_" + call_id,
+			text : remote_user_name + " wants you to join " + room_name + "."
+		}).append($("<button/>", {
+			text : "Accept",
+			click : function() {
+				onAccept(call_id);
+			}
+		}).button()).append($("<button/>", {
+			text : "Decline",
+			click : function() {
+				onDecline(call_id);
+			}
+		}).button()).append($("<div/>", {
+			id : "call_timer_" + call_id
+		})).prependTo("#call_list");
 
 		// Auto-decline after x seconds
 		onAutoDeclineTimer(call_id, auto_decline_time);
@@ -316,11 +318,9 @@ label,input {
 	function onAccept(call_id) {
 		console.log("Accept: " + call_id);
 
-		var call_div = document.getElementById("call_" + call_id);
-		if (call_div != null) { // Extra check
+		if ($("#call_" + call_id).length != 0) { // Extra check
 			// TODO Accept
-			document.getElementById("call_list").removeChild(
-					document.getElementById("call_" + call_id));
+			$("#call_" + call_id).remove();
 		}
 	}
 
@@ -333,10 +333,9 @@ label,input {
 	function onDecline(call_id) {
 		console.log("Decline: " + call_id);
 
-		var call_div = document.getElementById("call_" + call_id);
-		if (call_div != null) { // Extra check
+		if ($("#call_" + call_id).length != 0) { // Extra check
 			// TODO Decline
-			document.getElementById("call_list").removeChild(call_div);
+			$("#call_" + call_id).remove();
 		}
 	}
 
@@ -348,14 +347,13 @@ label,input {
 	 * @time_left - Number of seconds left on the timeout
 	 */
 	function onAutoDeclineTimer(call_id, time_left) {
-		var call_timer_div = document.getElementById("call_timer_" + call_id);
-		if (call_timer_div != null) { // Might have been manually declined
+		if ($("#call_timer_" + call_id).length != 0) { // Might have been manually declined
 			time_left--;
 			if (time_left <= 0) { // Time is up, decline
 				onDecline(call_id);
 			} else {
 				if (time_left <= 10) { // Only display last 10 seconds
-					call_timer_div.innerHTML = time_left;
+					$("#call_timer_" + call_id).text(time_left);
 				}
 
 				setTimeout(function() {
@@ -379,11 +377,8 @@ label,input {
 			class="text ui-widget-content ui-corner-all" />
 	</div>
 	<h1>Lobby</h1>
-	<h2 id="welcome_message">
-		Welcome
-		</h2>
+	<h2 id="welcome_message">Welcome</h2>
 	<button id="change_user_name">Change user name</button>
-	<br />
 	<button id="create_room">Create room</button>
 	<h3>Rooms</h3>
 	<div id="room_list"></div>
