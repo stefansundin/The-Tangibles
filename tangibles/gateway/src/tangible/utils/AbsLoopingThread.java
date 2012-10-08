@@ -25,11 +25,6 @@ public abstract class AbsLoopingThread extends Thread implements LoopingThread {
         this.runningSetup();
         while (_running) {
             this.loopingProcess();
-            try {
-                Thread.sleep(3000); // Sleep max 3 sec before starting again.
-            } catch (InterruptedException ex) {
-                continue;
-            }
         }
         
     }
