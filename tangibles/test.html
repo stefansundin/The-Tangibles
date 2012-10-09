@@ -38,6 +38,10 @@ function preRegisterDevices(){
 	registerDevices();
 }
 
+function err(e) {
+	console.log(e.msg);
+}
+
 function registerDevices() {
 	api.listDevices(function(d) {
 		var num = d.msg.length;
@@ -45,7 +49,9 @@ function registerDevices() {
 			var devid = d.msg[i].id;
 			api.reserveDevice(devid, function(r) {
 				console.log('Got device: '+r.msg);
-				devices.push(r.msg);
+				var device = {id:r.msg, subscribed:false, pressListeners:[]};
+				listenToEvents(device);
+				devices.push(device);
 			}, err);
 		}
 		$('#status').val('Registered '+num+' devices!');
@@ -53,15 +59,16 @@ function registerDevices() {
 	}, err);
 }
 
-function listenToEvents(devid) {
-	api.subscribeToEvents(devid, function(d) {
-		console.log('Listening on events from '+devid);
+function listenToEvents(dev) {
+	if (dev.subscribed) return;
+	api.subscribeToEvents(dev.id, function(d) {
+		console.log('Listening on events from '+dev.id);
+		dev.subscribed = true;
 		if (socket != null) return;
 		
 		socket = new WebSocket('ws://127.0.0.1:' + d.msg.port + '/streaming');
 		socket.onopen = function(e) {
 			console.log('Opened websocket: '+e.target.URL);
-			//console.log(evt);
 			socket.send(JSON.stringify({'flow': 'ctrl', 'msg' : api.getAppUUID()}));
 		};
 		socket.onerror = function(e) {
@@ -79,27 +86,98 @@ function listenToEvents(devid) {
 }
 
 function eventHandler(msg) {
-	var n = devices.indexOf(msg.devId);
-	var displayNames = ['call', 'reject'];
 	if (msg.event == 'pressed') {
-		console.log('Pressed '+displayNames[n]+'!');
+		for (d = 0; d < devices.length; d=d+1) {
+			if (devices[d].id == msg.devId) {
+				for (i = 0; i < devices[d].pressListeners.length; i=i+1) {
+					devices[d].pressListeners[i](msg);
+				}
+			}
+		}
 	}
 }
 
-function setColor(devid, color) {
+function setColor(dev, color) {
 	// color = "RRGGBB"
-	console.log('setColor('+devid+','+color+')');
-	api.showColor(devid, color, err, err);
+	console.log('setColor('+dev.id+','+color+')');
+	api.showColor(dev.id, color, err, err);
 }
 
-function showPicture(devid, url) {
-	console.log('showPicture('+devid+','+url+')');
-	api.showPicture(devid, url, err, err);
+function showTextPic(dev, url, text, color, bg) {
+	showText(dev, text, color, bg);
+	showPicture(dev, url);
 }
 
-function showText(devid, text, color) {
-	console.log('showText('+devid+','+text+','+color+')');
-	api.showText(devid, text, color, err, err, err);
+function showPicture(dev, url) {
+	console.log('showPicture('+dev.id+','+url+')');
+	api.showPicture(dev.id, url, err, err);
+}
+
+function showText(dev, text, color, bg) {
+	setColor(dev, bg);
+	console.log('showText('+dev.id+','+text+','+color+')');
+	setTimeout(function() {api.showText(dev.id, text, color, err, err, err);},100);
+}
+
+function acceptedCall(call_id, users, onHangup, onMute, onBlank) {
+	var enabled = true;
+	
+	showText(devices[0], 'Blank Workspace', '000000', 'FFFFFF');
+	showTextPic(devices[2], 'http://localhost/mute.png', 'Mute', '000000', 'FFFFFF');
+	showTextPic(devices[1], 'http://localhost/deny.png', 'Deny', '000000', 'FFFFFF');
+	
+	for (i = 0; i < users.length; i = i + 1) {
+		showTextPic(devices[3+i], users[i].img, users[i].name, '000000', 'FFFFFF');
+	}
+	
+	devices[1].pressListeners.push(function(msg) {
+		if (enabled) {
+			enabled = false;
+			showText(devices[1], 'Call ended', '000000', 'FFFFFF');
+			devices[1].pressListeners = [];
+			onHangup(call_id);
+		}
+	});
+	
+	devices[2].pressListeners.push(function(msg) {
+		if (enabled && onMute) {
+			onMute(call_id);
+		}
+	});
+	
+	devices[0].pressListeners.push(function(msg) {
+		if (enabled && onBlank) {
+			onBlank(call_id);
+		}
+	});
+}
+
+function incommingCall(call_id, caller, room, onAccept, onDeny) {
+	showTextPic(devices[0], 'http://localhost/accept.png', 'Accept', '000000', 'FFFFFF');
+	showTextPic(devices[1], 'http://localhost/deny.png', 'Decline', '000000', 'FFFFFF');
+	showText(devices[2], caller+' invited you to '+room+'.', '000000', 'FFFFFF');
+	
+	var enabled = true;
+	
+	devices[0].pressListeners.push(function(msg) {
+		if (enabled) {
+			enabled = false;
+			devices[0].pressListeners = [];
+			devices[1].pressListeners = [];
+			onAccept(call_id);
+			acceptedCall(call_id, [{name:'Samuel',img:'http://localhost/profile.png'},{name:'Viktor',img:'http://localhost/profile.png'},{name:'John',img:'http://localhost/profile.png'}], function(cid) {
+				console.log('Hung up');
+			});
+		}
+	});
+	devices[1].pressListeners.push(function(msg) {
+		if (enabled) {
+			enabled = false;
+			devices[0].pressListeners = [];
+			devices[1].pressListeners = [];
+			onDeny(call_id);
+		}
+	});
 }
 
 function onExit(e) {
@@ -125,6 +203,7 @@ function register(callback){
 		$('#status').val('Connected!');
 		$('#button_register_devices').removeAttr('disabled');
 		if(typeof callback != "undefined"){callback();}
+		preRegisterDevices();
 	}, err);
 }
 
@@ -156,6 +235,7 @@ $(document).ready(function() {
 			<button onclick="listenToEvents(devices[1]);">Listen to cube 1</button>
 		</p>
 	</p>
+	<p><button onclick="incommingCall(1, 'John', 'Workroom', console.log, console.log);">Simulate incomming call</button></p>
 	<p><button onclick="onExit();">Release all devices and unregister</button></p>
 	<!-- <p><button id="button_register_one_devices" onclick="regisiterOneDevice();">Register one device</button></p>-->
 </body>
