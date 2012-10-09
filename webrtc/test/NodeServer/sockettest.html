@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>WebSocket Test</title>
+	<meta charset="UTF-8" />
+	<script src="clientSocket.js"></script>
+	<script>
+		
+		var soc = new ClientSocket("ws://130.240.5.191:12345");
+		 
+		soc.on('open', new function(){
+			console.log((new Date()) + " opened");
+		});
+		soc.on('close', new function(){
+			console.log((new Date()) + " closed");
+		});
+		
+		soc.on('msg', new function(message){
+			console.log("Answer:");
+			console.log((new Date()) + message);
+		});
+		
+	</script>
+</head>
+<body>
+	<p>Welcome!</p>
+</body>
+</html>
