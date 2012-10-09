@@ -260,6 +260,9 @@ function updateRoomUserList(room_id) {
 		for ( var i = 0; i < rooms[index][2].length; i++) {
 			var user_index = findRemoteUserIndex(rooms[index][2][i]);
 			if (user_index != -1) {
+				// Make sure each user only exist in one room in the list
+				$("i.remote_user_" + remote_users[user_index][1]).remove();
+
 				$("#room_user_list_" + room_id).append($("<i/>", {
 					class : "remote_user_" + remote_users[user_index][1],
 					text : remote_users[user_index][0] + " "
@@ -297,11 +300,51 @@ function onRoomDelete(room_id) {
 function onRoomClick(room_id) {
 	console.log("RoomClick: " + room_id);
 
-	// TODO
 	var index = findRoomIndex(room_id);
 	if (index != -1) {
 		console.log("RoomClick found: " + rooms[index][0]);
 		enterRoom(room_id);
+	}
+}
+
+function onRemoteUserEnterRoom(remote_user_id, room_id) {
+	console.log("RemoteUserEnterRoom: " + remote_user_id + " " + room_id);
+
+	// TODO Check if the user id is in another room?
+	var index = findRoomIndex(room_id);
+	if (index != -1) {
+		var user_index = findRemoteUserIndex(remote_user_id);
+		if (user_index != -1) {
+			if (rooms[index][2].indexOf(remote_user_id) == -1) {
+				rooms[index][2].push(remote_user_id);
+
+				// Make sure each user only exist in one room in the list
+				$("i.remote_user_" + remote_users[user_index][1]).remove();
+
+				$("#room_user_list_" + room_id).append($("<i/>", {
+					class : "remote_user_" + remote_users[user_index][1],
+					text : remote_users[user_index][0] + " "
+				}));
+			}
+		}
+	}
+}
+
+function onRemoteUserLeaveRoom(remote_user_id, room_id) {
+	console.log("RemoteUserLeaveRoom: " + remote_user_id + " " + room_id);
+
+	var index = findRoomIndex(room_id);
+	if (index != -1) {
+		var user_index = findRemoteUserIndex(remote_user_id);
+		if (user_index != -1) {
+			var old_index = rooms[index][2].indexOf(remote_user_id);
+			if (old_index != -1) {
+				rooms[index][2].splice(old_index, 1);
+
+				// Remove the user from the list
+				$("i.remote_user_" + remote_users[user_index][1]).remove();
+			}
+		}
 	}
 }
 
