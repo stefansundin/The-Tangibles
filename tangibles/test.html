@@ -106,9 +106,11 @@ function onExit(e) {
 	//document.body.style.backgroundColor = 'black';
 	console.log("Release");
 	api.releaseAllDevices(err, err);
-	api.unregister(err, err);
-	registered = false;
-	$('#status').val('Unregistered');
+	api.unregister(function(e){
+		err(e);	registered = false;
+		$('#status').val('Unregistered');
+	}, err);
+
 	/*if (api.getReservedDevices().length > 0) {
 		return 'Please unregister devices first.';
 	}*/
