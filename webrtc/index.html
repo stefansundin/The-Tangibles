@@ -25,15 +25,10 @@ label,input {
 	position: absolute;
 	bottom: 0;
 }
-
-#call_list>div>div { /* Auto decline timeout */
-	display: inline;
-	color: red;
-}
 </style>
 
 <script>
-	var auto_decline_time = 20;
+	var auto_decline_time = 60;
 	var rooms = [];
 	var remote_users = [];
 	var user_name = "User#" + Math.floor((Math.random() * 999) + 1);
@@ -303,7 +298,13 @@ label,input {
 			}
 		}).button()).append($("<div/>", {
 			id : "call_timer_" + call_id
-		})).prependTo("#call_list");
+		}).css({
+			display : "inline",
+			color : "red"
+		})).hide().prependTo("#call_list");
+
+		// Effect
+		$("#call_" + call_id).show("drop");
 
 		// Auto-decline after x seconds
 		onAutoDeclineTimer(call_id, auto_decline_time);
@@ -319,8 +320,14 @@ label,input {
 		console.log("Accept: " + call_id);
 
 		if ($("#call_" + call_id).length != 0) { // Extra check
+			$("#call_timer_" + call_id).text("");
 			// TODO Accept
-			$("#call_" + call_id).remove();
+			$("#call_" + call_id).removeAttr("id").hide({
+				effect : "drop",
+				complete : function() {
+					$(this).remove();
+				}
+			});
 		}
 	}
 
@@ -334,8 +341,14 @@ label,input {
 		console.log("Decline: " + call_id);
 
 		if ($("#call_" + call_id).length != 0) { // Extra check
+			$("#call_timer_" + call_id).text("");
 			// TODO Decline
-			$("#call_" + call_id).remove();
+			$("#call_" + call_id).removeAttr("id").hide({
+				effect : "drop",
+				complete : function() {
+					$(this).remove();
+				}
+			});
 		}
 	}
 
