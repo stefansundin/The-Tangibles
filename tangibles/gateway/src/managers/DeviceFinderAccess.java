@@ -70,7 +70,7 @@ public enum DeviceFinderAccess implements SingletonAccessor<DeviceFinder> {
             } catch (SocketTimeoutException ex) {
                 //exiting on a timeout Exception
                 //the discovery session is over for now.
-                Logger.getLogger(DeviceFinderImpl.class.getName()).log(Level.INFO, "expected socket timeout");
+                //Logger.getLogger(DeviceFinderImpl.class.getName()).log(Level.INFO, "expected socket timeout");
             }
         }
 

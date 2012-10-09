@@ -8,98 +8,128 @@
 
 var api;
 var devices = [];
+var socket = null;
+var	registered = false;
 
 function err(e) {
 	console.log(e.msg);
 }
 
-function registerDevices() {
+// Used for debug only
+var t = 0;
+function regisiterOneDevice(){
 	api.listDevices(function(d) {
 		for (var i=0; i < 6; i++) {
+			if (t != i){continue};
 			api.reserveDevice(d.msg[i].id, function(r) {
 				console.log('Got device: '+r.msg);
 				devices.push(r.msg);
 			}, err);
 		}
-		$('#status').val('Registered 6 devices!');
+		$('#status').val('Registered one devices');
 		$('#button_start_sifteo').removeAttr('disabled');
+	}, err);
+	t+=1;
+	t =t % 6;
+}
+
+function preRegisterDevices(){
+	if(!registered){ register(registerDevices);return;};
+	registerDevices();
+}
+
+function registerDevices() {
+	api.listDevices(function(d) {
+		var num = d.msg.length;
+		for (var i=0; i < num; i++) {
+			var devid = d.msg[i].id;
+			api.reserveDevice(devid, function(r) {
+				console.log('Got device: '+r.msg);
+				devices.push(r.msg);
+			}, err);
+		}
+		$('#status').val('Registered '+num+' devices!');
+		$('#sifteo_stuff').removeAttr('disabled');
 	}, err);
 }
 
-function listenToEvents(device_id) {
-	api.subscribeToEvents(devices[device_id], function(d) {
+function listenToEvents(devid) {
+	api.subscribeToEvents(devid, function(d) {
+		console.log('Listening on events from '+devid);
+		if (socket != null) return;
+		
 		socket = new WebSocket('ws://127.0.0.1:' + d.msg.port + '/streaming');
-		socket.onopen = function (evt) {
-			console.log('Opened websocket');
+		socket.onopen = function(e) {
+			console.log('Opened websocket: '+e.target.URL);
+			//console.log(evt);
 			socket.send(JSON.stringify({'flow': 'ctrl', 'msg' : api.getAppUUID()}));
 		};
-		socket.onerror = function (e) {
+		socket.onerror = function(e) {
 			console.log('Error: ' + e.data);
 		}
-		socket.onclose = function (e) {
+		socket.onclose = function(e) {
 			console.log('Close: ' + e.data);
 		}
 		socket.onmessage = function(e) {
-			console.log('Received: ' + e.data);
-			if($.parseJSON(e.data).msg.event == 'pressed') {
-				console.log("Pressed sifteo!");
-			}
+			var data = $.parseJSON(e.data);
+			console.log('Received: '+e.data);
+			eventHandler(data.msg);
 		}
 	}, err);
 }
 
-function setColor(device_id, color) {
+function eventHandler(msg) {
+	var n = devices.indexOf(msg.devId);
+	var displayNames = ['call', 'reject'];
+	if (msg.event == 'pressed') {
+		console.log('Pressed '+displayNames[n]+'!');
+	}
+}
+
+function setColor(devid, color) {
 	// color = "RRGGBB"
-	api.showColor(devices[device_id], color, err, err);
+	console.log('setColor('+devid+','+color+')');
+	api.showColor(devid, color, err, err);
 }
 
-function showPicture(device_id, url) {
-	api.showPicture(devices[device_id], url, err, err);
+function showPicture(devid, url) {
+	console.log('showPicture('+devid+','+url+')');
+	api.showPicture(devid, url, err, err);
 }
 
-function showText(device_id, text, color){
-	api.showText(devices[device_id], text, color, err, err, err);
-}
-
-function testSifteo(device_id) {
-	console.log("Starting tests with device "+device_id+","+devices[device_id]);
-
-	console.log("Test: color blue");
-	setColor(device_id, "0000ff");
-
-	setTimeout(function(){
-		console.log("Test: show text");
-		showText(device_id, "Test text", "0000ff");
-	}, 1000);
-
-	setTimeout(function(){
-		console.log("Test: show picture");
-		showPicture(device_id, "http://cdn.ghacks.net/wp-content/themes/magatheme/img/mozilla-firefox.png");
-	}, 1500);
-
-	setTimeout(function(){
-		console.log("Test: listen to events");
-		listenToEvents(device_id);
-	}, 2500);
+function showText(devid, text, color) {
+	console.log('showText('+devid+','+text+','+color+')');
+	api.showText(devid, text, color, err, err, err);
 }
 
 function onExit(e) {
 	//document.body.style.backgroundColor = 'black';
-	$('#status').val('Unregistered');
+	console.log("Release");
 	api.releaseAllDevices(err, err);
 	api.unregister(err, err);
+	registered = false;
+	$('#status').val('Unregistered');
+	/*if (api.getReservedDevices().length > 0) {
+		return 'Please unregister devices first.';
+	}*/
+}
+
+function register(callback){
+	// Connect to
+	$('#status').val('Connecting to TangibleAPI...');
+	api = new TangibleAPI('127.0.0.1');
+	api.register('My API', 'Desc', function(d) {
+		registered = true;
+		$('#status').val('Connected!');
+		$('#button_register_devices').removeAttr('disabled');
+		if(typeof callback != "undefined"){callback();}
+	}, err);
 }
 
 $(window).bind('beforeunload', onExit);
 
 $(document).ready(function() {
-	// Connect to
-	$('#status').val('Connecting to TangibleAPI...');
-	api = new TangibleAPI('127.0.0.1');
-	api.register('My API', 'Desc', function(d) {
-		$('#status').val('Connected!');
-		$('#button_register_devices').removeAttr('disabled');
-	}, err);
+	register();
 });
 
 	</script>
@@ -112,8 +142,19 @@ $(document).ready(function() {
 <body>
 	<p>Test page</p>
 	<p>Status: <input type="text" id="status" readonly /></p>
-	<p><button id="button_register_devices" onclick="registerDevices();" disabled>Register devices</button></p>
-	<p><button id="button_start_sifteo" onclick="testSifteo(1);" disabled>Start Sifteo</button></p>
+	<p><button id="button_register_devices" onclick="preRegisterDevices();" disabled>Register and reserve devices</button></p>
+	
+	<p id="sifteo_stuff" disabled>
+		<button onclick="showPicture(devices[0],'http://cdn.ghacks.net/wp-content/themes/magatheme/img/mozilla-firefox.png');">Show picture (remote)</button>
+		<button onclick="showPicture(devices[0],'http://localhost/mozilla-firefox.png');">Show picture (local)</button>
+		<button onclick="showText(devices[0],'Test text','0000ff');">Show text</button>
+		<button onclick="setColor(devices[0],'0000ff');">Set color to blue</button>
+		<p>
+			<button onclick="listenToEvents(devices[0]);">Listen to cube 0</button>
+			<button onclick="listenToEvents(devices[1]);">Listen to cube 1</button>
+		</p>
+	</p>
 	<p><button onclick="onExit();">Release all devices and unregister</button></p>
+	<!-- <p><button id="button_register_one_devices" onclick="regisiterOneDevice();">Register one device</button></p>-->
 </body>
 </html>
