@@ -1,7 +1,11 @@
 
+/**
+ By Pitebros - more comments coming soon :)
+ */
+
 var ImageProc = ImageProc || {};
 
-ImageProc.HSV = function() {
+ImageProc.HSVFilter = function() {
     
     this.HSV = [];
     this.thres = [];
@@ -16,35 +20,40 @@ ImageProc.HSV = function() {
     this.upperV = 1;
 }
 
-ImageProc.HSV.prototype.setHueThreshold = function(lower, upper) {
+ImageProc.HSVFilter.prototype.setHueThreshold = function(lower, upper) {
     // Check [0, 360]?
     this.lowerH = lower;
     this.upperH = upper;
 }
 
-ImageProc.HSV.prototype.setSaturationThreshold = function(lower, upper) {
+ImageProc.HSVFilter.prototype.setSaturationThreshold = function(lower, upper) {
     // Check [0, 1]?
     this.lowerS = lower;
     this.upperS = upper;
 }
 
-ImageProc.HSV.prototype.setValueThreshold = function(lower, upper) {
+ImageProc.HSVFilter.prototype.setValueThreshold = function(lower, upper) {
     // Check [0, 1]?
     this.lowerV = lower;
     this.upperV = upper;
 }
 
-ImageProc.HSV.prototype.analyze = function(RGBData) {
+ImageProc.HSVFilter.prototype.shiftHueThreshold = function(degrees) {
+    this.lowerH = (this.lowerH + degrees) % 360;
+    this.upperH = (this.upperH + degrees) % 360;
+}
+
+ImageProc.HSVFilter.prototype.threshold = function(RGBData) {
     ImageProc.HSVFromRGBImage(RGBData, this.HSV);
     ImageProc.HSVThreshold(this.HSV,    this.thres,
-                      		this.lowerH, this.upperH,
-                      		this.lowerS, this.upperS,
-                      		this.lowerV, this.upperV);
+                           this.lowerH, this.upperH,
+                           this.lowerS, this.upperS,
+                           this.lowerV, this.upperV);
     return this.thres;
 }
 
-ImageProc.HSV.prototype.fastCrapAnalyze = function(srcRGB) {
-
+ImageProc.HSVFilter.prototype.filter = function(srcRGB) {
+    
 	for (var i = 0; i < srcRGB.length; i += 4) {
         
         R = srcRGB[i + 0];
@@ -52,12 +61,12 @@ ImageProc.HSV.prototype.fastCrapAnalyze = function(srcRGB) {
         B = srcRGB[i + 2];
 		
 		var max = Math.max(R, G, B),
-        	min = Math.min(R, G, B),
-        	H, S, V = max / 255.0,
-        	delta = max - min;
-    
+        min = Math.min(R, G, B),
+        H, S, V = max / 255.0,
+        delta = max - min;
+        
     	S = (max == 0) ? 0 : delta / max;
-    
+        
     	if (max == min) {
         	H = 0; // achromatic
     	} else {
@@ -68,7 +77,7 @@ ImageProc.HSV.prototype.fastCrapAnalyze = function(srcRGB) {
         	}
         	H = (H / 6) * 360;
     	}
-    
+        
 		if (((this.lowerH < this.upperH) && (H < this.lowerH || H > this.upperH)) ||
 			((this.lowerH >= this.upperH) && (H < this.lowerH && H > this.upperH)) || // Threshold on hue
             (S < this.lowerS || S > this.upperS) ||  								  // Threshold on saturation
@@ -91,7 +100,7 @@ ImageProc.HSV.prototype.fastCrapAnalyze = function(srcRGB) {
 ImageProc.HSVFromRGBImage = function(srcRGB, dstHSV) {
     
     var i, j,
-        R, G, B;
+    R, G, B;
     
     for (i = 0, j = 0; i < srcRGB.length; i += 4, j += 3) {
         
@@ -116,9 +125,9 @@ ImageProc.HSVFromRGBImage = function(srcRGB, dstHSV) {
 ImageProc.HSVFromRGBPixelX = function(R, G, B, dst, dstStartIndex) {
     
     var max = Math.max(R, G, B),
-        min = Math.min(R, G, B),
-        H, S, V = max / 255.0,
-        delta = max - min;
+    min = Math.min(R, G, B),
+    H, S, V = max / 255.0,
+    delta = max - min;
     
     S = (max == 0) ? 0 : delta / max;
     
@@ -149,9 +158,9 @@ ImageProc.HSVFromRGBPixelX = function(R, G, B, dst, dstStartIndex) {
  * @return   Array       The HSV representation
  */
 ImageProc.HSVFromRGBPixel = function(R, G, B) {
-
+    
     var max = Math.max(R, G, B),
-        min = Math.min(R, G, B);
+    min = Math.min(R, G, B);
     
     var H, S, V = max / 255.0;
     var delta = max - min;
@@ -177,8 +186,8 @@ ImageProc.HSVThreshold = function(srcHSV, dstGrey,
                                   lowerV, upperV) {
     
     var H, S, V,
-        i, HSVIndex = 0;
-
+    i, HSVIndex = 0;
+    
     if (lowerH < upperH) {
         
         for (i = 0; HSVIndex < srcHSV.length; i++) {
@@ -215,10 +224,7 @@ ImageProc.HSVThreshold = function(srcHSV, dstGrey,
             }
         }
         
-    }
-    
+    }    
     return dstGrey;
 }
-
-
 

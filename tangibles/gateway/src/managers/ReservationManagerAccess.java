@@ -34,28 +34,29 @@ public enum ReservationManagerAccess {
 
         private ReservationManagerImpl() {
             //private constructor
-            _reservations = new HashMap<UUID, Set<TangibleDevice>>();
-            _busyDevices = new HashMap<String, TangibleDevice>();
+            _reservations = Collections.synchronizedMap(new HashMap<UUID, Set<TangibleDevice>>());
+            _busyDevices = Collections.synchronizedMap(new HashMap<String, TangibleDevice>());
         }
 
         @Override
         public synchronized String reserveDeviceById(String device_id, UUID app_id)
                 throws UnsuccessfulReservationException {
             Logger.getLogger(ReservationManagerImpl.class.getName()).log(Level.INFO, "trying to reserve the device: {0}", device_id);
-            if (!isDeviceAvailable(device_id) || app_id == null) {
-                throw new UnsuccessfulReservationException();
-            }//else the device is available
+            //if (!isDeviceAvailable(device_id) || app_id == null) {
+            //    throw new UnsuccessfulReservationException();
+            //}//else the device is available
             TangibleDevice dev = _devFinder.getDevice(device_id);
             addNewReservation(dev, app_id);
-            _busyDevices.put(device_id, dev);
-            //<FOR DEBUG>
-//      System.out.println("Reservation made!!!");
+            if(!_busyDevices.containsKey(device_id)){
+            	System.out.println("Putting in device in busydevices");
+            	_busyDevices.put(device_id, dev);
+            	System.out.println("ok");
+            }
             dev.getTalk().showColor(0x00DA55);
-            //</FOR DEBUG>
             return device_id;
         }
 
-        private void addNewReservation(TangibleDevice dev, UUID app_id) {
+        private synchronized void addNewReservation(TangibleDevice dev, UUID app_id) {
             synchronized (_reservations) {
                 if (!_reservations.containsKey(app_id)) {
                     //create the set
@@ -63,6 +64,21 @@ public enum ReservationManagerAccess {
                 }
                 //get the good set and add the new reserved device
                 _reservations.get(app_id).add(dev);
+                
+                // Clean up old reservation on other appid
+                HashMap<UUID, TangibleDevice> temp = new HashMap<UUID, TangibleDevice>();
+                for (UUID appid : _reservations.keySet()) {
+                	if (appid.toString().equals(app_id.toString())) continue;
+                	Set<TangibleDevice> td = _reservations.get(appid);
+                	for (TangibleDevice tangibleDevice : td) {
+                		if(!tangibleDevice.getId().equals(dev.getId())) continue;
+                		// Prevent from looping over _reservations and removing from it at the same time
+                		temp.put(appid, tangibleDevice);
+					}           	
+				}
+                for (UUID appid : temp.keySet()) {
+                	endReservation(temp.get(appid).getId(),appid);
+				}
             }
         }
 
@@ -94,12 +110,12 @@ public enum ReservationManagerAccess {
             if (!_busyDevices.containsKey(device_id) || //if the device is not busy
                     _reservations.get(app_id) == null || //or if this application has no reservation
                     !_reservations.get(app_id).contains(_busyDevices.get(device_id))) { //or if this device is not reserved by this application
-                throw new NoSuchReservationException();
+            	throw new NoSuchReservationException();
             }
             //otherwise let's remove that from both the busy list and the reservation map!
             _reservations.get(app_id).remove(_busyDevices.remove(device_id));
             
-            _devFinder.getDevice(device_id).getTalk().showColor(0xDA0000);
+            _devFinder.getDevice(device_id).getTalk().showColor(0xDA0000); 
         }
 
         @Override
