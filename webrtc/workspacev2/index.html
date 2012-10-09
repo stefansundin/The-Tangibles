@@ -1,32 +1,46 @@
 
 <html>
   <head>
-    <title>Room view</title>
+    <title>Workspace view</title>
     <link type="text/css" href="/style.css" rel="stylesheet"></link>
 
     <script src="/webrtc.io.js"></script>
   </head>
   <body onload="init()">
     <div id="videos">
-      <video id="you" class="flip" autoplay></video>
+      <video id="you" autoplay height="100%"></video>
     </div>
     <div id="chatbox">
-      <button id="fullscreen">Enter Full Screen</button>
-      <button id="newRoom">Create A New Room</button>
+  <button id="fullscreen">Enter Full Screen</button>
+<!--      <button id="newRoom">Create A New Room</button>
 	  <button id="openWorkspace">Open the workspace</button>
 	  <button id="closeWorkspace">Close the workspace</button>
 	  <button id="inviteUser">Intvite</button>
 	  <button id="leaveRoom">Leave the room</button>	
-      <div id="messages">
+      <div id="messages"> -->
       </div>
       <br>
      <!-- <input id="chatinput" type="text"/> -->
     </div>
     <script>
       var videos = [];
+	  var videoStreams = [];
       var rooms = [1,2,3,4,5];
       var PeerConnection = window.PeerConnection || window.webkitPeerConnection00;
 
+	  function listVideos() {
+	    console.log(videos);
+		console.log(videos[0].id);
+		console.log(videos[0].id == "you");
+	  }
+	  function listVideoStreams() {
+	    console.log(videoStreams);
+	  }
+	  function spec(num) {
+	    var vid = document.getElementById("you");
+		vid.src = videos[num].src;
+	  }
+	  
       function getNumPerRow() {
         var len = videos.length;
         var biggest;
@@ -69,16 +83,29 @@
         var video = document.getElementById(domId);
         var clone = video.cloneNode(false);
         clone.id = "remote" + socketId;
-        document.getElementById('videos').appendChild(clone);
+        //document.getElementById('videos').appendChild(clone);
         videos.push(clone);
         return clone;
       }
       function removeVideo(socketId) {
-        var video = document.getElementById('remote' + socketId);
-        if (video) {
-            videos.splice(videos.indexOf(video), 1);
-            video.parentNode.removeChild(video);
-        }
+     //   var video = document.getElementById('remote' + socketId);
+		var index = -1;
+		for (var i = 0; i < videos.length; i++) {
+			if ( videos[i].id == 'remote' + socketId){
+				index = i;
+				break;
+			}
+		}
+		if (index > -1) {
+			videoStreams.splice(index, 1);
+			videos.splice(index, 1);
+		}
+		
+    //    if (video) {
+	//		videoStreams.splice(videos.indexOf(video),1);
+    //        videos.splice(videos.indexOf(video), 1);
+    //        video.parentNode.removeChild(video);
+   //     }
       }
 
       function addToChat(msg, color) {
@@ -108,7 +135,7 @@
 
       function initNewRoom() {
         var button = document.getElementById("newRoom");
-		//button.disabled = true;
+		button.disabled = true;
         button.addEventListener('click', function(event) {
 
             var chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz";
@@ -130,8 +157,7 @@
 			var clbutton = document.getElementById("closeWorkspace");
 			clbutton.disabled = false;
 			wsbutton.disabled = true;
-			var room = window.location.hash.slice(1);
-			workspaceWindow=window.open('http://localhost:8000/workspacev2/#' + room + '_desk');
+			workspaceWindow=window.open('http://google.com')
 		})
 	  }
 	  
@@ -148,8 +174,7 @@
 	  
 	  function onUserInvited(invited_user) {
 	    inviting_user = "You";
-		var room = window.location.hash.slice(1);
-		console.log('The user ' + invited_user + ' was invited by ' + inviting_user + ' to this room (' + room + ')');
+		console.log('The user ' + invited_user + ' was invited by ' + inviting_user);
 		writeMessageToChat(inviting_user + ' invited ' + invited_user);
 		// Send Invitation to that user
 	  }
@@ -226,7 +251,8 @@
             document.getElementById('you').src = URL.createObjectURL(stream);
             videos.push(document.getElementById('you'));
             rtc.attachStream(stream, 'you');
-            subdivideVideos();
+			videoStreams.push(stream);
+           // subdivideVideos();
           });
         }else {
           alert('Your browser is not supported or you have to turn on flags. In chrome you go to chrome://flags and turn on Enable PeerConnection remember to restart chrome');
@@ -243,25 +269,30 @@
         rtc.on('add remote stream', function(stream, socketId) {
           console.log("ADDING REMOTE STREAM...");
           var clone = cloneVideo('you', socketId);
-          document.getElementById(clone.id).setAttribute("class", "");
-          rtc.attachStream(stream, clone.id);
-          subdivideVideos();
+		  //clone.setAttribute("class", "");
+          clone.class="";
+		  //document.getElementById(clone.id).setAttribute("class", "");
+          //rtc.attachStream(stream, clone.id);
+		  var streamUrl = URL.createObjectURL(stream);
+		  clone.setAttribute("src", streamUrl);
+		  videoStreams.push(stream);
+         // subdivideVideos();
         });
         rtc.on('disconnect stream', function(data) {
             console.log('remove ' + data);
             removeVideo(data);
         });
         initFullScreen();
-        initNewRoom();
+        //initNewRoom();
         //initChat();
-		initOpenWorkspace();
-		initCloseWorkspace();
-		initInviteUser();
-		initLeaveRoom();
+		//initOpenWorkspace();
+		//initCloseWorkspace();
+		//initInviteUser();
+		//initLeaveRoom();
       }
       
       window.onresize = function(event) {
-        subdivideVideos();
+        //subdivideVideos();
       };
     </script>
   </body>
