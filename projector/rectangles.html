@@ -1,114 +1,238 @@
 
 <html>
-
-<head>
-
-<title>Projector Group Test</title>
-
-<script type="text/javascript" src="cv.js"></script>
-<script type="text/javascript" src="aruco.js"></script>
-<script type="text/javascript" src="imageproc.js"></script>
-<script type="text/javascript" src="mediaext.js"></script>
-
-<script>
-
-    var video, canvas, context, detector, filter, imageData;
-    var shouldDetectRectangles = false;
-
-    const kWidth = 320, kHeight = 240;
     
-	function init() {
-		
-		video = MediaExt.getCameraAccess(kWidth, kHeight, tick);
-		canvas = MediaExt.createCanvas(kWidth, kHeight);
-		context = canvas.getContext("2d");
-		
-		document.getElementById("hoho").appendChild(video);
-		document.getElementById("hoho").appendChild(canvas);
-		
-		detector = new AR.Detector();
-		
-		filter = new ImageProc.HSVFilter();
-        filter.setHueThreshold(340, 10);
-		filter.setSaturationThreshold(0.6, 1);
-		filter.setValueThreshold(0.3, 1);
-	}
-	
-	function tick() {
-		
-		snapshot();
-		
-		if (shouldDetectRectangles) {
-			var polys = detector.findRectangles(imageData);
-            drawPolys(polys);
-		}
+    <head>
         
-		setTimeout(tick, 1);
-	}
-	
-	
-	
-	function snapshot() {
-		context.drawImage(video, 0, 0, kWidth, kHeight);
-		imageData = context.getImageData(0, 0, kWidth, kHeight);
-		filter.filter(imageData.data);
-		context.putImageData(imageData, 0, 0);
-	}
-	
-	function drawPolys(polys) {
-		
-		var corners, corner, i, j;
-		
-		context.lineWidth = 3;
-		
-		for (i = 0; i < polys.length; i++) {
-			
-			corners = polys[i];
-			
-            // Create a path to draw the poly
-			context.strokeStyle = "blue";
-			context.beginPath();
+        <title>Projector Group Test</title>
+        
+        <script src="sylvester.js"></script>
+        <script type="text/javascript" src="cv.js"></script>
+        <script type="text/javascript" src="aruco.js"></script>
+        <script type="text/javascript" src="imageproc.js"></script>
+        <script type="text/javascript" src="mediaext.js"></script>
+        
+        <script>
             
-			for (j = 0; j < corners.length; j++) {
-				corner = corners[j];
-				context.moveTo(corner.x, corner.y);
-				corner = corners[(j + 1) % corners.length];
-				context.lineTo(corner.x, corner.y);
-			}
-			
-			context.stroke();
-			context.closePath();
-			
-            // Mark the corners with small green rectangles
-			context.strokeStyle = "green";
-			for (j = 0; j < corners.length; j++) {
-				corner = corners[j];
-				context.strokeRect(corners[j].x - 1, corners[j].y - 1, 2, 2);
-			}
-		}
-	}
-
-    function toggleFindRectangles() {
-        shouldDetectRectangles = !shouldDetectRectangles;
-    }
-
-
-</script>
-
-
-
-</head>
-
-<body style="font-family: monospace; background-color: black;" onLoad="init();">
-
-    <center>
-        <div style="margin: 10px; color:#FFF"><strong>HSV thresholding and shape detection</strong></div>
-        <div id="hoho" style="display:block"></div>
-        <button type="button" onClick="toggleFindRectangles();">Toggle shape detection</button>
-    </center>
-
-</body>
-
-
-
+            var video, canvas, context, detector, filter, imageData, transformCanvas;
+            var shouldDetectRectangles = true;
+            
+            const kWidth = 320, kHeight = 240;
+            
+            function init() {
+                
+                video = MediaExt.getCameraAccess(kWidth, kHeight, tick);
+                canvas = MediaExt.createCanvas(kWidth, kHeight);
+                transformCanvas = MediaExt.createCanvas(kWidth, kHeight);
+                context = canvas.getContext("2d");
+                
+                // document.getElementById("hoho").appendChild(video);
+                document.getElementById("hoho").appendChild(canvas);
+                document.getElementById("hoho").appendChild(transformCanvas);
+                
+                detector = new AR.Detector();
+                
+                filter = new ImageProc.HSVFilter();
+                filter.setHueThreshold(340, 10);
+                filter.setSaturationThreshold(0.35, 1);
+                filter.setValueThreshold(0.6, 1);
+            }
+            
+            function trackRed() {
+                filter.setHueThreshold(340, 10);
+                filter.setSaturationThreshold(0.35, 1);
+                filter.setValueThreshold(0.5, 1);
+            }
+            function trackGreen() {
+                filter.setHueThreshold(80, 120);
+                filter.setSaturationThreshold(0.1, 0.7);
+                filter.setValueThreshold(0.3, 1);
+            }
+            function trackBlue() {
+                filter.setHueThreshold(195, 225);
+                filter.setSaturationThreshold(0.1, 0.7);
+                filter.setValueThreshold(0.3, 1);
+            }
+            
+            function tick() {
+                
+                snapshot();
+                
+                if (shouldDetectRectangles) {
+                    var polys = detector.findRectangles(imageData);
+                    drawPolys(polys);
+                    
+                    if (polys.length > 0) {
+                        
+                        var poly = findBestRectangle(polys);
+                        var first, second;
+                        var leftMostX = kWidth + 1;
+                        secMostX = kWidth + 1;
+                        
+                        // Order the corners
+                        for (var i = 0; i < 4; i++) {
+                            if (poly[i].x < leftMostX) {
+                                first = i;
+                                leftMostX = poly[i].x;
+                            }
+                        }
+                        for (var i = 0; i < 4; i++) {
+                            if (poly[i].x < secMostX && i != first) {
+                                second = i;
+                                secMostX = poly[i].x;
+                            }
+                        }
+                        if (poly[first].y > poly[second].y) {
+                            first = second;
+                        }
+                        
+                        var ctx = transformCanvas.getContext('2d');
+                        ctx.drawImage(video, 0, 0, kWidth, kHeight);
+                        transform(transformCanvas, ctx.getImageData(0, 0, kWidth, kHeight),
+                                  poly[first], poly[(first + 1) % 4],
+                                  poly[(first + 2) % 4], poly[(first + 3) % 4]);
+                    }
+                }
+                
+                setTimeout(tick, 1);
+            }
+            
+            function findBestRectangle(candidates) {
+                
+                if (candidates.length == 0) {
+                    return null;
+                } else if (candidates.length > 1) {
+                    // Choose one of the rectangles based on.. something :)
+                }
+                return candidates[0];
+            }
+            
+            function snapshot() {
+                context.drawImage(video, 0, 0, kWidth, kHeight);
+                imageData = context.getImageData(0, 0, kWidth, kHeight);
+                filter.filter(imageData.data);
+                // context.putImageData(imageData, 0, 0);
+            }
+            
+            function drawPolys(polys) {
+                
+                var corners, corner, i, j;
+                
+                context.lineWidth = 3;
+                
+                for (i = 0; i < polys.length; i++) {
+                    
+                    corners = polys[i];
+                    
+                    // Create a path to draw the poly
+                    context.strokeStyle = "blue";
+                    context.beginPath();
+                    
+                    for (j = 0; j < corners.length; j++) {
+                        corner = corners[j];
+                        context.moveTo(corner.x, corner.y);
+                        corner = corners[(j + 1) % corners.length];
+                        context.lineTo(corner.x, corner.y);
+                    }
+                    
+                    context.stroke();
+                    context.closePath();
+                    
+                    // Mark the corners with small green rectangles
+                    context.strokeStyle = "green";
+                    for (j = 0; j < corners.length; j++) {
+                        corner = corners[j];
+                        context.strokeRect(corners[j].x - 1, corners[j].y - 1, 2, 2);
+                    }
+                }
+            }
+            
+            function toggleFindRectangles() {
+                shouldDetectRectangles = !shouldDetectRectangles;
+            }
+            
+            function transform(c, imageData2, d1, d2, d3, d4) {
+                
+                var c1 = new Object();
+                c1.x = 0;
+                c1.y = 0;
+                var c2 = new Object();
+                c2.x = c.width;
+                c2.y = 0;
+                var c4 = new Object();
+                c4.x = 0;
+                c4.y = c.height;
+                var c3 = new Object();
+                c3.x = c.width;
+                c3.y = c.height;
+                
+                var M = $M([
+                            [c1.x * c1.y, c1.x, c1.y, 1],
+                            [c2.x * c2.y, c2.x, c2.y, 1],
+                            [c3.x * c3.y, c3.x, c3.y, 1],
+                            [c4.x * c4.y, c4.x, c4.y, 1]
+                            ]);
+                
+                var A = $M([
+                            [d1.x],
+                            [d2.x],
+                            [d3.x],
+                            [d4.x]
+                            ]);
+                
+                var B = $M([
+                            [d1.y],
+                            [d2.y],
+                            [d3.y],
+                            [d4.y]
+                            ]);
+                
+                
+                Minv = M.inv();
+                var a = Minv.multiply(A);
+                var b = Minv.multiply(B);
+                
+                var ctx = c.getContext("2d");
+                
+                var imageData = ctx.createImageData(c.width, c.height);
+                
+                var dataIn = imageData2.data,
+                dataOut = imageData.data;
+                
+                for (var i = 0; i < c.width; i++) {
+                    for (var j = 0; j < c.height; j++) {
+                        
+                        var I = Math.round(a.e(1, 1) * i * j + a.e(2, 1) * i + a.e(3, 1) * j + a.e(4, 1));
+                        var J = Math.round(b.e(1, 1) * i * j + b.e(2, 1) * i + b.e(3, 1) * j + b.e(4, 1));
+                        var ci = i * 4 + j * c.width * 4,
+                        di = I * 4 + J * c.width * 4;
+                        
+                        dataOut[ci]     = dataIn[di];
+                        dataOut[ci + 1] = dataIn[di + 1];
+                        dataOut[ci + 2] = dataIn[di + 2];
+                        dataOut[ci + 3] = dataIn[di + 3];
+                    }
+                }
+                ctx.putImageData(imageData, 0, 0);
+            }
+            
+            </script>
+        
+        
+        
+    </head>
+    
+    <body style="font-family: monospace; background-color: black;" onLoad="init();">
+        
+        <center>
+            <div style="margin: 10px; color:#FFF"><strong>HSV thresholding and shape detection</strong></div>
+            <div id="hoho" style="display:block"></div>
+            
+            <button type="button" onClick="trackRed();">Red</button>
+            <button type="button" onClick="trackGreen();">Green</button>
+            <button type="button" onClick="trackBlue();">Blue</button>
+            
+        </center>
+        
+    </body>
+    
 </html>
