@@ -11,17 +11,25 @@ $(function() {
 		$("#dialog_create_room").dialog("open");
 	});
 	$("#change_user_name").click(function() {
-		$("#user_name").val(user_name);
 		$("#dialog_select_user_name").dialog("open");
 	});
 
 	$("#dialog_select_user_name").dialog({
 		autoOpen : false,
 		modal : true,
+		open : function(event, ui) {
+			$("#user_name").val(user_name);
+			$("#user_name").removeClass("ui-state-error");
+		},
 		buttons : {
 			OK : function() {
-				onChangeUserName($("#user_name").val());
-				$(this).dialog("close");
+				var name = $("#user_name").val();
+				if (name == "") {
+					$("#user_name").addClass("ui-state-error");
+				} else {
+					onChangeUserName(name);
+					$(this).dialog("close");
+				}
 			},
 			Cancel : function() {
 				$(this).dialog("close");
@@ -38,10 +46,18 @@ $(function() {
 	$("#dialog_create_room").dialog({
 		autoOpen : false,
 		modal : true,
+		open : function(event, ui) {
+			$("#room_name").removeClass("ui-state-error");
+		},
 		buttons : {
 			OK : function() {
-				onCreateRoom($("#room_name").val());
-				$(this).dialog("close");
+				var name = $("#room_name").val();
+				if (name == "") {
+					$("#room_name").addClass("ui-state-error");
+				} else {
+					onCreateRoom(name);
+					$(this).dialog("close");
+				}
 			},
 			Cancel : function() {
 				$(this).dialog("close");
@@ -487,8 +503,8 @@ function onDecline(call_id) {
  *            Number of seconds left on the timeout
  */
 function onAutoDeclineTimer(call_id, time_left) {
-	if ($("#call_timer_" + call_id).length != 0) { // Might have been manually
-		// declined
+	if ($("#call_timer_" + call_id).length != 0) {
+		// Might have been manually declined
 		time_left--;
 		if (time_left <= 0) { // Time is up, decline
 			onDecline(call_id);
