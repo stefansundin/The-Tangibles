@@ -9,9 +9,33 @@
 var api;
 var devices = [];
 var socket = null;
+var	registered = false;
 
 function err(e) {
 	console.log(e.msg);
+}
+
+// Used for debug only
+var t = 0;
+function regisiterOneDevice(){
+	api.listDevices(function(d) {
+		for (var i=0; i < 6; i++) {
+			if (t != i){continue};
+			api.reserveDevice(d.msg[i].id, function(r) {
+				console.log('Got device: '+r.msg);
+				devices.push(r.msg);
+			}, err);
+		}
+		$('#status').val('Registered one devices');
+		$('#button_start_sifteo').removeAttr('disabled');
+	}, err);
+	t+=1;
+	t =t % 6;
+}
+
+function preRegisterDevices(){
+	if(!registered){ register(registerDevices);return;};
+	registerDevices();
 }
 
 function registerDevices() {
@@ -80,24 +104,32 @@ function showText(devid, text, color) {
 
 function onExit(e) {
 	//document.body.style.backgroundColor = 'black';
-	//api.releaseAllDevices(err, err);
+	console.log("Release");
+	api.releaseAllDevices(err, err);
 	api.unregister(err, err);
+	registered = false;
 	$('#status').val('Unregistered');
 	/*if (api.getReservedDevices().length > 0) {
 		return 'Please unregister devices first.';
 	}*/
 }
 
-$(window).bind('beforeunload', onExit);
-
-$(document).ready(function() {
+function register(callback){
 	// Connect to
 	$('#status').val('Connecting to TangibleAPI...');
 	api = new TangibleAPI('127.0.0.1');
 	api.register('My API', 'Desc', function(d) {
+		registered = true;
 		$('#status').val('Connected!');
 		$('#button_register_devices').removeAttr('disabled');
+		if(typeof callback != "undefined"){callback();}
 	}, err);
+}
+
+$(window).bind('beforeunload', onExit);
+
+$(document).ready(function() {
+	register();
 });
 
 	</script>
@@ -110,7 +142,7 @@ $(document).ready(function() {
 <body>
 	<p>Test page</p>
 	<p>Status: <input type="text" id="status" readonly /></p>
-	<p><button id="button_register_devices" onclick="registerDevices();" disabled>Register devices</button></p>
+	<p><button id="button_register_devices" onclick="preRegisterDevices();" disabled>Register and reserve devices</button></p>
 	
 	<p id="sifteo_stuff" disabled>
 		<button onclick="showPicture(devices[0],'http://cdn.ghacks.net/wp-content/themes/magatheme/img/mozilla-firefox.png');">Show picture (remote)</button>
@@ -123,5 +155,6 @@ $(document).ready(function() {
 		</p>
 	</p>
 	<p><button onclick="onExit();">Release all devices and unregister</button></p>
+	<!-- <p><button id="button_register_one_devices" onclick="regisiterOneDevice();">Register one device</button></p>-->
 </body>
 </html>
