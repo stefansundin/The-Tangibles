@@ -460,12 +460,12 @@ function onIncomingCall(remote_user_name, room_name, call_id) {
 	}).append($("<button/>", {
 		text : "Accept",
 		click : function() {
-			onAccept(call_id);
+			accept(call_id);
 		}
 	}).button()).append($("<button/>", {
 		text : "Decline",
 		click : function() {
-			onDecline(call_id);
+			decline(call_id);
 		}
 	}).button()).append($("<div/>", {
 		id : "call_timer_" + call_id
@@ -488,7 +488,7 @@ function onIncomingCall(remote_user_name, room_name, call_id) {
  * @param call_id
  *            ID of the call that was accepted
  */
-function onAccept(call_id) {
+function accept(call_id) {
 	console.log("Accept: " + call_id);
 
 	if ($("#call_" + call_id).length != 0) { // Extra check
@@ -521,7 +521,7 @@ function onCallAccepted(room_id) {
  * @param call_id
  *            ID of the call that was declined
  */
-function onDecline(call_id) {
+function decline(call_id) {
 	console.log("Decline: " + call_id);
 
 	if ($("#call_" + call_id).length != 0) { // Extra check
@@ -550,7 +550,7 @@ function onAutoDeclineTimer(call_id, time_left) {
 		// Might have been manually declined
 		time_left--;
 		if (time_left <= 0) { // Time is up, decline
-			onDecline(call_id);
+			decline(call_id);
 		} else {
 			if (time_left <= 10) { // Only display last 10 seconds
 				$("#call_timer_" + call_id).text(time_left);
