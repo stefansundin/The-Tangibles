@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+//#!/usr/bin/env node
 
 var WebSocketServer = require('websocket').server;
 var http = require('http')
@@ -6,6 +6,8 @@ var http = require('http')
 // # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 // 						Constants
 // # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+var PORT_NUMBER = 12345;
 
 var API_REMOTE_USER_LOGIN = "remoteuserlogin";
 var API_REMOTE_USER_LOGOUT = "remoteuserlogout";
@@ -74,7 +76,7 @@ var server = http.createServer(function(request,response) {
     // we don't have to implement anything.
 });
 
-server.listen(12345, function() {});
+server.listen(PORT_NUMBER, function() {});
 
 wsServer = new WebSocketServer({
 	httpServer: server,
@@ -116,73 +118,114 @@ wsServer.on('request', function(request) {
     handleNewConnection(connection);
 });
 
-// # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-// 						Handle message
-// # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-
 function handleNewConnection(connection){
 	addNewUser(connection);
 }
 
 function sendMessage(connection, event_name, event_data) {
 	var payload = JSON.stringify({
-			event:event_name, 
-			data:event_data
-			});
+		event:event_name, 
+		data:event_data
+	});
 	connection.send(payload); // <= send JSON data
 }
 
-// addCallbacks("msg", function(message){
-	// console.log((new Date()) + " Firing");
-	// console.log((new Date()) + " " + message);
-// });/*
+// # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+// 						Handle message
+// # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+
+
+/*
 addCallbacks(, function(connection, message){
-	
+	console.log((new Date()) + " Firing: " + );
 });
 */
 
+/**
+ * Updates the name based on the connection and room id.
+ * 
+ * @param connection
+ * 			Websocket connection
+ * @param message
+ * 			JSON encoded string containing the room id "id" and the new name "name"
+ */
 addCallbacks(API_SET_NAME, function(connection, message){
-	var user = getUserBySocket(connection);
-	user.name = message;
+	console.log((new Date()) + " Firing: " + API_SET_NAME);
+	var json = JSON.parse(message.utf8Data);
+	var user = getRoomById(json.id).getUserBySocket(connection);
+	user.name = json.name;
 });
 
-addCallbacks(API_LIST_USERS, function(connection, message){
-	console.log((new Date()) + " Firing");
-	//console.log(connection);
-	console.log(users);
-	var usr = getUsers();
+addCallbacks(API_LIST_USERS, function(connection, id){
+	console.log((new Date()) + " Firing: " + API_LIST_USERS);
+	
+	var room = getRoomById(id);
+	var usr = room.listUsersNamesOnly();
+	
 	var data = JSON.stringify({
 		listusers:usr
 	});
 	
 	sendMessage(connection, API_LIST_USERS, data);
 });
+
 addCallbacks(API_REMOTE_USER_LOGIN, function(connection, message){
+	console.log((new Date()) + " Firing: " + API_REMOTE_USER_LOGIN);
 	
 });
+
 addCallbacks(API_REMOTE_USER_LOGOUT, function(connection, message){
+	console.log((new Date()) + " Firing: " + API_REMOTE_USER_LOGOUT);
+	
+});
+
+addCallbacks(API_INVITE_SEND, function(connection, message){
+	console.log((new Date()) + " Firing: " + API_INVITE_SEND);
+	
+});
+
+addCallbacks(API_INVITE_ANSWER, function(connection, message){
+	console.log((new Date()) + " Firing: " + API_INVITE_ANSWER);
+	
+});
+
+addCallbacks(API_INVIE_TIMEOUT, function(connection, message){
+	console.log((new Date()) + " Firing: " + API_INVIE_TIMEOUT);
 	
 });
 
 // # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-// 						States
+// 						Startup
 // # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-
+function startup(){
+	// Create looby (gets ID 0)
+	createNewRoom("Lobby");
+}
 
 
 // # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 // 						Objects
 // # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-var id = 0;
+
+var index = 0;
 function getNextId(){
-	id++;
-	return id;
+	return index++;
 }
 
+function _user(socket){
+	this.name = "";
+	this.socket = socket;
+	this.state = ""
+	
+	this.setName = function(name){
+		this.name = name;
+	} 
+}
 
 function _room(name) {
-	var id = getNextId;
+	var id = getNextId();
 	var name = name;
 	var users = [];
 	
@@ -197,17 +240,34 @@ function _room(name) {
 	this.listUsers = function(){
 		return users;
 	}
+	
+	this.listUsersNamesOnly = function(){
+		var listusers = []
+		for (var i=0; i < users.length; i++) {
+			if (users[i].name != "") {
+				listusers.push(users[i].name);	
+			}
+		}
+	return listusers;
+	}
+	
+	this.getUserBySocket = function(socket){
+		for (var i=0; i < users.length; i++) {
+			if (users[i].socket == socket) {
+				return users[i];
+			}
+		}
+	}
+	
+	this.getId = function(){
+		return id;
+	}
+	
+	this.getName = function(){
+		return name;
+	}
 }
 
-function _user(socket){
-	this.name = "";
-	this.socket = socket;
-	this.state = ""
-	
-	this.setName = function(name){
-		this.name = name;
-	} 
-}
 
 // # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 // 						Room logic
@@ -215,16 +275,24 @@ function _user(socket){
 
 var rooms = []
 
-function addRoom(){
-	
+function createNewRoom(name){
+	rooms.push(new _room(name));
 }
 
-function removeRoom(){
-	
+function removeRoomByName(name){
+	for (var i=0; i < rooms.length; i++) {
+		if (rooms[i].name == name && rooms[i].id != 0) {
+			rooms.remove(rooms[i]);
+		}
+	}
 }
 
-function listRooms(){
-	
+function getRoomById(id){
+	for (var i=0; i < rooms.length; i++) {
+		if (rooms[i].id == id) {
+			return rooms[i];
+		}
+	}
 }
 
 // # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -278,3 +346,5 @@ function getUsers(){
 // # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 // 						
 // # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+startup();

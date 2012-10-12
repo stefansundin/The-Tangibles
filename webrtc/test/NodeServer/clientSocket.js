@@ -16,7 +16,7 @@ var ClientSocket = function(url) {
 		var payload = JSON.stringify({
 			event:event_name, 
 			data:event_data
-			});
+		});
 		conn.send(payload); // <= send JSON data to socket server
 		return this;
 	};
