@@ -8,14 +8,19 @@
 		
 		var soc = new ClientSocket("ws://130.240.5.191:12345");
 		 
-		soc.on('open', new function(){
+		soc.on('open', function(){
 			console.log((new Date()) + " opened");
 		});
-		soc.on('close', new function(){
+		soc.on('close', function(){
 			console.log((new Date()) + " closed");
 		});
 		
-		soc.on('msg', new function(message){
+		soc.on('msg', function(message){
+			console.log("Answer:");
+			console.log((new Date()) + message);
+		});
+		
+		soc.on(API_LIST_USERS, function(message){
 			console.log("Answer:");
 			console.log((new Date()) + message);
 		});
