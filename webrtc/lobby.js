@@ -4,7 +4,7 @@ var remote_users = []; // [name, id]
 var user_name = "User#" + Math.floor((Math.random() * 999) + 1);
 
 $(function() {
-	$("#welcome_message").text("Welcome " + user_name);
+	$("#display_user_name").text(user_name);
 
 	$("#create_room, #change_user_name").button();
 	$("#create_room").click(function() {
@@ -122,7 +122,7 @@ function onChangeUserName(new_name) {
 	if (new_name != "") {
 		user_name = new_name;
 	}
-	$("#welcome_message").text("Welcome " + user_name);
+	$("#display_user_name").text(user_name);
 }
 
 /**

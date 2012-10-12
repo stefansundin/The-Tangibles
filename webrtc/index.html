@@ -4,13 +4,9 @@
 <meta charset="utf-8" />
 <title>The-Tangibles</title>
 
-<link
-	href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css"
-	rel="stylesheet" type="text/css" />
-<script
-	src="http://ajax.googleapis.com/ajax/libs/jquery/1.8/jquery.min.js"></script>
-<script
-	src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
+<link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel="stylesheet" type="text/css" />
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8/jquery.min.js"></script>
+<script	src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
 
 <script src="lobby.js"></script>
 
@@ -27,6 +23,23 @@ label,input {
 	position: absolute;
 	bottom: 0;
 }
+
+#top {
+	position: absolute;
+	top: 0;
+	right: 0;
+	padding: 10px;
+}
+
+#display_user_name {
+	display: inline;
+	vertical-align: middle;
+}
+
+/*#room_layout {
+	border: 1px solid black;
+	margin: 0px 100px 0px 100px;
+}*/
 </style>
 
 </head>
@@ -41,13 +54,15 @@ label,input {
 			name="room_name" id="room_name"
 			class="text ui-widget-content ui-corner-all" />
 	</div>
+	
+	<div id="top"><div id="display_user_name"></div> <button id="change_user_name">Change user name</button></div>
 	<h1>Lobby</h1>
-	<h2 id="welcome_message">Welcome</h2>
-	<button id="change_user_name">Change user name</button>
 	<button id="create_room">Create room</button>
-	<h3>Rooms</h3>
-	<div id="room_list"></div>
-	<h3>Remote users</h3>
+	<div id="room_layout">
+		<h2>Rooms</h2>
+		<div id="room_list"></div>
+	</div>
+	<h2>Remote users</h2>
 	<div id="remote_user_list"></div>
 
 	<div id="call_list"></div>
