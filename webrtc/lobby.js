@@ -137,6 +137,9 @@ function onChangeUserName(new_name) {
 function onLobbyLoad(rooms, remote_users) {
 	console.log("Load");
 
+	$("#room_table tbody").empty();
+	$("#room_table tfoot").show();
+
 	// Add users
 	for ( var i = 0; i < remote_users.length; i++) {
 		onRemoteUserEnter(remote_users[i][0], remote_users[i][1]);
@@ -199,7 +202,7 @@ function onRoomChangeName(room_name, room_id) {
 	var index = findRoomIndex(room_id);
 	if (index != -1) {
 		rooms[index][0] = room_name;
-		$("#room_list_" + room_id + " a").text(room_name);
+		$("#room_list_" + room_id + " h3").text(room_name);
 	}
 }
 
@@ -222,23 +225,17 @@ function onRoomAdd(room_name, room_id, remote_user_ids) {
 		return;
 	}
 
+	$("#room_table tfoot").hide();
+
 	// Add to list
 	rooms.push([ room_name, room_id, remote_user_ids ]);
-	$("<a/>", {
-		href : "#",
-		text : room_name,
-		click : function(event) {
-			event.preventDefault();
-			onRoomClick(room_id);
-		}
-	}).prependTo($("<div/>", {
-		id : "room_list_" + room_id
-	}).css({
-		padding : "5px"
-	}).append($("<div/>", {
-		id : "room_user_list_" + room_id
-	})).appendTo("#room_list"));
-
+	$("#room_table tbody")
+		.append($("<tr/>", { id : "room_list_" + room_id, click : function() { onRoomClick(room_id); }})
+			.append($("<td/>")
+				.append($("<h3/>", { text : room_name }))
+				.append("Some description"))
+			.append($("<td/>", { id : "room_user_list_" + room_id })));
+	
 	updateRoomUserList(room_id);
 }
 
@@ -256,14 +253,13 @@ function updateRoomUserList(room_id) {
 		$("#room_user_list_" + room_id).empty();
 
 		// Loop over user ids
-		$("#room_user_list_" + room_id).text("Users: ");
 		for ( var i = 0; i < rooms[index][2].length; i++) {
 			var user_index = findRemoteUserIndex(rooms[index][2][i]);
 			if (user_index != -1) {
 				// Make sure each user only exist in one room in the list
 				$("i.remote_user_" + remote_users[user_index][1]).remove();
 
-				$("#room_user_list_" + room_id).append($("<i/>", {
+				$("#room_user_list_" + room_id).append($("<span/>", {
 					class : "remote_user_" + remote_users[user_index][1],
 					text : remote_users[user_index][0] + " "
 				}));
@@ -288,6 +284,10 @@ function onRoomDelete(room_id) {
 		// Remove from list
 		rooms.splice(index, 1);
 		$("#room_list_" + room_id).remove();
+
+		if (rooms.length == 0) {
+			$("#room_table tfoot").show();
+		}
 	}
 }
 
@@ -319,9 +319,9 @@ function onRemoteUserEnterRoom(remote_user_id, room_id) {
 				rooms[index][2].push(remote_user_id);
 
 				// Make sure each user only exist in one room in the list
-				$("i.remote_user_" + remote_users[user_index][1]).remove();
+				$("span.remote_user_" + remote_users[user_index][1]).remove();
 
-				$("#room_user_list_" + room_id).append($("<i/>", {
+				$("#room_user_list_" + room_id).append($("<span/>", {
 					class : "remote_user_" + remote_users[user_index][1],
 					text : remote_users[user_index][0] + " "
 				}));
@@ -363,7 +363,7 @@ function onRemoteUserChangeName(remote_user_name, remote_user_id) {
 	var index = findRemoteUserIndex(remote_user_id);
 	if (index != -1) {
 		remote_users[index][0] = remote_user_name;
-		$("i.remote_user_" + remote_user_id).text(remote_user_name + " ");
+		$("span.remote_user_" + remote_user_id).text(remote_user_name + " ");
 		$("button.remote_user_" + remote_user_id).children().first().text(
 				remote_user_name);
 	}
