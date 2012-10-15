@@ -21,8 +21,7 @@
       ctx.fillStyle = "#FF0000";
       //ctx.fillRect(0, 0, 150, 75);
 
-      function buttons(ctx) {
-        this.ctx = ctx;
+      function buttons() {
         this.listOfButtons = [];
 
         this.addButton = addButton;
@@ -38,7 +37,7 @@
         this.draw = draw;
         function draw() {
           for (i in this.listOfButtons) {
-            this.listOfButtons[i].draw(this.ctx);
+            this.listOfButtons[i].draw();
           }
         }
 
@@ -50,23 +49,29 @@
         }
       }
 
-      function button(x, y, sizeX, sizeY, image) {
+      function button(x, y, sizeX, sizeY, image, ctx) {
         this.sizeX = sizeX;
         this.sizeY = sizeY;
         this.x = x;
         this.y = y;
         this.method; // method to invoke when pressed
         this.image = image; // image to draw
+        this.ctx = ctx
 
         this.draw = draw;
-        function draw(ctx) {
-          ctx.strokeRect(x, y, sizeX, sizeY);
-      	  image = document.getElementById("scream");
-          ctx.drawImage(image, x, y, sizeX, sizeY);
+        function draw() {
+          if (this.enabled) {
+            this.ctx.strokeStyle = 'red'
+          } else {
+            this.ctx.strokeStyle = 'black'
+          }
+          this.ctx.strokeRect(x, y, sizeX, sizeY);
+          this.ctx.drawImage(this.image, x, y, sizeX, sizeY);
         }
 
         this.checkPressed = checkPressed;
         this.pressed = false;
+        this.enabled = true;
         function checkPressed(contextBlended, transform) {
           // TODO transform x, y, sizeX and sizeY
 			    var blendedData = contextBlended.getImageData(this.x, this.y, this.sizeX, this.sizeY);
@@ -83,7 +88,12 @@
           // TODO decide open a value
 			    if (average > 10 && !this.pressed) {
             this.pressed = true;
-            alert('pressed image')
+            if (this.enabled) {
+              this.enabled = false;
+            } else {
+              this.enabled = true;
+            }
+            this.draw()
             //method()
           } else {
             this.pressed = false;
@@ -91,7 +101,7 @@
         }
       }
 
-      function videoButton(x, y, sizeX, sizeY, video) {
+      function videoButton(x, y, sizeX, sizeY, video, ctx) {
         this.sizeX = sizeX;
         this.sizeY = sizeY;
         this.x = x;
@@ -99,17 +109,31 @@
         this.method; // method to invoke when pressed
         this.v = video; // image to draw
         this.count = 0;
+        this.ctx = ctx;
+        this.i; // handle for interval
 
         this.draw = draw;
-        function draw(ctx) {
-          ctx.strokeRect(x, y, sizeX, sizeY);
-          v.addEventListener('play', function() {var i = window.setInterval(function() {ctx.drawImage(v, x, y, sizeX, sizeY)}, 40);}, false);
-          v.addEventListener('pause', function() {window.clearInterval(i);}, false);
-          v.addEventListener('ended', function() {window.clearInterval(i);}, false);
+        function draw() {
+          this.ctx.strokeStyle = 'black';
+          this.ctx.strokeRect(x, y, sizeX, sizeY);
+          if (this.enabled) {
+            this.first++;
+            this.drawMovie()
+            this.i = window.setInterval(this.drawMovie,  40);
+          } else {
+            window.clearInterval(this.i);
+            this.ctx.fillRect(x, y, sizeX, sizeY);
+          }
+        }
+
+        this.drawMovie = drawMovie;
+        function drawMovie() {
+          this.ctx.drawImage(v, x, y, sizeX, sizeY);
         }
 
         this.checkPressed = checkPressed;
         this.pressed = false;
+        this.enabled = true;
         function checkPressed(contextBlended, transform) {
           // TODO transform x, y, sizeX and sizeY
 			    var blendedData = contextBlended.getImageData(this.x, this.y, this.sizeX, this.sizeY);
@@ -126,7 +150,12 @@
           // TODO decide open a value
 			    if (average > 10 && !this.pressed) {
             this.pressed = true;
-            alert('pressed video')
+            if (this.enabled) {
+              this.enabled = false;
+            } else {
+              this.enabled = true;
+            }
+            this.draw()
             //method()
           } else {
             this.pressed = false;
@@ -140,13 +169,13 @@
       }
       image = document.getElementById("scream");
       v = document.getElementById("video1");
-      var button1 = new button(10, 10, 10, 10, image);
-      var button2 = new button(20, 20, 100, 100, image);
-      var buttons = new buttons(ctx);
+      var button1 = new button(10, 10, 10, 10, image, ctx);
+      var button2 = new button(20, 20, 100, 100, image, ctx);
+      var buttons = new buttons();
       button1.method = test;
       button2.method = test;
 
-      var button3 = new videoButton(120, 120, 100, 100, v);
+      var button3 = new videoButton(120, 120, 100, 100, v, ctx);
 
       buttons.addButton(button1);
       buttons.addButton(button2);
@@ -281,29 +310,8 @@
       }
     }
 
-    function checkAreas() {
-    // loop over the buttons
-		for (var r=0; r<8; ++r) {
-			// get the pixels in a note area from the blended image
-			//var blendedData = contextBlended.getImageData(notes[r].area.x, notes[r].area.y, notes[r].area.width, notes[r].area.height);
-			var i = 0;
-			var average = 0;
-			// loop over the pixels
-			//while (i < (blendedData.data.length * 0.25)) {
-				// make an average between the color channel
-		//		average += (blendedData.data[i*4] + blendedData.data[i*4+1] + blendedData.data[i*4+2]) / 3;
-		//		++i;
-		//	}
-			// calculate an average between of the color values of the note area
-		//	average = Math.round(average / (blendedData.data.length * 0.25));
-			if (average > 10) {
-				// button pressed
-			}
-		}
-	}
 
-
-    </script>
+</script>
 
 
   </body>
