@@ -5,10 +5,48 @@ var user_name = "User#" + Math.floor((Math.random() * 999) + 1);
 
 var socket = new ClientSocket("ws://130.240.5.191:12345");
 
+var API_USER_ENTER = "userenter";
+var API_USER_LEAVE = "userleave";
+var API_ROOM_ENTER = "roomenter";
+var API_ROOM_LEAVE = "roomleave";
+
+var API_LIST_ROOMS = "listrooms";
+var API_LIST_USERS = "listusers";
+var API_LIST = "listall";
+
+var API_USER_NEW = "useradd";
+var API_USER_REMOVE = "userremove";
+var API_ROOM_NEW = "roomadd";
+var API_ROOM_REMOVE = "roomremove";
+
+var API_INVITE_SEND = "invitesend";
+var API_INVITE_ANSWER = "inviteanswer";
+var API_INVIE_TIMEOUT = "invitetimeout";
+
+var API_MESSAGE = "message";
+
+var API_CORNERS = "corners";
+
+var API_SET_NAME = "setname";
+
+function test() {
+	console.log(arguments.length);
+	console.log(arguments);
+}
+
 $(function() {
 	// Set up socket handlers
 	socket.on("open", onOpen);
 	socket.on("close", onClose);
+	socket.on(API_SET_NAME, function(user_name) {
+		$("#display_user_name").text(user_name);
+	});
+	socket.on(API_LIST, function(room_list, user_list) {
+		// console.log(args);
+		onListAll(room_list, user_list);
+	});
+
+	$("#room_table tfoot").hide();
 
 	$("#display_user_name").text(user_name);
 
@@ -45,7 +83,7 @@ $(function() {
 				if (name == "") {
 					$("#user_name").addClass("ui-state-error");
 				} else {
-					onChangeUserName(name);
+					changeUserName(name);
 					$(this).dialog("close");
 				}
 			},
@@ -108,7 +146,12 @@ function showError(text) {
 function onOpen() {
 	console.log("onOpen");
 
-	socket.send("setname", user_name);
+	// request stuff
+	socket.send(API_SET_NAME, user_name);
+	socket.send(API_LIST, "");
+
+	$("#room_table tbody").empty();
+	$("#room_table tfoot").show();
 
 	onLobbyLoad([ [ "Test Room", 1, [] ], [ "Room 2", 2, [ 1, 2 ] ] ], [
 			[ "Karl", 1 ], [ "Jonas", 2 ] ]);
@@ -119,8 +162,21 @@ function onOpen() {
  */
 function onClose() {
 	console.log("onClose");
-	
+
 	showError("Lost server connection...");
+}
+
+function onListAll(user_list, room_list) {
+	console.log("onListAll: " + user_list + " " + room_list);
+
+	for(i in user_list) {
+		console.log("User: "+user_list[i]);
+	}
+	
+	for(i in room_list) {
+		console.log("Room: "+room_list[i]);
+	}
+	// TODO
 }
 
 /**
@@ -164,7 +220,7 @@ function findRemoteUserIndex(remote_user_id) {
  * @param new_name
  *            The new user name
  */
-function onChangeUserName(new_name) {
+function changeUserName(new_name) {
 	console.log("ChangeUserName: " + new_name);
 
 	if (new_name != "") {
@@ -172,7 +228,6 @@ function onChangeUserName(new_name) {
 
 		socket.send("setname", user_name);
 	}
-	$("#display_user_name").text(user_name);
 }
 
 /**
@@ -510,7 +565,7 @@ function onIncomingCall(remote_user_name, room_name, call_id) {
 	// Insert above
 	$("<div/>", {
 		id : "call_" + call_id,
-		text : remote_user_name + " wants you to join " + room_name + "."
+		text : remote_user_name + " invited you to " + room_name + "."
 	}).append($("<button/>", {
 		text : "Accept",
 		click : function() {

@@ -27,8 +27,8 @@ var ClientSocket = function(url) {
 		fire(json.event, json.data);
 	};
 	
-	conn.onclose = function(){fire('close',null)};
-	conn.onopen = function(){fire('open',null)};
+	conn.onclose = function(){fire('close',null);};
+	conn.onopen = function(){fire('open',null);};
 	
 	var fire = function(event_name, message) {
 		console.log("###### Fire: " + event_name);
@@ -38,7 +38,12 @@ var ClientSocket = function(url) {
 		
 		for (var i = 0; i < chain.length; i++) {
 			if (typeof(chain[i]) === 'function') {
-				chain[i] (message);	
+				var obj = JSON.parse(message);
+				var args = [];
+				for (j in obj) {
+					args.push(obj[j]);
+				}
+				chain[i].apply (null, args);
 			} else {
 				console.log("not a function: ");
 				console.log(typeof(chain[i]));
