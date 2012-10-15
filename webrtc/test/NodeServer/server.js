@@ -232,7 +232,7 @@ addCallbacks(API_LIST_ROOMS, function(connection, message){
 	console.log((new Date()) + " Firing: " + API_LIST_ROOMS);
 	
 	sendMessage(connection, API_LIST_ROOMS, getRooms());
-}
+});
 
 /**
  * List all users inside a room
