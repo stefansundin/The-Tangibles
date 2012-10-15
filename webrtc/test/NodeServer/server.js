@@ -366,6 +366,7 @@ addCallbacks(API_MESSAGE_BROADCAST, function(con, message){
 	var recipients = getUserBySocket(con);
 	
 	var data = JSON.stringify({
+		sender: recipients,
 		msg: message
 	});
 	
@@ -406,6 +407,7 @@ addCallbacks(API_CORNERS_BROADCAST, function(con, message){
 	var recipients = getUserBySocket(con);
 	
 	var data = JSON.stringify({
+		sender: recipients,
 		msg: message
 	});
 	
