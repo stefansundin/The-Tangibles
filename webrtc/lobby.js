@@ -3,7 +3,13 @@ var rooms = []; // [name, id, [user_ids]]
 var remote_users = []; // [name, id]
 var user_name = "User#" + Math.floor((Math.random() * 999) + 1);
 
+var socket = new ClientSocket("ws://130.240.5.191:12345");
+
 $(function() {
+	// Set up socket handlers
+	socket.on("open", onOpen);
+	socket.on("close", onClose);
+
 	$("#display_user_name").text(user_name);
 
 	$("#create_room, #change_user_name").button();
@@ -14,9 +20,21 @@ $(function() {
 		$("#dialog_select_user_name").dialog("open");
 	});
 
+	$("#dialog_error").dialog({
+		autoOpen : false,
+		modal : true,
+		resizable : false,
+		buttons : {
+			OK : function() {
+				$(this).dialog("close");
+			}
+		}
+	});
+
 	$("#dialog_select_user_name").dialog({
 		autoOpen : false,
 		modal : true,
+		resizable : false,
 		open : function(event, ui) {
 			$("#user_name").val(user_name);
 			$("#user_name").removeClass("ui-state-error");
@@ -46,6 +64,7 @@ $(function() {
 	$("#dialog_create_room").dialog({
 		autoOpen : false,
 		modal : true,
+		resizable : false,
 		open : function(event, ui) {
 			$("#room_name").removeClass("ui-state-error");
 		},
@@ -70,10 +89,39 @@ $(function() {
 							.first().click();
 				}
 			});
+});
+
+/**
+ * Shows a dialog with the text.
+ * 
+ * @param text
+ *            The text to display.
+ */
+function showError(text) {
+	$("#dialog_error_text").text(text);
+	$("#dialog_error").dialog("open");
+}
+
+/**
+ * Called when the socket connection is opened.
+ */
+function onOpen() {
+	console.log("onOpen");
+
+	socket.send("setname", user_name);
 
 	onLobbyLoad([ [ "Test Room", 1, [] ], [ "Room 2", 2, [ 1, 2 ] ] ], [
 			[ "Karl", 1 ], [ "Jonas", 2 ] ]);
-});
+}
+
+/**
+ * Called when the socket connection is closed.
+ */
+function onClose() {
+	console.log("onClose");
+	
+	showError("Lost server connection...");
+}
 
 /**
  * Searches for and returns the index if found, -1 otherwise.
@@ -121,6 +169,8 @@ function onChangeUserName(new_name) {
 
 	if (new_name != "") {
 		user_name = new_name;
+
+		socket.send("setname", user_name);
 	}
 	$("#display_user_name").text(user_name);
 }
@@ -229,13 +279,17 @@ function onRoomAdd(room_name, room_id, remote_user_ids) {
 
 	// Add to list
 	rooms.push([ room_name, room_id, remote_user_ids ]);
-	$("#room_table tbody")
-		.append($("<tr/>", { id : "room_list_" + room_id, click : function() { onRoomClick(room_id); }})
-			.append($("<td/>")
-				.append($("<h3/>", { text : room_name }))
-				.append("Some description"))
-			.append($("<td/>", { id : "room_user_list_" + room_id })));
-	
+	$("#room_table tbody").append($("<tr/>", {
+		id : "room_list_" + room_id,
+		click : function() {
+			onRoomClick(room_id);
+		}
+	}).append($("<td/>").append($("<h3/>", {
+		text : room_name
+	})).append("Some description")).append($("<td/>", {
+		id : "room_user_list_" + room_id
+	})));
+
 	updateRoomUserList(room_id);
 }
 
