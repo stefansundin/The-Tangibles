@@ -1,6 +1,6 @@
 var auto_decline_time = 60;
-var rooms = []; // [name, id, [user_ids]]
-var remote_users = []; // [name, id]
+var rooms = []; // [id, name, desc, type]
+var remote_users = []; // [id, name, room_id]
 var user_name = "User#" + Math.floor((Math.random() * 999) + 1);
 
 var socket = new ClientSocket("ws://130.240.5.191:12345");
@@ -29,22 +29,14 @@ var API_CORNERS = "corners";
 
 var API_SET_NAME = "setname";
 
-function test() {
-	console.log(arguments.length);
-	console.log(arguments);
-}
-
 $(function() {
 	// Set up socket handlers
-	socket.on("open", onOpen);
-	socket.on("close", onClose);
+	socket.on("open", onSocketOpen);
+	socket.on("close", onSocketClose);
 	socket.on(API_SET_NAME, function(user_name) {
 		$("#display_user_name").text(user_name);
 	});
-	socket.on(API_LIST, function(room_list, user_list) {
-		// console.log(args);
-		onListAll(room_list, user_list);
-	});
+	socket.on(API_LIST, onLobbyLoad);
 
 	$("#room_table tfoot").hide();
 
@@ -143,40 +135,21 @@ function showError(text) {
 /**
  * Called when the socket connection is opened.
  */
-function onOpen() {
+function onSocketOpen() {
 	console.log("onOpen");
 
 	// request stuff
-	socket.send(API_SET_NAME, user_name);
+	changeUserName(user_name);
 	socket.send(API_LIST, "");
-
-	$("#room_table tbody").empty();
-	$("#room_table tfoot").show();
-
-	onLobbyLoad([ [ "Test Room", 1, [] ], [ "Room 2", 2, [ 1, 2 ] ] ], [
-			[ "Karl", 1 ], [ "Jonas", 2 ] ]);
 }
 
 /**
  * Called when the socket connection is closed.
  */
-function onClose() {
+function onSocketClose() {
 	console.log("onClose");
 
 	showError("Lost server connection...");
-}
-
-function onListAll(user_list, room_list) {
-	console.log("onListAll: " + user_list + " " + room_list);
-
-	for(i in user_list) {
-		console.log("User: "+user_list[i]);
-	}
-	
-	for(i in room_list) {
-		console.log("Room: "+room_list[i]);
-	}
-	// TODO
 }
 
 /**
@@ -189,7 +162,7 @@ function onListAll(user_list, room_list) {
 function findRoomIndex(room_id) {
 	// Find room with given id
 	for ( var i = 0; i < rooms.length; i++) {
-		if (rooms[i][1] === room_id) {
+		if (rooms[i][0] === room_id) {
 			return i;
 		}
 	}
@@ -206,7 +179,7 @@ function findRoomIndex(room_id) {
 function findRemoteUserIndex(remote_user_id) {
 	// Find remote_user with given id
 	for ( var i = 0; i < remote_users.length; i++) {
-		if (remote_users[i][1] === remote_user_id) {
+		if (remote_users[i][0] === remote_user_id) {
 			return i;
 		}
 	}
@@ -221,12 +194,15 @@ function findRemoteUserIndex(remote_user_id) {
  *            The new user name
  */
 function changeUserName(new_name) {
-	console.log("ChangeUserName: " + new_name);
+	console.log("onChangeUserName: " + new_name);
 
 	if (new_name != "") {
 		user_name = new_name;
+		$("#display_user_name").text(user_name);
 
-		socket.send("setname", user_name);
+		socket.send(API_SET_NAME, JSON.stringify({
+			name : user_name
+		}));
 	}
 }
 
@@ -235,24 +211,28 @@ function changeUserName(new_name) {
  * is loaded.
  * 
  * @param rooms
- *            A list of pairs [room_name, room_id]
+ *            A list of rooms
  * @param remote_users
- *            A list of pairs [remote_user_name, remote_user_id]
+ *            A list of users
  */
 function onLobbyLoad(rooms, remote_users) {
-	console.log("Load");
+	console.log("onLobbyLoad: " + rooms + " " + remote_users);
+
+	this.rooms = [];
+	this.remote_users = [];
 
 	$("#room_table tbody").empty();
 	$("#room_table tfoot").show();
 
-	// Add users
-	for ( var i = 0; i < remote_users.length; i++) {
-		onRemoteUserEnter(remote_users[i][0], remote_users[i][1]);
-	}
-
 	// Add rooms
 	for ( var i = 0; i < rooms.length; i++) {
-		onRoomAdd(rooms[i][0], rooms[i][1], rooms[i][2]);
+		onRoomAdd(rooms[i][0], rooms[i][1], rooms[i][2], rooms[i][3]);
+	}
+
+	// Add users
+	for ( var i = 0; i < remote_users.length; i++) {
+		onRemoteUserEnter(remote_users[i][0], remote_users[i][1],
+				remote_users[i][2]);
 	}
 }
 
@@ -264,7 +244,7 @@ function onLobbyLoad(rooms, remote_users) {
  *            Name of the new room
  */
 function onCreateRoom(room_name) {
-	console.log("CreateRoom: " + room_name);
+	console.log("onCreateRoom: " + room_name);
 
 	if (room_name != "") {
 		// TODO Create room
@@ -296,17 +276,17 @@ function enterRoom(room_id) {
 /**
  * Changes the name of a room.
  * 
- * @param room_name
- *            The new name
  * @param room_id
  *            ID of the room
+ * @param room_name
+ *            The new name
  */
-function onRoomChangeName(room_name, room_id) {
-	console.log("RoomChangeName: " + room_name + " " + room_id);
+function onRoomChangeName(room_id, room_name) {
+	console.log("onRoomChangeName: " + room_id + " " + room_name);
 
 	var index = findRoomIndex(room_id);
 	if (index != -1) {
-		rooms[index][0] = room_name;
+		rooms[index][1] = room_name;
 		$("#room_list_" + room_id + " h3").text(room_name);
 	}
 }
@@ -315,15 +295,18 @@ function onRoomChangeName(room_name, room_id) {
  * Adds a room to the page if the ID doesn't exist. Should be called when a new
  * room is available on the server.
  * 
- * @param room_name
- *            Name of the added room
  * @param room_id
  *            ID of the added room
- * @param remote_user_ids
- *            A list of user IDs in the room
+ * @param room_name
+ *            Name of the added room
+ * @param room_desc
+ *            The description of the room
+ * @param room_type
+ *            Type of the room
  */
-function onRoomAdd(room_name, room_id, remote_user_ids) {
-	console.log("RoomAdd: " + room_name + " " + room_id);
+function onRoomAdd(room_id, room_name, room_desc, room_type) {
+	console.log("onRoomAdd: " + room_id + " " + room_name + " " + room_desc
+			+ " " + room_type);
 
 	// Unique ids
 	if ($("#room_list_" + room_id).length != 0) {
@@ -333,7 +316,7 @@ function onRoomAdd(room_name, room_id, remote_user_ids) {
 	$("#room_table tfoot").hide();
 
 	// Add to list
-	rooms.push([ room_name, room_id, remote_user_ids ]);
+	rooms.push([ room_id, room_name, room_desc, room_type ]);
 	$("#room_table tbody").append($("<tr/>", {
 		id : "room_list_" + room_id,
 		click : function() {
@@ -341,40 +324,9 @@ function onRoomAdd(room_name, room_id, remote_user_ids) {
 		}
 	}).append($("<td/>").append($("<h3/>", {
 		text : room_name
-	})).append("Some description")).append($("<td/>", {
+	})).append(room_desc)).append($("<td/>", {
 		id : "room_user_list_" + room_id
 	})));
-
-	updateRoomUserList(room_id);
-}
-
-/**
- * Clears and sets new content to the user list for the room.
- * 
- * @param room_id
- *            ID of the room
- */
-function updateRoomUserList(room_id) {
-	console.log("UpdateRoomUserList: " + room_id);
-
-	var index = findRoomIndex(room_id);
-	if (index != -1) {
-		$("#room_user_list_" + room_id).empty();
-
-		// Loop over user ids
-		for ( var i = 0; i < rooms[index][2].length; i++) {
-			var user_index = findRemoteUserIndex(rooms[index][2][i]);
-			if (user_index != -1) {
-				// Make sure each user only exist in one room in the list
-				$("i.remote_user_" + remote_users[user_index][1]).remove();
-
-				$("#room_user_list_" + room_id).append($("<span/>", {
-					class : "remote_user_" + remote_users[user_index][1],
-					text : remote_users[user_index][0] + " "
-				}));
-			}
-		}
-	}
 }
 
 /**
@@ -385,7 +337,7 @@ function updateRoomUserList(room_id) {
  *            ID of the deleted room
  */
 function onRoomDelete(room_id) {
-	console.log("RoomDelete: " + room_id);
+	console.log("onRoomDelete: " + room_id);
 
 	// Find room with given id
 	var index = findRoomIndex(room_id);
@@ -407,7 +359,7 @@ function onRoomDelete(room_id) {
  *            ID of the room
  */
 function onRoomClick(room_id) {
-	console.log("RoomClick: " + room_id);
+	console.log("onRoomClick: " + room_id);
 
 	var index = findRoomIndex(room_id);
 	if (index != -1) {
@@ -417,64 +369,53 @@ function onRoomClick(room_id) {
 }
 
 function onRemoteUserEnterRoom(remote_user_id, room_id) {
-	console.log("RemoteUserEnterRoom: " + remote_user_id + " " + room_id);
+	console.log("onRemoteUserEnterRoom: " + remote_user_id + " " + room_id);
 
-	// TODO Check if the user id is in another room?
 	var index = findRoomIndex(room_id);
 	if (index != -1) {
 		var user_index = findRemoteUserIndex(remote_user_id);
 		if (user_index != -1) {
-			if (rooms[index][2].indexOf(remote_user_id) == -1) {
-				rooms[index][2].push(remote_user_id);
+			remote_users[user_index][2] = room_id;
 
-				// Make sure each user only exist in one room in the list
-				$("span.remote_user_" + remote_users[user_index][1]).remove();
+			// Make sure each user only exist in one room in the list
+			$(".remote_user_" + remote_users[user_index][0]).remove();
 
-				$("#room_user_list_" + room_id).append($("<span/>", {
-					class : "remote_user_" + remote_users[user_index][1],
-					text : remote_users[user_index][0] + " "
-				}));
-			}
+			$("#room_user_list_" + room_id).append($("<span/>", {
+				class : "remote_user_" + remote_users[user_index][0],
+				text : remote_users[user_index][1] + " "
+			}));
 		}
 	}
 }
 
-function onRemoteUserLeaveRoom(remote_user_id, room_id) {
-	console.log("RemoteUserLeaveRoom: " + remote_user_id + " " + room_id);
+function onRemoteUserLeaveRoom(remote_user_id) {
+	console.log("onRemoteUserLeaveRoom: " + remote_user_id);
 
-	var index = findRoomIndex(room_id);
-	if (index != -1) {
-		var user_index = findRemoteUserIndex(remote_user_id);
-		if (user_index != -1) {
-			var old_index = rooms[index][2].indexOf(remote_user_id);
-			if (old_index != -1) {
-				rooms[index][2].splice(old_index, 1);
+	var user_index = findRemoteUserIndex(remote_user_id);
+	if (user_index != -1) {
+		remote_users[user_index][2] = 0;
 
-				// Remove the user from the list
-				$("i.remote_user_" + remote_users[user_index][1]).remove();
-			}
-		}
+		// Remove the user from the list
+		$(".remote_user_" + remote_users[user_index][0]).remove();
 	}
 }
 
 /**
  * Changes the name of a remote user.
  * 
- * @param remote_user_name
- *            The new name
  * @param remote_user_id
  *            Users ID
+ * @param remote_user_name
+ *            The new name
  */
-function onRemoteUserChangeName(remote_user_name, remote_user_id) {
-	console.log("RemoteUserChangeName: " + remote_user_name + " "
-			+ remote_user_id);
+function onRemoteUserChangeName(remote_user_id, remote_user_name) {
+	console.log("onRemoteUserChangeName: " + remote_user_id + " "
+			+ remote_user_name);
 
 	var index = findRemoteUserIndex(remote_user_id);
 	if (index != -1) {
-		remote_users[index][0] = remote_user_name;
+		remote_users[index][1] = remote_user_name;
 		$("span.remote_user_" + remote_user_id).text(remote_user_name + " ");
-		$("button.remote_user_" + remote_user_id).children().first().text(
-				remote_user_name);
 	}
 }
 
@@ -482,28 +423,21 @@ function onRemoteUserChangeName(remote_user_name, remote_user_id) {
  * Adds a remote user to the list. Should be called when a user enters the
  * server.
  * 
- * @param remote_user_name
- *            Name of the remote user that entered
  * @param remote_user_id
  *            ID of the remote user that entered
+ * @param remote_user_name
+ *            Name of the remote user that entered
+ * @param room_id
+ *            ID of the room which contains the user
  */
-function onRemoteUserEnter(remote_user_name, remote_user_id) {
-	console.log("RemoteUserEnter: " + remote_user_name + " " + remote_user_id);
-
-	// Unique ids
-	if ($("#remote_user_list_" + remote_user_id).length != 0) {
-		return;
-	}
+function onRemoteUserEnter(remote_user_id, remote_user_name, room_id) {
+	console.log("onRemoteUserEnter: " + remote_user_id + " " + remote_user_name
+			+ " " + room_id);
 
 	// Add to list
-	remote_users.push([ remote_user_name, remote_user_id ]);
-	$("<button/>", {
-		text : remote_user_name,
-		class : "remote_user_" + remote_user_id,
-		click : function() {
-			onRemoteUserClick(remote_user_id);
-		}
-	}).button().appendTo("#remote_user_list");
+	remote_users.push([ remote_user_id, remote_user_name, room_id ]);
+
+	onRemoteUserEnterRoom(remote_user_id, room_id);
 }
 
 /**
@@ -514,7 +448,7 @@ function onRemoteUserEnter(remote_user_name, remote_user_id) {
  *            ID of the remote user that left
  */
 function onRemoteUserLeave(remote_user_id) {
-	console.log("RemoteUserLeave: " + remote_user_id);
+	console.log("onRemoteUserLeave: " + remote_user_id);
 
 	// Find remote_user with given id
 	var index = findRemoteUserIndex(remote_user_id);
@@ -522,22 +456,6 @@ function onRemoteUserLeave(remote_user_id) {
 		// Remove from list
 		remote_users.splice(index, 1);
 		$(".remote_user_" + remote_user_id).remove();
-	}
-}
-
-/**
- * Called when a remote user is clicked.
- * 
- * @param remote_user_id
- *            ID of the remote user
- */
-function onRemoteUserClick(remote_user_id) {
-	console.log("RemoteUserClick: " + remote_user_id);
-
-	// TODO
-	var index = findRemoteUserIndex(remote_user_id);
-	if (index != -1) {
-		console.log("RemoteUserClick found: " + remote_users[index][0]);
 	}
 }
 
@@ -670,4 +588,49 @@ function onAutoDeclineTimer(call_id, time_left) {
 			}, 1000);
 		}
 	}
+}
+
+function assert(exp, message) {
+	if (!exp) {
+		console.error(message);
+	}
+}
+
+function testLobby() {
+	console.log("Running test...");
+
+	onLobbyLoad([ [ 1, "Test Room", "", 0 ], [ 2, "Room 2", "Some desc", 0 ] ],
+			[ [ 1, "Karl", 1 ], [ 2, "Jonas", 1 ] ]);
+
+	changeUserName("Test name");
+
+	onIncomingCall("Kalle", "Room test", 1);
+
+	// Test rooms
+	assert(findRoomIndex(1) == 0, "Room index of 1 is wrong");
+	assert(rooms[0][1] == "Test Room", "Room has wrong name");
+	assert(rooms[1][2] == "Some desc", "Room has wrong desc");
+	assert(rooms[0][3] == 0, "Room has wrong type");
+	onRoomAdd(3, "Room 3", "Desc", 1);
+	onRoomChangeName(1, "New name");
+	assert(rooms[0][1] == "New name", "Room has wrong name after change");
+	onRoomAdd(4, "Delete me", "Desc", 1);
+	onRoomDelete(4);
+	assert(rooms.length == 3, "Room wasnt removed");
+
+	// Test users
+	assert(findRemoteUserIndex(1) == 0, "User index of 1 is wrong");
+	assert(remote_users[0][1] == "Karl", "User has wrong name");
+	assert(remote_users[0][2] == 1, "User has wrong room_id");
+	onRemoteUserEnter(3, "User 3", 2);
+	onRemoteUserLeave(3);
+	assert(remote_users.length == 2, "User wasnt removed");
+	onRemoteUserEnter(4, "User 4", 3);
+	onRemoteUserChangeName(4, "New user 4");
+	assert(remote_users[findRemoteUserIndex(4)][1] == "New user 4",
+			"User has wrong name after change");
+	onRemoteUserEnterRoom(4, 1);
+	onRemoteUserLeaveRoom(4);
+	assert(remote_users[findRemoteUserIndex(4)][2] == 0,
+			"User didnt leave room");
 }
