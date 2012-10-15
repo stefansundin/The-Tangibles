@@ -4,17 +4,19 @@
 <meta charset="utf-8" />
 <title>The-Tangibles</title>
 
-<link
-	href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css"
-	rel="stylesheet" type="text/css" />
-<script
-	src="http://ajax.googleapis.com/ajax/libs/jquery/1.8/jquery.min.js"></script>
-<script
-	src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
+<link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel="stylesheet" type="text/css" />
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8/jquery.min.js"></script>
+<script	src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
 
 <script src="lobby.js"></script>
 
 <style type="text/css">
+
+#main {
+	width: 60%;
+	margin: 0 auto;
+}
+
 .ui-widget {
 	font-size: 0.8em;
 }
@@ -27,29 +29,111 @@ label,input {
 	position: absolute;
 	bottom: 0;
 }
+
+#top {
+	position: absolute;
+	top: 0;
+	right: 0;
+	padding: 10px;
+}
+
+#display_user_name {
+	display: inline;
+	vertical-align: middle;
+}
+
+#room_table tbody h3 {
+	color: #0000FF;
+}
+
+#room_table h2, #room_table h3 {
+	padding: 0;
+	margin: 0;
+}
+
+#room_table th {
+	text-align: left;
+}
+
+#room_table th, td {
+	width: 50%;
+	padding: 10px;
+}
+
+#room_table tfoot td, #room_table tbody td {
+	border-top: 1px solid #ccc;
+}
+
+#room_table {
+	position: relative;
+	width: 100%;
+	border-spacing: 0;
+}
+
+#room_table tbody tr:hover {
+	background: #f0f0f0;
+	-webkit-transition: all 0.1s ease-in-out;
+	cursor: pointer;
+}
+
+#create_room {
+	position: absolute;
+	top: 0;
+	right: 0;
+	margin: 10px;
+}
+
 </style>
 
 </head>
 <body>
 	<div id="dialog_select_user_name" title="Select user name">
-		<label for="user_name">User name</label> <input type="text"
-			name="user_name" id="user_name"
-			class="text ui-widget-content ui-corner-all" />
+		<label for="user_name">User name</label>
+		<input type="text" name="user_name" id="user_name" class="text ui-widget-content ui-corner-all" />
 	</div>
 	<div id="dialog_create_room" title="Create new room">
-		<label for="room_name">Room name</label> <input type="text"
-			name="room_name" id="room_name"
-			class="text ui-widget-content ui-corner-all" />
+		<label for="room_name">Room name</label>
+		<input type="text" name="room_name" id="room_name" class="text ui-widget-content ui-corner-all" />
 	</div>
-	<h1>Lobby</h1>
-	<h2 id="welcome_message">Welcome</h2>
-	<button id="change_user_name">Change user name</button>
-	<button id="create_room">Create room</button>
-	<h3>Rooms</h3>
-	<div id="room_list"></div>
-	<h3>Remote users</h3>
-	<div id="remote_user_list"></div>
+	
+	<div id="top">
+		<div id="display_user_name"></div>
+		<button id="change_user_name">Change user name</button>
+	</div>
 
-	<div id="call_list"></div>
+	<div id="main">
+		<h1>Lobby</h1>
+		<table id="room_table">
+			<thead>
+				<tr>
+					<th>
+						<h2>Room</h2>
+					</th>
+					<th>
+						<h2>Participants</h2>
+						<button id="create_room">Create room</button>
+					</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td><h3>Test1</h3>Some description</td>
+					<td>Jonas, Karl</td>
+				</tr>
+			</tbody>
+			<tfoot>
+				<tr>
+					<td colspan="2">No rooms, click on "Create room" to create one.</td>
+				</tr>
+			</tfoot>
+		</table>
+		<!--<div id="users_layout">
+			<h2>List of users</h2>
+			<div id="remote_user_list"></div>
+		</div>-->
+		
+		<div id="call_list"></div>
+	</div>
 </body>
 </html>
+
