@@ -4,10 +4,8 @@ var WebSocketServer = require('websocket').server;
 var http = require('http')
 
 // # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-// #
 // Constants
 // # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-// #
 
 var PORT_NUMBER = 12345;
 
@@ -18,6 +16,7 @@ var API_ROOM_LEAVE = "roomleave";
 
 var API_LIST_ROOMS = "listrooms";
 var API_LIST_USERS = "listusers";
+var API_LIST = "listall";
 
 var API_USER_NEW= "useradd";
 var API_USER_REMOVE = "userremove";
@@ -30,23 +29,21 @@ var API_INVIE_TIMEOUT = "invitetimeout";
 
 var API_MESSAGE = "message";
 
+var API_CORNERS = "corners";
+
 var API_SET_NAME = "setname";
 
 // # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-// #
 // Propotype
 // # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-// #
 
 Array.prototype.remove=function(key) {
 	this.splice(this.indexOf(key), 1);	
 }
 
 // # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-// #
 // Message callback
 // # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-// #
 
 
 var callbacks = {};
@@ -73,10 +70,8 @@ function fire(event_name, client, message) {
 }
 
 // # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-// #
 // Server
 // # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-// #
 
 
 var server = http.createServer(function(request,response) {
@@ -110,7 +105,7 @@ wsServer.on('request', function(request) {
     }
 	
 	var connection = request.accept('tangibles', request.origin);
-	console.log((new Date()) + ' Connection accepted.');
+	console.log((new Date()) + ' Connection accepted from ip ' + connection.remoteAddress);
 
 	connection.on('message', function(message) {
 		if (message.type === 'utf8') {
@@ -137,8 +132,6 @@ wsServer.on('request', function(request) {
 function handleNewConnection(connection){
 	var room = getRoomById(0);
 	room.addUser(new _user(connection));
-	
-	
 }
 
 /**
@@ -152,10 +145,16 @@ function handleNewConnection(connection){
  */
 function connectionClosed(connection){
 	var roomOld = getRoomByUserSocket(connection);
-	var name = roomOld.getUserBySocket(connection);
+	var user = roomOld.getUserBySocket(connection);
+	
+	roomOld.removeUser(user);
+	
+	var name = user.name;
 	
 	for ( var i = 0; i < roomOld.users.length; i++) {
-		sendMessage(roomOld.users[i].socket, API_USER_LEAVE, name);
+		if (roomOld.users[i] != null) {
+			sendMessage(roomOld.users[i].socket, API_USER_LEAVE, name);	
+		}
 	}
 }
 
@@ -178,10 +177,8 @@ function sendMessage(connection, event_name, event_data) {
 }
 
 // # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-// #
 // Handle message
 // # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-// #
 
 
 
@@ -199,25 +196,27 @@ function sendMessage(connection, event_name, event_data) {
  *            JSON encoded string containing the room id "id" and the new name
  *            "name"
  */
-addCallbacks(API_SET_NAME, function(connection, message){
+addCallbacks(API_SET_NAME, function(connection, name){
 	console.log((new Date()) + " Firing: " + API_SET_NAME);
-	var json = JSON.parse(message.utf8Data);
-	var room = getRoomById(json.id);
+	//var json = JSON.parse(message.utf8Data);
+	var room = getRoomByUserSocket(connection);
 	var user = room.getUserBySocket(connection);
 	
 	if (user.name != "") {
-		for ( var i = 0; i < roomOld.users.length; i++) {
+		for ( var i = 0; i < room.users.length; i++) {
 			sendMessage(room.users[i].socket, API_USER_LEAVE, user.name);
 		}
 	}
 	
-	user.name = json.name;
+	//room.removeUser(user);
 	
-	for ( var i = 0; i < roomOld.users.length; i++) {
+	user.name = name;
+	
+	for ( var i = 0; i < room.users.length; i++) {
 		sendMessage(room.users[i].socket, API_USER_ENTER, user.name);
 	}
 	
-	
+	sendMessage(user.socket, API_SET_NAME, name);
 });
 
 /**
@@ -230,9 +229,47 @@ addCallbacks(API_SET_NAME, function(connection, message){
  */
 addCallbacks(API_LIST_ROOMS, function(connection, message){
 	console.log((new Date()) + " Firing: " + API_LIST_ROOMS);
-	
+	console.log(getRooms());
 	sendMessage(connection, API_LIST_ROOMS, getRooms());
 });
+
+
+/**
+ * List all rooms and list all users inside all rooms
+ * 
+ * @param connection
+ *            WebSocket connection
+ * @param message
+ *            Empty string
+ */
+addCallbacks(API_LIST, function(connection, empty){
+	console.log((new Date()) + " Firing: " + API_LIST);
+	
+	var listofAllUsers = [];
+		
+	for (var i=0; i < rooms.length; i++) {
+		for (var j=0; j < rooms[i].users.length; j++) {
+			if (rooms[i].users[j].name != "") {
+				listofAllUsers.push( [ rooms[i].users[j].name, rooms[i].getName() ] );	
+			}
+  		};
+	};
+	
+	var data = JSON.stringify({
+			rooms:getRooms(),
+			users:listofAllUsers
+	});
+		
+	sendMessage(connection, API_LIST_USERS, data);
+	
+
+});
+
+
+
+
+
+
 
 /**
  * List all users inside a room
@@ -240,19 +277,41 @@ addCallbacks(API_LIST_ROOMS, function(connection, message){
  * @param connection
  *            WebSocket connection
  * @param message
- *            String containing the room Id (/name?)
+ *            String containing the room name
  */
-addCallbacks(API_LIST_USERS, function(connection, id){
+addCallbacks(API_LIST_USERS, function(connection, name){
 	console.log((new Date()) + " Firing: " + API_LIST_USERS);
 	
-	var room = getRoomById(id);
-	var usr = room.listUsersNamesOnly();
+	if (name == "") { // All users in every room
+		console.log((new Date()) + " List all rooms");
+		var listofAllRooms = [];
+		
+		for (var i=0; i < rooms.length; i++) {
+		  for (var j=0; j < rooms[i].users.length; j++) {
+		  	if (rooms[i].users[j].name != "") {
+		  		listofAllRooms.push( [ rooms[i].users[j].name, rooms[i].getName() ] );	
+		  	}
+		  };
+		};
+		
+		var data = JSON.stringify({
+			list:listofAllRooms
+		});
+		
+		sendMessage(connection, API_LIST_USERS, data);
+		
+	} else {
+		var room = getRoomByName(name);
+		var usr = room.listUsersNamesOnly();
+		
+		var data = JSON.stringify({
+			listusers:usr
+		});
+		
+		sendMessage(connection, API_LIST_USERS, data);	
+	}
 	
-	var data = JSON.stringify({
-		listusers:usr
-	});
 	
-	sendMessage(connection, API_LIST_USERS, data);
 });
 
 /**
@@ -268,11 +327,11 @@ addCallbacks(API_LIST_USERS, function(connection, id){
  */
 addCallbacks(API_ROOM_ENTER, function(connection, message){
 	console.log((new Date()) + " Firing: " + API_ROOM_ENTER);
+	//console.log(message);
+	var json = JSON.parse(message);
 	
-	var json = JSON.parse(message.utf8Data);
-	
-	var roomOld = getRoomById(json.oldRoom);
-	var roomNew = getRoomById(json.newRoom);
+	var roomOld = getRoomByName(json.oldRoom);
+	var roomNew = getRoomByName(json.newRoom);
 	
 	var user = roomOld.getUserBySocket(connection);
 	
@@ -308,11 +367,18 @@ addCallbacks(API_ROOM_LEAVE, function(connection, message){
 addCallbacks(API_INVITE_SEND, function(connection, message){
 	console.log((new Date()) + " Firing: " + API_INVITE_SEND);
 	
-	var json = JSON.parse(message.utf8Data);
+	var json = JSON.parse(message);
 	
 	var invite = getUserByUserName(json.invite);
 	
-	sendMessage(invite.socket, API_INVITE_SEND, message);
+	var user = getUserByUserSocket(connection);
+	
+	var payload = JSON.stringify({
+		user: user.name,
+		room: json.room
+	});
+	
+	sendMessage(invite.socket, API_INVITE_SEND, payload);
 });
 
 /**
@@ -328,7 +394,7 @@ addCallbacks(API_INVITE_SEND, function(connection, message){
 addCallbacks(API_INVITE_ANSWER, function(connection, message){
 	console.log((new Date()) + " Firing: " + API_INVITE_ANSWER);
 	
-	var json = JSON.parse(message.utf8Data);
+	var json = JSON.parse(message);
 	
 	var user = getUserByUserName(json.user);
 	
@@ -341,11 +407,31 @@ addCallbacks(API_INVIE_TIMEOUT, function(connection, message){
 	
 });
 
+
+/**
+ * Send a message to every user in the current room.
+ * 
+ * @param connection
+ *            WebSocket connection
+ * @param message
+ *            Messeage defined by projector group
+ */
+addCallbacks(API_CORNERS, function(connection, message){
+	console.log((new Date()) + " Firing: " + API_CORNERS);
+	var room = getRoomByUserSocket(connection);
+	
+	if (room.getId() != 0) {
+		for (var i=0; i < room.users.length; i++) {
+			if (room.users[i].socket != connection) {
+				sendMessage(room.users[i].socket, API_CORNERS, message);	
+			}
+		};
+	}
+});
+
 // # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-// #
 // Startup
 // # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-// #
 
 function startup(){
 	// Create looby (gets ID 0)
@@ -359,10 +445,8 @@ function startup(){
 
 
 // # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-// #
 // Objects
 // # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-// #
 
 var index = 0;
 function getNextId(){
@@ -382,34 +466,36 @@ function _user(socket){
 function _room(name) {
 	var id = getNextId();
 	var name = name;
-	var users = [];
+	this.users = [];
 	
 	this.addUser = function(user) {
-		users.push(user);
+		this.users.push(user);
 	}
 	
 	this.removeUser = function(user) {
-		users.remove(user);		
+		this.users.remove(user);		
 	}
 	
 	this.listUsers = function(){
-		return users;
+		return this.users;
 	}
 	
 	this.listUsersNamesOnly = function(){
 		var listusers = []
-		for (var i=0; i < users.length; i++) {
-			if (users[i].name != "") {
-				listusers.push(users[i].name);	
+		for (var i=0; i < this.users.length; i++) {
+			if (this.users[i].name != "") {
+				listusers.push(this.users[i].name);	
 			}
 		}
 	return listusers;
 	}
 	
 	this.getUserBySocket = function(socket){
-		for (var i=0; i < users.length; i++) {
-			if (users[i].socket == socket) {
-				return users[i];
+		for (var i=0; i < this.users.length; i++) {
+			if (this.users[i] != null) {
+				if (this.users[i].socket == socket) {
+					return this.users[i];
+				}	
 			}
 		}
 		return false;
@@ -426,10 +512,8 @@ function _room(name) {
 
 
 // # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-// #
 // Room logic
 // # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-// #
 
 var rooms = []
 
@@ -445,9 +529,17 @@ function removeRoomByName(name){
 	}
 }
 
+function getRoomByName(name){
+	for (var i=0; i < rooms.length; i++) {
+		if (rooms[i].getName() == name) {
+			return rooms[i];
+		}
+	}
+}
+
 function getRoomById(id){
 	for (var i=0; i < rooms.length; i++) {
-		if (rooms[i].id == id) {
+		if (rooms[i].getId() == id) {
 			return rooms[i];
 		}
 	}
@@ -466,7 +558,7 @@ function getRoomByUserSocket(socket){
 function getRooms(){
 	var listrooms = [];
 	for ( var i = 0; i < rooms.length; i++) {
-		listrooms.push(rooms[i].name);
+		listrooms.push(rooms[i].getName());
 	}
 	return listrooms;
 }
@@ -486,17 +578,23 @@ function getUserByUserName(name){
 	}
 }
 
+function getUserByUserSocket(socket){
+	for ( var i = 0; i < rooms.length; i++) {
+		for ( var j = 0; j < rooms[i].users.length; j++) {
+			if (rooms[i].users[j].socket == socket) {
+				return rooms[i].users[j];
+			}
+		}
+	}
+}
+
 // # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-// #
 // User logic
 // # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-// #
 
 
 // # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-// #
 // 						
 // # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-// #
 
 startup();
