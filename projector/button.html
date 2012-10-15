@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html>
   <head>
     <title>test</title>
@@ -6,7 +5,7 @@
   </head>
 
   <body>
-<img id="scream" src="the_scream.jpg" alt="The Scream" width="220" height="277" />
+    <img id="scream" src="the_scream.jpg" alt="The Scream" width="220" height="277" />
     <video id="video1" controls width="270" autoplay loop>
       <source src="mov_bbb.ogg" type='video/ogg' />
     </video>
@@ -15,11 +14,61 @@
     <canvas id="canvas-blended" width="640" height="480"></canvas>
     <video id="webcam" autoplay width="640" height="480"></video>
     <script type="text/javascript">
+      if (navigator.getUserMedia) {
+        navigator.getUserMedia({audio: true, video: true}, function(stream) {
+          video.src = stream;
+          initialize();
+        }, webcamError);
+      } else if (navigator.webkitGetUserMedia) {
+        navigator.webkitGetUserMedia({audio: true, video: true}, function(stream) {
+          video.src = window.webkitURL.createObjectURL(stream);
+          initialize();
+        }, webcamError);
+      } else {
+        //video.src = 'somevideo.webm'; // fallback.
+      }
+      
+      var webcamError = function(e) {
+        alert('Webcam error!', e);
+      };
+
+      function hasGetUserMedia() {
+        // Note: Opera builds are unprefixed.
+        return !!(navigator.getUserMedia || navigator.webkitGetUserMedia ||
+          navigator.mozGetUserMedia || navigator.msGetUserMedia);
+      }
       var canvas = document.getElementById("canvas");
 
       var ctx = canvas.getContext("2d");
       ctx.fillStyle = "#FF0000";
       //ctx.fillRect(0, 0, 150, 75);
+
+      function transform(pWidth, pHeight, cWidth, cHeight) {
+        // maybe the other way around
+        kx = pWidth/cWidth;
+        ky = pHeight/cHeight;
+
+        this.conX = conX;
+        function conX(x) {
+          return 1;
+         a = Math.round(x*kx);
+         if (a < 1)
+           return 1;
+         else
+           return a;
+        }
+
+        this.conY = conY;
+        function conY(y) {
+          return 1;
+         a = Math.round(y*ky);
+         if (a < 1)
+           return 1;
+         else
+           return a;
+        }
+
+      }
 
       function buttons() {
         this.listOfButtons = [];
@@ -74,7 +123,7 @@
         this.enabled = true;
         function checkPressed(contextBlended, transform) {
           // TODO transform x, y, sizeX and sizeY
-			    var blendedData = contextBlended.getImageData(this.x, this.y, this.sizeX, this.sizeY);
+			    var blendedData = contextBlended.getImageData(transform.conX(this.x), transform.conY(this.y), transform.conX(this.sizeX), transform.conY(this.sizeY));
 			    var i = 0;
 			    var average = 0;
 			    // loop over the pixels
@@ -182,45 +231,7 @@
       buttons.addButton(button3);
       buttons.draw();
 
-	function hasGetUserMedia() {
-		// Note: Opera builds are unprefixed.
-		return !!(navigator.getUserMedia || navigator.webkitGetUserMedia ||
-			navigator.mozGetUserMedia || navigator.msGetUserMedia);
-	}
-
-	if (hasGetUserMedia()) {
-		$("#info").hide();
-		$("#message").show();
-	} else {
-		$("#info").show();
-		$("#message").hide();
-		$("#video-demo").show();
-		$("#video-demo")[0].play();
-		return;
-	}
-
-	var webcamError = function(e) {
-		alert('Webcam error!', e);
-	};
-
-	var video = $('#webcam')[0];
-
-	if (navigator.getUserMedia) {
-		navigator.getUserMedia({audio: true, video: true}, function(stream) {
-			video.src = stream;
-			initialize();
-		}, webcamError);
-	} else if (navigator.webkitGetUserMedia) {
-		navigator.webkitGetUserMedia({audio: true, video: true}, function(stream) {
-			video.src = window.webkitURL.createObjectURL(stream);
-			initialize();
-		}, webcamError);
-	} else {
-		//video.src = 'somevideo.webm'; // fallback.
-	}
-
-
-	    var video = $('#webcam')[0];
+      var video = $('#webcam')[0];
 
       var timeOut, lastImageData;
       var canvasSource = $("#canvas-source")[0];
@@ -229,8 +240,11 @@
       var contextSource = canvasSource.getContext('2d');
       var contextBlended = canvasBlended.getContext('2d');
 
-      contextSource.translate(canvasSource.width, 0);
-      contextSource.scale(-1, 1);
+      //contextSource.translate(canvasSource.width, 0);
+      //contextSource.scale(-1, 1);
+
+      trans = new transform(document.body.clientWidth, document.body.clientHeight, contextSource.width, contextSource.height)
+      //trans = new transform(document.body.clientWidth, document.body.clientHeight, document.body.clientWidth, document.body.clientHeight);
       start()
 
       function initialize() {
@@ -240,15 +254,15 @@
       function start() {
         $(canvasSource).hide();
         $(canvasBlended).show();
-        $(video).hide()
+        $(video).hide();
         update();
       }
 
       function update() {
         drawVideo();
         blend();
-        buttons.checkPressed(contextBlended, 1)
-        timeOut = setTimeout(update, 1000/60);
+        buttons.checkPressed(contextBlended, trans)
+        timeOut = setTimeout(update, 200);
       }
 
       function drawVideo() {
@@ -281,19 +295,6 @@
         // TODO change accordingly
         return (value > 0x1F) ? 0xFF : 0;
       }
-
-      function difference(target, data1, data2) {
-      // blend mode difference
-      if (data1.length != data2.length) return null;
-      var i = 0;
-      while (i < (data1.length * 0.25)) {
-        target[4*i] = data1[4*i] == 0 ? 0 : fastAbs(data1[4*i] - data2[4*i]);
-        target[4*i+1] = data1[4*i+1] == 0 ? 0 : fastAbs(data1[4*i+1] - data2[4*i+1]);
-        target[4*i+2] = data1[4*i+2] == 0 ? 0 : fastAbs(data1[4*i+2] - data2[4*i+2]);
-        target[4*i+3] = 0xFF;
-        ++i;
-      }
-    }
 
     function differenceAccuracy(target, data1, data2) {
       if (data1.length != data2.length) return null;
