@@ -1,0 +1,55 @@
+API_USER_ENTER
+	name of user
+
+API_USER_LEAVE
+	name of user (if "" then do nothing)
+
+API_ROOM_ENTER
+json
+	oldRoom	: name of leaving room
+	newRoom	: name of entering room
+
+API_ROOM_LEAVE
+
+
+API_LIST_ROOMS
+	""
+
+API_LIST_USERS (lobby == 0)
+	roomID
+
+API_USER_NEW
+
+
+API_USER_REMOVE
+
+
+API_ROOM_NEW
+
+
+API_ROOM_REMOVE
+
+
+API_INVITE_SEND
+json
+	user	: name of the inviter (caller)
+	invite	: name of the invited user (called)
+	room	: name of the room inviting to
+
+API_INVITE_ANSWER
+json
+	user	: name of the inviter (caller)
+	invite	: name of the invited user (called)
+	room	: name of the room inviting to
+	answer	: "yes" or "no"
+
+API_INVIE_TIMEOUT
+
+
+API_MESSAGE
+
+
+API_SET_NAME
+json
+	id		: roomID
+	name	: new user name

@@ -8,85 +8,19 @@
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8/jquery.min.js"></script>
 <script	src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
 
+<link href="style.css" rel="stylesheet" type="text/css" />
+
+<script src="clientSocket.js"></script>
 <script src="lobby.js"></script>
-
-<style type="text/css">
-
-#main {
-	width: 60%;
-	margin: 0 auto;
-}
-
-.ui-widget {
-	font-size: 0.8em;
-}
-
-label,input {
-	display: block;
-}
-
-#call_list {
-	position: absolute;
-	bottom: 0;
-}
-
-#top {
-	position: absolute;
-	top: 0;
-	right: 0;
-	padding: 10px;
-}
-
-#display_user_name {
-	display: inline;
-	vertical-align: middle;
-}
-
-#room_table tbody h3 {
-	color: #0000FF;
-}
-
-#room_table h2, #room_table h3 {
-	padding: 0;
-	margin: 0;
-}
-
-#room_table th {
-	text-align: left;
-}
-
-#room_table th, td {
-	width: 50%;
-	padding: 10px;
-}
-
-#room_table tfoot td, #room_table tbody td {
-	border-top: 1px solid #ccc;
-}
-
-#room_table {
-	position: relative;
-	width: 100%;
-	border-spacing: 0;
-}
-
-#room_table tbody tr:hover {
-	background: #f0f0f0;
-	-webkit-transition: all 0.1s ease-in-out;
-	cursor: pointer;
-}
-
-#create_room {
-	position: absolute;
-	top: 0;
-	right: 0;
-	margin: 10px;
-}
-
-</style>
 
 </head>
 <body>
+	<div id="dialog_error" title="Error">
+		<div class="ui-state-error ui-corner-all" style="padding: 0 .7em;">
+			<p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>
+			<span id="dialog_error_text">Some error occurred.</span></p>
+		</div>
+	</div>
 	<div id="dialog_select_user_name" title="Select user name">
 		<label for="user_name">User name</label>
 		<input type="text" name="user_name" id="user_name" class="text ui-widget-content ui-corner-all" />
@@ -116,10 +50,6 @@ label,input {
 				</tr>
 			</thead>
 			<tbody>
-				<tr>
-					<td><h3>Test1</h3>Some description</td>
-					<td>Jonas, Karl</td>
-				</tr>
 			</tbody>
 			<tfoot>
 				<tr>
