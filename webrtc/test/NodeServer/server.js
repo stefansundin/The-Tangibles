@@ -310,7 +310,7 @@ addCallbacks(API_NAME_SET, function (con, name){
 	
 	var oldName = user.name;
 	
-	user.setName(name);
+	user.setName(name); // Changing the room to looby also
 	
 	var data = JSON.stringify({
 		name: user.name,
@@ -324,13 +324,15 @@ addCallbacks(API_NAME_SET, function (con, name){
 			name: user.name,
 			roomId: user.roomId
 		}); 
-		sendMessageToAllButSelf(user.id, API_USER_ENTER, data);
+		//sendMessageToAllButSelf(user.id, API_USER_ENTER, data);
+		sendMessageToAll(API_USER_ENTER, data);
 	} else {
 		var data = JSON.stringify({
 			id: user.id,
 			name: user.name
 		}); 
-		sendMessageToAllButSelf(user.id, API_NAME_CHANGE, data);
+		//sendMessageToAllButSelf(user.id, API_NAME_CHANGE, data);
+		sendMessageToAll(API_NAME_CHANGE, data);
 	}
 	
 });
