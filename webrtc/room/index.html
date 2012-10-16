@@ -1,430 +1,318 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<link rel="canonical" href="{{ room_link }}" />
-<meta charset="utf-8" />
-<title>Room</title>
 
-<style type="text/css">
-body {
-	height: 100%;
-	width: 100%;
-	font-family: Verdana, Arial, Helvetica, sans-serif;
-	margin: 0;
-	padding: 0;
-}
+<html>
+  <head>
+    <title>Room view</title>
+    <link type="text/css" href="/roomstyle.css" rel="stylesheet"></link>
+    
+    <link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel="stylesheet" type="text/css" />
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8/jquery.min.js"></script>
+<script	src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
 
-video {
-	max-height: 100%;
-	max-width: 100%;
-	margin: 0;
-	padding: 0;
-}
+    
 
-#main {
-	margin: 0;
-	padding: 10px;
-}
-
-#local_video {
-	-webkit-transform: scale(-1, 1);
-}
-
-#video_container {
-	display: -webkit-box;
-	-webkit-box-orient: horizontal;
-	margin: 0;
-	padding: 0;
-}
-
-#video_container>div {
-	-webkit-box-flex: 1;
-	text-align: center;
-}
-
-#video_container>div>p {
-	margin: 0;
-	padding: 0;
-	font-weight: bold;
-}
-
-#bottom {
-	position: absolute;
-	bottom: 0;
-	left: 0;
-	padding: 10px;
-}
-
-#hangup {
-	font-size: 13px;
-	font-weight: bold;
-	width: 128px;
-	height: 24px;
-	margin: 2px;
-}
-</style>
-
-<script src="/_ah/channel/jsapi"></script>
-
-<script type="text/javascript">
-	var localVideo;
-	var miniVideo;
-	var localStream;
-	var channel;
-	var channelReady = false;
-	var pc;
-	var socket;
-	var initiator = {{ initiator }};
-	var started = false;
-	var iceUfrags = [];
-	var icePwds = [];
-	var needFormatCandidate = false;
-	
-	var workspaceWindow;
-	
-	function addVideo(id, name, url) {
-		var new_div = document.createElement("div");
-		new_div.setAttribute("id", "video_cont_" + id);
-		new_div.innerHTML = "<p>" + name
-				+ "</p><video id=\"video_"+id+"\" src=\""+url+"\" autoplay=\"autoplay\"></video>";
-
-		document.getElementById("video_container").appendChild(new_div);
-	}
-
-	function removeVideo(id) {
-		document.getElementById("video_container").removeChild(
-				document.getElementById("video_cont_" + id));
-	}
-	
-	function initialize() {
-		console.log("Initializing; room={{ room_key }}.");
-		//card = document.getElementById("card");
-		//localVideo = document.getElementById("localVideo");
-		//miniVideo = document.getElementById("miniVideo");
-		//remoteVideo = document.getElementById("remoteVideo");
-		resetStatus();
-		openChannel();
-		getUserMedia();
-	}
-	
-	function openChannel() {
-		console.log("Opening channel.");
-		var channel = new goog.appengine.Channel('{{ token }}');
-		var handler = {
-				'onopen': onChannelOpened,
-				'onmessage': onChannelMessage,
-				'onerror': onChannelError,
-				'onclose': onChannelClosed
-		};
-		socket = channel.open(handler);
-	}
-	
-	function resetStatus() {
-		if (!initiator) {
-			setStatus("Waiting for someone to join: <a href=\"{{ room_link }}\">{{ room_link }}</a>");
-		} else {
-			setStatus("Initializing...");
-		}
-	}
-	
-	function getUserMedia() {
-		try {
-			navigator.webkitGetUserMedia({audio:true, video:true}, onUserMediaSuccess,
-					onUserMediaError);
-			console.log("Requested access to local media with new syntax.");
-		} catch (e) {
-			try {
-				navigator.webkitGetUserMedia("video,audio", onUserMediaSuccess,
-						onUserMediaError);
-				console.log("Requested access to local media with old syntax.");
-			} catch (e) {
-				alert("webkitGetUserMedia() failed. Is the MediaStream flag enabled in about:flags?");
-				console.log("webkitGetUserMedia failed with exception: " + e.message);
-			}
-		}
-	}
-	
-	function createPeerConnection() {
-		try {
-			pc = new webkitPeerConnection00("{{ pc_config }}", onIceCandidate);
-			console.log("Created webkitPeerConnnection00 with config \"{{ pc_config }}\".");
-		} catch (e) {
-			console.log("Failed to create PeerConnection, exception: " + e.message);
-			alert("Cannot create PeerConnection object; Is the 'PeerConnection' flag enabled in about:flags?");
-			return;
-		}
-	
-		pc.onconnecting = onSessionConnecting;
-		pc.onopen = onSessionOpened;
-		pc.onaddstream = onRemoteStreamAdded;
-		pc.onremovestream = onRemoteStreamRemoved;
-	}
-	
-	function maybeStart() {
-		if (!started && localStream && channelReady) {
-			setStatus("Connecting...");
-			console.log("Creating PeerConnection.");
-			createPeerConnection();
-			console.log("Adding local stream.");
-			pc.addStream(localStream);
-			started = true;
-			// Caller initiates offer to peer.
-			if (initiator)
-				doCall();
-		}
-	}
-	
-	function setOpenWorkspace(state) {
-		foot1.innerHTML = state;
-	}
-	
-	function setStatus(state) {
-		foot2.innerHTML = state;
-	}
-	
-	function doCall() {
-		console.log("Send offer to peer");
-		var offer = pc.createOffer({audio:true, video:true});
-		pc.setLocalDescription(pc.SDP_OFFER, offer);
-		sendMessage({type: 'offer', sdp: offer.toSdp()});
-		pc.startIce();
-	}
-	
-	function doAnswer() {
-		console.log("Send answer to peer");
-		var offer = pc.remoteDescription;
-		var answer = pc.createAnswer(offer.toSdp(), {audio:true,video:true});
-		pc.setLocalDescription(pc.SDP_ANSWER, answer);
-		sendMessage({type: 'answer', sdp: answer.toSdp()});
-		pc.startIce();
-	}
-	
-	function sendMessage(message) {
-		var msgString = JSON.stringify(message);
-		console.log('C->S: ' + msgString);
-		path = '/message?r={{ room_key }}' + '&u={{ me }}';
-		var xhr = new XMLHttpRequest();
-		xhr.open('POST', path, true);
-		xhr.send(msgString);
-	}
-	
-	function processSignalingMessage(message) {
-		var msg = JSON.parse(message);
-	
-		if (msg.type === 'offer') {
-			// Callee creates PeerConnection
-			if (!initiator && !started)
-				maybeStart();
-	
-			pc.setRemoteDescription(pc.SDP_OFFER, new SessionDescription(msg.sdp));
-			checkIceFormat(msg.sdp);
-			doAnswer();
-		} else if (msg.type === 'answer' && started) {
-			pc.setRemoteDescription(pc.SDP_ANSWER, new SessionDescription(msg.sdp));
-			checkIceFormat(msg.sdp);
-		} else if (msg.type === 'candidate' && started) {
-			var candidateString = maybeAddIceCredentials(msg);
-			var candidate = new IceCandidate(msg.label, candidateString);
-			pc.processIceMessage(candidate);
-		} else if (msg.type === 'bye' && started) {
-			onRemoteHangup();
-		}
-	}
-	
-	// Temp solution for compatibility between Chrome 20 and later versions.
-	// We need to convert the ICE candidate into old format at Chrome 20 end.
-	function checkIceFormat(msgString) {
-		var ua = navigator.userAgent;
-		if (ua.substr(ua.lastIndexOf('Chrome/')+7, 2) === '20') {
-			// If the offer/answer is from later Chrome to Chrome 20
-			// Save the username and password of both audio and video
-			if (msgString.search('ice-ufrag:') !== -1 &&
-					msgString.search('ice-pwd:') !== -1) {
-				saveIceCredentials(msgString);
-				needFormatCandidate = true;
-			}
-		}
-	}
-	
-	// Save the ICE credentials in SDP from later Chrome at Chrome 20 end.
-	function saveIceCredentials(msgString) {
-		var indexOfAudioSdp = msgString.search('m=audio');
-		var indexOfVideoSdp = msgString.search('m=video');
-	
-		// Candidate label 0 for audio, 1 for video
-		var audioSdp = msgString.substring(indexOfAudioSdp, indexOfVideoSdp);
-		iceUfrags[0] = audioSdp.substr(audioSdp.search('ice-ufrag:')+10, 16);
-		icePwds[0] = audioSdp.substr(audioSdp.search('ice-pwd:')+8, 24);
-		var videoSdp = msgString.substring(indexOfVideoSdp);
-		iceUfrags[1] = videoSdp.substr(videoSdp.search('ice-ufrag:')+10, 16);
-		icePwds[1] = videoSdp.substr(videoSdp.search('ice-pwd:')+8, 24);
-	}
-	
-	// Add saved ICE credentials into candidate from later Chrome at Chrome 20 end.
-	function maybeAddIceCredentials(msg) {
-		var candidateString = msg.candidate;
-		if (needFormatCandidate) {
-			candidateString = msg.candidate.replace('generation',
-					'username ' + iceUfrags[msg.label] +
-					' password ' + icePwds[msg.label] +
-			' generation');
-		}
-		return candidateString;
-	}
-	
-	function onChannelOpened() {
-		console.log('Channel opened.');
-		channelReady = true;
-		if (initiator) maybeStart();
-	}
-	function onChannelMessage(message) {
-		console.log('S->C: ' + message.data);
-		processSignalingMessage(message.data);
-	}
-	function onChannelError() {
-		console.log('Channel error.');
-	}
-	function onChannelClosed() {
-		console.log('Channel closed.');
-	}
-	
-	function onUserMediaSuccess(stream) {
-		console.log("User has granted access to local media.");
-		var url = webkitURL.createObjectURL(stream);
-		//localVideo.style.opacity = 1;
-		//localVideo.src = url;
-		localStream = stream;
-		local_video.src = url;
-		local_name.innerHTML = "You!";
-		// Caller creates PeerConnection.
-		if (initiator) maybeStart();
-		
-		setOpenWorkspace("<input type=\"button\" id=\"openWorkspace\" value=\"Open shared workspace\" onclick=\"onOpenWorkspace()\" />");
-		//setOpenWorkspace("Open! https://the-tangibles.appspot.com/workspace/?r={{ room_key }}_desk");
-	}
-	function onUserMediaError(error) {
-		console.log("Failed to get access to local media. Error code was " + error.code);
-		alert("Failed to get access to local media. Error code was " + error.code + ".");
-	}
-	
-	function onOpenWorkspace() {
-		workspaceWindow=window.open("https://the-tangibles.appspot.com/workspace/?r={{ room_key }}_desk");
-		setOpenWorkspace("<input type=\"button\" id=\"closeWorkspace\" value=\"close shared workspace\" onclick=\"onCloseWorkspace()\" />");
-	}
-	
-	function onCloseWorkspace() {
-		workspaceWindow.close();
-		setOpenWorkspace("<input type=\"button\" id=\"closeWorkspace\" value=\"Open shared workspace\" onclick=\"onOpenWorkspace()\" />");
-	}
-	
-	
-	function onIceCandidate(candidate, moreToFollow) {
-		if (candidate) {
-			sendMessage({type: 'candidate',
-				label: candidate.label, candidate: candidate.toSdp()});
-		}
-	
-		if (!moreToFollow) {
-			console.log("End of candidates.");
-		}
-	}
-	
-	function onSessionConnecting(message) {
-		console.log("Session connecting.");
-	}
-	function onSessionOpened(message) {
-		console.log("Session opened.");
-	}
-	
-	function onRemoteStreamAdded(event) {
-		console.log("Remote stream added.");
-		var url = webkitURL.createObjectURL(event.stream);
-		//miniVideo.src = localVideo.src;
-		//remoteVideo.src = url;
-		addVideo(1, "Karl", url);
-		waitForRemoteVideo();  
-	}
-	function onRemoteStreamRemoved(event) {
-		console.log("Remote stream removed.");
-	}
-	
-	function onHangup() {
-		console.log("Hanging up.");
-		transitionToDone();
-		stop();
-		// will trigger BYE from server
-		socket.close();
-	
-	}
-	
-	function onRemoteHangup() {
-		console.log('Session terminated.');
-		transitionToWaiting();
-		stop();
-		initiator = 0;
-	}
-	
-	function stop() {
-		started = false;
-		needFormatCandidate = false;
-		pc.close();
-		pc = null;
-	}
-	
-	function waitForRemoteVideo() {
-		if (video_1.currentTime > 0) {
-			transitionToActive();
-		} else {
-			setTimeout(waitForRemoteVideo, 100);
-		}
-	}
-	function transitionToActive() {
-		console.log("active");
-		//remoteVideo.style.opacity = 1;
-		//card.style.webkitTransform = "rotateY(180deg)";
-		//setTimeout(function() { localVideo.src = ""; }, 500);
-		//setTimeout(function() { miniVideo.style.opacity = 1; }, 1000);
-		setStatus("<input type=\"button\" id=\"hangup\" value=\"Hang up\" onclick=\"onHangup()\" />");
-	}
-	function transitionToWaiting() {
-		console.log("waiting");
-		//card.style.webkitTransform = "rotateY(0deg)";
-		//setTimeout(function() { localVideo.src = miniVideo.src; miniVideo.src = ""; remoteVideo.src = "" }, 500);
-		//miniVideo.style.opacity = 0;
-		//remoteVideo.style.opacity = 0;
-		removeVideo(1);
-		resetStatus();
-	}
-	function transitionToDone() {
-		console.log("done");
-		//localVideo.style.opacity = 0;
-		//remoteVideo.style.opacity = 0;
-		//miniVideo.style.opacity = 0;
-		removeVideo(1);
-		setStatus("You have left the call. <a href=\"{{ room_link }}\">Click here</a> to rejoin.");
-		setOpenWorkspace("Hmm!");
-	}
-	function enterFullScreen() {
-		remote.webkitRequestFullScreen();
-	}
-	
-	setTimeout(initialize, 1);
-</script>
-
-</head>
-<body>
-	<div id="main">
-		<h1 id="room_name">Room name</h1>
-		<div id="video_container">
-			<div id="local">
-				<p id="local_name"></p>
-				<video id="local_video" src="" autoplay="autoplay"></video>
-			</div>
-		</div>
-		<div id="bottom">
-			<div id="foot1"></div>
-			<div id="foot2"></div>
-		</div>
+    <script src="/webrtc.io.js"></script>
+  </head>
+  <body onload="init()">
+    <div id ="content">
+    
 	</div>
-</body>
+    <script>
+      var videos = [];
+      var rooms = [1,2,3,4,5];
+      var PeerConnection = window.PeerConnection || window.webkitPeerConnection00;
+      var user_name = parent.user_name;
+      
+      // State variable used to keep track of what to show.
+      var state = "lobby";
+        
+      function getNumPerRow() {
+        var len = videos.length;
+        var biggest;
+
+        // Ensure length is even for better division.
+        if (len % 2 === 1) {
+          len++;
+        }
+
+        biggest = Math.ceil(Math.sqrt(len));
+        while (len % biggest !== 0) {
+          biggest++;
+        }
+        return biggest;
+      }
+
+      function subdivideVideos() {
+        var perRow = getNumPerRow();
+        var numInRow = 0;
+        for (var i = 0, len = videos.length; i < len; i++) {
+          var video = videos[i];
+          setWH(video, i);
+          numInRow = (numInRow + 1) % perRow;
+        }
+      }
+
+      function setWH(video, i) {
+        var perRow = getNumPerRow();
+        var perColumn = Math.ceil(videos.length / perRow);
+        var width = Math.floor((window.innerWidth) / perRow);
+        var height = Math.floor((window.innerHeight - 190) / perColumn);
+        video.width = width;
+        video.height = height;
+        video.style.position = "absolute";
+        video.style.left = (i % perRow) * width + "px";
+        video.style.top = Math.floor(i / perRow) * height + "px";
+      }
+
+      function cloneVideo(domId, socketId) {
+        var video = document.getElementById(domId);
+        var clone = video.cloneNode(false);
+        clone.id = "remote" + socketId;
+        document.getElementById('videos').appendChild(clone);
+        videos.push(clone);
+        return clone;
+      }
+      function removeVideo(socketId) {
+        var video = document.getElementById('remote' + socketId);
+        if (video) {
+            videos.splice(videos.indexOf(video), 1);
+            video.parentNode.removeChild(video);
+        }
+      }
+
+      function addToChat(msg, color) {
+        var messages = document.getElementById('messages');
+        msg = sanitize(msg);
+        if (color) {
+          msg = '<span style="color: ' + color + '; padding-left: 15px">' + msg + '</span>';
+        } else {
+          msg = '<strong style="padding-left: 15px">' + msg + '</strong>';
+        }
+        messages.innerHTML = messages.innerHTML + msg + '<br>';
+        messages.scrollTop = 10000;
+      }
+
+      function sanitize(msg) {
+        return msg.replace(/</g, '&lt;');
+      }
+
+      function initFullScreen() { 
+        var button = document.getElementById("fullscreen");
+        button.addEventListener('click', function(event) {
+          var elem = document.getElementById("videos"); 
+          //show full screen 
+          elem.webkitRequestFullScreen();
+        });
+      } 
+
+      function initNewRoom() {
+        var button = document.getElementById("newRoom");
+		//button.disabled = true;
+        button.addEventListener('click', function(event) {
+
+            var chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz";
+            var string_length = 8;
+            var randomstring = '';
+            for (var i=0; i<string_length; i++) {
+              var rnum = Math.floor(Math.random() * chars.length);
+              randomstring += chars.substring(rnum,rnum+1);
+            }
+            
+            window.location.hash = randomstring;
+            location.reload();
+        })
+      }
+	  
+	  function initOpenWorkspace() {
+		var wsbutton = document.getElementById("openWorkspace");
+		wsbutton.addEventListener('click', function(event){
+			var clbutton = document.getElementById("closeWorkspace");
+			clbutton.disabled = false;
+			wsbutton.disabled = true;
+			var room = window.location.hash.slice(1);
+			workspaceWindow=window.open('http://localhost:8000/workspace/#' + room + '_desk');
+		})
+	  }
+	  
+	  function initCloseWorkspace() {
+		var clbutton = document.getElementById("closeWorkspace");
+		clbutton.disabled = true;
+		clbutton.addEventListener('click', function(event){
+			workspaceWindow.close();
+			var wsbutton = document.getElementById("openWorkspace");
+			wsbutton.disabled = false;
+			clbutton.disabled = true;
+		})
+	  }
+	  
+	  function onUserInvited(invited_user) {
+	    inviting_user = user_name;
+		var room = window.location.hash.slice(1);
+		console.log('The user ' + invited_user + ' was invited by ' + inviting_user + ' to this room (' + room + ')');
+		writeMessageToChat(inviting_user + ' invited ' + invited_user);
+		// Send Invitation to that user
+	  }
+	  
+	  function initInviteUser() {
+		var inviteButton = document.getElementById("inviteUser");
+		inviteButton.addEventListener('click', function(event) {
+			var invited_user = prompt("Enter user to invite", "User");
+			onUserInvited(invited_user);
+		})
+	  }
+	  
+	  function initLeaveRoom() {
+	    var leaveButton = document.getElementById("leaveRoom");
+		leaveButton.addEventListener('click', function(event) {
+		  writeMessageToChat(user_name + " left the room.");
+      console.log('Left the room');
+      parent.leaveRoom();
+      
+		})
+	  }
+	  
+	  function writeMessageToChat(message) {
+	    var room = window.location.hash.slice(1);
+        var color = "#"+((1<<24)*Math.random()|0).toString(16);
+
+		rtc._socket.send(JSON.stringify({
+              "eventName": "chat_msg",
+              "data": {
+              "messages": message,
+              "room": room,
+              "color": color
+              }
+            }), function(error) {
+              if (error) {
+                console.log(error);
+              }
+            });
+            addToChat(message);
+	  }
+
+      function initChat() {
+        var input = document.getElementById("chatinput");
+        var room = window.location.hash.slice(1);
+        var color = "#"+((1<<24)*Math.random()|0).toString(16);
+		
+        input.addEventListener('keydown', function(event) {
+          var key = event.which || event.keyCode;
+          if (key === 13) {
+            rtc._socket.send(JSON.stringify({
+              "eventName": "chat_msg",
+              "data": {
+              "messages": input.value,
+              "room": room,
+              "color": color
+              }
+            }), function(error) {
+              if (error) {
+                console.log(error);
+              }
+            });
+            addToChat(input.value);
+            input.value = "";
+          }
+        }, false);
+        rtc.on('receive_chat_msg', function(data) {
+          console.log(data.color);
+          addToChat(data.messages, data.color.toString(16));
+        });
+      }
+
+
+      function init() {
+        initRoom();
+      }
+	  
+	  function initRoom() {
+      
+      setRoomContent();
+	    if(PeerConnection){
+		
+          rtc.createStream({"video": true, "audio": true}, function(stream) {
+            document.getElementById('you').src = URL.createObjectURL(stream);
+            videos.push(document.getElementById('you'));
+            rtc.attachStream(stream, 'you');
+            subdivideVideos();
+          });
+        }else {
+          alert('Your browser is not supported or you have to turn on flags. In chrome you go to chrome://flags and turn on Enable PeerConnection remember to restart chrome');
+        }
+
+        
+        var room = window.location.hash.slice(1);
+
+        //When using localhost
+				console.log('Connecting');
+        //rtc.connect("ws://130.240.108.139:8000/", room);
+        rtc.connect("ws://localhost:8000/", room);
+
+        rtc.on('add remote stream', function(stream, socketId) {
+          console.log("ADDING REMOTE STREAM...");
+          var clone = cloneVideo('you', socketId);
+          document.getElementById(clone.id).setAttribute("class", "");
+          rtc.attachStream(stream, clone.id);
+          subdivideVideos();
+        });
+        rtc.on('disconnect stream', function(data) {
+            console.log('remove ' + data);
+            removeVideo(data);
+        });
+        initFullScreen();
+        initNewRoom();
+        //initChat();
+        initOpenWorkspace();
+        initCloseWorkspace();
+        initInviteUser();
+        initLeaveRoom();
+	  }
+    
+    function setRoomContent() {
+      document.getElementById("content").innerHTML = '<div id="videos"> \
+      <video id="you" class="flip" autoplay></video> \
+    </div> \
+    <div id="chatbox"> \
+      <button id="fullscreen">Enter Full Screen</button> \
+      <button id="newRoom">Create A New Room</button>    \
+	  <button id="openWorkspace">Open the workspace</button>\
+	  <button id="closeWorkspace">Close the workspace</button>\
+	  <button id="inviteUser">Intvite</button>\
+	  <button id="leaveRoom">Leave the room</button><div id="messages">\
+      </div>\
+    </div> ';
+    }
+    
+    function leaveTheRoom() {
+      
+/*      console.log(rtc.peerConnections);
+      console.log("ID:" + rtc._socket.id);
+      console.log("ID:" + rtc.sockets);
+      removeVideo('you');
+      videos = [];
+      document.getElementById("videos").innerHTML = '';
+      for (s in rtc.sockets) {
+        s.close();
+      }
+      rtc.connections = [];
+      rtc.streams = [];
+      rtc.numStreams = 0;
+      rtc.initializedStreams = 0;   
+  //    rtc = null;
+      initLobby();
+      // Probably need to do more here too. */
+    }
+	  
+	  function initLobby() {
+      setLobbyContent();
+	  }
+    
+    function setLobbyContent () {
+      document.getElementById("content").innerHTML = 'lobby!';
+    }
+    
+      window.onresize = function(event) {
+        subdivideVideos();
+      };
+    </script>
+  </body>
 </html>

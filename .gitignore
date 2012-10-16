@@ -3,3 +3,5 @@
 bin
 .metadata
 Debug
+/.project
+/.settings

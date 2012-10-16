@@ -271,20 +271,18 @@ function onRoomCreated(room_id) {
  *            ID of the room
  */
 function enterRoom(room_id) {
-	//document.location += "room/#" + room_id;
-  document.getElementById("main").style.display = "none";
-  document.getElementById("roomMain").style.display = "block";
-  //var loc = document.location += "room/#" + room_id;
-  document.getElementById("roomFrame").src="http://localhost:8000/room/#" + room_id;
+  $("#main").hide();
+  $("#roomMain").show();
+  $("#roomFrame").attr("src","room/#" + room_id);
 }
 
 /**
  * Is called by the room frame content when it wants to close the room.
 */
 function leaveRoom() {
-  document.getElementById("roomFrame").src = "about:blank";
-  document.getElementById("main").style.display = "block";
-  document.getElementById("roomMain").style.display = "none";
+  $("#roomFrame").attr("src","about:blank");
+  $("#main").show();
+  $("#roomMain").hide();
 }
 
 /**
