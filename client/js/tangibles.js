@@ -14,14 +14,14 @@ function Tangibles(webRTCSocket) {
 		for (d = 0; d < self.devices.length; d=d+1) {
 			self.api.showColor(self.devices[d].id, '000000', self.err, self.err, false);
 		}
-		/*self.webRTCSocket.send(API_USER_CHANGE, JSON.stringify({
+		self.webRTCSocket.send(API_USER_CHANGE, JSON.stringify({
 			'id' : 0  // Goto Lobby
-		}));*/
+		}));
 	}
 	
 	// this.api listen
 	if(this.webRTCSocket){
-		this.webRTCSocket.on(API_INVITE_SEND, onINVITE_SEND);
+		this.webRTCSocket.on(API_INVITE_SEND, this.onINVITE_SEND);
 	}
 
 	this.registerDevices = function(){
@@ -178,11 +178,9 @@ function Tangibles(webRTCSocket) {
 	});
 
 	// API
-
 	this.onINVITE_SEND = function (name, room, call_id){
-		console.log(onINVITE_SEND);
 		console.log(name, room, call_id);
-		api.incommingCall(call_id, caller, room, function() {
+		self.api.incommingCall(call_id, caller, room, function() {
 			// Accept
 			self.webRTCSocket.send(API_INVITE_ANSWER, JSON.stringify({
 				'callId' : call_id,
