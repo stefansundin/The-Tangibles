@@ -1,7 +1,39 @@
 
-var API_LIST_USERS = "listusers";
+var API_USER_ENTER = "userenter";
+var API_USER_LEAVE = "userleave";
+var API_ROOM_ENTER = "roomenter";
+var API_ROOM_LEAVE = "roomleave";
 
-var ClientSocket = function(url) {
+var API_LIST_ROOMS = "listrooms";
+var API_LIST_USERS = "listusers";
+var API_LIST = "listall";
+
+var API_USER_CHANGE = "userchange" 
+var API_USER_NEW = "useradd";
+var API_USER_REMOVE = "userremove";
+var API_ROOM_NEW = "roomadd";
+var API_ROOM_REMOVE = "roomremove";
+
+var API_INVITE_SEND = "invitesend";
+var API_INVITE_ANSWER = "inviteanswer";
+var API_INVITE_LEAVE = "inviteleave";
+var API_INVIE_TIMEOUT = "invitetimeout";
+
+var API_MESSAGE = "msg";
+var API_MESSAGE_BROADCAST = "msgbroadcast";
+
+var API_CORNERS = "corners";
+var API_CORNERS_BROADCAST = "cornersbroadcast";
+
+var API_SET_NAME = "setname";
+
+var ROOM_PUBLIC = "public";
+var ROOM_PRIVATE = "private";
+var ROOM_PASSWORD = "password";
+
+
+
+var Socket = function(url) {
 	
 	var conn = new WebSocket(url, 'tangibles');
 	
@@ -52,3 +84,5 @@ var ClientSocket = function(url) {
 		}
 	}
 };
+
+var socket = new Socket("ws://130.240.5.191:12345");

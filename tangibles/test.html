@@ -3,9 +3,10 @@
 	<meta charset=UTF-8 />
 	<title>Test page</title>
 	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
-	<script type="text/javascript" src="tangibleLib.js"></script>
+	<!--<script type="text/javascript" src="tangibleLib.js"></script>-->
+	<script type="text/javascript" src="/the-tangibles/webrtc/tangibles.js"></script>
 	<script type="text/javascript">
-
+/*
 var api;
 var devices = [];
 var socket = null;
@@ -189,9 +190,6 @@ function onExit(e) {
 		$('#status').val('Unregistered');
 	}, err);
 
-	/*if (api.getReservedDevices().length > 0) {
-		return 'Please unregister devices first.';
-	}*/
 }
 
 function register(callback){
@@ -208,9 +206,10 @@ function register(callback){
 }
 
 $(window).bind('beforeunload', onExit);
-
+*/
 $(document).ready(function() {
-	register();
+	//register();
+	new Tangibles(null);
 });
 
 	</script>
