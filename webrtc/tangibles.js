@@ -179,21 +179,27 @@ function Tangibles(WebWRTsocket) {
 
 	$.getScript("/The-Tangibles/tangibles/tangibleLib.js", function(){
 		console.log(self.devices);
-
 		self.register();
 		$(window).on('beforeunload', self.onExit); // If needed make global function
 	});
 
 	// API
 
-	this.onINVITE_SEND = function (name, room, call_id) {
+	this.onINVITE_SEND = function (name, room, call_id){
 		console.log(onINVITE_SEND);
 		console.log(name, room, call_id);
-		this.api.incommingCall(call_id, caller, room, function() {
-			console.log("onAccept");
+		/* TODO Someone fix parentes
+		api.incommingCall(call_id, caller, room, function() {
+			socket.send(API_INVITE_ANSWER, JSON.stringify({
+				'callId' : call_id,
+				'answer' : 'yes'
+			}));
 		}, function() {
-			console.log("onDeny");
-		});
+			socket.send(API_INVITE_ANSWER, JSON.stringify({
+				'callId' : call_id,
+				'answer' : 'no'
+			}));
+		}*/
 	}
 }
 
