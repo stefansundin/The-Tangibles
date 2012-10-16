@@ -1,0 +1,512 @@
+
+<html>
+    
+    <head>
+        
+        <title>Projector Group Test</title>
+        
+        <script src="sylvester.js"></script>
+        <script type="text/javascript" src="cv.js"></script>
+        <script type="text/javascript" src="aruco.js"></script>
+        <script type="text/javascript" src="imageproc.js"></script>
+        <script type="text/javascript" src="mediaext.js"></script>
+        
+        <script>
+            
+            var video, canvas, context, detector, filter, imageData, transformCanvas;
+            
+            var miniCanvas, miniContext;
+            var fullCanvas, fullContext;
+            
+            var calibrationStage = 1;
+            
+            const kWidth = 640, kHeight = 480;
+            const qw = kHeight / 3;
+            const ratio = 3.0/4.0;
+
+            const screenMarkerId = 1012, finalMarkerId = 1012; //windowMarkerId = 1012
+            const leftMarkerId = 188, rightMarkerId = 956;
+            //const windowMarkerId = 1012;
+            
+            const defaultWindowRectangle = [{x:100, y:100},
+                                            {x:500, y:100},
+                                            {x:500, y:400},
+                                            {x:100, y:400}];
+
+            var screenRectangle = [], windowRectangle = [], finalRectangle = [];
+            var screenMarker;
+            
+            var qrImg;
+            
+            function init() {
+                video = MediaExt.getCameraAccess(kWidth, kHeight, tick);
+                canvas = MediaExt.createCanvas(kWidth, kHeight);
+                context = canvas.getContext("2d");
+                
+                miniCanvas = MediaExt.createCanvas(kWidth, kHeight);
+                miniContext = miniCanvas.getContext("2d");
+                
+                fullCanvas = document.getElementById("myCanvas");
+                fullContext = fullCanvas.getContext("2d");
+                // document.getElementById("hoho").appendChild(canvas);
+                detector = new AR.Detector();
+                
+                qrImg = new Image();
+                qrImg.onload = function() {
+                    fullContext.drawImage(qrImg, 0, 0, fullCanvas.width, fullCanvas.height);
+                };
+                qrImg.src = "qr1012.png";
+            }
+            
+            /* Keeps calibrating until the correct rectangle is found,
+            then displays the transformed video stream */
+            function tick() {
+                snapshot();
+            
+                var markers = detector.detect(imageData);
+                /* Perform actions depending on what calibration stage the
+                program is currently in */
+                switch (calibrationStage) {
+                    case 1:
+                    firstCalibration(markers);
+                    break;
+                    
+                    case 2:
+                    secondCalibration(markers);
+                    break;
+                    
+                    case 3:
+                    thirdCalibration(markers);
+                    break;
+                                        
+                    case 4:
+                    
+                    transform(canvas, finalRectangle, imageData,
+                              windowRectangle[0], windowRectangle[1],
+                              windowRectangle[2], windowRectangle[3]);
+                    break;
+                }
+                setTimeout(tick, 1);
+            }
+            
+            // The first calibration step
+            function firstCalibration(markers) {
+                
+                //------
+                /*
+                var skamRectangle = [{x:100, y:100}, {x:100, y:400}, {x:500, y:400}, {x:500, y:100}];
+                var hello = new AR.Marker(1012, skamRectangle);
+                drawCorners([hello]);
+                
+                /////////
+                var rect1 = [{x:10, y:110}, {x:10, y:120}, {x:20, y:120}, {x:20, y:110}];
+                var rect2 = [{x:100, y:110}, {x:100, y:120}, {x:110, y:120}, {x:110, y:110}]
+                var marker1 = new AR.Marker(1012, rect1);
+                var marker2 = new AR.Marker(1012, rect2);
+                
+                drawCorners([marker1, marker2, getCalibrationMarker(marker1, marker2)]);
+                */
+                
+                //------
+                
+                var marker;
+                for (var i = 0; i < markers.length; i++) {
+                    
+                    var marker = markers[i];
+                    console.log(marker.id);
+                    if (marker.id == screenMarkerId) {
+                        
+                        screenRectangle = marker.corners;
+                        //========================================================
+                        // The thing above: Calculated from defaultWindowRectangle
+                        //========================================================
+                        
+                        /*
+                        windowMarker = new AR.Marker(
+                                                     windowMarkerId,
+                                                     defaultWindowRectangle
+                                                     );
+                         */
+                        windowRectangle = defaultWindowRectangle;
+                        console.log("Stage 1 finished!!");
+                        calibrationStage = 2;
+                        
+                        
+                        fullContext.clearRect(0, 0, fullCanvas.width, fullCanvas.height);
+                    }
+                }
+            }
+            
+            // The second calibration step
+            function secondCalibration(markers) {
+                //==========================
+                //draw calibrationButton!!!!
+                //==========================
+
+                var foundLeft = false, foundRight = false;
+                var marker, leftMarker, rightMarker;
+                
+                for (var i = 0; i < markers.length; i++) {
+                    marker = markers[i];
+                    console.log(marker.id);
+
+                    if (marker.id == leftMarkerId) {
+                        leftMarker = marker;
+                        foundLeft = true;
+                    }
+                    if (marker.id == rightMarkerId) {
+                        rightMarker = marker;
+                        foundRight = true;
+                    }
+                }
+                /* If both helper markers were found,
+                update the windowMarker. */
+                if (foundLeft && foundRight) {
+                    if (leftMarker.corners[0].x > rightMarker.corners[0].x) {
+                        windowRectangle = getCalibrationRectangle(rightMarker, leftMarker);
+                    } else {
+                        windowRectangle = getCalibrationRectangle(leftMarker, rightMarker);
+                    }
+                }
+                drawPolys([windowRectangle], fullContext);
+            }
+            
+            function thirdCalibration(markers) {
+                var marker;
+                
+                for (var i = 0; i < markers.length; i++) {
+                    marker = markers[i];
+                    if (marker.id == finalMarkerId) {
+                        finalRectangle = marker.corners;
+                        calibrationStage = 4;
+                    }
+                }
+            }
+            
+            // Is called when the calibration button is clicked
+            function doneCalibrating() {
+                calibrationStage = 3;
+            }
+            
+            // Stores an image from the local video stream in imageData
+            function snapshot() {
+                if (calibrationStage == 3) {
+                    var tempRect = rectFromPoly(windowRectangle);
+                    fullContext.drawImage(qrImg, tempRect.x, tempRect.y, tempRect.width, tempRect.height);
+                }
+                miniContext.drawImage(video, 0, 0, kWidth, kHeight);
+                imageData = miniContext.getImageData(0, 0, kWidth, kHeight);
+            }
+            
+            function getCalibrationRectangle(leftMarker, rightMarker) {
+                
+                var leftMarkerCorner, rightMarkerCorner;
+                var width, height;
+                var leftCornersTransformed, rightCornersTransformed;
+                var lowerLeftCorner, lowerRightCorner;
+                var upperLeftCorner, upperRightCorner;
+
+                /* Get the lower left corner of the rectangle using the
+                 left AR marker */
+                var canvasRectangle = [{x:0, y:0},
+                                       {x:fullCanvas.width, y:0},
+                                       {x:fullCanvas.width, y:fullCanvas.height},
+                                       {x:0, y:fullCanvas.height}];
+                //screenRectangle ska användas egentligen....
+                leftCornersTransformed = transform2(windowRectangle, canvasRectangle, leftMarker.corners);
+                upperLeftIndex = getUpperLeft(leftCornersTransformed);
+                leftMarkerCorner = leftCornersTransformed[upperLeftIndex];
+                
+                rightCornersTransformed = transform2(windowRectangle, canvasRectangle, rightMarker.corners);
+                upperRightIndex = getUpperLeft(rightCornersTransformed);
+                rightMarkerCorner = rightCornersTransformed[upperRightIndex];
+           
+                width = rightMarkerCorner.x - leftMarkerCorner.x;
+                height = width * ratio;
+                
+                lowerLeftCorner = leftMarkerCorner;
+                lowerRightCorner = {x:rightMarkerCorner.x, y:lowerLeftCorner.y};
+                upperLeftCorner = {x:lowerLeftCorner.x, y:lowerLeftCorner.y - height}
+                upperRightCorner = {x:lowerRightCorner.x, y:lowerRightCorner.y - height};
+                
+                return [upperLeftCorner, upperRightCorner, lowerRightCorner, lowerLeftCorner];
+                //================
+                // WRONG ORDER????
+                //================
+            }
+                        
+            // Returns the index of the upper left corner of the given polygon
+            function getUpperLeft(poly) {
+                
+                var leftMostX = Infinity, secMostX = Infinity;
+                var first, second;
+                for (var i = 0; i < 4; i++) {
+                    
+                    if (poly[i].x < leftMostX) {
+                        first = i;
+                        leftMostX = poly[i].x;
+                    }
+                }
+                for (var i = 0; i < 4; i++) {
+                    if (poly[i].x < secMostX && i != first) {
+                        second = i;
+                        secMostX = poly[i].x;
+                    }
+                }
+                if (poly[first].y > poly[second].y) {
+                    first = second;
+                }
+                return first;
+            }
+                        
+            function drawCorners(markers) {
+                
+                var corners, corner, i, j;
+                
+                context.lineWidth = 3;
+                
+                for (i = 0; i < markers.length; i++) {
+                    
+                    corners = markers[i].corners;
+                    
+                    context.strokeStyle = "blue";
+                    context.beginPath();
+                    
+                    for (j = 0; j < corners.length; j++) {
+                        corner = corners[j];
+                        context.moveTo(corner.x, corner.y);
+                        corner = corners[(j + 1) % corners.length];
+                        context.lineTo(corner.x, corner.y);
+                    }
+                    
+                    context.stroke();
+                    context.closePath();
+                    
+                    context.strokeStyle = "green";
+                    for (j = 0; j < corners.length; j++) {
+                        corner = corners[j];
+                        context.strokeRect(corners[j].x - 1, corners[j].y - 1, 2, 2);
+                    }
+                }
+            }
+            
+            function drawId(markers) {
+                
+                var corners, corner, x, y, i, j;
+                
+                context.strokeStyle = "blue";
+                context.lineWidth = 1;
+                
+                for (i = 0; i < markers.length; i++) {
+                    
+                    corners = markers[i].corners;
+                    
+                    x = Infinity;
+                    y = Infinity;
+                    
+                    for (j = 0; j < corners.length; j++) {
+                        
+                        corner = corners[j];
+                        
+                        x = Math.min(x, corner.x);
+                        y = Math.min(y, corner.y);
+                    }
+                    
+                    context.strokeText(markers[i].id, x, y);
+                }
+            }
+            
+            function transform(c, r1, imageData2, d1, d2, d3, d4) {
+                /*
+                var c1 = new Object();
+                c1.x = 0;
+                c1.y = 0;
+                var c2 = new Object();
+                c2.x = c.width;
+                c2.y = 0;
+                var c4 = new Object();
+                c4.x = 0;
+                c4.y = c.height;
+                var c3 = new Object();
+                c3.x = c.width;
+                c3.y = c.height;
+                */
+                /*
+                var M = $M([
+                            [c1.x * c1.y, c1.x, c1.y, 1],
+                            [c2.x * c2.y, c2.x, c2.y, 1],
+                            [c3.x * c3.y, c3.x, c3.y, 1],
+                            [c4.x * c4.y, c4.x, c4.y, 1]
+                            ]);
+                */
+                
+                var M = $M([
+                            [r1[0].x * r1[0].y, r1[0].x, r1[0].y, 1],
+                            [r1[1].x * r1[1].y, r1[1].x, r1[1].y, 1],
+                            [r1[2].x * r1[2].y, r1[2].x, r1[2].y, 1],
+                            [r1[3].x * r1[3].y, r1[3].x, r1[3].y, 1]
+                            ]);
+                
+                var A = $M([
+                            [d1.x],
+                            [d2.x],
+                            [d3.x],
+                            [d4.x]
+                            ]);
+                
+                var B = $M([
+                            [d1.y],
+                            [d2.y],
+                            [d3.y],
+                            [d4.y]
+                            ]);
+                
+                
+                Minv = M.inv();
+                var a = Minv.multiply(A);
+                var b = Minv.multiply(B);
+                
+                var ctx = c.getContext("2d");
+                
+                var imageData = ctx.createImageData(c.width, c.height);
+                
+                var dataIn = imageData2.data,
+                dataOut = imageData.data;
+                
+                for (var i = 0; i < c.width; i++) {
+                    for (var j = 0; j < c.height; j++) {
+                        
+                        var I = Math.round(a.e(1, 1) * i * j + a.e(2, 1) * i + a.e(3, 1) * j + a.e(4, 1));
+                        var J = Math.round(b.e(1, 1) * i * j + b.e(2, 1) * i + b.e(3, 1) * j + b.e(4, 1));
+                        var ci = i * 4 + j * c.width * 4,
+                        di = I * 4 + J * c.width * 4;
+                        
+                        dataOut[ci]     = dataIn[di];
+                        dataOut[ci + 1] = dataIn[di + 1];
+                        dataOut[ci + 2] = dataIn[di + 2];
+                        dataOut[ci + 3] = dataIn[di + 3];
+                    }
+                }
+                ctx.putImageData(imageData, 0, 0);
+            }
+            
+            function drawPolys(polys, ctx) {
+                
+                var corners, corner, i, j;
+                
+                ctx.lineWidth = 3;
+                
+                for (i = 0; i < polys.length; i++) {
+                    
+                    corners = polys[i];
+                    
+                    // Create a path to draw the poly
+                    ctx.strokeStyle = "blue";
+                    ctx.beginPath();
+                    
+                    for (j = 0; j < corners.length; j++) {
+                        corner = corners[j];
+                        ctx.moveTo(corner.x, corner.y);
+                        corner = corners[(j + 1) % corners.length];
+                        ctx.lineTo(corner.x, corner.y);
+                    }
+                    
+                    ctx.stroke();
+                    ctx.closePath();
+                    
+                    // Mark the corners with small green rectangles
+                    ctx.strokeStyle = "green";
+                    for (j = 0; j < corners.length; j++) {
+                        corner = corners[j];
+                        ctx.strokeRect(corners[j].x - 1, corners[j].y - 1, 2, 2);
+                    }
+                }
+            }
+
+            /**
+             @param r1 poly of canvas as seen by the camera
+             @param r2 poly of canvas
+             @param r3 poly from camera to transform to canvas coordinates
+             */
+            function transform2(r1, r2, r3) {
+                
+                var M = $M([
+                            [r1[0].x * r1[0].y, r1[0].x, r1[0].y, 1],
+                            [r1[1].x * r1[1].y, r1[1].x, r1[1].y, 1],
+                            [r1[2].x * r1[2].y, r1[2].x, r1[2].y, 1],
+                            [r1[3].x * r1[3].y, r1[3].x, r1[3].y, 1]
+                            ]);
+                
+                var A = $M([
+                            [r2[0].x],
+                            [r2[1].x],
+                            [r2[2].x],
+                            [r2[3].x]
+                            ]);
+                
+                var B = $M([
+                            [r2[0].y],
+                            [r2[1].y],
+                            [r2[2].y],
+                            [r2[3].y]
+                            ]);
+                
+                Minv = M.inv();
+                var a = Minv.multiply(A);
+                var b = Minv.multiply(B);
+                
+                var newRect = [];
+                var nx, ny;
+                
+                for (var i = 0; i < 4; i++) {
+                    nx = Math.round(a.e(1, 1) * r3[i].x * r3[i].y +
+                                    a.e(2, 1) * r3[i].x +
+                                    a.e(3, 1) * r3[i].y +
+                                    a.e(4, 1));
+                    ny = Math.round(b.e(1, 1) * r3[i].x * r3[i].y +
+                                    b.e(2, 1) * r3[i].x +
+                                    b.e(3, 1) * r3[i].y +
+                                    b.e(4, 1));
+                    console.log(r1[i].x + " -> " + nx);
+                    console.log(r1[i].y + " -> " + ny);
+                    newRect.push({x:nx, y:ny});
+                }
+                
+                return newRect;
+            }
+            
+            function rectFromPoly(poly) {
+                
+                var minX = Infinity,
+                maxX = -Infinity,
+                minY = Infinity,
+                maxY = -Infinity;
+                
+                for (var i = 0; i < poly.length; i++) {
+                    minX = Math.min(minX, poly[i].x);
+                    maxX = Math.max(maxX, poly[i].x);
+                    minY = Math.min(minX, poly[i].y);
+                    maxY = Math.max(maxY, poly[i].y);
+                }
+                
+                return {x:minX, y:minY, width:(maxX - minX), height:(maxY - minY)};
+            }
+            
+            </script>
+        
+        
+        
+    </head>
+    
+    <body style="font-family: monospace; background-color: white;" onLoad="init();">
+        
+        <center>
+            <canvas id ="myCanvas" style="width: 100%; height: 100%"></canvas>
+            <button type="button" onClick="doneCalibrating();">Done Calibrating</button>
+        </center>
+        
+    </body>
+    
+    
+    
+</html>
