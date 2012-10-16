@@ -31,7 +31,7 @@
       var videos = [];
       var rooms = [1,2,3,4,5];
       var PeerConnection = window.PeerConnection || window.webkitPeerConnection00;
-      var user_name = parent.user_name;
+      var user_name = parent.lobby.ownName;
       
       // State variable used to keep track of what to show.
       var state = "lobby";
@@ -117,7 +117,7 @@
 
       function initNewRoom() {
         var button = document.getElementById("newRoom");
-		//button.disabled = true;
+        //button.disabled = true;
         button.addEventListener('click', function(event) {
 
             var chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz";
@@ -162,24 +162,33 @@
       console.log('The user ' + invited_user + ' was invited by ' + inviting_user + ' to this room (' + room + ')');
       writeMessageToChat(inviting_user + ' invited ' + invited_user);
       // Send Invitation to that user
-      var uid;
-      for (user in parent.lobby.remote_users) {
+      var uid = -1;
+      console.log(parent.lobby.users);
+      for (user in parent.lobby.users) {
+        console.log(user[1]);
         if (user[1] == invited_user) {
           id = user[0];
+          console.log(user);
           break;
         }
       }
-      parent.socket.send(parent.API_INVITE_SEND, json.stringify({
-        id:uid,
-        roomId:room
-      }));
+      if (uid > -1) {
+        parent.socket.send(parent.API_INVITE_SEND, JSON.stringify({
+          id:uid,
+          roomId:room
+        }));
+      } else {
+        addToChat("User " + invited_user + " does not exist.");
+      }
 	  }
 	  
 	  function initInviteUser() {
       var inviteButton = document.getElementById("inviteUser");
       inviteButton.addEventListener('click', function(event) {
-        var invited_user = prompt("Enter user to invite", "User");
-        onUserInvited(invited_user);
+        var invited_user = prompt("Enter user to invite: " + parent.lobby.users, "User");
+        if (invited_user != '' && invited_user != null) {
+          onUserInvited(invited_user);
+        }
       })
 	  }
 	  
@@ -188,7 +197,7 @@
       leaveButton.addEventListener('click', function(event) {
         writeMessageToChat(user_name + " left the room.");
         console.log('Left the room');
-        parent.leaveRoom();
+        parent.lobby.leaveRoom();
       })
 	  }
 	  

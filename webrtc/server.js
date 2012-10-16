@@ -45,8 +45,8 @@ app.get('/style.css', function(req, res) {
   res.sendfile(__dirname + '/style.css');
 });
 
-app.get('/clientSocket.js', function(req, res) {
-  res.sendfile(__dirname + '/clientSocket.js');
+app.get('/socket.js', function(req, res) {
+  res.sendfile(__dirname + '/socket.js');
 });
 
 app.get('/lobby.js', function(req, res) {
