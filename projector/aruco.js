@@ -189,9 +189,9 @@ AR.Detector.prototype.getMarker = function(imageSrc, candidate){
     
     for (j = 0; j < 7; j += inc){
       square = {x: j * width, y: i * width, width: width, height: width};
-      /*if ( CV.countNonZero(imageSrc, square) > minZero){
+      if ( CV.countNonZero(imageSrc, square) > minZero){
         return null;
-      }*/
+      }
     }
   }
 
@@ -289,3 +289,72 @@ AR.Detector.prototype.rotate2 = function(src, rotation){
 
   return dst;
 };
+
+
+//*******
+// Marker drawing functions
+//*******
+
+AR.Detector.prototype.drawCorners = function(ctx) {
+    
+    var corners, corner;
+    
+    ctx.lineWidth = 3;
+
+    corners = this.corners;
+        
+    ctx.strokeStyle = "blue";
+    ctx.beginPath();
+        
+    for (var i = 0; i < corners.length; i++) {
+        corner = this.corners[i];
+        ctx.moveTo(corner.x, corner.y);
+        corner = corners[(i + 1) % this.corners.length];
+        ctx.lineTo(corner.x, corner.y);
+    }
+        
+    ctx.stroke();
+    ctx.closePath();
+    
+    ctx.strokeStyle = "green";
+    for (var i = 0; i < corners.length; i++) {
+        corner = this.corners[i];
+        ctx.strokeRect(corner.x - 1, corner.y - 1, 2, 2);
+    }
+};
+
+AR.Detector.prototype.drawId = function(ctx) {
+    
+    var corner, x, y;
+    
+    ctx.strokeStyle = "blue";
+    ctx.lineWidth = 1;
+     
+    x = Infinity;
+    y = Infinity;
+        
+    for (var i = 0; i < corners.length; i++) {
+            
+        corner = this.corners[i];
+            
+        x = Math.min(x, corner.x);
+        y = Math.min(y, corner.y);
+    }
+        
+    ctx.strokeText(this.id, x, y);
+};
+
+AR.drawMarkers = function(markers, ctx) {
+    for (var i = 0; i < markers.length; i++) {
+        markers[i].drawCorners(ctx);
+        markers[i].drawId(ctx);
+    }
+}
+
+
+
+
+
+
+
+
