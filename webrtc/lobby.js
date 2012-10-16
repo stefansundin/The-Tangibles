@@ -6,10 +6,10 @@ $(function() {
 });
 
 function Lobby() {
-	this.auto_decline_time = 60;
+	this.AUTO_DECLINE_TIME = 60;
 	this.rooms = []; // [id, name, desc, type]
-	this.remote_users = []; // [id, name, room_id]
-	this.user_name = 'User#' + Math.floor((Math.random() * 999) + 1);
+	this.users = []; // [id, name, room_id]
+	this.ownName = 'User#' + Math.floor((Math.random() * 999) + 1);
 }
 
 /**
@@ -23,6 +23,9 @@ function showError(text) {
 	$('#dialog_error').dialog('open');
 }
 
+/**
+ * Called when the page is loaded.
+ */
 Lobby.prototype.load = function() {
 	var self = this;
 
@@ -33,16 +36,16 @@ Lobby.prototype.load = function() {
 	socket.on('close', function() {
 		self.onSocketClose();
 	});
-	socket.on(API_SET_NAME, function(user_name) {
-		$('#display_user_name').text(user_name);
+	socket.on(API_SET_NAME, function(userName) {
+		$('#display_user_name').text(userName);
 	});
-	socket.on(API_LIST, function(rooms, remote_users) {
-		self.onLobbyLoad(rooms, remote_users);
+	socket.on(API_LIST, function(rooms, users) {
+		self.onLobbyLoad(rooms, users);
 	});
 
 	$('#room_table tfoot').hide();
 
-	$('#display_user_name').text(this.user_name);
+	$('#display_user_name').text(this.ownName);
 
 	$('#create_room, #change_user_name').button();
 	$('#create_room').click(function() {
@@ -68,7 +71,7 @@ Lobby.prototype.load = function() {
 		modal : true,
 		resizable : false,
 		open : function(event, ui) {
-			$('#user_name').val(self.user_name);
+			$('#user_name').val(self.ownName);
 			$('#user_name').removeClass('ui-state-error');
 		},
 		buttons : {
@@ -77,7 +80,7 @@ Lobby.prototype.load = function() {
 				if (name == '') {
 					$('#user_name').addClass('ui-state-error');
 				} else {
-					self.changeUserName(name);
+					self.changeOwnName(name);
 					$(this).dialog('close');
 				}
 			},
@@ -131,7 +134,7 @@ Lobby.prototype.onSocketOpen = function() {
 	console.log('onOpen');
 
 	// request stuff
-	this.changeUserName(this.user_name);
+	this.changeOwnName(this.ownName);
 	socket.send(API_LIST, '');
 };
 
@@ -141,20 +144,24 @@ Lobby.prototype.onSocketOpen = function() {
 Lobby.prototype.onSocketClose = function() {
 	console.log('onClose');
 
+	// TODO Fix better error handling?
+	$('#room_table tbody').empty();
+	$('#room_table tfoot').show();
+
 	showError('Lost server connection...');
 };
 
 /**
  * Searches for and returns the index if found, -1 otherwise.
  * 
- * @param room_id
+ * @param roomId
  *            The ID to look for
  * @returns {Number}
  */
-Lobby.prototype.findRoomIndex = function(room_id) {
+Lobby.prototype.findRoomIndex = function(roomId) {
 	// Find room with given id
 	for ( var i = 0; i < this.rooms.length; i++) {
-		if (this.rooms[i][0] === room_id) {
+		if (this.rooms[i][0] === roomId) {
 			return i;
 		}
 	}
@@ -164,14 +171,14 @@ Lobby.prototype.findRoomIndex = function(room_id) {
 /**
  * Searches for and returns the index if found, -1 otherwise.
  * 
- * @param remote_user_id
+ * @param userId
  *            The ID to look for
  * @returns {Number}
  */
-Lobby.prototype.findRemoteUserIndex = function(remote_user_id) {
+Lobby.prototype.findUserIndex = function(userId) {
 	// Find remote_user with given id
-	for ( var i = 0; i < this.remote_users.length; i++) {
-		if (this.remote_users[i][0] === remote_user_id) {
+	for ( var i = 0; i < this.users.length; i++) {
+		if (this.users[i][0] === userId) {
 			return i;
 		}
 	}
@@ -182,18 +189,18 @@ Lobby.prototype.findRemoteUserIndex = function(remote_user_id) {
  * Changes the user name to a new name if it isn't the empty string. Called when
  * the user clicks OK in the select user name dialog.
  * 
- * @param new_name
+ * @param newName
  *            The new user name
  */
-Lobby.prototype.changeUserName = function(new_name) {
-	console.log('onChangeUserName: ' + new_name);
+Lobby.prototype.changeOwnName = function(newName) {
+	console.log('onchangeOwnName: ' + newName);
 
-	if (new_name != '') {
-		this.user_name = new_name;
-		$('#display_user_name').text(this.user_name);
+	if (newName != '') {
+		this.ownName = newName;
+		$('#display_user_name').text(this.ownName);
 
 		socket.send(API_SET_NAME, JSON.stringify({
-			name : this.user_name
+			name : this.ownName
 		}));
 	}
 };
@@ -204,14 +211,14 @@ Lobby.prototype.changeUserName = function(new_name) {
  * 
  * @param rooms
  *            A list of rooms
- * @param remote_users
+ * @param users
  *            A list of users
  */
-Lobby.prototype.onLobbyLoad = function(rooms, remote_users) {
-	console.log('onLobbyLoad: ' + rooms + ' ' + remote_users);
+Lobby.prototype.onLobbyLoad = function(rooms, users) {
+	console.log('onLobbyLoad: ' + rooms + ' ' + users);
 
 	this.rooms = [];
-	this.remote_users = [];
+	this.users = [];
 
 	$('#room_table tbody').empty();
 	$('#room_table tfoot').show();
@@ -222,9 +229,8 @@ Lobby.prototype.onLobbyLoad = function(rooms, remote_users) {
 	}
 
 	// Add users
-	for ( var i = 0; i < remote_users.length; i++) {
-		this.onRemoteUserEnter(remote_users[i][0], remote_users[i][1],
-				remote_users[i][2]);
+	for ( var i = 0; i < users.length; i++) {
+		this.onUserEnter(users[i][0], users[i][1], users[i][2]);
 	}
 };
 
@@ -232,13 +238,13 @@ Lobby.prototype.onLobbyLoad = function(rooms, remote_users) {
  * Lets the user select a room name. The room is then created. Called when the
  * create room button is clicked.
  * 
- * @param room_name
+ * @param roomName
  *            Name of the new room
  */
-Lobby.prototype.onCreateRoom = function(room_name) {
-	console.log('onCreateRoom: ' + room_name);
+Lobby.prototype.onCreateRoom = function(roomName) {
+	console.log('onCreateRoom: ' + roomName);
 
-	if (room_name != '') {
+	if (roomName != '') {
 		// TODO Create room
 		this.onRoomCreated('random_text');
 	}
@@ -248,23 +254,23 @@ Lobby.prototype.onCreateRoom = function(room_name) {
  * Callback function for when the room has been created. The user will be
  * redirected to the new room.
  * 
- * @param room_id
+ * @param roomId
  *            ID of the room created.
  */
-Lobby.prototype.onRoomCreated = function(room_id) {
-	this.enterRoom(room_id);
+Lobby.prototype.onRoomCreated = function(roomId) {
+	this.enterRoom(roomId);
 };
 
 /**
  * Redirects the user to a room with a given id.
  * 
- * @param room_id
+ * @param roomId
  *            ID of the room
  */
-Lobby.prototype.enterRoom = function(room_id) {
+Lobby.prototype.enterRoom = function(roomId) {
 	$('#main').hide();
 	$('#roomMain').show();
-	$('#roomFrame').attr('src', 'room/#' + room_id);
+	$('#roomFrame').attr('src', 'room/#' + roomId);
 };
 
 /**
@@ -279,18 +285,18 @@ Lobby.prototype.leaveRoom = function() {
 /**
  * Changes the name of a room.
  * 
- * @param room_id
+ * @param roomId
  *            ID of the room
- * @param room_name
+ * @param roomName
  *            The new name
  */
-Lobby.prototype.onRoomChangeName = function(room_id, room_name) {
-	console.log('onRoomChangeName: ' + room_id + ' ' + room_name);
+Lobby.prototype.onRoomChangeName = function(roomId, roomName) {
+	console.log('onRoomChangeName: ' + roomId + ' ' + roomName);
 
-	var index = this.findRoomIndex(room_id);
+	var index = this.findRoomIndex(roomId);
 	if (index != -1) {
-		this.rooms[index][1] = room_name;
-		$('#room_list_' + room_id + ' h3').text(room_name);
+		this.rooms[index][1] = roomName;
+		$('#room_list_' + roomId + ' h3').text(roomName);
 	}
 };
 
@@ -298,21 +304,21 @@ Lobby.prototype.onRoomChangeName = function(room_id, room_name) {
  * Adds a room to the page if the ID doesn't exist. Should be called when a new
  * room is available on the server.
  * 
- * @param room_id
+ * @param roomId
  *            ID of the added room
- * @param room_name
+ * @param roomName
  *            Name of the added room
- * @param room_desc
+ * @param roomDesc
  *            The description of the room
- * @param room_type
+ * @param roomType
  *            Type of the room
  */
-Lobby.prototype.onRoomAdd = function(room_id, room_name, room_desc, room_type) {
-	console.log('onRoomAdd: ' + room_id + ' ' + room_name + ' ' + room_desc
-			+ ' ' + room_type);
+Lobby.prototype.onRoomAdd = function(roomId, roomName, roomDesc, roomType) {
+	console.log('onRoomAdd: ' + roomId + ' ' + roomName + ' ' + roomDesc + ' '
+			+ roomType);
 
 	// Unique ids
-	if ($('#room_list_' + room_id).length != 0) {
+	if ($('#room_list_' + roomId).length != 0) {
 		return;
 	}
 
@@ -320,16 +326,16 @@ Lobby.prototype.onRoomAdd = function(room_id, room_name, room_desc, room_type) {
 
 	var self = this;
 	// Add to list
-	this.rooms.push([ room_id, room_name, room_desc, room_type ]);
+	this.rooms.push([ roomId, roomName, roomDesc, roomType ]);
 	$('#room_table tbody').append($('<tr/>', {
-		id : 'room_list_' + room_id,
+		id : 'room_list_' + roomId,
 		click : function() {
-			self.onRoomClick(room_id);
+			self.onRoomClick(roomId);
 		}
 	}).append($('<td/>').append($('<h3/>', {
-		text : room_name
-	})).append(room_desc)).append($('<td/>', {
-		id : 'room_user_list_' + room_id
+		text : roomName
+	})).append(roomDesc)).append($('<td/>', {
+		id : 'room_user_list_' + roomId
 	})));
 };
 
@@ -337,18 +343,18 @@ Lobby.prototype.onRoomAdd = function(room_id, room_name, room_desc, room_type) {
  * Deletes a room from the page. Should be called when a room is deleted on the
  * server.
  * 
- * @param room_id
+ * @param roomId
  *            ID of the deleted room
  */
-Lobby.prototype.onRoomDelete = function(room_id) {
-	console.log('onRoomDelete: ' + room_id);
+Lobby.prototype.onRoomDelete = function(roomId) {
+	console.log('onRoomDelete: ' + roomId);
 
 	// Find room with given id
-	var index = this.findRoomIndex(room_id);
+	var index = this.findRoomIndex(roomId);
 	if (index != -1) {
 		// Remove from list
 		this.rooms.splice(index, 1);
-		$('#room_list_' + room_id).remove();
+		$('#room_list_' + roomId).remove();
 
 		if (this.rooms.length == 0) {
 			$('#room_table tfoot').show();
@@ -359,68 +365,80 @@ Lobby.prototype.onRoomDelete = function(room_id) {
 /**
  * Called when a room is clicked.
  * 
- * @param room_id
+ * @param roomId
  *            ID of the room
  */
-Lobby.prototype.onRoomClick = function(room_id) {
-	console.log('onRoomClick: ' + room_id);
+Lobby.prototype.onRoomClick = function(roomId) {
+	console.log('onRoomClick: ' + roomId);
 
-	var index = this.findRoomIndex(room_id);
+	var index = this.findRoomIndex(roomId);
 	if (index != -1) {
 		console.log('RoomClick found: ' + this.rooms[index][0]);
-		this.enterRoom(room_id);
+		this.enterRoom(roomId);
 	}
 };
 
-Lobby.prototype.onRemoteUserEnterRoom = function(remote_user_id, room_id) {
-	console.log('onRemoteUserEnterRoom: ' + remote_user_id + ' ' + room_id);
+/**
+ * Called when a user enters a room.
+ * 
+ * @param userId
+ *            ID of the user
+ * @param roomId
+ *            ID of the room
+ */
+Lobby.prototype.onUserEnterRoom = function(userId, roomId) {
+	console.log('onUserEnterRoom: ' + userId + ' ' + roomId);
 
-	var index = this.findRoomIndex(room_id);
+	var index = this.findRoomIndex(roomId);
 	if (index != -1) {
-		var user_index = this.findRemoteUserIndex(remote_user_id);
+		var user_index = this.findUserIndex(userId);
 		if (user_index != -1) {
-			this.remote_users[user_index][2] = room_id;
+			this.users[user_index][2] = roomId;
 
 			// Make sure each user only exist in one room in the list
-			$('.remote_user_' + this.remote_users[user_index][0]).remove();
+			$('.remote_user_' + this.users[user_index][0]).remove();
 
-			$('#room_user_list_' + room_id).append($('<span/>', {
-				class : 'remote_user_' + this.remote_users[user_index][0],
-				text : this.remote_users[user_index][1] + ' '
+			$('#room_user_list_' + roomId).append($('<span/>', {
+				class : 'remote_user_' + this.users[user_index][0],
+				text : this.users[user_index][1] + ' '
 			}));
 		}
 	}
 };
 
-Lobby.prototype.onRemoteUserLeaveRoom = function(remote_user_id) {
-	console.log('onRemoteUserLeaveRoom: ' + remote_user_id);
+/**
+ * Called when the user leaves a room.
+ * 
+ * @param userId
+ *            ID of the user
+ */
+Lobby.prototype.onUserLeaveRoom = function(userId) {
+	console.log('onUserLeaveRoom: ' + userId);
 
-	var user_index = this.findRemoteUserIndex(remote_user_id);
+	var user_index = this.findUserIndex(userId);
 	if (user_index != -1) {
-		this.remote_users[user_index][2] = 0;
+		this.users[user_index][2] = 0;
 
 		// Remove the user from the list
-		$('.remote_user_' + this.remote_users[user_index][0]).remove();
+		$('.remote_user_' + this.users[user_index][0]).remove();
 	}
 };
 
 /**
  * Changes the name of a remote user.
  * 
- * @param remote_user_id
+ * @param userId
  *            Users ID
- * @param remote_user_name
+ * @param userName
  *            The new name
  */
-Lobby.prototype.onRemoteUserChangeName = function(remote_user_id,
-		remote_user_name) {
-	console.log('onRemoteUserChangeName: ' + remote_user_id + ' '
-			+ remote_user_name);
+Lobby.prototype.onUserChangeName = function(userId, userName) {
+	console.log('onUserChangeName: ' + userId + ' ' + userName);
 
-	var index = this.findRemoteUserIndex(remote_user_id);
+	var index = this.findUserIndex(userId);
 	if (index != -1) {
-		this.remote_users[index][1] = remote_user_name;
-		$('span.remote_user_' + remote_user_id).text(remote_user_name + ' ');
+		this.users[index][1] = userName;
+		$('span.remote_user_' + userId).text(userName + ' ');
 	}
 };
 
@@ -428,40 +446,38 @@ Lobby.prototype.onRemoteUserChangeName = function(remote_user_id,
  * Adds a remote user to the list. Should be called when a user enters the
  * server.
  * 
- * @param remote_user_id
+ * @param userId
  *            ID of the remote user that entered
- * @param remote_user_name
+ * @param userName
  *            Name of the remote user that entered
- * @param room_id
+ * @param roomId
  *            ID of the room which contains the user
  */
-Lobby.prototype.onRemoteUserEnter = function(remote_user_id, remote_user_name,
-		room_id) {
-	console.log('onRemoteUserEnter: ' + remote_user_id + ' ' + remote_user_name
-			+ ' ' + room_id);
+Lobby.prototype.onUserEnter = function(userId, userName, roomId) {
+	console.log('onUserEnter: ' + userId + ' ' + userName + ' ' + roomId);
 
 	// Add to list
-	this.remote_users.push([ remote_user_id, remote_user_name, room_id ]);
+	this.users.push([ userId, userName, roomId ]);
 
-	this.onRemoteUserEnterRoom(remote_user_id, room_id);
+	this.onUserEnterRoom(userId, roomId);
 };
 
 /**
  * Removes a remote user from the list. Should be called when a user leaves the
  * server.
  * 
- * @param remote_user_id
+ * @param userId
  *            ID of the remote user that left
  */
-Lobby.prototype.onRemoteUserLeave = function(remote_user_id) {
-	console.log('onRemoteUserLeave: ' + remote_user_id);
+Lobby.prototype.onUserLeave = function(userId) {
+	console.log('onUserLeave: ' + userId);
 
 	// Find remote_user with given id
-	var index = this.findRemoteUserIndex(remote_user_id);
+	var index = this.findUserIndex(userId);
 	if (index != -1) {
 		// Remove from list
-		this.remote_users.splice(index, 1);
-		$('.remote_user_' + remote_user_id).remove();
+		this.users.splice(index, 1);
+		$('.remote_user_' + userId).remove();
 	}
 };
 
@@ -470,19 +486,18 @@ Lobby.prototype.onRemoteUserLeave = function(remote_user_id) {
  * after a specified time. Should be called when the user has been invited to a
  * room.
  * 
- * @param remote_user_name
+ * @param userName
  *            Name of the inviter
- * @param room_name
+ * @param roomName
  *            Name of the room
- * @param call_id
+ * @param callId
  *            ID of the call
  */
-Lobby.prototype.onIncomingCall = function(remote_user_name, room_name, call_id) {
-	console.log('IncomingCall: ' + remote_user_name + ' ' + room_name + ' '
-			+ call_id);
+Lobby.prototype.onIncomingCall = function(userName, roomName, callId) {
+	console.log('IncomingCall: ' + userName + ' ' + roomName + ' ' + callId);
 
 	// Unique ids
-	if ($('#call_' + call_id).length != 0) {
+	if ($('#call_' + callId).length != 0) {
 		return;
 	}
 
@@ -490,47 +505,47 @@ Lobby.prototype.onIncomingCall = function(remote_user_name, room_name, call_id) 
 
 	// Insert above
 	$('<div/>', {
-		id : 'call_' + call_id,
-		text : remote_user_name + ' invited you to ' + room_name + '.'
+		id : 'call_' + callId,
+		text : userName + ' invited you to ' + roomName + '.'
 	}).append($('<button/>', {
 		text : 'Accept',
 		click : function() {
-			self.accept(call_id);
+			self.accept(callId);
 		}
 	}).button()).append($('<button/>', {
 		text : 'Decline',
 		click : function() {
-			self.decline(call_id);
+			self.decline(callId);
 		}
 	}).button()).append($('<div/>', {
-		id : 'call_timer_' + call_id
+		id : 'call_timer_' + callId
 	}).css({
 		display : 'inline',
 		color : 'red'
 	})).hide().prependTo('#call_list');
 
 	// Effect
-	$('#call_' + call_id).show('drop');
+	$('#call_' + callId).show('drop');
 
 	// Auto-decline after x seconds
-	this.onAutoDeclineTimer(call_id, this.auto_decline_time);
+	this.onAutoDeclineTimer(callId, this.AUTO_DECLINE_TIME);
 };
 
 /**
  * Removes the notification and accepts the call. Called when the user clicked
  * accept.
  * 
- * @param call_id
+ * @param callId
  *            ID of the call that was accepted
  */
-Lobby.prototype.accept = function(call_id) {
-	console.log('Accept: ' + call_id);
+Lobby.prototype.accept = function(callId) {
+	console.log('Accept: ' + callId);
 
-	if ($('#call_' + call_id).length != 0) { // Extra check
-		$('#call_timer_' + call_id).text('');
+	if ($('#call_' + callId).length != 0) { // Extra check
+		$('#call_timer_' + callId).text('');
 		// TODO Accept
 		this.onCallAccepted('random_text');
-		$('#call_' + call_id).removeAttr('id').hide({
+		$('#call_' + callId).removeAttr('id').hide({
 			effect : 'drop',
 			complete : function() {
 				$(this).remove();
@@ -543,26 +558,26 @@ Lobby.prototype.accept = function(call_id) {
  * Callback function for when the call has been accepted. The user will be
  * redirected to the room.
  * 
- * @param room_id
+ * @param roomId
  */
-Lobby.prototype.onCallAccepted = function(room_id) {
-	this.enterRoom(room_id);
+Lobby.prototype.onCallAccepted = function(roomId) {
+	this.enterRoom(roomId);
 };
 
 /**
  * Removes the notification and declines the call. Called when the user clicked
  * decline or when the timeout expired.
  * 
- * @param call_id
+ * @param callId
  *            ID of the call that was declined
  */
-Lobby.prototype.decline = function(call_id) {
-	console.log('Decline: ' + call_id);
+Lobby.prototype.decline = function(callId) {
+	console.log('Decline: ' + callId);
 
-	if ($('#call_' + call_id).length != 0) { // Extra check
-		$('#call_timer_' + call_id).text('');
+	if ($('#call_' + callId).length != 0) { // Extra check
+		$('#call_timer_' + callId).text('');
 		// TODO Decline
-		$('#call_' + call_id).removeAttr('id').hide({
+		$('#call_' + callId).removeAttr('id').hide({
 			effect : 'drop',
 			complete : function() {
 				$(this).remove();
@@ -575,25 +590,25 @@ Lobby.prototype.decline = function(call_id) {
  * Counts down the auto-decline timeout by one second. A counter is displayed
  * when there its less or equal to 10 seconds remaining.
  * 
- * @param call_id
+ * @param callId
  *            ID of the call
- * @param time_left
+ * @param timeLeft
  *            Number of seconds left on the timeout
  */
-Lobby.prototype.onAutoDeclineTimer = function(call_id, time_left) {
-	if ($('#call_timer_' + call_id).length != 0) {
+Lobby.prototype.onAutoDeclineTimer = function(callId, timeLeft) {
+	if ($('#call_timer_' + callId).length != 0) {
 		// Might have been manually declined
-		new_time_left = time_left - 1;
-		if (new_time_left <= 0) { // Time is up, decline
-			this.decline(call_id);
+		newTimeLeft = timeLeft - 1;
+		if (newTimeLeft <= 0) { // Time is up, decline
+			this.decline(callId);
 		} else {
-			if (new_time_left <= 10) { // Only display last 10 seconds
-				$('#call_timer_' + call_id).text(new_time_left);
+			if (newTimeLeft <= 10) { // Only display last 10 seconds
+				$('#call_timer_' + callId).text(newTimeLeft);
 			}
 
 			var self = this;
 			setTimeout(function() {
-				self.onAutoDeclineTimer(call_id, new_time_left);
+				self.onAutoDeclineTimer(callId, newTimeLeft);
 			}, 1000);
 		}
 	}
@@ -605,6 +620,9 @@ function assert(exp, message) {
 	}
 }
 
+/**
+ * A test function which runs various functions in the lobby.
+ */
 Lobby.prototype.test = function() {
 	console.log('Running test...');
 
@@ -612,7 +630,7 @@ Lobby.prototype.test = function() {
 			[ 2, 'Room 2', 'Some desc', 0 ] ], [ [ 1, 'Karl', 1 ],
 			[ 2, 'Jonas', 1 ] ]);
 
-	this.changeUserName('Test name');
+	this.changeOwnName('Test name');
 
 	this.onIncomingCall('Kalle', 'Room test', 1);
 
@@ -629,18 +647,17 @@ Lobby.prototype.test = function() {
 	assert(this.rooms.length == 3, 'Room wasnt removed');
 
 	// Test users
-	assert(this.findRemoteUserIndex(1) == 0, 'User index of 1 is wrong');
-	assert(this.remote_users[0][1] == 'Karl', 'User has wrong name');
-	assert(this.remote_users[0][2] == 1, 'User has wrong room_id');
-	this.onRemoteUserEnter(3, 'User 3', 2);
-	this.onRemoteUserLeave(3);
-	assert(this.remote_users.length == 2, 'User wasnt removed');
-	this.onRemoteUserEnter(4, 'User 4', 3);
-	this.onRemoteUserChangeName(4, 'New user 4');
-	assert(this.remote_users[this.findRemoteUserIndex(4)][1] == 'New user 4',
+	assert(this.findUserIndex(1) == 0, 'User index of 1 is wrong');
+	assert(this.users[0][1] == 'Karl', 'User has wrong name');
+	assert(this.users[0][2] == 1, 'User has wrong room_id');
+	this.onUserEnter(3, 'User 3', 2);
+	this.onUserLeave(3);
+	assert(this.users.length == 2, 'User wasnt removed');
+	this.onUserEnter(4, 'User 4', 3);
+	this.onUserChangeName(4, 'New user 4');
+	assert(this.users[this.findUserIndex(4)][1] == 'New user 4',
 			'User has wrong name after change');
-	this.onRemoteUserEnterRoom(4, 1);
-	this.onRemoteUserLeaveRoom(4);
-	assert(this.remote_users[this.findRemoteUserIndex(4)][2] == 0,
-			'User didnt leave room');
+	this.onUserEnterRoom(4, 1);
+	this.onUserLeaveRoom(4);
+	assert(this.users[this.findUserIndex(4)][2] == 0, 'User didnt leave room');
 };
