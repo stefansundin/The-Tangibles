@@ -2,7 +2,7 @@
 <html>
   <head>
     <title>Room view</title>
-    <link type="text/css" href="/style.css" rel="stylesheet"></link>
+    <link type="text/css" href="/roomstyle.css" rel="stylesheet"></link>
     
     <link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel="stylesheet" type="text/css" />
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8/jquery.min.js"></script>
@@ -20,10 +20,11 @@
       var videos = [];
       var rooms = [1,2,3,4,5];
       var PeerConnection = window.PeerConnection || window.webkitPeerConnection00;
-
+      var username = parent.user_name;
+      
       // State variable used to keep track of what to show.
       var state = "lobby";
-      
+        
       function getNumPerRow() {
         var len = videos.length;
         var biggest;
@@ -128,7 +129,7 @@
 			clbutton.disabled = false;
 			wsbutton.disabled = true;
 			var room = window.location.hash.slice(1);
-			workspaceWindow=window.open('http://localhost:8000/workspacev2/#' + room + '_desk');
+			workspaceWindow=window.open('http://localhost:8000/workspace/#' + room + '_desk');
 		})
 	  }
 	  
@@ -144,7 +145,7 @@
 	  }
 	  
 	  function onUserInvited(invited_user) {
-	    inviting_user = "You";
+	    inviting_user = user_name;
 		var room = window.location.hash.slice(1);
 		console.log('The user ' + invited_user + ' was invited by ' + inviting_user + ' to this room (' + room + ')');
 		writeMessageToChat(inviting_user + ' invited ' + invited_user);
@@ -164,8 +165,9 @@
 		leaveButton.addEventListener('click', function(event) {
 		  writeMessageToChat("Someone left the room.");
       console.log('Left the room');
+      parent.leaveRoom();
       //leaveTheRoom();
-      window.location="http://localhost:8000"
+      //window.location="http://localhost:8000"
 		})
 	  }
 	  

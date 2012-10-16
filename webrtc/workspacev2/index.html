@@ -7,6 +7,7 @@
     <script src="/webrtc.io.js"></script>
   </head>
   <body onload="init()">
+    <div id="notice">This is the workspace view. Choose the appropriate camera and move this window to where you want it.</div>
     <div id="videos">
       <video id="you" autoplay height="100%"></video>
     </div>
@@ -253,6 +254,7 @@
             rtc.attachStream(stream, 'you');
 			videoStreams.push(stream);
            // subdivideVideos();
+           document.getElementById("notice").innerHTML = "";
           });
         }else {
           alert('Your browser is not supported or you have to turn on flags. In chrome you go to chrome://flags and turn on Enable PeerConnection remember to restart chrome');
