@@ -28,6 +28,8 @@ var API_CORNERS_BROADCAST = "cornersbroadcast";
 var API_NAME_SET = "setname";
 var API_NAME_CHANGE = "changename";
 
+var API_ECHO = "echo";
+
 var ROOM_PUBLIC = "public";
 var ROOM_PRIVATE = "private";
 var ROOM_PASSWORD = "password";

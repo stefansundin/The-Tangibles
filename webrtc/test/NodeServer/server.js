@@ -50,6 +50,7 @@ var API_CORNERS_BROADCAST = "cornersbroadcast";
 var API_NAME_SET = "setname";
 var API_NAME_CHANGE = "changename";
 
+var API_ECHO = "echo";
 
 var ROOM_PUBLIC = "public";
 var ROOM_PRIVATE = "private";
@@ -557,6 +558,16 @@ addCallbacks(API_ROOM_REMOVE, function(con, id){
 	});
 	
 	sendMessageToAll(API_ROOM_REMOVE, data);
+});
+
+
+addCallbacks(API_ECHO, function(con, message){
+	
+	var data = JSON.stringify({
+		msg: message
+	});
+	
+	sendMessage(con, API_ECHO, data);
 });
 
 /*
