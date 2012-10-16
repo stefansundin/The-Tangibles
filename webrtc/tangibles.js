@@ -114,7 +114,7 @@ function acceptedCall(call_id, users, onHangup, onMute, onBlank) {
 	showTextPic(devices[1], 'http://localhost/deny.png', 'Deny', '000000', 'FFFFFF');
 	
 	for (i = 0; i < users.length; i = i + 1) {
-		showTextPic(devices[3+i], users[i].img, users[i].name, '000000', 'FFFFFF');
+		showText(devices[3+i], users[i].name, '000000', 'FFFFFF');
 	}
 	
 	devices[1].pressListeners.push(function(msg) {
@@ -152,9 +152,6 @@ function incommingCall(call_id, caller, room, onAccept, onDeny) {
 			devices[0].pressListeners = [];
 			devices[1].pressListeners = [];
 			onAccept(call_id);
-			acceptedCall(call_id, [{name:'Samuel',img:'http://localhost/profile.png'},{name:'Viktor',img:'http://localhost/profile.png'},{name:'John',img:'http://localhost/profile.png'}], function(cid) {
-				console.log('Hung up');
-			});
 		}
 	});
 	devices[1].pressListeners.push(function(msg) {
@@ -165,20 +162,6 @@ function incommingCall(call_id, caller, room, onAccept, onDeny) {
 			onDeny(call_id);
 		}
 	});
-}
-
-function onExit(e) {
-	//document.body.style.backgroundColor = 'black';
-	console.log("Release");
-	api.releaseAllDevices(err, err);
-	api.unregister(function(e){
-		err(e);	registered = false;
-		$('#status').val('Unregistered');
-	}, err);
-
-	/*if (api.getReservedDevices().length > 0) {
-		return 'Please unregister devices first.';
-	}*/
 }
 
 function register(callback){
@@ -197,9 +180,13 @@ function register(callback){
 
 // API
 
-function onINVITE_SEND(caller) {
+function onINVITE_SEND(name, room, call_id) {
 	console.log(caller);
-	api.incommingCall(call_id, caller, room, onAccept, onDeny); //TODO FIX!
+	api.incommingCall(call_id, caller, room, function() {
+		
+	}, function() {
+		
+	});
 }
 
 
