@@ -4,6 +4,7 @@ var initTangibles = function(){
 	alert("initTangibles");
 	$.getScript("tangiblesLib.js", function(){
 		register();
+		$(window).on('beforeunload', onExit); // If needed make global function
 	});
 }
 
@@ -16,10 +17,6 @@ var devices = [];
 var socket = null;
 var	registered = false;
 
-function err(e) {
-	console.log(e.msg);
-}
-
 function preRegisterDevices(){
 	if(!registered){ register(registerDevices);return;};
 	registerDevices();
@@ -27,6 +24,14 @@ function preRegisterDevices(){
 
 function err(e) {
 	console.log(e.msg);
+}
+
+function onExit(e) {
+	console.log("Release");
+	api.releaseAllDevices(err, err);
+	api.unregister(function(e){
+		err(e);	registered = false;
+	}, err);
 }
 
 function registerDevices() {
@@ -181,11 +186,12 @@ function register(callback){
 // API
 
 function onINVITE_SEND(name, room, call_id) {
-	console.log(caller);
+	console.log(onINVITE_SEND);
+	console.log(name, room, call_id);
 	api.incommingCall(call_id, caller, room, function() {
-		
+		console.log("onAccept");
 	}, function() {
-		
+		console.log("onDeny");
 	});
 }
 
