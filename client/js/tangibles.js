@@ -1,9 +1,10 @@
-function Tangibles(WebWRTsocket) {
+function Tangibles(WebRTCsocket) {
+	var self = this;
 	this.api = null;
 	this.devices = [];
-	this.socket = null;
+	this.APIsocket = null;
 	this.registered = false;
-	this.WebWRTsocket = WebWRTsocket;
+	this.WebRTCsocket = WebRTCsocket;
 
 	this.err = function(e) {
 		console.log(e.msg);
@@ -16,12 +17,11 @@ function Tangibles(WebWRTsocket) {
 			this.err(e);this.registered = false;
 		}, this.err);
 	}
-
-	var self = this;
 	
 	// this.api lisen
-	if(typeof this.WebWRTsocket != "undefined"){
-		//this.WebWRTsocket.on(API_INVITE_SEND, onINVITE_SEND);
+	if(this.WebRTCsocket){
+		this.err('GOT SOCKET');
+		//this.WebRTCsocket.on(API_INVITE_SEND, onINVITE_SEND);
 	}
 
 	this.preRegisterDevices = function(){
@@ -34,12 +34,12 @@ function Tangibles(WebWRTsocket) {
 			var num = d.msg.length;
 			for (var i=0; i < num; i++) {
 				var devid = d.msg[i].id;
-				this.api.reserveDevice(devid, function(r) {
+				self.api.reserveDevice(devid, function(r) {
 					console.log('Got device: '+r.msg);
 					var device = {id:r.msg, subscribed:false, pressListeners:[]};
-					this.listenToEvents(device);
-					this.devices.push(device);
-				}, this.err);
+					self.listenToEvents(device);
+					self.devices.push(device);
+				}, self.err);
 			}
 			$('#status').val('Registered '+num+' this.devices!');
 			$('#sifteo_stuff').removeAttr('disabled');
@@ -51,25 +51,25 @@ function Tangibles(WebWRTsocket) {
 		this.api.subscribeToEvents(dev.id, function(d) {
 			console.log('Listening on events from '+dev.id);
 			dev.subscribed = true;
-			if (socket != null) return;
+			if (self.APIsocket != null) return;
 			
-			socket = new WebSocket('ws://127.0.0.1:' + d.msg.port + '/streaming');
-			socket.onopen = function(e) {
+			self.APIsocket = new WebSocket('ws://127.0.0.1:' + d.msg.port + '/streaming');
+			self.APIsocket.onopen = function(e) {
 				console.log('Opened websocket: '+e.target.URL);
-				socket.send(JSON.stringify({'flow': 'ctrl', 'msg' : this.api.getAppUUID()}));
+				self.APIsocket.send(JSON.stringify({'flow': 'ctrl', 'msg' : self.api.getAppUUID()}));
 			};
-			socket.onerror = function(e) {
+			self.APIsocket.onerror = function(e) {
 				console.log('Error: ' + e.data);
 			};
-			socket.onclose = function(e) {
+			self.APIsocket.onclose = function(e) {
 				console.log('Close: ' + e.data);
 			};
-			socket.onmessage = function(e) {
+			self.APIsocket.onmessage = function(e) {
 				var data = $.parseJSON(e.data);
 				console.log('Received: '+e.data);
-				this.eventHandler(data.msg);
+				self.eventHandler(data.msg);
 			};
-		}, this.err);
+		}, self.err);
 	}
 
 	this.eventHandler = function(msg) {
@@ -103,15 +103,15 @@ function Tangibles(WebWRTsocket) {
 	this.showText = function(dev, text, color, bg) {
 		this.setColor(dev, bg);
 		console.log('showText('+dev.id+','+text+','+color+')');
-		setTimeout(function() {this.api.showText(dev.id, text, color, this.err, this.err, this.err);},100);
+		setTimeout(function() {self.api.showText(dev.id, text, color, self.err, self.err, self.err);},100);
 	}
 
 	this.acceptedCall =	function(call_id, users, onHangup, onMute, onBlank) {
 		var enabled = true;
 		
 		this.showText(this.devices[0], 'Blank Workspace', '000000', 'FFFFFF');
-		this.showTextPic(this.devices[2], 'http://localhost/mute.png', 'Mute', '000000', 'FFFFFF');
-		this.showTextPic(this.devices[1], 'http://localhost/deny.png', 'Deny', '000000', 'FFFFFF');
+		this.showTextPic(this.devices[2], 'http://localhost/client/img/mute.png', 'Mute', '000000', 'FFFFFF');
+		this.showTextPic(this.devices[1], 'http://localhost/client/img/deny.png', 'Deny', '000000', 'FFFFFF');
 		
 		for (i = 0; i < users.length; i = i + 1) {
 			this.showText(this.devices[3+i], users[i].name, '000000', 'FFFFFF');
@@ -140,8 +140,8 @@ function Tangibles(WebWRTsocket) {
 	}
 
 	this.incommingCall = function(call_id, caller, room, onAccept, onDeny) {
-		this.showTextPic(this.devices[0], 'http://localhost/accept.png', 'Accept', '000000', 'FFFFFF');
-		this.showTextPic(this.devices[1], 'http://localhost/deny.png', 'Decline', '000000', 'FFFFFF');
+		this.showTextPic(this.devices[0], 'http://localhost/client/img/accept.png', 'Accept', '000000', 'FFFFFF');
+		this.showTextPic(this.devices[1], 'http://localhost/client/img/deny.png', 'Decline', '000000', 'FFFFFF');
 		this.showText(this.devices[2], caller+' invited you to '+room+'.', '000000', 'FFFFFF');
 		
 		var enabled = true;
@@ -149,16 +149,16 @@ function Tangibles(WebWRTsocket) {
 		this.devices[0].pressListeners.push(function(msg) {
 			if (enabled) {
 				enabled = false;
-				this.devices[0].pressListeners = [];
-				this.devices[1].pressListeners = [];
+				self.devices[0].pressListeners = [];
+				self.devices[1].pressListeners = [];
 				onAccept(call_id);
 			}
 		});
 		this.devices[1].pressListeners.push(function(msg) {
 			if (enabled) {
 				enabled = false;
-				this.devices[0].pressListeners = [];
-				this.devices[1].pressListeners = [];
+				self.devices[0].pressListeners = [];
+				self.devices[1].pressListeners = [];
 				onDeny(call_id);
 			}
 		});
@@ -169,16 +169,15 @@ function Tangibles(WebWRTsocket) {
 		$('#status').val('Connecting to TangibleAPI...');
 		this.api = new TangibleAPI('127.0.0.1');
 		this.api.register('My this.api', 'Desc', function(d) {
-			registered = true;
+			self.registered = true;
 			$('#status').val('Connected!');
 			$('#button_register_this.devices').removeAttr('disabled');
 			if(typeof callback != "undefined"){callback();}
-			this.preRegisterDevices.devices();
-		}, this.err);
+			self.registerDevices();
+		}, self.err);
 	}
 
-	$.getScript("/The-Tangibles/tangibles/tangibleLib.js", function(){
-		console.log(self.devices);
+	$.getScript("/client/js/tangibleLib.js", function(){
 		self.register();
 		$(window).on('beforeunload', self.onExit); // If needed make global function
 	});
@@ -188,19 +187,19 @@ function Tangibles(WebWRTsocket) {
 	this.onINVITE_SEND = function (name, room, call_id){
 		console.log(onINVITE_SEND);
 		console.log(name, room, call_id);
-		/* TODO Someone fix parentes
 		api.incommingCall(call_id, caller, room, function() {
-			socket.send(API_INVITE_ANSWER, JSON.stringify({
+			WebRTCsocket.send(API_INVITE_ANSWER, JSON.stringify({
 				'callId' : call_id,
 				'answer' : 'yes'
 			}));
 		}, function() {
-			socket.send(API_INVITE_ANSWER, JSON.stringify({
+			WebRTCsocket.send(API_INVITE_ANSWER, JSON.stringify({
 				'callId' : call_id,
 				'answer' : 'no'
 			}));
-		}*/
+		});
 	}
 }
+
 
 
