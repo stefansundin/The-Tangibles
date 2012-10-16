@@ -1,47 +1,48 @@
-var auto_decline_time = 60;
-var rooms = []; // [id, name, desc, type]
-var remote_users = []; // [id, name, room_id]
-var user_name = "User#" + Math.floor((Math.random() * 999) + 1);
-
-var socket = new ClientSocket("ws://130.240.5.191:12345");
-
-var API_USER_ENTER = "userenter";
-var API_USER_LEAVE = "userleave";
-var API_ROOM_ENTER = "roomenter";
-var API_ROOM_LEAVE = "roomleave";
-
-var API_LIST_ROOMS = "listrooms";
-var API_LIST_USERS = "listusers";
-var API_LIST = "listall";
-
-var API_USER_NEW = "useradd";
-var API_USER_REMOVE = "userremove";
-var API_ROOM_NEW = "roomadd";
-var API_ROOM_REMOVE = "roomremove";
-
-var API_INVITE_SEND = "invitesend";
-var API_INVITE_ANSWER = "inviteanswer";
-var API_INVIE_TIMEOUT = "invitetimeout";
-
-var API_MESSAGE = "message";
-
-var API_CORNERS = "corners";
-
-var API_SET_NAME = "setname";
+var lobby; // Global object for the lobby
 
 $(function() {
-  
+	lobby = new Lobby();
+	lobby.load();
+});
+
+function Lobby() {
+	this.auto_decline_time = 60;
+	this.rooms = []; // [id, name, desc, type]
+	this.remote_users = []; // [id, name, room_id]
+	this.user_name = "User#" + Math.floor((Math.random() * 999) + 1);
+}
+
+/**
+ * Shows a dialog with the text.
+ * 
+ * @param text
+ *            The text to display.
+ */
+function showError(text) {
+	$("#dialog_error_text").text(text);
+	$("#dialog_error").dialog("open");
+}
+
+Lobby.prototype.load = function() {
+	var self = this;
+
 	// Set up socket handlers
-	socket.on("open", onSocketOpen);
-	socket.on("close", onSocketClose);
+	socket.on("open", function() {
+		self.onSocketOpen();
+	});
+	socket.on("close", function() {
+		self.onSocketClose();
+	});
 	socket.on(API_SET_NAME, function(user_name) {
 		$("#display_user_name").text(user_name);
 	});
-	socket.on(API_LIST, onLobbyLoad);
+	socket.on(API_LIST, function(rooms, remote_users) {
+		self.onLobbyLoad(rooms, remote_users);
+	});
 
 	$("#room_table tfoot").hide();
 
-	$("#display_user_name").text(user_name);
+	$("#display_user_name").text(this.user_name);
 
 	$("#create_room, #change_user_name").button();
 	$("#create_room").click(function() {
@@ -67,7 +68,7 @@ $(function() {
 		modal : true,
 		resizable : false,
 		open : function(event, ui) {
-			$("#user_name").val(user_name);
+			$("#user_name").val(self.user_name);
 			$("#user_name").removeClass("ui-state-error");
 		},
 		buttons : {
@@ -76,7 +77,7 @@ $(function() {
 				if (name == "") {
 					$("#user_name").addClass("ui-state-error");
 				} else {
-					changeUserName(name);
+					self.changeUserName(name);
 					$(this).dialog("close");
 				}
 			},
@@ -105,7 +106,7 @@ $(function() {
 				if (name == "") {
 					$("#room_name").addClass("ui-state-error");
 				} else {
-					onCreateRoom(name);
+					self.onCreateRoom(name);
 					$(this).dialog("close");
 				}
 			},
@@ -120,38 +121,28 @@ $(function() {
 							.first().click();
 				}
 			});
-});
 
-/**
- * Shows a dialog with the text.
- * 
- * @param text
- *            The text to display.
- */
-function showError(text) {
-	$("#dialog_error_text").text(text);
-	$("#dialog_error").dialog("open");
-}
+};
 
 /**
  * Called when the socket connection is opened.
  */
-function onSocketOpen() {
+Lobby.prototype.onSocketOpen = function() {
 	console.log("onOpen");
 
 	// request stuff
-	changeUserName(user_name);
+	this.changeUserName(this.user_name);
 	socket.send(API_LIST, "");
-}
+};
 
 /**
  * Called when the socket connection is closed.
  */
-function onSocketClose() {
+Lobby.prototype.onSocketClose = function() {
 	console.log("onClose");
 
 	showError("Lost server connection...");
-}
+};
 
 /**
  * Searches for and returns the index if found, -1 otherwise.
@@ -160,15 +151,15 @@ function onSocketClose() {
  *            The ID to look for
  * @returns {Number}
  */
-function findRoomIndex(room_id) {
+Lobby.prototype.findRoomIndex = function(room_id) {
 	// Find room with given id
-	for ( var i = 0; i < rooms.length; i++) {
-		if (rooms[i][0] === room_id) {
+	for ( var i = 0; i < this.rooms.length; i++) {
+		if (this.rooms[i][0] === room_id) {
 			return i;
 		}
 	}
 	return -1;
-}
+};
 
 /**
  * Searches for and returns the index if found, -1 otherwise.
@@ -177,15 +168,15 @@ function findRoomIndex(room_id) {
  *            The ID to look for
  * @returns {Number}
  */
-function findRemoteUserIndex(remote_user_id) {
+Lobby.prototype.findRemoteUserIndex = function(remote_user_id) {
 	// Find remote_user with given id
-	for ( var i = 0; i < remote_users.length; i++) {
-		if (remote_users[i][0] === remote_user_id) {
+	for ( var i = 0; i < this.remote_users.length; i++) {
+		if (this.remote_users[i][0] === remote_user_id) {
 			return i;
 		}
 	}
 	return -1;
-}
+};
 
 /**
  * Changes the user name to a new name if it isn't the empty string. Called when
@@ -194,18 +185,18 @@ function findRemoteUserIndex(remote_user_id) {
  * @param new_name
  *            The new user name
  */
-function changeUserName(new_name) {
+Lobby.prototype.changeUserName = function(new_name) {
 	console.log("onChangeUserName: " + new_name);
 
 	if (new_name != "") {
-		user_name = new_name;
-		$("#display_user_name").text(user_name);
+		this.user_name = new_name;
+		$("#display_user_name").text(this.user_name);
 
 		socket.send(API_SET_NAME, JSON.stringify({
-			name : user_name
+			name : this.user_name
 		}));
 	}
-}
+};
 
 /**
  * Adds all rooms and remote users to the page. Should be called when the page
@@ -216,7 +207,7 @@ function changeUserName(new_name) {
  * @param remote_users
  *            A list of users
  */
-function onLobbyLoad(rooms, remote_users) {
+Lobby.prototype.onLobbyLoad = function(rooms, remote_users) {
 	console.log("onLobbyLoad: " + rooms + " " + remote_users);
 
 	this.rooms = [];
@@ -227,15 +218,15 @@ function onLobbyLoad(rooms, remote_users) {
 
 	// Add rooms
 	for ( var i = 0; i < rooms.length; i++) {
-		onRoomAdd(rooms[i][0], rooms[i][1], rooms[i][2], rooms[i][3]);
+		this.onRoomAdd(rooms[i][0], rooms[i][1], rooms[i][2], rooms[i][3]);
 	}
 
 	// Add users
 	for ( var i = 0; i < remote_users.length; i++) {
-		onRemoteUserEnter(remote_users[i][0], remote_users[i][1],
+		this.onRemoteUserEnter(remote_users[i][0], remote_users[i][1],
 				remote_users[i][2]);
 	}
-}
+};
 
 /**
  * Lets the user select a room name. The room is then created. Called when the
@@ -244,14 +235,14 @@ function onLobbyLoad(rooms, remote_users) {
  * @param room_name
  *            Name of the new room
  */
-function onCreateRoom(room_name) {
+Lobby.prototype.onCreateRoom = function(room_name) {
 	console.log("onCreateRoom: " + room_name);
 
 	if (room_name != "") {
 		// TODO Create room
-		onRoomCreated("random_text");
+		this.onRoomCreated("random_text");
 	}
-}
+};
 
 /**
  * Callback function for when the room has been created. The user will be
@@ -260,9 +251,9 @@ function onCreateRoom(room_name) {
  * @param room_id
  *            ID of the room created.
  */
-function onRoomCreated(room_id) {
-	enterRoom(room_id);
-}
+Lobby.prototype.onRoomCreated = function(room_id) {
+	this.enterRoom(room_id);
+};
 
 /**
  * Redirects the user to a room with a given id.
@@ -270,20 +261,20 @@ function onRoomCreated(room_id) {
  * @param room_id
  *            ID of the room
  */
-function enterRoom(room_id) {
-  $("#main").hide();
-  $("#roomMain").show();
-  $("#roomFrame").attr("src","room/#" + room_id);
-}
+Lobby.prototype.enterRoom = function(room_id) {
+	$("#main").hide();
+	$("#roomMain").show();
+	$("#roomFrame").attr("src", "room/#" + room_id);
+};
 
 /**
  * Is called by the room frame content when it wants to close the room.
-*/
-function leaveRoom() {
-  $("#roomFrame").attr("src","about:blank");
-  $("#main").show();
-  $("#roomMain").hide();
-}
+ */
+Lobby.prototype.leaveRoom = function() {
+	$("#roomFrame").attr("src", "about:blank");
+	$("#main").show();
+	$("#roomMain").hide();
+};
 
 /**
  * Changes the name of a room.
@@ -293,15 +284,15 @@ function leaveRoom() {
  * @param room_name
  *            The new name
  */
-function onRoomChangeName(room_id, room_name) {
+Lobby.prototype.onRoomChangeName = function(room_id, room_name) {
 	console.log("onRoomChangeName: " + room_id + " " + room_name);
 
-	var index = findRoomIndex(room_id);
+	var index = this.findRoomIndex(room_id);
 	if (index != -1) {
-		rooms[index][1] = room_name;
+		this.rooms[index][1] = room_name;
 		$("#room_list_" + room_id + " h3").text(room_name);
 	}
-}
+};
 
 /**
  * Adds a room to the page if the ID doesn't exist. Should be called when a new
@@ -316,7 +307,7 @@ function onRoomChangeName(room_id, room_name) {
  * @param room_type
  *            Type of the room
  */
-function onRoomAdd(room_id, room_name, room_desc, room_type) {
+Lobby.prototype.onRoomAdd = function(room_id, room_name, room_desc, room_type) {
 	console.log("onRoomAdd: " + room_id + " " + room_name + " " + room_desc
 			+ " " + room_type);
 
@@ -328,41 +319,41 @@ function onRoomAdd(room_id, room_name, room_desc, room_type) {
 	$("#room_table tfoot").hide();
 
 	// Add to list
-	rooms.push([ room_id, room_name, room_desc, room_type ]);
+	this.rooms.push([ room_id, room_name, room_desc, room_type ]);
 	$("#room_table tbody").append($("<tr/>", {
 		id : "room_list_" + room_id,
 		click : function() {
-			onRoomClick(room_id);
+			this.onRoomClick(room_id);
 		}
 	}).append($("<td/>").append($("<h3/>", {
 		text : room_name
 	})).append(room_desc)).append($("<td/>", {
 		id : "room_user_list_" + room_id
 	})));
-}
+};
 
 /**
- * Delets a room from the page. Should be called when a room is deleted on the
+ * Deletes a room from the page. Should be called when a room is deleted on the
  * server.
  * 
  * @param room_id
  *            ID of the deleted room
  */
-function onRoomDelete(room_id) {
+Lobby.prototype.onRoomDelete = function(room_id) {
 	console.log("onRoomDelete: " + room_id);
 
 	// Find room with given id
-	var index = findRoomIndex(room_id);
+	var index = this.findRoomIndex(room_id);
 	if (index != -1) {
 		// Remove from list
-		rooms.splice(index, 1);
+		this.rooms.splice(index, 1);
 		$("#room_list_" + room_id).remove();
 
-		if (rooms.length == 0) {
+		if (this.rooms.length == 0) {
 			$("#room_table tfoot").show();
 		}
 	}
-}
+};
 
 /**
  * Called when a room is clicked.
@@ -370,47 +361,47 @@ function onRoomDelete(room_id) {
  * @param room_id
  *            ID of the room
  */
-function onRoomClick(room_id) {
+Lobby.prototype.onRoomClick = function(room_id) {
 	console.log("onRoomClick: " + room_id);
 
-	var index = findRoomIndex(room_id);
+	var index = this.findRoomIndex(room_id);
 	if (index != -1) {
-		console.log("RoomClick found: " + rooms[index][0]);
-		enterRoom(room_id);
+		console.log("RoomClick found: " + this.rooms[index][0]);
+		this.enterRoom(room_id);
 	}
-}
+};
 
-function onRemoteUserEnterRoom(remote_user_id, room_id) {
+Lobby.prototype.onRemoteUserEnterRoom = function(remote_user_id, room_id) {
 	console.log("onRemoteUserEnterRoom: " + remote_user_id + " " + room_id);
 
-	var index = findRoomIndex(room_id);
+	var index = this.findRoomIndex(room_id);
 	if (index != -1) {
-		var user_index = findRemoteUserIndex(remote_user_id);
+		var user_index = this.findRemoteUserIndex(remote_user_id);
 		if (user_index != -1) {
-			remote_users[user_index][2] = room_id;
+			this.remote_users[user_index][2] = room_id;
 
 			// Make sure each user only exist in one room in the list
-			$(".remote_user_" + remote_users[user_index][0]).remove();
+			$(".remote_user_" + this.remote_users[user_index][0]).remove();
 
 			$("#room_user_list_" + room_id).append($("<span/>", {
-				class : "remote_user_" + remote_users[user_index][0],
-				text : remote_users[user_index][1] + " "
+				class : "remote_user_" + this.remote_users[user_index][0],
+				text : this.remote_users[user_index][1] + " "
 			}));
 		}
 	}
-}
+};
 
-function onRemoteUserLeaveRoom(remote_user_id) {
+Lobby.prototype.onRemoteUserLeaveRoom = function(remote_user_id) {
 	console.log("onRemoteUserLeaveRoom: " + remote_user_id);
 
-	var user_index = findRemoteUserIndex(remote_user_id);
+	var user_index = this.findRemoteUserIndex(remote_user_id);
 	if (user_index != -1) {
-		remote_users[user_index][2] = 0;
+		this.remote_users[user_index][2] = 0;
 
 		// Remove the user from the list
-		$(".remote_user_" + remote_users[user_index][0]).remove();
+		$(".remote_user_" + this.remote_users[user_index][0]).remove();
 	}
-}
+};
 
 /**
  * Changes the name of a remote user.
@@ -420,16 +411,17 @@ function onRemoteUserLeaveRoom(remote_user_id) {
  * @param remote_user_name
  *            The new name
  */
-function onRemoteUserChangeName(remote_user_id, remote_user_name) {
+Lobby.prototype.onRemoteUserChangeName = function(remote_user_id,
+		remote_user_name) {
 	console.log("onRemoteUserChangeName: " + remote_user_id + " "
 			+ remote_user_name);
 
-	var index = findRemoteUserIndex(remote_user_id);
+	var index = this.findRemoteUserIndex(remote_user_id);
 	if (index != -1) {
-		remote_users[index][1] = remote_user_name;
+		this.remote_users[index][1] = remote_user_name;
 		$("span.remote_user_" + remote_user_id).text(remote_user_name + " ");
 	}
-}
+};
 
 /**
  * Adds a remote user to the list. Should be called when a user enters the
@@ -442,15 +434,16 @@ function onRemoteUserChangeName(remote_user_id, remote_user_name) {
  * @param room_id
  *            ID of the room which contains the user
  */
-function onRemoteUserEnter(remote_user_id, remote_user_name, room_id) {
+Lobby.prototype.onRemoteUserEnter = function(remote_user_id, remote_user_name,
+		room_id) {
 	console.log("onRemoteUserEnter: " + remote_user_id + " " + remote_user_name
 			+ " " + room_id);
 
 	// Add to list
-	remote_users.push([ remote_user_id, remote_user_name, room_id ]);
+	this.remote_users.push([ remote_user_id, remote_user_name, room_id ]);
 
-	onRemoteUserEnterRoom(remote_user_id, room_id);
-}
+	this.onRemoteUserEnterRoom(remote_user_id, room_id);
+};
 
 /**
  * Removes a remote user from the list. Should be called when a user leaves the
@@ -459,17 +452,17 @@ function onRemoteUserEnter(remote_user_id, remote_user_name, room_id) {
  * @param remote_user_id
  *            ID of the remote user that left
  */
-function onRemoteUserLeave(remote_user_id) {
+Lobby.prototype.onRemoteUserLeave = function(remote_user_id) {
 	console.log("onRemoteUserLeave: " + remote_user_id);
 
 	// Find remote_user with given id
-	var index = findRemoteUserIndex(remote_user_id);
+	var index = this.findRemoteUserIndex(remote_user_id);
 	if (index != -1) {
 		// Remove from list
-		remote_users.splice(index, 1);
+		this.remote_users.splice(index, 1);
 		$(".remote_user_" + remote_user_id).remove();
 	}
-}
+};
 
 /**
  * Notifies the user that there is an incoming call. A call is auto-declined
@@ -483,7 +476,7 @@ function onRemoteUserLeave(remote_user_id) {
  * @param call_id
  *            ID of the call
  */
-function onIncomingCall(remote_user_name, room_name, call_id) {
+Lobby.prototype.onIncomingCall = function(remote_user_name, room_name, call_id) {
 	console.log("IncomingCall: " + remote_user_name + " " + room_name + " "
 			+ call_id);
 
@@ -492,6 +485,8 @@ function onIncomingCall(remote_user_name, room_name, call_id) {
 		return;
 	}
 
+	var self = this;
+
 	// Insert above
 	$("<div/>", {
 		id : "call_" + call_id,
@@ -499,12 +494,12 @@ function onIncomingCall(remote_user_name, room_name, call_id) {
 	}).append($("<button/>", {
 		text : "Accept",
 		click : function() {
-			accept(call_id);
+			self.accept(call_id);
 		}
 	}).button()).append($("<button/>", {
 		text : "Decline",
 		click : function() {
-			decline(call_id);
+			self.decline(call_id);
 		}
 	}).button()).append($("<div/>", {
 		id : "call_timer_" + call_id
@@ -517,8 +512,8 @@ function onIncomingCall(remote_user_name, room_name, call_id) {
 	$("#call_" + call_id).show("drop");
 
 	// Auto-decline after x seconds
-	onAutoDeclineTimer(call_id, auto_decline_time);
-}
+	this.onAutoDeclineTimer(call_id, this.auto_decline_time);
+};
 
 /**
  * Removes the notification and accepts the call. Called when the user clicked
@@ -527,13 +522,13 @@ function onIncomingCall(remote_user_name, room_name, call_id) {
  * @param call_id
  *            ID of the call that was accepted
  */
-function accept(call_id) {
+Lobby.prototype.accept = function(call_id) {
 	console.log("Accept: " + call_id);
 
 	if ($("#call_" + call_id).length != 0) { // Extra check
 		$("#call_timer_" + call_id).text("");
 		// TODO Accept
-		onCallAccepted("random_text");
+		this.onCallAccepted("random_text");
 		$("#call_" + call_id).removeAttr("id").hide({
 			effect : "drop",
 			complete : function() {
@@ -541,7 +536,7 @@ function accept(call_id) {
 			}
 		});
 	}
-}
+};
 
 /**
  * Callback function for when the call has been accepted. The user will be
@@ -549,9 +544,9 @@ function accept(call_id) {
  * 
  * @param room_id
  */
-function onCallAccepted(room_id) {
-	enterRoom(room_id);
-}
+Lobby.prototype.onCallAccepted = function(room_id) {
+	this.enterRoom(room_id);
+};
 
 /**
  * Removes the notification and declines the call. Called when the user clicked
@@ -560,7 +555,7 @@ function onCallAccepted(room_id) {
  * @param call_id
  *            ID of the call that was declined
  */
-function decline(call_id) {
+Lobby.prototype.decline = function(call_id) {
 	console.log("Decline: " + call_id);
 
 	if ($("#call_" + call_id).length != 0) { // Extra check
@@ -573,7 +568,7 @@ function decline(call_id) {
 			}
 		});
 	}
-}
+};
 
 /**
  * Counts down the auto-decline timeout by one second. A counter is displayed
@@ -584,23 +579,24 @@ function decline(call_id) {
  * @param time_left
  *            Number of seconds left on the timeout
  */
-function onAutoDeclineTimer(call_id, time_left) {
+Lobby.prototype.onAutoDeclineTimer = function(call_id, time_left) {
 	if ($("#call_timer_" + call_id).length != 0) {
 		// Might have been manually declined
-		time_left--;
-		if (time_left <= 0) { // Time is up, decline
-			decline(call_id);
+		new_time_left = time_left - 1;
+		if (new_time_left <= 0) { // Time is up, decline
+			this.decline(call_id);
 		} else {
-			if (time_left <= 10) { // Only display last 10 seconds
-				$("#call_timer_" + call_id).text(time_left);
+			if (new_time_left <= 10) { // Only display last 10 seconds
+				$("#call_timer_" + call_id).text(new_time_left);
 			}
 
+			var self = this;
 			setTimeout(function() {
-				onAutoDeclineTimer(call_id, time_left);
+				self.onAutoDeclineTimer(call_id, new_time_left);
 			}, 1000);
 		}
 	}
-}
+};
 
 function assert(exp, message) {
 	if (!exp) {
@@ -608,41 +604,42 @@ function assert(exp, message) {
 	}
 }
 
-function testLobby() {
+Lobby.prototype.test = function() {
 	console.log("Running test...");
 
-	onLobbyLoad([ [ 1, "Test Room", "", 0 ], [ 2, "Room 2", "Some desc", 0 ] ],
-			[ [ 1, "Karl", 1 ], [ 2, "Jonas", 1 ] ]);
+	this.onLobbyLoad([ [ 1, "Test Room", "", 0 ],
+			[ 2, "Room 2", "Some desc", 0 ] ], [ [ 1, "Karl", 1 ],
+			[ 2, "Jonas", 1 ] ]);
 
-	changeUserName("Test name");
+	this.changeUserName("Test name");
 
-	onIncomingCall("Kalle", "Room test", 1);
+	this.onIncomingCall("Kalle", "Room test", 1);
 
 	// Test rooms
-	assert(findRoomIndex(1) == 0, "Room index of 1 is wrong");
-	assert(rooms[0][1] == "Test Room", "Room has wrong name");
-	assert(rooms[1][2] == "Some desc", "Room has wrong desc");
-	assert(rooms[0][3] == 0, "Room has wrong type");
-	onRoomAdd(3, "Room 3", "Desc", 1);
-	onRoomChangeName(1, "New name");
-	assert(rooms[0][1] == "New name", "Room has wrong name after change");
-	onRoomAdd(4, "Delete me", "Desc", 1);
-	onRoomDelete(4);
-	assert(rooms.length == 3, "Room wasnt removed");
+	assert(this.findRoomIndex(1) == 0, "Room index of 1 is wrong");
+	assert(this.rooms[0][1] == "Test Room", "Room has wrong name");
+	assert(this.rooms[1][2] == "Some desc", "Room has wrong desc");
+	assert(this.rooms[0][3] == 0, "Room has wrong type");
+	this.onRoomAdd(3, "Room 3", "Desc", 1);
+	this.onRoomChangeName(1, "New name");
+	assert(this.rooms[0][1] == "New name", "Room has wrong name after change");
+	this.onRoomAdd(4, "Delete me", "Desc", 1);
+	this.onRoomDelete(4);
+	assert(this.rooms.length == 3, "Room wasnt removed");
 
 	// Test users
-	assert(findRemoteUserIndex(1) == 0, "User index of 1 is wrong");
-	assert(remote_users[0][1] == "Karl", "User has wrong name");
-	assert(remote_users[0][2] == 1, "User has wrong room_id");
-	onRemoteUserEnter(3, "User 3", 2);
-	onRemoteUserLeave(3);
-	assert(remote_users.length == 2, "User wasnt removed");
-	onRemoteUserEnter(4, "User 4", 3);
-	onRemoteUserChangeName(4, "New user 4");
-	assert(remote_users[findRemoteUserIndex(4)][1] == "New user 4",
+	assert(this.findRemoteUserIndex(1) == 0, "User index of 1 is wrong");
+	assert(this.remote_users[0][1] == "Karl", "User has wrong name");
+	assert(this.remote_users[0][2] == 1, "User has wrong room_id");
+	this.onRemoteUserEnter(3, "User 3", 2);
+	this.onRemoteUserLeave(3);
+	assert(this.remote_users.length == 2, "User wasnt removed");
+	this.onRemoteUserEnter(4, "User 4", 3);
+	this.onRemoteUserChangeName(4, "New user 4");
+	assert(this.remote_users[this.findRemoteUserIndex(4)][1] == "New user 4",
 			"User has wrong name after change");
-	onRemoteUserEnterRoom(4, 1);
-	onRemoteUserLeaveRoom(4);
-	assert(remote_users[findRemoteUserIndex(4)][2] == 0,
+	this.onRemoteUserEnterRoom(4, 1);
+	this.onRemoteUserLeaveRoom(4);
+	assert(this.remote_users[this.findRemoteUserIndex(4)][2] == 0,
 			"User didnt leave room");
-}
+};
