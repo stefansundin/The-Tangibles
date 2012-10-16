@@ -42,6 +42,12 @@ Lobby.prototype.load = function() {
 	socket.on(API_LIST, function(rooms, users) {
 		self.onLobbyLoad(rooms, users);
 	});
+	socket.on(API_USER_ENTER, function(userId, userName, roomId) {
+		self.onUserEnter(userId, userName, roomId);
+	});
+	socket.on(API_USER_LEAVE, function(userId) {
+		self.onUserLeave(userId);
+	});
 
 	$('#room_table tfoot').hide();
 
