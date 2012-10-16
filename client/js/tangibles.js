@@ -1,32 +1,27 @@
-function Tangibles(WebRTCsocket) {
+function Tangibles(webRTCSocket) {
 	var self = this;
 	this.api = null;
 	this.devices = [];
 	this.APIsocket = null;
 	this.registered = false;
-	this.WebRTCsocket = WebRTCsocket;
+	this.webRTCSocket = webRTCSocket;
 
 	this.err = function(e) {
-		console.log(e.msg);
+		console.log(e);
 	}
 
 	this.onExit = function(e) {
-		console.log("Release");
-		this.api.releaseAllthis.devices(this.err, this.err);
-		this.api.unregister(function(e){
-			this.err(e);this.registered = false;
-		}, this.err);
+		for (d = 0; d < self.devices.length; d=d+1) {
+			self.api.showColor(self.devices[d].id, '000000', self.err, self.err, false);
+		}
+		/*self.webRTCSocket.send(API_USER_CHANGE, JSON.stringify({
+			'id' : 0  // Goto Lobby
+		}));*/
 	}
 	
-	// this.api lisen
-	if(this.WebRTCsocket){
-		this.err('GOT SOCKET');
-		//this.WebRTCsocket.on(API_INVITE_SEND, onINVITE_SEND);
-	}
-
-	this.preRegisterDevices = function(){
-		if(!this.registered){this.register(this.registerDevices);return;};
-		this.registerDevices();
+	// this.api listen
+	if(this.webRTCSocket){
+		this.webRTCSocket.on(API_INVITE_SEND, onINVITE_SEND);
 	}
 
 	this.registerDevices = function(){
@@ -41,7 +36,7 @@ function Tangibles(WebRTCsocket) {
 					self.devices.push(device);
 				}, self.err);
 			}
-			$('#status').val('Registered '+num+' this.devices!');
+			$('#status').val('Registered '+num+' devices!');
 			$('#sifteo_stuff').removeAttr('disabled');
 		}, this.err);
 	}
@@ -87,12 +82,12 @@ function Tangibles(WebRTCsocket) {
 	this.setColor = function(dev, color) {
 		// color = "RRGGBB"
 		console.log('setColor('+dev.id+','+color+')');
-		this.api.showColor(dev.id, color, this.err, this.err);
+		self.api.showColor(dev.id, color, self.err, self.err);
 	}
 
 	this.showTextPic = function(dev, url, text, color, bg) {
 		this.showText(dev, text, color, bg);
-		this.showPicture(dev, url);
+		setTimeout(function() {self.showPicture(dev, url);}, 100);
 	}
 
 	this.showPicture = function(dev, url) {
@@ -106,7 +101,7 @@ function Tangibles(WebRTCsocket) {
 		setTimeout(function() {self.api.showText(dev.id, text, color, self.err, self.err, self.err);},100);
 	}
 
-	this.acceptedCall =	function(call_id, users, onHangup, onMute, onBlank) {
+	this.acceptedCall =	function(call_id, users) {
 		var enabled = true;
 		
 		this.showText(this.devices[0], 'Blank Workspace', '000000', 'FFFFFF');
@@ -188,12 +183,14 @@ function Tangibles(WebRTCsocket) {
 		console.log(onINVITE_SEND);
 		console.log(name, room, call_id);
 		api.incommingCall(call_id, caller, room, function() {
-			WebRTCsocket.send(API_INVITE_ANSWER, JSON.stringify({
+			// Accept
+			self.webRTCSocket.send(API_INVITE_ANSWER, JSON.stringify({
 				'callId' : call_id,
 				'answer' : 'yes'
 			}));
 		}, function() {
-			WebRTCsocket.send(API_INVITE_ANSWER, JSON.stringify({
+			// Deny
+			self.webRTCSocket.send(API_INVITE_ANSWER, JSON.stringify({
 				'callId' : call_id,
 				'answer' : 'no'
 			}));
