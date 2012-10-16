@@ -1,7 +1,14 @@
 
 #main {
+  float: bottom;
 	width: 60%;
 	margin: 0 auto;
+  height: 90 %;
+}
+
+html {
+  height: 100%;
+  width: 100%;
 }
 
 .ui-widget {
@@ -18,10 +25,17 @@ label,input {
 }
 
 #top {
-	position: absolute;
+	float: top;
+  float: right;
+  height: 10%;
 	top: 0;
 	right: 0;
 	padding: 10px;
+}
+
+#roomMain {
+  height: 90%;
+  width: 100%;
 }
 
 #display_user_name {
