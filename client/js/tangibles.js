@@ -166,7 +166,6 @@ function Tangibles(webRTCSocket) {
 		this.api.register('My this.api', 'Desc', function(d) {
 			self.registered = true;
 			$('#status').val('Connected!');
-			$('#button_register_this.devices').removeAttr('disabled');
 			if(typeof callback != "undefined"){callback();}
 			self.registerDevices();
 		}, self.err);
