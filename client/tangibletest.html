@@ -1,0 +1,31 @@
+<html>
+<head>
+	<meta charset=UTF-8 />
+	<title>Test page Tangibles</title>
+	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+	<script type="text/javascript" src="/client/js/tangibles.js"></script>
+	<style type="text/css">
+#status {
+	width: 250px;
+}
+	</style>
+</head>
+<body>
+	<p>Test page For tangibles, Probably not working</p>
+	<p>Status: <input type="text" id="status" readonly /></p>
+	
+	<p id="sifteo_stuff" disabled>
+		<button onclick="showPicture(devices[0],'http://cdn.ghacks.net/wp-content/themes/magatheme/img/mozilla-firefox.png');">Show picture (remote)</button>
+		<button onclick="showPicture(devices[0],'http://localhost/mozilla-firefox.png');">Show picture (local)</button>
+		<button onclick="showText(devices[0],'Test text','0000ff');">Show text</button>
+		<button onclick="setColor(devices[0],'0000ff');">Set color to blue</button>
+		<p>
+			<button onclick="listenToEvents(devices[0]);">Listen to cube 0</button>
+			<button onclick="listenToEvents(devices[1]);">Listen to cube 1</button>
+		</p>
+	</p>
+	<p><button onclick="incommingCall(1, 'John', 'Workroom', console.log, console.log);">Simulate incomming call</button></p>
+	<p><button onclick="onExit();">Release all devices and unregister</button></p>
+	<!-- <p><button id="button_register_one_devices" onclick="regisiterOneDevice();">Register one device</button></p>-->
+</body>
+</html>
