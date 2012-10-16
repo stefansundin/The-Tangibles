@@ -26,6 +26,7 @@ var API_ROOM_REMOVE = "roomremove";
 
 var API_INVITE_SEND = "invitesend";
 var API_INVITE_ANSWER = "inviteanswer";
+var API_INVITE_LEAVE = "inviteleave";
 var API_INVIE_TIMEOUT = "invitetimeout";
 
 var API_MESSAGE = "msg";
@@ -55,6 +56,25 @@ Array.prototype.remove=function(key) {
 
 var lRooms = [];
 var lUsers = [];
+var lCalls = [];
+
+
+
+var ROOMINDEXCOUNTER = 0;
+function getNextRoomId(){
+	return ROOMINDEXCOUNTER++;
+}
+
+var USERIDCOUNTER = 0;
+function getNextUserId(){
+	return USERIDCOUNTER++;
+}
+
+var CALLIDCOUNTER = 0;
+function getNextCallId(){
+	return CALLIDCOUNTER++;
+}
+
 
 // # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 // Message callback
@@ -188,7 +208,11 @@ function connectionClosed(connection){
 			id: user.id
 		});
 		
-		sendMessageToRoom(room, API_USER_LEAVE, data);
+		sendMessageToRoom(user.id, user.roomId, API_USER_LEAVE, data);
+		
+		if (user.inCall){
+			sendMessageToRoom(user.id, user.roomId, API_INVITE_LEAVE, data);	
+		}
 	}
 	
 	// var roomOld = getRoomByUserSocket(connection);
@@ -322,7 +346,11 @@ addCallbacks(API_USER_CHANGE, function(con, newRoomId){
 	}); 
 	
 	if (user.name != "" && user.roomId != -1) {
-		sendMessageToRoom(user.id, user.roomId, API_USER_LEAVE, data);	
+		sendMessageToRoom(user.id, user.roomId, API_USER_LEAVE, data);
+		
+		if (user.inCall){
+			sendMessageToRoom(user.id, user.roomId, API_INVITE_LEAVE, data);	
+		}
 	}
 	
 	sendMessageToRoom(user.id, newRoomId, API_USER_ENTER, data);
@@ -415,10 +443,49 @@ addCallbacks(API_CORNERS_BROADCAST, function(con, message){
 });
 
 
+addCallbacks(API_INVITE_SEND, function(con, recipientId, roomId){
+	if (roomId < 1) {
+		return null;
+	}
+	
+	var caller = getUserBySocket(con);
+	var recipient = getUserById(recipientId);
+	var room = getRoomById(roomId);
+		
+	var call = createNewCall(caller, recipient, room);
+	
+	var data = JSON.stringify({
+		name: caller.name,
+		roomName: room.name,
+		callId: call.id
+	});
+	
+	sendMessage(recipient.socket, API_INVITE_SEND, data);
+});
+
+
+addCallbacks(API_INVITE_ANSWER, function(con, callId, answer){
+	var call = getCallById(callId);
+	
+	var data = JSON.stringify({
+		id: call.called.id,
+		answer: answer
+	});
+	
+	if (answer == "yes") {
+		call.caller.inCall = true;
+		call.called.inCall = true;
+	}
+	
+	sendMessage(call.caller.socket, API_INVITE_ANSWER, data);
+});
+
+
 /*
 addCallbacks(, function(con, ){
 	
 });
+TODO: CALLBACKS
  */
 
 // /**
@@ -674,21 +741,12 @@ function startup(){
 // Objects
 // # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-var ROOMINDEXCOUNTER = 0;
-function getNextRoomId(){
-	return ROOMINDEXCOUNTER++;
-}
-
-var USERIDCOUNTER = 0;
-function getNextUserId(){
-	return USERIDCOUNTER++;
-}
-
 function obj_user(socket) {
 	this.id = getNextUserId();
 	this.name = "";
 	this.roomId = -1;
 	this.socket = socket;
+	this.inCall = false;
 	
 	this.setName = function(name){
 		this.name = name;
@@ -706,6 +764,13 @@ function obj_room(name, typeS) {
 	this.desc = ""; // not necissary
 }
 
+
+function obj_call(caller, called, roomId){
+	this.id = getNextCallId();
+	this.caller = caller;
+	this.called = called;
+	this.roomId = roomId;
+}
 
 // function _user(socket){
 	// this.name = "";
@@ -908,6 +973,24 @@ function getUserById(id) {
 	for(var i=0,j=lUsers.length; i<j; i++){
 		if (lUsers[i].id == id) {
 			return lUsers[i];	
+		}
+	};
+}
+
+// # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+// 						Call logic
+// # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+function createNewCall(caller, called, roomId){
+	var call = new obj_call(caller, called, roomId);
+	lCalls.push(call);
+	return call;
+}
+
+function getCallById(id) {
+	for(var i=0,j=lCalls.length; i<j; i++){
+		if (lCalls[i].id == id) {
+			return lCalls[i];	
 		}
 	};
 }
