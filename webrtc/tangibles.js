@@ -189,10 +189,15 @@ function onINVITE_SEND(name, room, call_id) {
 	console.log(onINVITE_SEND);
 	console.log(name, room, call_id);
 	api.incommingCall(call_id, caller, room, function() {
-		console.log("onAccept");
+		socket.send(API_INVITE_ANSWER, JSON.stringify({
+			'callId' : call_id,
+			'answer' : 'yes'
+		}));
 	}, function() {
-		console.log("onDeny");
-	});
+		socket.send(API_INVITE_ANSWER, JSON.stringify({
+			'callId' : call_id,
+			'answer' : 'no'
+		}));
 }
 
 
