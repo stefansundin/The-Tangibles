@@ -5,25 +5,27 @@ html {
 
 #content {
   position: absolute;
-  top: 50px;
+  top: 0px;
   left: 0px;
   right: 0px;
   bottom: 0px;
 }
 
 #videos {
-  position: absolute;
-  height: 300px;
+/*  float:top;*/
+  position: absolute; 
   top: 0px;
   left: 0px;
   right: 0px;
   bottom: 0px;
   background-color: #ffffff;
+  height: 75%;
 }
 
 #chatbox {
-  position: absolute;
-  height: 180px;
+/*  float:bottom; */
+  position: absolute; 
+  height: 25%;
   right: 20px;
   left: 20px;
   bottom: 0px;

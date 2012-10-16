@@ -11,25 +11,25 @@ app.get('/', function(req, res) {
 });
 
 app.get('/room', function(req, res) {
-  console.log('Opening room');
+//  console.log('Opening room');
   res.sendfile(__dirname + '/room/index.html');
 });
 
 app.get('/test', function(req, res) {
-  console.log('Opening test');
+//  console.log('Opening test');
   res.sendfile(__dirname + '/test.html');
 });
 app.get('/test2', function(req, res) {
-  console.log('Opening test2');
+//  console.log('Opening test2');
   res.sendfile(__dirname + '/test2.html');
 });
 app.get('/test3', function(req, res) {
-  console.log('Opening test3');
+//  console.log('Opening test3');
   res.sendfile(__dirname + '/test3.html');
 });
 
 app.get('/workspace', function(req,res) {
-  console.log('Opening workspace');
+//  console.log('Opening workspace');
   res.sendfile(__dirname + '/workspace/index.html');
 });
 
