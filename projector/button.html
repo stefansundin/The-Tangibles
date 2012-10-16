@@ -70,12 +70,11 @@
 
       }
 
-      function buttons() {
-        this.listOfButtons = [];
+      var Buttons = function () {
+        var listOfButtons = [];
 
-        this.addButton = addButton;
-        function addButton(button) {
-          this.listOfButtons.push(button)
+        this.AddButton = function (button) {
+          listOfButtons.push(button)
         }
 
         //this.deleteButton = deleteButton;
@@ -83,45 +82,32 @@
         //  
         //}
 
-        this.draw = draw;
-        function draw() {
-          for (i in this.listOfButtons) {
-            this.listOfButtons[i].draw();
+        this.Draw = function () {
+          for (i in listOfButtons) {
+            listOfButtons[i].Draw();
           }
         }
 
-        this.checkPressed = checkPressed;
-        function checkPressed(contextBlended, transform) {
-          for (i in this.listOfButtons) {
-            this.listOfButtons[i].checkPressed(contextBlended, transform);
+        this.CheckPressed = function (contextBlended, transform) {
+          for (i in listOfButtons) {
+            listOfButtons[i].CheckPressed(contextBlended, transform);
           }
         }
       }
 
-      function button(x, y, sizeX, sizeY, image, ctx) {
+      var Button = function (x, y, sizeX, sizeY, image, ctx) {
         this.sizeX = sizeX;
         this.sizeY = sizeY;
         this.x = x;
         this.y = y;
         this.method; // method to invoke when pressed
         this.image = image; // image to draw
-        this.ctx = ctx
+        this.ctx = ctx;
 
-        this.draw = draw;
-        function draw() {
-          if (this.enabled) {
-            this.ctx.strokeStyle = 'red'
-          } else {
-            this.ctx.strokeStyle = 'black'
-          }
-          this.ctx.strokeRect(x, y, sizeX, sizeY);
-          this.ctx.drawImage(this.image, x, y, sizeX, sizeY);
-        }
-
-        this.checkPressed = checkPressed;
         this.pressed = false;
         this.enabled = true;
-        function checkPressed(contextBlended, transform) {
+      }
+        Button.prototype.CheckPressed = function (contextBlended, transform) {
           // TODO transform x, y, sizeX and sizeY
 			    var blendedData = contextBlended.getImageData(transform.conX(this.x), transform.conY(this.y), transform.conX(this.sizeX), transform.conY(this.sizeY));
 			    var i = 0;
@@ -142,94 +128,72 @@
             } else {
               this.enabled = true;
             }
-            this.draw()
+            this.Draw()
             //method()
           } else {
             this.pressed = false;
           }
         }
-      }
+      
 
-      function videoButton(x, y, sizeX, sizeY, video, ctx) {
-        this.sizeX = sizeX;
-        this.sizeY = sizeY;
+      Button.prototype.Draw = function () {
+          if (this.enabled) {
+            this.ctx.strokeStyle = 'red'
+          } else {
+            this.ctx.strokeStyle = 'black'
+          }
+          this.ctx.strokeRect(this.x, this.y, this.sizeX, this.sizeY);
+          this.ctx.drawImage(this.image, this.x, this.y, this.sizeX, this.sizeY);
+        }
+      var VideoButton = function (x, y, sizeX, sizeY, image, ctx) {
         this.x = x;
         this.y = y;
-        this.method; // method to invoke when pressed
-        this.v = video; // image to draw
-        this.count = 0;
+        this.sizeX = sizeX;
+        this.sizeY = sizeY;
+        this.v = image;
         this.ctx = ctx;
-        this.i; // handle for interval
+        this.method;
 
-        this.draw = draw;
-        function draw() {
-          this.ctx.strokeStyle = 'black';
-          this.ctx.strokeRect(x, y, sizeX, sizeY);
-          if (this.enabled) {
-            this.first++;
-            this.drawMovie()
-            this.i = window.setInterval(this.drawMovie,  40);
-          } else {
-            window.clearInterval(this.i);
-            this.ctx.fillRect(x, y, sizeX, sizeY);
-          }
-        }
+        this.i;
 
-        this.drawMovie = drawMovie;
-        function drawMovie() {
-          this.ctx.drawImage(v, x, y, sizeX, sizeY);
-        }
-
-        this.checkPressed = checkPressed;
         this.pressed = false;
         this.enabled = true;
-        function checkPressed(contextBlended, transform) {
-          // TODO transform x, y, sizeX and sizeY
-			    var blendedData = contextBlended.getImageData(this.x, this.y, this.sizeX, this.sizeY);
-			    var i = 0;
-			    var average = 0;
-			    // loop over the pixels
-			    while (i < (blendedData.data.length * 0.25)) {
-				    // make an average between the color channel
-		        average += (blendedData.data[i*4] + blendedData.data[i*4+1] + blendedData.data[i*4+2]) / 3;
-		        ++i;
-		      }
-			    // calculate an average between of the color values of the note area
-		      average = Math.round(average / (blendedData.data.length * 0.25));
-          // TODO decide open a value
-			    if (average > 10 && !this.pressed) {
-            this.pressed = true;
-            if (this.enabled) {
-              this.enabled = false;
-            } else {
-              this.enabled = true;
-            }
-            this.draw()
-            //method()
-          } else {
-            this.pressed = false;
-          }
-			  }
       }
+      VideoButton.prototype = new Button;
 
+      VideoButton.prototype.Draw = function () {
+          this.ctx.strokeStyle = 'black';
+          this.ctx.strokeRect(this.x, this.y, this.sizeX, this.sizeY);
+          if (this.enabled) {
+            var self = this;
+            this.i = window.setInterval(function () {self.DrawMovie();},  40);
+          } else {
+            window.clearInterval(this.i);
+            this.ctx.fillRect(this.x, this.y, this.sizeX, this.sizeY);
+          }
+        }
+
+        VideoButton.prototype.DrawMovie = function () {
+          this.ctx.drawImage(this.v, this.x, this.y, this.sizeX, this.sizeY);
+        }
 
       function test() {
         alert("test");
       }
       image = document.getElementById("scream");
       v = document.getElementById("video1");
-      var button1 = new button(10, 10, 10, 10, image, ctx);
-      var button2 = new button(20, 20, 100, 100, image, ctx);
-      var buttons = new buttons();
+      var button1 = new Button(10, 10, 10, 10, image, ctx);
+      var button2 = new Button(20, 20, 100, 100, image, ctx);
+      var buttons = new Buttons();
       button1.method = test;
       button2.method = test;
 
-      var button3 = new videoButton(120, 120, 100, 100, v, ctx);
+      var button3 = new VideoButton(120, 120, 100, 100, v, ctx);
 
-      buttons.addButton(button1);
-      buttons.addButton(button2);
-      buttons.addButton(button3);
-      buttons.draw();
+      buttons.AddButton(button1);
+      buttons.AddButton(button2);
+      buttons.AddButton(button3);
+      buttons.Draw();
 
       var video = $('#webcam')[0];
 
@@ -261,7 +225,7 @@
       function update() {
         drawVideo();
         blend();
-        buttons.checkPressed(contextBlended, trans)
+        buttons.CheckPressed(contextBlended, trans)
         timeOut = setTimeout(update, 200);
       }
 
