@@ -36,11 +36,17 @@ Lobby.prototype.load = function() {
 	socket.on('close', function() {
 		self.onSocketClose();
 	});
-	socket.on(API_SET_NAME, function(userName) {
+	socket.on(API_NAME_SET, function(userName) {
 		$('#display_user_name').text(userName);
 	});
 	socket.on(API_LIST, function(rooms, users) {
 		self.onLobbyLoad(rooms, users);
+	});
+	socket.on(API_USER_ENTER, function(userId, userName, roomId) {
+		self.onUserEnter(userId, userName, roomId);
+	});
+	socket.on(API_USER_LEAVE, function(userId) {
+		self.onUserLeave(userId);
 	});
 
 	$('#room_table tfoot').hide();
@@ -199,7 +205,7 @@ Lobby.prototype.changeOwnName = function(newName) {
 		this.ownName = newName;
 		$('#display_user_name').text(this.ownName);
 
-		socket.send(API_SET_NAME, JSON.stringify({
+		socket.send(API_NAME_SET, JSON.stringify({
 			name : this.ownName
 		}));
 	}

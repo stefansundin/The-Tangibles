@@ -3,6 +3,18 @@
 var WebSocketServer = require('websocket').server;
 var http = require('http')
 
+
+/*
+ * TODO: 
+ * 		calls: timer for timeout 
+ * 
+ * 		enter rooms: when a user enters lobbyn at a later time, the list is incomplete. < Needs test
+ * 
+ * 
+ * 
+ */
+
+
 // # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 // Constants
 // # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -35,8 +47,10 @@ var API_MESSAGE_BROADCAST = "msgbroadcast";
 var API_CORNERS = "corners";
 var API_CORNERS_BROADCAST = "cornersbroadcast";
 
-var API_SET_NAME = "setname";
+var API_NAME_SET = "setname";
+var API_NAME_CHANGE = "changename";
 
+var API_ECHO = "echo";
 
 var ROOM_PUBLIC = "public";
 var ROOM_PRIVATE = "private";
@@ -90,6 +104,7 @@ function addCallbacks(event_name, callback) {
 
 function fire(event_name, client, message) {
 	console.log((new Date()) + " Firing: " + event_name);
+	console.log((new Date()) + " Message: " + message);
 	var chain = callbacks[event_name];
 	if (typeof chain == 'undefined') 
 		return; // no callbacks for this event
@@ -208,7 +223,8 @@ function connectionClosed(connection){
 			id: user.id
 		});
 		
-		sendMessageToRoom(user.id, user.roomId, API_USER_LEAVE, data);
+		//sendMessageToRoom(user.id, user.roomId, API_USER_LEAVE, data);
+		sendMessageToAll(API_USER_LEAVE, data);
 		
 		if (user.inCall){
 			sendMessageToRoom(user.id, user.roomId, API_INVITE_LEAVE, data);	
@@ -261,6 +277,20 @@ function sendMessageToRoom(userId, roomId, event_name, event_data){
 	};
 }
 
+function sendMessageToAllButSelf(id,event_name, event_data){
+	for(var i=0,j=lUsers.length; i<j; i++){
+		if (lUsers[i].id != id){
+			sendMessage(lUsers[i].socket, event_name, event_data);	
+		}
+	};
+}
+
+function sendMessageToAll(event_name, event_data){
+	for(var i=0,j=lUsers.length; i<j; i++){
+		sendMessage(lUsers[i].socket, event_name, event_data);	
+	};
+}
+
 // # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 // Handle message
 // # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -274,30 +304,38 @@ function sendMessageToRoom(userId, roomId, event_name, event_data){
  * @param name
  *  	New name
  */
-addCallbacks(API_SET_NAME, function (con, name){
-	
-	console.log("Name: " + name);
-	
+addCallbacks(API_NAME_SET, function (con, name){
 	var user = getUserBySocket(con);
 	var room = getRoomById(user.roomId);
 	
+	var oldName = user.name;
+	
+	user.setName(name); // Changing the room to looby also
+	
 	var data = JSON.stringify({
-		name: user.name
+		name: user.name,
 	}); 
 	
-	if (user.name != "" && user.roomId != -1) {
-		sendMessageToRoom(user.id, user.roomId, API_USER_LEAVE, data);	
+	sendMessage(con, API_NAME_SET, data);	
+	
+	if (oldName == ""){
+		var data = JSON.stringify({
+			id: user.id,
+			name: user.name,
+			roomId: user.roomId
+		}); 
+		//sendMessageToAllButSelf(user.id, API_USER_ENTER, data);
+		sendMessageToAll(API_USER_ENTER, data);
+	} else {
+		var data = JSON.stringify({
+			id: user.id,
+			name: user.name
+		}); 
+		//sendMessageToAllButSelf(user.id, API_NAME_CHANGE, data);
+		sendMessageToAll(API_NAME_CHANGE, data);
 	}
 	
-	user.setName(name);
-	
-	var data = JSON.stringify({
-		name: user.name
-	});
-	
-	sendMessageToRoom(user.id, user.roomId, API_USER_ENTER, data);	
 });
-
 
 /**
  * Request a list of all rooms and users. 
@@ -342,20 +380,29 @@ addCallbacks(API_USER_CHANGE, function(con, newRoomId){
 	var room = getRoomById(user.roomId);
 	
 	var data = JSON.stringify({
-		name: user.name
+		id: user.id
 	}); 
 	
 	if (user.name != "" && user.roomId != -1) {
-		sendMessageToRoom(user.id, user.roomId, API_USER_LEAVE, data);
+		//sendMessageToRoom(user.id, user.roomId, API_USER_LEAVE, data);
+		sendMessageToAll(API_USER_LEAVE, data);
 		
 		if (user.inCall){
 			sendMessageToRoom(user.id, user.roomId, API_INVITE_LEAVE, data);	
 		}
 	}
+	user.roomId = newRoomId;
 	
-	sendMessageToRoom(user.id, newRoomId, API_USER_ENTER, data);
+	var data = JSON.stringify({
+		id: user.id,
+		name: user.name,
+		roomId: user.roomId
+	}); 
 	
-	user.roomId = getRoomById(newRoomId);
+	//sendMessageToRoom(user.id, newRoomId, API_USER_ENTER, data);
+	sendMessageToAll(API_USER_ENTER, data);
+	
+	
 	
 });
 
@@ -452,7 +499,20 @@ addCallbacks(API_INVITE_SEND, function(con, recipientId, roomId){
 	var recipient = getUserById(recipientId);
 	var room = getRoomById(roomId);
 		
+		
 	var call = createNewCall(caller, recipient, room);
+	
+	console.log("########");
+	
+	
+	console.log("# Room:");
+	console.log(room);
+	
+	console.log("########");
+
+	if (caller == null || recipient == null || room == null){
+		return;
+	}
 	
 	var data = JSON.stringify({
 		name: caller.name,
@@ -480,6 +540,37 @@ addCallbacks(API_INVITE_ANSWER, function(con, callId, answer){
 	sendMessage(call.caller.socket, API_INVITE_ANSWER, data);
 });
 
+
+addCallbacks(API_ROOM_NEW, function(con, name, type){
+	var roomId = createNewRoom(name, type);
+	
+	var data = JSON.stringify({
+		id: roomId,
+		name: name
+	});
+	
+	sendMessageToAll(API_ROOM_NEW, data);
+});
+
+addCallbacks(API_ROOM_REMOVE, function(con, id){
+	removeRoomById(id);
+	
+	var data = JSON.stringify({
+		id: id
+	});
+	
+	sendMessageToAll(API_ROOM_REMOVE, data);
+});
+
+
+addCallbacks(API_ECHO, function(con, message){
+	
+	var data = JSON.stringify({
+		msg: message
+	});
+	
+	sendMessage(con, API_ECHO, data);
+});
 
 /*
 addCallbacks(, function(con, ){
@@ -836,13 +927,15 @@ function obj_call(caller, called, roomId){
 
 
 function createNewRoom(name, typeS){
-	lRooms.push(new obj_room(name, typeS));
+	var room = new obj_room(name, typeS);
+	lRooms.push(room);
+	return room.id;
 }
 
-function removeRoomByName(name){
-	var room = getRoomByName(name);
-	if (rooms.id != 0) {
-		lRooms.remove(lRooms);	
+function removeRoomById(id){
+	if (id != 0) {
+		var room = getRoomById(id);
+		lRooms.remove(room);	
 	}
 }
 

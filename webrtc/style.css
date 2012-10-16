@@ -1,7 +1,22 @@
 
 #main {
+  float: bottom;
 	width: 60%;
 	margin: 0 auto;
+  height: 90 %;
+}
+
+html {
+	height: 100%;
+	width: 100%;
+}
+
+body {
+	margin: 0;
+	padding: 0;
+	overflow-y: hidden;
+	height: 100%;
+	width: 100%;
 }
 
 .ui-widget {
@@ -18,10 +33,30 @@ label,input {
 }
 
 #top {
-	position: absolute;
+	float: top;
 	top: 0;
 	right: 0;
-	padding: 10px;
+	height: 10%;
+}
+
+#roomMain {
+	padding: 0;
+	float: bottom;
+	margin: 0;
+	background-color: yellow;
+	display: none;
+	height: 90%;
+	width: 100%;
+}
+
+#roomFrame {
+	float: bottom;
+	background-color: red;
+	height: 90%;
+	width: 100%;
+	framespacing: 0;
+	border: 0;
+	frameborder: 0;
 }
 
 #display_user_name {

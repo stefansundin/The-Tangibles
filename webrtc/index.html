@@ -15,6 +15,8 @@
 
 </head>
 <body>
+
+  <!-- Popup dialogs-->
 	<div id="dialog_error" title="Error">
 		<div class="ui-state-error ui-corner-all" style="padding: 0 .7em;">
 			<p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>
@@ -30,11 +32,13 @@
 		<input type="text" name="room_name" id="room_name" class="text ui-widget-content ui-corner-all" />
 	</div>
 	
+  <!-- Header div-->
 	<div id="top">
 		<div id="display_user_name"></div>
 		<button id="change_user_name">Change user name</button>
 	</div>
-
+  
+  <!-- Lobby div -->
 	<div id="main">
 		<h1>Lobby</h1>
 		<table id="room_table">
@@ -57,12 +61,12 @@
 				</tr>
 			</tfoot>
 		</table>
-    
-		
 		<div id="call_list"></div>
 	</div>
-  <div id="roomMain" style="display:none;height:100%;width:100%;">
-    <iframe id ="roomFrame" framespacing="0" border="0" frameborder="0" scrolling="no" width = "100%" src="about:blank" style="height:100%;" ></iframe>
-  </div
+  
+  <!-- Room div -->
+  <div id="roomMain">
+    <iframe id="roomFrame" src="about:blank" scrolling="no"></iframe>
+  </div>
 </body>
 </html>

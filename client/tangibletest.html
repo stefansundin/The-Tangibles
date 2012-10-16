@@ -4,10 +4,10 @@
 	<title>Test page Tangibles</title>
 	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
 	<script type="text/javascript" src="/client/js/tangibles.js"></script>
+	<script type="text/javascript" src="/webrtc/socket.js"></script>
 	<script type="text/javascript">
 	$(document).ready(function() {
-		//register();
-		tangibles = new Tangibles();
+		tangibles = new Tangibles(new Socket('ws://130.240.6.191:12345'));
 	});
 	</script>
 	
@@ -22,7 +22,7 @@
 	<p>Status: <input type="text" id="status" readonly /></p>
 	
 	<p id="sifteo_stuff" disabled>
-		<button onclick="tangibles.showPicture(devices[0],'http://cdn.ghacks.net/wp-content/themes/magatheme/img/mozilla-firefox.png');">Show picture (remote)</button>
+		<button onclick="tangibles.showPicture(tangibles.devices[0],'http://cdn.ghacks.net/wp-content/themes/magatheme/img/mozilla-firefox.png');">Show picture (remote)</button>
 		<button onclick="tangibles.showPicture(tangibles.devices[0],'http://localhost/mozilla-firefox.png');">Show picture (local)</button>
 		<button onclick="tangibles.showText(tangibles.devices[0],'Test text','0000ff');">Show text</button>
 		<button onclick="tangibles.setColor(tangibles.devices[0],'0000ff');">Set color to blue</button>
