@@ -8,7 +8,7 @@ var http = require('http')
  * TODO: 
  * 		calls: timer for timeout 
  * 
- * 		enter rooms: when a user enters lobbyn at a later time, the list is incomplete.
+ * 		enter rooms: when a user enters lobbyn at a later time, the list is incomplete. < Needs test
  * 
  * 
  * 
@@ -307,6 +307,8 @@ addCallbacks(API_NAME_SET, function (con, name){
 	var user = getUserBySocket(con);
 	var room = getRoomById(user.roomId);
 	
+	var oldName = user.name;
+	
 	user.setName(name);
 	
 	var data = JSON.stringify({
@@ -315,13 +317,21 @@ addCallbacks(API_NAME_SET, function (con, name){
 	
 	sendMessage(con, API_NAME_SET, data);	
 	
+	if (oldName == ""){
+		var data = JSON.stringify({
+			id: user.id,
+			name: user.name,
+			roomId: user.roomId
+		}); 
+		sendMessageToAllButSelf(user.id, API_USER_ENTER, data);
+	} else {
+		var data = JSON.stringify({
+			id: user.id,
+			name: user.name
+		}); 
+		sendMessageToAllButSelf(user.id, API_NAME_CHANGE, data);
+	}
 	
-	var data = JSON.stringify({
-		id: user.id,
-		name: user.name,
-	}); 
-	
-	sendMessageToAllButSelf(user.id, API_NAME_CHANGE, data);	
 });
 
 /**
@@ -527,6 +537,27 @@ addCallbacks(API_INVITE_ANSWER, function(con, callId, answer){
 	sendMessage(call.caller.socket, API_INVITE_ANSWER, data);
 });
 
+
+addCallbacks(API_ROOM_NEW, function(con, name, type){
+	var roomId = createNewRoom(name, type);
+	
+	var data = JSON.stringify({
+		id: roomId,
+		name: name
+	});
+	
+	sendMessageToAll(API_ROOM_NEW, data);
+});
+
+addCallbacks(API_ROOM_REMOVE, function(con, id){
+	removeRoomById(id);
+	
+	var data = JSON.stringify({
+		id: id
+	});
+	
+	sendMessageToAll(API_ROOM_REMOVE, data);
+});
 
 /*
 addCallbacks(, function(con, ){
@@ -883,13 +914,15 @@ function obj_call(caller, called, roomId){
 
 
 function createNewRoom(name, typeS){
-	lRooms.push(new obj_room(name, typeS));
+	var room = new obj_room(name, typeS);
+	lRooms.push(room);
+	return room.id;
 }
 
-function removeRoomByName(name){
-	var room = getRoomByName(name);
-	if (rooms.id != 0) {
-		lRooms.remove(lRooms);	
+function removeRoomById(id){
+	if (id != 0) {
+		var room = getRoomById(id);
+		lRooms.remove(room);	
 	}
 }
 
