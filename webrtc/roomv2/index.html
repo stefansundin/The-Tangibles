@@ -20,7 +20,7 @@
       var videos = [];
       var rooms = [1,2,3,4,5];
       var PeerConnection = window.PeerConnection || window.webkitPeerConnection00;
-      var username = parent.user_name;
+      var user_name = parent.user_name;
       
       // State variable used to keep track of what to show.
       var state = "lobby";
@@ -163,11 +163,10 @@
 	  function initLeaveRoom() {
 	    var leaveButton = document.getElementById("leaveRoom");
 		leaveButton.addEventListener('click', function(event) {
-		  writeMessageToChat("Someone left the room.");
+		  writeMessageToChat(user_name + " left the room.");
       console.log('Left the room');
       parent.leaveRoom();
-      //leaveTheRoom();
-      //window.location="http://localhost:8000"
+      
 		})
 	  }
 	  
