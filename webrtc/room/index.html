@@ -256,7 +256,8 @@
       console.log($(window.parent.document).find("#roomMain"));
       if ($(window.parent.document).find("#roomMain").length == 0) {
         console.log("Attempted to access this page without going through the lobby.");
-        window.location.replace("http://www.youtube.com/watch?v=_1mB5rM8WHU");
+        //window.location.replace("http://www.youtube.com/watch?v=_1mB5rM8WHU");
+        initRoom();
       } else {
         initRoom();
       }
