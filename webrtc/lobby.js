@@ -5,6 +5,12 @@ $(function() {
 	lobby.load();
 });
 
+function assert(exp, message) {
+	if (!exp) {
+		console.error(message);
+	}
+}
+
 function Lobby() {
 	this.AUTO_DECLINE_TIME = 60;
 	this.rooms = []; // [id, name, desc, type]
@@ -18,10 +24,10 @@ function Lobby() {
  * @param text
  *            The text to display.
  */
-function showError(text) {
+Lobby.prototype.showError = function(text) {
 	$('#dialog_error_text').text(text);
 	$('#dialog_error').dialog('open');
-}
+};
 
 /**
  * Called when the page is loaded.
@@ -154,7 +160,7 @@ Lobby.prototype.onSocketClose = function() {
 	$('#room_table tbody').empty();
 	$('#room_table tfoot').show();
 
-	showError('Lost server connection...');
+	this.showError('Lost server connection...');
 };
 
 /**
@@ -619,12 +625,6 @@ Lobby.prototype.onAutoDeclineTimer = function(callId, timeLeft) {
 		}
 	}
 };
-
-function assert(exp, message) {
-	if (!exp) {
-		console.error(message);
-	}
-}
 
 /**
  * A test function which runs various functions in the lobby.
