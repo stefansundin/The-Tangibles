@@ -5,8 +5,15 @@ $(function() {
 	lobby.load();
 });
 
+function assert(exp, message) {
+	if (!exp) {
+		console.error(message);
+	}
+}
+
 function Lobby() {
 	this.AUTO_DECLINE_TIME = 60;
+	this.lobbyId = 0; // Special room id for the lobby
 	this.rooms = []; // [id, name, desc, type]
 	this.users = []; // [id, name, room_id]
 	this.ownName = 'User#' + Math.floor((Math.random() * 999) + 1);
@@ -18,10 +25,10 @@ function Lobby() {
  * @param text
  *            The text to display.
  */
-function showError(text) {
+Lobby.prototype.showError = function(text) {
 	$('#dialog_error_text').text(text);
 	$('#dialog_error').dialog('open');
-}
+};
 
 /**
  * Called when the page is loaded.
@@ -47,6 +54,9 @@ Lobby.prototype.load = function() {
 	});
 	socket.on(API_USER_LEAVE, function(userId) {
 		self.onUserLeave(userId);
+	});
+	socket.on(API_NAME_CHANGE, function(userId, userName) {
+		self.onUserChangeName(userId, userName);
 	});
 
 	$('#room_table tfoot').hide();
@@ -154,7 +164,7 @@ Lobby.prototype.onSocketClose = function() {
 	$('#room_table tbody').empty();
 	$('#room_table tfoot').show();
 
-	showError('Lost server connection...');
+	this.showError('Lost server connection...');
 };
 
 /**
@@ -274,6 +284,10 @@ Lobby.prototype.onRoomCreated = function(roomId) {
  *            ID of the room
  */
 Lobby.prototype.enterRoom = function(roomId) {
+	socket.send(API_USER_CHANGE, JSON.stringify({
+		id : roomId
+	}));
+
 	$('#main').hide();
 	$('#roomMain').show();
 	$('#roomFrame').attr('src', 'room/#' + roomId);
@@ -283,6 +297,10 @@ Lobby.prototype.enterRoom = function(roomId) {
  * Is called by the room frame content when it wants to close the room.
  */
 Lobby.prototype.leaveRoom = function() {
+	socket.send(API_USER_CHANGE, JSON.stringify({
+		id : this.lobbyId
+	}));
+
 	$('#roomFrame').attr('src', 'about:blank');
 	$('#main').show();
 	$('#roomMain').hide();
@@ -604,7 +622,7 @@ Lobby.prototype.decline = function(callId) {
 Lobby.prototype.onAutoDeclineTimer = function(callId, timeLeft) {
 	if ($('#call_timer_' + callId).length != 0) {
 		// Might have been manually declined
-		newTimeLeft = timeLeft - 1;
+		var newTimeLeft = timeLeft - 1;
 		if (newTimeLeft <= 0) { // Time is up, decline
 			this.decline(callId);
 		} else {
@@ -619,12 +637,6 @@ Lobby.prototype.onAutoDeclineTimer = function(callId, timeLeft) {
 		}
 	}
 };
-
-function assert(exp, message) {
-	if (!exp) {
-		console.error(message);
-	}
-}
 
 /**
  * A test function which runs various functions in the lobby.

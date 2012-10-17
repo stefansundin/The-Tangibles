@@ -2,6 +2,7 @@
   <head>
     <title>test</title>
     <script src="jquery.js"></script>
+    <script src="buttons.js"></script>
   </head>
 
   <body>
@@ -22,7 +23,6 @@
       } else if (navigator.webkitGetUserMedia) {
         navigator.webkitGetUserMedia({audio: true, video: true}, function(stream) {
           video.src = window.webkitURL.createObjectURL(stream);
-          initialize();
         }, webcamError);
       } else {
         //video.src = 'somevideo.webm'; // fallback.
@@ -42,140 +42,6 @@
       var ctx = canvas.getContext("2d");
       ctx.fillStyle = "#FF0000";
       //ctx.fillRect(0, 0, 150, 75);
-
-      function transform(pWidth, pHeight, cWidth, cHeight) {
-        // maybe the other way around
-        kx = pWidth/cWidth;
-        ky = pHeight/cHeight;
-
-        this.conX = conX;
-        function conX(x) {
-          return 1;
-         a = Math.round(x*kx);
-         if (a < 1)
-           return 1;
-         else
-           return a;
-        }
-
-        this.conY = conY;
-        function conY(y) {
-          return 1;
-         a = Math.round(y*ky);
-         if (a < 1)
-           return 1;
-         else
-           return a;
-        }
-
-      }
-
-      var Buttons = function () {
-        var listOfButtons = [];
-
-        this.AddButton = function (button) {
-          listOfButtons.push(button)
-        }
-
-        //this.deleteButton = deleteButton;
-        //function deleteButton(button) {
-        //  
-        //}
-
-        this.Draw = function () {
-          for (i in listOfButtons) {
-            listOfButtons[i].Draw();
-          }
-        }
-
-        this.CheckPressed = function (contextBlended, transform) {
-          for (i in listOfButtons) {
-            listOfButtons[i].CheckPressed(contextBlended, transform);
-          }
-        }
-      }
-
-      var Button = function (x, y, sizeX, sizeY, image, ctx) {
-        this.sizeX = sizeX;
-        this.sizeY = sizeY;
-        this.x = x;
-        this.y = y;
-        this.method; // method to invoke when pressed
-        this.image = image; // image to draw
-        this.ctx = ctx;
-
-        this.pressed = false;
-        this.enabled = true;
-      }
-        Button.prototype.CheckPressed = function (contextBlended, transform) {
-          // TODO transform x, y, sizeX and sizeY
-			    var blendedData = contextBlended.getImageData(transform.conX(this.x), transform.conY(this.y), transform.conX(this.sizeX), transform.conY(this.sizeY));
-			    var i = 0;
-			    var average = 0;
-			    // loop over the pixels
-			    while (i < (blendedData.data.length * 0.25)) {
-				    // make an average between the color channel
-		        average += (blendedData.data[i*4] + blendedData.data[i*4+1] + blendedData.data[i*4+2]) / 3;
-		        ++i;
-		      }
-			    // calculate an average between of the color values of the note area
-		      average = Math.round(average / (blendedData.data.length * 0.25));
-          // TODO decide open a value
-			    if (average > 10 && !this.pressed) {
-            this.pressed = true;
-            if (this.enabled) {
-              this.enabled = false;
-            } else {
-              this.enabled = true;
-            }
-            this.Draw()
-            //method()
-          } else {
-            this.pressed = false;
-          }
-        }
-      
-
-      Button.prototype.Draw = function () {
-          if (this.enabled) {
-            this.ctx.strokeStyle = 'red'
-          } else {
-            this.ctx.strokeStyle = 'black'
-          }
-          this.ctx.strokeRect(this.x, this.y, this.sizeX, this.sizeY);
-          this.ctx.drawImage(this.image, this.x, this.y, this.sizeX, this.sizeY);
-        }
-      var VideoButton = function (x, y, sizeX, sizeY, image, ctx) {
-        this.x = x;
-        this.y = y;
-        this.sizeX = sizeX;
-        this.sizeY = sizeY;
-        this.v = image;
-        this.ctx = ctx;
-        this.method;
-
-        this.i;
-
-        this.pressed = false;
-        this.enabled = true;
-      }
-      VideoButton.prototype = new Button;
-
-      VideoButton.prototype.Draw = function () {
-          this.ctx.strokeStyle = 'black';
-          this.ctx.strokeRect(this.x, this.y, this.sizeX, this.sizeY);
-          if (this.enabled) {
-            var self = this;
-            this.i = window.setInterval(function () {self.DrawMovie();},  40);
-          } else {
-            window.clearInterval(this.i);
-            this.ctx.fillRect(this.x, this.y, this.sizeX, this.sizeY);
-          }
-        }
-
-        VideoButton.prototype.DrawMovie = function () {
-          this.ctx.drawImage(this.v, this.x, this.y, this.sizeX, this.sizeY);
-        }
 
       function test() {
         alert("test");
@@ -203,79 +69,12 @@
 
       var contextSource = canvasSource.getContext('2d');
       var contextBlended = canvasBlended.getContext('2d');
+      buttons.Start(video, contextSource, contextBlended);
+      $(canvasSource).hide();
+      $(video).hide();
 
       //contextSource.translate(canvasSource.width, 0);
       //contextSource.scale(-1, 1);
-
-      trans = new transform(document.body.clientWidth, document.body.clientHeight, contextSource.width, contextSource.height)
-      //trans = new transform(document.body.clientWidth, document.body.clientHeight, document.body.clientWidth, document.body.clientHeight);
-      start()
-
-      function initialize() {
-        start()
-      }
-       
-      function start() {
-        $(canvasSource).hide();
-        $(canvasBlended).show();
-        $(video).hide();
-        update();
-      }
-
-      function update() {
-        drawVideo();
-        blend();
-        buttons.CheckPressed(contextBlended, trans)
-        timeOut = setTimeout(update, 200);
-      }
-
-      function drawVideo() {
-        contextSource.drawImage(video, 0, 0, video.width, video.height);
-      }
-
-      function blend() {
-        var width = canvasSource.width;
-        var height = canvasSource.height;
-        // get webcam image data
-        var sourceData = contextSource.getImageData(0, 0, width, height);
-        // create an image if the previous image doesn’t exist
-        if (!lastImageData) lastImageData = contextSource.getImageData(0, 0, width, height);
-        // create a ImageData instance to receive the blended result
-        var blendedData = contextSource.createImageData(width, height);
-        // blend the 2 images
-        differenceAccuracy(blendedData.data, sourceData.data, lastImageData.data);
-        // draw the result in a canvas
-        contextBlended.putImageData(blendedData, 0, 0);
-        // store the current webcam image
-        lastImageData = sourceData;
-      }
-
-      function fastAbs(value) {
-        // funky bitwise, equal Math.abs
-        return (value ^ (value >> 31)) - (value >> 31);
-      }
-
-      function threshold(value) {
-        // TODO change accordingly
-        return (value > 0x1F) ? 0xFF : 0;
-      }
-
-    function differenceAccuracy(target, data1, data2) {
-      if (data1.length != data2.length) return null;
-      var i = 0;
-      while (i < (data1.length * 0.25)) {
-        var average1 = (data1[4*i] + data1[4*i+1] + data1[4*i+2]) / 3;
-        var average2 = (data2[4*i] + data2[4*i+1] + data2[4*i+2]) / 3;
-        var diff = threshold(fastAbs(average1 - average2));
-        target[4*i] = diff;
-        target[4*i+1] = diff;
-        target[4*i+2] = diff;
-        target[4*i+3] = 0xFF;
-        ++i;
-      }
-    }
-
-
 </script>
 
 
