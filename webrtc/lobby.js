@@ -64,6 +64,14 @@ Lobby.prototype.load = function() {
 	socket.on(API_INVITE_ACCEPTED, function(roomId) {
 		self.onCallAccepted(roomId);
 	});
+	socket.on(API_ROOM_NEW, function(roomId, roomName, roomDesc, roomType) {
+		self.onRoomAdd(roomId, roomName, roomDesc, roomType);
+	});
+	socket.on(API_ROOM_REMOVE, function(roomId) {
+		self.onRoomDelete(roomId);
+	});
+
+	// TODO this.onRoomCreated('random_text');
 
 	$('#room_table tfoot').hide();
 
@@ -267,8 +275,10 @@ Lobby.prototype.onCreateRoom = function(roomName) {
 	console.log('onCreateRoom: ' + roomName);
 
 	if (roomName != '') {
-		// TODO Create room
-		this.onRoomCreated('random_text');
+		socket.on(API_ROOM_NEW, JSON.stringify({
+			name : roomName,
+			type : "public" // TODO Fix types
+		}));
 	}
 };
 
