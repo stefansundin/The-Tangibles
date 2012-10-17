@@ -1,36 +1,9 @@
 /*
-	this should later be removed
-*/
-function transform(pWidth, pHeight, cWidth, cHeight) {
-	// maybe the other way around
-	kx = pWidth/cWidth;
-	ky = pHeight/cHeight;
-
-	this.conX = conX;
-	function conX(x) {
-		a = Math.round(x*kx);
-		if (a < 1)
-			return 1;
-		else
-			return a;
-	}
-
-	this.conY = conY;
-	function conY(y) {
-		a = Math.round(y*ky);
-		if (a < 1)
-			return 1;
-		else
-			return a;
-	}
-
-}
-
-/*
 	Contanier class for handling all the buttons
 */
-var Buttons = function () {
+var Buttons = function (transform) {
 	var listOfButtons = [];
+	var trans = transform;
 
 	this.AddButton = function (button) {
 		listOfButtons.push(button)
@@ -47,9 +20,9 @@ var Buttons = function () {
 		}
 	}
 
-	this.CheckPressed = function (contextBlended, transform) {
+	this.CheckPressed = function (contextBlended) {
 		for (i in listOfButtons) {
-			listOfButtons[i].CheckPressed(contextBlended, transform);
+			listOfButtons[i].CheckPressed(contextBlended, this.transform);
 		}
 	}
 
@@ -57,9 +30,7 @@ var Buttons = function () {
 		this.video = video;
 		this.contextSource = contextSource;
 		this.contextBlended = contextBlended;
-		//this.trans = new transform(document.body.clientWidth, document.body.clientHeight, contextSource.width, contextSource.height)
-		this.trans = new transform(document.body.clientWidth, document.body.clientHeight, document.body.clientWidth, document.body.clientHeight)
-			this.update();
+		this.update();
 
 	}
 
@@ -67,8 +38,8 @@ var Buttons = function () {
 		this.drawVideo();
 		this.blend();
 
-		this.CheckPressed(this.contextBlended, this.trans)
-			self = this;
+		this.CheckPressed(this.contextBlended)
+		self = this;
 		this.timeOut = setTimeout(function () {self.update()}, 200);
 	}
 
@@ -123,6 +94,13 @@ var Buttons = function () {
 	Class for a simple button with an image
 */
 var Button = function (x, y, sizeX, sizeY, image, ctx) {
+	this.p1 = new Object();
+	this.p1.x = x;
+	this.p1.y = y;
+	this.p4 = new Object();
+	this.p4.x = x + sizeX;
+	this.p4.y = y + sizeY;
+
 	this.sizeX = sizeX;
 	this.sizeY = sizeY;
 	this.x = x;
@@ -135,8 +113,10 @@ var Button = function (x, y, sizeX, sizeY, image, ctx) {
 	this.enabled = true;
 }
 Button.prototype.CheckPressed = function (contextBlended, transform) {
-	// TODO transform x, y, sizeX and sizeY
-	var blendedData = contextBlended.getImageData(transform.conX(this.x), transform.conY(this.y), transform.conX(this.sizeX), transform.conY(this.sizeY));
+	var p1 = transform.transformPoint(this.p1);
+	var p4 = transform.transformPoint(this.p4);
+
+	var blendedData = contextBlended.getImageData(p1.x, p1.y, p4.x-p1.x, p4.y-p1.y);
 	var i = 0;
 	var average = 0;
 	// loop over the pixels
@@ -156,7 +136,7 @@ Button.prototype.CheckPressed = function (contextBlended, transform) {
 			this.enabled = true;
 		}
 		this.Draw()
-			//method()
+		//method()
 	} else {
 		this.pressed = false;
 	}
