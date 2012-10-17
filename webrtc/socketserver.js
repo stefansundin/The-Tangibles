@@ -510,7 +510,7 @@ function socketserver(){
 		var room = getRoomById(roomId);
 			
 			
-		var call = createNewCall(caller, recipient, room);
+		var call = createNewCall(caller, recipient, roomId);
 		
 		console.log("########");
 		
