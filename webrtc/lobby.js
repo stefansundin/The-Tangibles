@@ -58,6 +58,12 @@ Lobby.prototype.load = function() {
 	socket.on(API_NAME_CHANGE, function(userId, userName) {
 		self.onUserChangeName(userId, userName);
 	});
+	socket.on(API_INVITE_SEND, function(userName, roomName, callId) {
+		self.onIncomingCall(userName, roomName, callId);
+	});
+	socket.on(API_INVITE_ACCEPTED, function(roomId) {
+		self.onCallAccepted(roomId);
+	});
 
 	$('#room_table tfoot').hide();
 
@@ -567,8 +573,13 @@ Lobby.prototype.accept = function(callId) {
 
 	if ($('#call_' + callId).length != 0) { // Extra check
 		$('#call_timer_' + callId).text('');
-		// TODO Accept
-		this.onCallAccepted('random_text');
+
+		// send answer
+		socket.send(API_INVITE_ANSWER, JSON.stringify({
+			callId : callId,
+			answer : "yes"
+		}));
+
 		$('#call_' + callId).removeAttr('id').hide({
 			effect : 'drop',
 			complete : function() {
@@ -600,7 +611,13 @@ Lobby.prototype.decline = function(callId) {
 
 	if ($('#call_' + callId).length != 0) { // Extra check
 		$('#call_timer_' + callId).text('');
-		// TODO Decline
+
+		// send answer
+		socket.send(API_INVITE_ANSWER, JSON.stringify({
+			callId : callId,
+			answer : "no"
+		}));
+
 		$('#call_' + callId).removeAttr('id').hide({
 			effect : 'drop',
 			complete : function() {
