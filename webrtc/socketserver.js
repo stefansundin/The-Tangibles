@@ -42,7 +42,8 @@ function socketserver(){
 	var API_INVITE_SEND = "invitesend";
 	var API_INVITE_ANSWER = "inviteanswer";
 	var API_INVITE_LEAVE = "inviteleave";
-	var API_INVIE_TIMEOUT = "invitetimeout";
+	var API_INVITE_TIMEOUT = "invitetimeout";
+	var API_INVITE_ACCEPTED = "inviteroom";
 	
 	var API_MESSAGE = "msg";
 	var API_MESSAGE_BROADCAST = "msgbroadcast";
@@ -245,7 +246,8 @@ function socketserver(){
 			// if (roomOld.users[i] != null) {
 				// sendMessage(roomOld.users[i].socket, API_USER_LEAVE, name);	
 			// }
-		// }	
+		// }
+	
 	}
 	
 	/**
@@ -360,7 +362,8 @@ function socketserver(){
 			if (u.roomId != -1 && u.name != "") {
 				listUsers.push([u.id, u.name, u.roomId]);	
 			}
-		};	
+		};
+	
 		var data = JSON.stringify({
 			rooms: listRooms,
 			users: listUsers
@@ -535,12 +538,24 @@ function socketserver(){
 			answer: answer
 		});
 		
+		sendMessage(call.caller.socket, API_INVITE_ANSWER, data);
+		
 		if (answer == "yes") {
 			call.caller.inCall = true;
 			call.called.inCall = true;
+			
+			var data = JSON.stringify({
+				roomId: call.roomId 
+			}); 
+			
+			sendMessage(call.caller.socket, API_INVITE_ROOM, data);
+			
 		}
 		
-		sendMessage(call.caller.socket, API_INVITE_ANSWER, data);
+		
+		
+		
+		
 	});
 	
 	
@@ -816,7 +831,8 @@ function socketserver(){
 				// }
 			// };
 		// }
-	// });	
+	// });
+	
 	
 	// # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 	// Startup
@@ -828,7 +844,8 @@ function socketserver(){
 	
 		// Create some public test rooms
 		createNewRoom("Paris", ROOM_PUBLIC);
-		createNewRoom("Berlin", ROOM_PUBLIC);		}
+		createNewRoom("Berlin", ROOM_PUBLIC);	
+	}
 	
 	
 	// # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -921,7 +938,8 @@ function socketserver(){
 		// this.getName = function(){
 			// return name;
 		// }
-	// }	
+	// }
+	
 	
 	
 	// # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -1035,7 +1053,8 @@ function socketserver(){
 	// 
 	// 
 	// 
-	// }	
+	// }
+	
 	
 	// # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 	// User logic
