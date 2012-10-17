@@ -585,6 +585,8 @@ function socketserver(){
 			name: name
 		});
 		
+		//TODO: Callback to creator (if want to go into room directly)
+		
 		sendMessageToAll(API_ROOM_NEW, data);
 	});
 	
