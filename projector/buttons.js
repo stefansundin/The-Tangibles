@@ -136,7 +136,8 @@ Button.prototype.CheckPressed = function (contextBlended, transform) {
 			this.enabled = true;
 		}
 		this.Draw()
-		//method()
+		if (!!(method && method.constructor && method.call && method.apply))
+			method()
 	} else {
 		this.pressed = false;
 	}
