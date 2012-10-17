@@ -548,7 +548,7 @@ function socketserver(){
 				roomId: call.roomId 
 			}); 
 			
-			sendMessage(call.caller.socket, API_INVITE_ACCEPTED, data);
+			sendMessage(call.called.socket, API_INVITE_ACCEPTED, data);
 			
 		}
 		

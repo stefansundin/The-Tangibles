@@ -7,8 +7,8 @@ var server = http.createServer(function(request, response) {
     response.writeHead(404);
     response.end();
 });
-server.listen(12345, function() {
-    console.log((new Date()) + ' Server is listening on port 12345');
+server.listen(33333, function() {
+    console.log((new Date()) + ' Server is listening on port 33333');
 });
 
 wsServer = new WebSocketServer({
@@ -34,7 +34,7 @@ wsServer.on('request', function(request) {
       return;
     }
 
-    var connection = request.accept('echo-protocol', request.origin);
+    var connection = request.accept('tangibles', request.origin);
     console.log((new Date()) + ' Connection accepted.');
     connection.on('message', function(message) {
         if (message.type === 'utf8') {
