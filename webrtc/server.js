@@ -2,10 +2,12 @@ var app = require('express').createServer();
 app.listen(8000);
 var webRTC = require('webrtc.io').listen(app);
 
+var socketserver = require('./socketserver.js').socketserver();
+
 
 
 app.get('/', function(req, res) {
-  console.log('Opening lobby');	
+  //console.log('Opening lobby');	
   //var path = "C://Users//Karl//Desktop//ParnesProjeect//webrtc//";
   res.sendfile(__dirname + '/index.html');
 });
@@ -96,3 +98,5 @@ webRTC.rtc.on('chat_msg', function(data, socket) {
     }
   }
 });
+
+//var S = new socketserver();
