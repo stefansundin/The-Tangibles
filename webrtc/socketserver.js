@@ -218,6 +218,12 @@ function socketserver(){
 		
 		var user = getUserBySocket(connection);
 		
+		if (user == null) {
+			console.log("User not found");
+			// TODO: check if therer are two different kinds of connection closed.
+			return;
+		}
+		
 		if (user.roomId != -1) {
 			var room = getRoomById(user.roomId);
 			
