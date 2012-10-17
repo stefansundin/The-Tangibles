@@ -385,6 +385,9 @@ function socketserver(){
 		var user = getUserBySocket(con);
 		var room = getRoomById(user.roomId);
 		
+		console.log("%%%%");
+		console.log(user.id);
+		
 		var data = JSON.stringify({
 			id: user.id
 		}); 
@@ -394,7 +397,8 @@ function socketserver(){
 			sendMessageToAll(API_USER_LEAVE, data);
 			
 			if (user.inCall){
-				sendMessageToRoom(user.id, user.roomId, API_INVITE_LEAVE, data);	
+				sendMessageToRoom(user.id, user.roomId, API_INVITE_LEAVE, data);
+				//TODO: change user to not in call anymore?	
 			}
 		}
 		user.roomId = newRoomId;
