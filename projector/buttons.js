@@ -8,7 +8,6 @@ function transform(pWidth, pHeight, cWidth, cHeight) {
 
 	this.conX = conX;
 	function conX(x) {
-		return 1;
 		a = Math.round(x*kx);
 		if (a < 1)
 			return 1;
@@ -18,7 +17,6 @@ function transform(pWidth, pHeight, cWidth, cHeight) {
 
 	this.conY = conY;
 	function conY(y) {
-		return 1;
 		a = Math.round(y*ky);
 		if (a < 1)
 			return 1;
@@ -59,7 +57,8 @@ var Buttons = function () {
 		this.video = video;
 		this.contextSource = contextSource;
 		this.contextBlended = contextBlended;
-		this.trans = new transform(document.body.clientWidth, document.body.clientHeight, contextSource.width, contextSource.height)
+		//this.trans = new transform(document.body.clientWidth, document.body.clientHeight, contextSource.width, contextSource.height)
+		this.trans = new transform(document.body.clientWidth, document.body.clientHeight, document.body.clientWidth, document.body.clientHeight)
 			this.update();
 
 	}

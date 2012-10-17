@@ -10,7 +10,7 @@
     <video id="video1" controls width="270" autoplay loop>
       <source src="mov_bbb.ogg" type='video/ogg' />
     </video>
-    <canvas id="canvas" width="300" height="300"></canvas>
+    <canvas id="canvas" width="640" height="480"></canvas>
     <canvas id="canvas-source" width="640" height="480"></canvas>
     <canvas id="canvas-blended" width="640" height="480"></canvas>
     <video id="webcam" autoplay width="640" height="480"></video>
@@ -46,15 +46,16 @@
       function test() {
         alert("test");
       }
-      image = document.getElementById("scream");
-      v = document.getElementById("video1");
+
+      var image = $('#scream')[0];
+      var v = $('#video1')[0];
       var button1 = new Button(10, 10, 10, 10, image, ctx);
       var button2 = new Button(20, 20, 100, 100, image, ctx);
       var buttons = new Buttons();
       button1.method = test;
       button2.method = test;
 
-      var button3 = new VideoButton(120, 120, 100, 100, v, ctx);
+      var button3 = new VideoButton(300, 120, 100, 100, v, ctx);
 
       buttons.AddButton(button1);
       buttons.AddButton(button2);
@@ -72,6 +73,9 @@
       buttons.Start(video, contextSource, contextBlended);
       $(canvasSource).hide();
       $(video).hide();
+	  $(v).hide();
+	  $(image).hide();
+	  //$(canvasBlended).hide();
 
       //contextSource.translate(canvasSource.width, 0);
       //contextSource.scale(-1, 1);
