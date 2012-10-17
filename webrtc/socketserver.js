@@ -42,7 +42,8 @@ function socketserver(){
 	var API_INVITE_SEND = "invitesend";
 	var API_INVITE_ANSWER = "inviteanswer";
 	var API_INVITE_LEAVE = "inviteleave";
-	var API_INVIE_TIMEOUT = "invitetimeout";
+	var API_INVITE_TIMEOUT = "invitetimeout";
+	var API_INVITE_ACCEPTED = "inviteroom";
 	
 	var API_MESSAGE = "msg";
 	var API_MESSAGE_BROADCAST = "msgbroadcast";
@@ -217,6 +218,12 @@ function socketserver(){
 		
 		var user = getUserBySocket(connection);
 		
+		if (user == null) {
+			console.log("User not found");
+			// TODO: check if therer are two different kinds of connection closed.
+			return;
+		}
+		
 		if (user.roomId != -1) {
 			var room = getRoomById(user.roomId);
 			
@@ -245,7 +252,8 @@ function socketserver(){
 			// if (roomOld.users[i] != null) {
 				// sendMessage(roomOld.users[i].socket, API_USER_LEAVE, name);	
 			// }
-		// }	
+		// }
+	
 	}
 	
 	/**
@@ -360,7 +368,8 @@ function socketserver(){
 			if (u.roomId != -1 && u.name != "") {
 				listUsers.push([u.id, u.name, u.roomId]);	
 			}
-		};	
+		};
+	
 		var data = JSON.stringify({
 			rooms: listRooms,
 			users: listUsers
@@ -382,6 +391,9 @@ function socketserver(){
 		var user = getUserBySocket(con);
 		var room = getRoomById(user.roomId);
 		
+		console.log("%%%%");
+		console.log(user.id);
+		
 		var data = JSON.stringify({
 			id: user.id
 		}); 
@@ -391,7 +403,8 @@ function socketserver(){
 			sendMessageToAll(API_USER_LEAVE, data);
 			
 			if (user.inCall){
-				sendMessageToRoom(user.id, user.roomId, API_INVITE_LEAVE, data);	
+				sendMessageToRoom(user.id, user.roomId, API_INVITE_LEAVE, data);
+				//TODO: change user to not in call anymore?	
 			}
 		}
 		user.roomId = newRoomId;
@@ -503,7 +516,7 @@ function socketserver(){
 		var room = getRoomById(roomId);
 			
 			
-		var call = createNewCall(caller, recipient, room);
+		var call = createNewCall(caller, recipient, roomId);
 		
 		console.log("########");
 		
@@ -535,12 +548,32 @@ function socketserver(){
 			answer: answer
 		});
 		
+		sendMessage(call.caller.socket, API_INVITE_ANSWER, data);
+		
+		console.log("Answer: " + answer);
+		
 		if (answer == "yes") {
 			call.caller.inCall = true;
 			call.called.inCall = true;
+			
+			var data = JSON.stringify({
+				roomId: call.roomId 
+			}); 
+			
+			if (call.called.socket == con) {
+				console.log("same");
+			} else {
+				console.log("not same");
+			}
+			
+			sendMessage(con, API_INVITE_ACCEPTED, data);
+			
 		}
 		
-		sendMessage(call.caller.socket, API_INVITE_ANSWER, data);
+		
+		
+		
+		
 	});
 	
 	
@@ -551,6 +584,8 @@ function socketserver(){
 			id: roomId,
 			name: name
 		});
+		
+		//TODO: Callback to creator (if want to go into room directly)
 		
 		sendMessageToAll(API_ROOM_NEW, data);
 	});
@@ -816,7 +851,8 @@ function socketserver(){
 				// }
 			// };
 		// }
-	// });	
+	// });
+	
 	
 	// # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 	// Startup
@@ -828,7 +864,8 @@ function socketserver(){
 	
 		// Create some public test rooms
 		createNewRoom("Paris", ROOM_PUBLIC);
-		createNewRoom("Berlin", ROOM_PUBLIC);		}
+		createNewRoom("Berlin", ROOM_PUBLIC);	
+	}
 	
 	
 	// # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -921,7 +958,8 @@ function socketserver(){
 		// this.getName = function(){
 			// return name;
 		// }
-	// }	
+	// }
+	
 	
 	
 	// # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -1035,7 +1073,8 @@ function socketserver(){
 	// 
 	// 
 	// 
-	// }	
+	// }
+	
 	
 	// # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 	// User logic

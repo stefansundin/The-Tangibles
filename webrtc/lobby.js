@@ -13,6 +13,7 @@ function assert(exp, message) {
 
 function Lobby() {
 	this.AUTO_DECLINE_TIME = 60;
+	this.lobbyId = 0; // Special room id for the lobby
 	this.rooms = []; // [id, name, desc, type]
 	this.users = []; // [id, name, room_id]
 	this.ownName = 'User#' + Math.floor((Math.random() * 999) + 1);
@@ -54,6 +55,23 @@ Lobby.prototype.load = function() {
 	socket.on(API_USER_LEAVE, function(userId) {
 		self.onUserLeave(userId);
 	});
+	socket.on(API_NAME_CHANGE, function(userId, userName) {
+		self.onUserChangeName(userId, userName);
+	});
+	socket.on(API_INVITE_SEND, function(userName, roomName, callId) {
+		self.onIncomingCall(userName, roomName, callId);
+	});
+	socket.on(API_INVITE_ACCEPTED, function(roomId) {
+		self.onCallAccepted(roomId);
+	});
+	socket.on(API_ROOM_NEW, function(roomId, roomName, roomDesc, roomType) {
+		self.onRoomAdd(roomId, roomName, roomDesc, roomType);
+	});
+	socket.on(API_ROOM_REMOVE, function(roomId) {
+		self.onRoomDelete(roomId);
+	});
+
+	// TODO this.onRoomCreated('random_text');
 
 	$('#room_table tfoot').hide();
 
@@ -257,8 +275,10 @@ Lobby.prototype.onCreateRoom = function(roomName) {
 	console.log('onCreateRoom: ' + roomName);
 
 	if (roomName != '') {
-		// TODO Create room
-		this.onRoomCreated('random_text');
+		socket.on(API_ROOM_NEW, JSON.stringify({
+			name : roomName,
+			type : "public" // TODO Fix types
+		}));
 	}
 };
 
@@ -280,6 +300,10 @@ Lobby.prototype.onRoomCreated = function(roomId) {
  *            ID of the room
  */
 Lobby.prototype.enterRoom = function(roomId) {
+	socket.send(API_USER_CHANGE, JSON.stringify({
+		id : roomId
+	}));
+
 	$('#main').hide();
 	$('#roomMain').show();
 	$('#roomFrame').attr('src', 'room/#' + roomId);
@@ -289,6 +313,10 @@ Lobby.prototype.enterRoom = function(roomId) {
  * Is called by the room frame content when it wants to close the room.
  */
 Lobby.prototype.leaveRoom = function() {
+	socket.send(API_USER_CHANGE, JSON.stringify({
+		id : this.lobbyId
+	}));
+
 	$('#roomFrame').attr('src', 'about:blank');
 	$('#main').show();
 	$('#roomMain').hide();
@@ -555,8 +583,13 @@ Lobby.prototype.accept = function(callId) {
 
 	if ($('#call_' + callId).length != 0) { // Extra check
 		$('#call_timer_' + callId).text('');
-		// TODO Accept
-		this.onCallAccepted('random_text');
+
+		// send answer
+		socket.send(API_INVITE_ANSWER, JSON.stringify({
+			callId : callId,
+			answer : "yes"
+		}));
+
 		$('#call_' + callId).removeAttr('id').hide({
 			effect : 'drop',
 			complete : function() {
@@ -588,7 +621,13 @@ Lobby.prototype.decline = function(callId) {
 
 	if ($('#call_' + callId).length != 0) { // Extra check
 		$('#call_timer_' + callId).text('');
-		// TODO Decline
+
+		// send answer
+		socket.send(API_INVITE_ANSWER, JSON.stringify({
+			callId : callId,
+			answer : "no"
+		}));
+
 		$('#call_' + callId).removeAttr('id').hide({
 			effect : 'drop',
 			complete : function() {
@@ -610,7 +649,7 @@ Lobby.prototype.decline = function(callId) {
 Lobby.prototype.onAutoDeclineTimer = function(callId, timeLeft) {
 	if ($('#call_timer_' + callId).length != 0) {
 		// Might have been manually declined
-		newTimeLeft = timeLeft - 1;
+		var newTimeLeft = timeLeft - 1;
 		if (newTimeLeft <= 0) { // Time is up, decline
 			this.decline(callId);
 		} else {

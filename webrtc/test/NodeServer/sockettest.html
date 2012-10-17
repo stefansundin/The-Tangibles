@@ -10,6 +10,7 @@
 		 
 		soc.on('open', function(){
 			console.log((new Date()) + " opened");
+			soc.send("setname", JSON.stringify({name:"apa"}));
 		});
 		soc.on('close', function(){
 			console.log((new Date()) + " closed");

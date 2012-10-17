@@ -17,7 +17,8 @@ var API_ROOM_REMOVE = "roomremove";
 var API_INVITE_SEND = "invitesend";
 var API_INVITE_ANSWER = "inviteanswer";
 var API_INVITE_LEAVE = "inviteleave";
-var API_INVIE_TIMEOUT = "invitetimeout";
+var API_INVITE_TIMEOUT = "invitetimeout";
+var API_INVITE_ACCEPTED = "inviteroom";
 
 var API_MESSAGE = "msg";
 var API_MESSAGE_BROADCAST = "msgbroadcast";

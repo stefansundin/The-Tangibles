@@ -11,12 +11,15 @@ json
 
 API_ROOM_LEAVE
 
+API_LIST
+	""
+
 
 API_LIST_ROOMS
 	""
 
 API_LIST_USERS (lobby == 0)
-	roomID
+	roomName
 
 API_USER_NEW
 
@@ -32,14 +35,14 @@ API_ROOM_REMOVE
 
 API_INVITE_SEND
 json
-	user	: name of the inviter (caller)
+	//user	: name of the inviter (caller)
 	invite	: name of the invited user (called)
 	room	: name of the room inviting to
 
 API_INVITE_ANSWER
 json
 	user	: name of the inviter (caller)
-	invite	: name of the invited user (called)
+	//invite	: name of the invited user (called)
 	room	: name of the room inviting to
 	answer	: "yes" or "no"
 
@@ -47,6 +50,9 @@ API_INVIE_TIMEOUT
 
 
 API_MESSAGE
+
+
+API_CORNERS
 
 
 API_SET_NAME

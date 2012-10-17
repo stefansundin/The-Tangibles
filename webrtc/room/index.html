@@ -157,31 +157,34 @@
       })
 	  }
 	  
-	  function onUserInvited(invited_user) {
+	function onUserInvited(invited_user) {
 	    inviting_user = user_name;
-      var room = window.location.hash.slice(1);
-      console.log('The user ' + invited_user + ' was invited by ' + inviting_user + ' to this room (' + room + ')');
-      writeMessageToChat(inviting_user + ' invited ' + invited_user);
-      // Send Invitation to that user
-      var uid = -1;
-      console.log(parent.lobby.users);
-      for (user in parent.lobby.users) {
-        console.log(user[1]);
-        if (user[1] == invited_user) {
-          id = user[0];
-          console.log(user);
-          break;
-        }
-      }
-      if (uid > -1) {
-        parent.socket.send(parent.API_INVITE_SEND, JSON.stringify({
-          id:uid,
-          roomId:room
-        }));
-      } else {
-        addToChat("User " + invited_user + " does not exist.");
-      }
-	  }
+		var room = window.location.hash.slice(1);
+      
+		// See if the user exists
+		var uid = -1;
+		var list = parent.lobby.users
+		for (i in list) {
+			if (list[i][1] == invited_user) {
+				uid = list[i][0];
+				break;
+			}
+		}
+	
+		// If the user exists:
+		if (uid > -1) {
+			parent.socket.send(parent.API_INVITE_SEND, JSON.stringify({
+				id:uid,
+				roomId:room
+			}));
+			writeMessageToChat(inviting_user + ' invited ' + invited_user);
+			console.log('The user ' + invited_user + '(id:'+uid+') was invited by ' + inviting_user + ' to this room (' + room + ')');
+      
+		// If the user does not exist:
+		} else {
+			addToChat("User " + invited_user + " does not exist.");
+		}
+	}
 	  
 	  function initInviteUser() {
       var inviteButton = document.getElementById("inviteUser");
@@ -256,7 +259,8 @@
       console.log($(window.parent.document).find("#roomMain"));
       if ($(window.parent.document).find("#roomMain").length == 0) {
         console.log("Attempted to access this page without going through the lobby.");
-        window.location.replace("http://www.youtube.com/watch?v=_1mB5rM8WHU");
+        //window.location.replace("http://www.youtube.com/watch?v=_1mB5rM8WHU");
+        initRoom();
       } else {
         initRoom();
       }
@@ -276,18 +280,19 @@
         alert('Your browser is not supported or you have to turn on flags. In chrome you go to chrome://flags and turn on Enable PeerConnection remember to restart chrome');
       }
       var room = window.location.hash.slice(1);
-
+	  
       //When using localhost
       console.log('Connecting');
-      //rtc.connect("ws://130.240.108.139:8000/", room);
-      rtc.connect("ws://localhost:8000/", room);
-
+      rtc.connect("ws://130.240.5.191:8000/", room);
+      //rtc.connect("ws://localhost:8000/", room);
+	  
       rtc.on('add remote stream', function(stream, socketId) {
         console.log("ADDING REMOTE STREAM...");
         var clone = cloneVideo('you', socketId);
         document.getElementById(clone.id).setAttribute("class", "");
         rtc.attachStream(stream, clone.id);
         subdivideVideos();
+		
       });
       rtc.on('disconnect stream', function(data) {
         console.log('remove ' + data);

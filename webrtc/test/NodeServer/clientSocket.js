@@ -27,11 +27,12 @@ var ClientSocket = function(url) {
 		fire(json.event, json.data);
 	};
 	
-	conn.onclose = function(){fire('close',null)};
-	conn.onopen = function(){fire('open',null)};
+	conn.onclose = function(){fire('close',null);};
+	conn.onopen = function(){fire('open',null);};
 	
 	var fire = function(event_name, message) {
 		console.log("###### Fire: " + event_name);
+		console.log(message);
 		var chain = callbacks[event_name];
 		if (typeof chain == 'undefined') 
 			return; // no callbacks for this event
