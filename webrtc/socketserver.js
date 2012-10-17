@@ -540,6 +540,8 @@ function socketserver(){
 		
 		sendMessage(call.caller.socket, API_INVITE_ANSWER, data);
 		
+		console.log("Answer: " + answer);
+		
 		if (answer == "yes") {
 			call.caller.inCall = true;
 			call.called.inCall = true;
@@ -548,7 +550,13 @@ function socketserver(){
 				roomId: call.roomId 
 			}); 
 			
-			sendMessage(call.called.socket, API_INVITE_ACCEPTED, data);
+			if (call.called.socket == con) {
+				console.log("same");
+			} else {
+				console.log("not same");
+			}
+			
+			sendMessage(con, API_INVITE_ACCEPTED, data);
 			
 		}
 		
