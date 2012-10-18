@@ -8,13 +8,17 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import listener.RobotListener;
+
 
 import se.nicklasgavelin.sphero.command.CalibrateCommand;
 import se.nicklasgavelin.sphero.command.RGBLEDCommand;
 import se.nicklasgavelin.sphero.command.RawMotorCommand;
 import se.nicklasgavelin.sphero.command.RollCommand;
+import se.nicklasgavelin.sphero.command.SetDataStreamingCommand;
 import se.nicklasgavelin.sphero.command.SpinLeftCommand;
 import se.nicklasgavelin.sphero.command.SpinRightCommand;
+import se.nicklasgavelin.sphero.command.SetDataStreamingCommand.DATA_STREAMING_MASKS;
 import se.nicklasgavelin.sphero.exception.InvalidRobotAddressException;
 import se.nicklasgavelin.sphero.exception.RobotBluetoothException;
 import se.nicklasgavelin.sphero.macro.MacroObject;
@@ -29,6 +33,7 @@ import communication.JsonTcpCommunication;
 import communication.protocol.messages.ColorCommandParameters;
 import communication.protocol.messages.CommandMessage;
 import communication.protocol.messages.CommandMessage.Command;
+import communication.protocol.messages.ParamsDevices;
 import driver.AppManagerImpl;
 import driver.Sphero;
 
@@ -271,6 +276,38 @@ public class GeneralCommunicationProtocol extends JsonTcpCommunication
 		private void handleCtrlMessage( JsonElement msg )
 		{
 			info( "Received ctrl message: " + msg );
+			
+			
+			List<Sphero> devices = AppManagerImpl.getInstance().availableSpheros();			
+			
+			info( "The following message was received << " + msg + " >>..?" );
+			CommandMessage cmdMsg = _gson.fromJson( msg, CommandMessage.class );
+			
+			if( cmdMsg.msg.command.equals( "report_all_events" )){
+				System.out.println("Should activate reporting of all events");
+			
+				System.out.println("command: "+cmdMsg.msg.command);
+				ParamsDevices paramsD = _gson.fromJson( cmdMsg.msg.params, ParamsDevices.class );
+				
+				for (String devID : paramsD.devices) {
+					// TODO return error message when devID is not found
+					for (Sphero sphero : devices) {
+						if(sphero.getId().equals(devID)){
+							System.out.println("Found your device");
+							
+							String[] lisentypes= new String[2];
+							lisentypes[0] = "gyro";
+							lisentypes[1] = "acc";
+							RobotListener listener = new RobotListener(lisentypes,devID);
+							sphero.addListener(listener);
+							
+							sphero.sendCommand(new SetDataStreamingCommand(10, 17, DATA_STREAMING_MASKS.ACCELEROMETER.ALL.FILTERED, 200));							
+							sphero.sendCommand(new SetDataStreamingCommand(10, 17, DATA_STREAMING_MASKS.GYRO.ALL.FILTERED, 999));
+														
+						}
+					}
+				}
+			}
 		}
 	}
 

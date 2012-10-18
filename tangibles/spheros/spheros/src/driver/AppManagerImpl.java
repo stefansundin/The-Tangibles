@@ -31,6 +31,10 @@ public class AppManagerImpl extends AppManager
 		_setOfSphero = null;
 		_defaultApp = new DefaultApp( "localhost", 60000 );
 	}
+	
+	public GeneralCommunicationProtocol getGeneralComm(){
+		return _generalComm;
+	}
 
 	public void setupAppManager( List<Sphero> spheroSet, String appID )
 	{
