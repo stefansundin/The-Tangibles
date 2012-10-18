@@ -30,6 +30,13 @@ public class TangibleDeviceProtocol {
     public void showColor(int r, int g, int b) {
         _talk.showColor(r, g, b, getDevId());
     }
+    
+    public void spinRight(int vel) {
+        _talk.spinRight(vel, getDevId());
+    }
+    public void spinLeft(int vel) {
+        _talk.spinLeft(vel, getDevId());
+    }
 
     public void showColor(int color) {
         int[] rgb = ColorHelper.decompose(color);

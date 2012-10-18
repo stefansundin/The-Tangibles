@@ -9,5 +9,5 @@ package tangible.enums;
  */
 public enum Capacity {
 
-    show_color, show_text, show_picture, show_fade, report_events;
+    show_color, spin_right, spin_left, show_text, show_picture, show_fade, report_events;
 }

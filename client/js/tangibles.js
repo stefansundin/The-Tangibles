@@ -91,6 +91,16 @@ function Tangibles(webRTCSocket) {
 		self.api.showColor(dev.id, color, self.err, self.err);
 	}
 
+  this.setRightSpin=function(dev, velocity) {
+    console.log('setRightSpin('+dev.id+','+velocity+')');
+    self.api.spinRight(dev.id, velocity, err, err);
+  }
+
+  this.setLeftSpin=function(dev, velocity) {
+    console.log('setLeftSpin('+dev.id+','+velocity+')');
+    self.api.spinLeft(dev.id, velocity, err, err);
+  }
+
 	this.showTextPic = function(dev, url, text, color, bg) {
 		this.showText(dev, text, color, bg);
 		setTimeout(function() {self.showPicture(dev, url);}, 100);

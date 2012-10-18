@@ -146,7 +146,7 @@ public class TangibleGatewayProtocol extends AbsJsonTCPProtocol {
     }
 
     public void startReading() {
-        //TODO we shoudl add some assert event reporting here and on the _readingThread initialization as well... 
+        // we shoudl add some assert event reporting here and on the _readingThread initialization as well... 
         if (canDo(Capacity.report_events)) {
             _readingThread.start();
         }
@@ -189,7 +189,7 @@ public class TangibleGatewayProtocol extends AbsJsonTCPProtocol {
     }
 
     public void showColor(int r, int g, int b, String[] devs) {
-        //TODO: should we check the devIds here to make sure they are all from this gateway? 
+        //should we check the devIds here to make sure they are all from this gateway? 
         //We will assume that there is no need to check such thing here: it has to be performed higer!
         assertCanDo(Capacity.show_color);
         //let's build up the message and send it!
@@ -201,6 +201,25 @@ public class TangibleGatewayProtocol extends AbsJsonTCPProtocol {
     public void showColor(int color, String[] devs) {
         int[] rgb = ColorHelper.decompose(color);
         this.showColor(rgb[0], rgb[1], rgb[2], devs);
+    }
+    
+    public void spinRight(int velocity, String[] devs) {
+    	System.out.println("spin..");
+    	//gergargaergaergaerg
+    	assertCanDo(Capacity.spin_right);//TODO: FIX. It doesn't recognice it.
+    	System.out.println("spin...");
+    	JsonObject params = new JsonObject();
+    	System.out.println("spin....");
+    	params.addProperty("velocity", velocity);
+    	System.out.println("spin.....");
+        sendEventCommand("spin_right", params, devs);
+    }
+    
+    public void spinLeft(int velocity, String[] devs) {
+    	assertCanDo(Capacity.spin_left);
+    	JsonObject params = new JsonObject();
+    	params.addProperty("velocity", velocity);
+        sendEventCommand("spin_left", params, devs);
     }
 
     public void showPicture(BufferedImage img, String[] devId) {

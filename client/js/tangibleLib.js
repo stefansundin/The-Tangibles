@@ -169,6 +169,31 @@ function TangibleAPI(server_ip) {
 				}, onSuccess, onError, async);
 		}
 	};
+	this.spinRight = function (deviceId, velocity, onSuccess, onError, async) {
+		if (appUUID === null) {
+			onError({
+				msg : 'application not registered!'
+			});
+		} else {
+			tangiblePUT(svr_ip, appUUID + "/device_methods/" + deviceId + "/spin_right",
+				{
+				
+					velocity : velocity
+				}, onSuccess, onError, async);
+		}
+	};
+	this.spinLeft = function (deviceId, velocity, onSuccess, onError, async) {
+		if (appUUID === null) {
+			onError({
+				msg : 'application not registered!'
+			});
+		} else {
+			tangiblePUT(svr_ip, appUUID + "/device_methods/" + deviceId + "/spin_left",
+				{
+					velocity : velocity
+				}, onSuccess, onError, async);
+		}
+	};
 	this.showText = function (deviceId, text, color, onSuccess, onError, async) {
 		if (appUUID === null) {
 			onError({
