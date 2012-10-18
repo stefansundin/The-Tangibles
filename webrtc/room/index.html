@@ -22,7 +22,7 @@
         <button id="fullscreen">Enter Full Screen</button>     
         <button id="openWorkspace">Open the workspace</button>
         <button id="closeWorkspace">Close the workspace</button>
-        <button id="inviteUser">Intvite</button>
+        <button id="inviteUser">Invite (nöjd nu?)</button>
         <button id="leaveRoom">Leave the room</button>
         <div id="messages"></div>
       </div> 
@@ -31,7 +31,7 @@
     <script>
       var videos = [];
       var rooms = [1,2,3,4,5];
-      var PeerConnection = window.PeerConnection || window.webkitPeerConnection00;
+      var PeerConnection =  window.PeerConnection || window.webkitPeerConnection00 || window.webkitRTCPeerConnection;
       var user_name = parent.lobby.ownName;
       
       // State variable used to keep track of what to show.
