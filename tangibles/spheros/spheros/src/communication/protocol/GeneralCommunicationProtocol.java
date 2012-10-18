@@ -19,8 +19,10 @@ import se.nicklasgavelin.sphero.exception.InvalidRobotAddressException;
 import se.nicklasgavelin.sphero.exception.RobotBluetoothException;
 import se.nicklasgavelin.sphero.macro.MacroObject;
 import se.nicklasgavelin.sphero.macro.command.RawMotor;
+import utils.Point3D;
 
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonStreamParser;
 
 import communication.JsonTcpCommunication;
@@ -44,6 +46,26 @@ public class GeneralCommunicationProtocol extends JsonTcpCommunication
 	public void start()
 	{
 		_readerThread.start();
+	}
+	
+	public void sendEventMessage(String eventName, String devId, Point3D p) throws IOException{
+		JsonObject params = new JsonObject();
+		params.addProperty("x", p.x);
+		params.addProperty("y", p.y);
+		params.addProperty("z", p.z);
+		
+		JsonObject jsonObj = new JsonObject();
+		jsonObj.addProperty("event", eventName);		
+		jsonObj.addProperty("devId", devId);
+		jsonObj.add("params",params);
+		
+		JsonObject complete = new JsonObject();
+		complete.addProperty("flow", "event");
+		complete.add("msg",jsonObj);
+		
+		// Best would be to use JsonTcpCommunication.sendEventMessage(obj)
+		// but since it gson.toJsonTree(msg) for me add members it is done this way.
+		sendString(complete.toString()); 
 	}
 
 	private class JsonReaderThread extends Thread
