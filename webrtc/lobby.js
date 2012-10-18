@@ -102,6 +102,7 @@ Lobby.prototype.load = function() {
 		resizable : false,
 		open : function(event, ui) {
 			$('#user_name').val(self.ownName);
+			$('#user_name').select();
 			$('#user_name').removeClass('ui-state-error');
 		},
 		buttons : {
