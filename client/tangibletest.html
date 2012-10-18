@@ -22,14 +22,10 @@
 	<p>Status: <input type="text" id="status" readonly /></p>
 	
 	<p id="sifteo_stuff" disabled>
-		<button onclick="tangibles.showPicture(tangibles.devices[0],'http://cdn.ghacks.net/wp-content/themes/magatheme/img/mozilla-firefox.png');">Show picture (remote)</button>
-		<button onclick="tangibles.showPicture(tangibles.devices[0],'http://localhost/mozilla-firefox.png');">Show picture (local)</button>
-		<button onclick="tangibles.showText(tangibles.devices[0],'Test text','0000ff');">Show text</button>
-		<button onclick="tangibles.setColor(tangibles.devices[0],'0000ff');">Set color to blue</button>
-		<p>
-			<button onclick="tangibles.listenToEvents(tangibles.devices[0]);">Listen to cube 0</button>
-			<button onclick="tangibles.listenToEvents(tangibles.devices[1]);">Listen to cube 1</button>
-		</p>
+		<button onclick="tangibles.showPicture(tangibles.sifteos[0],'http://cdn.ghacks.net/wp-content/themes/magatheme/img/mozilla-firefox.png');">Show picture (remote)</button>
+		<button onclick="tangibles.showPicture(tangibles.sifteos[0],'http://localhost/mozilla-firefox.png');">Show picture (local)</button>
+		<button onclick="tangibles.showText(tangibles.sifteos[0],'Test text','0000ff');">Show text</button>
+		<button onclick="tangibles.setColor(tangibles.sifteos[0],'0000ff');">Set color to blue</button>
 	</p>
 	<p><button onclick="tangibles.incommingCall(1, 'John', 'Workroom', console.log, console.log);">Simulate incomming call</button></p>
 	<!-- <p><button id="button_register_one_devices" onclick="regisiterOneDevice();">Register one device</button></p>-->

@@ -1,7 +1,7 @@
 function Tangibles(webRTCSocket) {
 	var self = this;
 	this.api = null;
-	this.devices = [];
+	this.sifteos = [];
 	this.APIsocket = null;
 	this.registered = false;
 	this.webRTCSocket = webRTCSocket;
@@ -9,10 +9,14 @@ function Tangibles(webRTCSocket) {
 	this.err = function(e) {
 		console.log(e);
 	}
+	
+	this.isSifteo = function(devId) {
+		return true;
+	}
 
 	this.onExit = function(e) {
-		for (d = 0; d < self.devices.length; d=d+1) {
-			self.api.showColor(self.devices[d].id, '000000', self.err, self.err, false);
+		for (d = 0; d < self.sifteos.length; d=d+1) {
+			self.api.showColor(self.sifteos[d].id, '000000', self.err, self.err, false);
 		}
 		self.webRTCSocket.send(API_USER_CHANGE, JSON.stringify({
 			'id' : 0  // Goto Lobby
@@ -29,14 +33,16 @@ function Tangibles(webRTCSocket) {
 			var num = d.msg.length;
 			for (var i=0; i < num; i++) {
 				var devid = d.msg[i].id;
-				self.api.reserveDevice(devid, function(r) {
-					console.log('Got device: '+r.msg);
-					var device = {id:r.msg, subscribed:false, pressListeners:[]};
-					self.listenToEvents(device);
-					self.devices.push(device);
-				}, self.err);
+				if (self.isSifteo(devid)) { 
+					self.api.reserveDevice(devid, function(r) {
+						console.log('Got device: '+r.msg);
+						var device = {id:r.msg, subscribed:false, pressListeners:[]};
+						self.listenToEvents(device);
+						self.sifteos.push(device);
+					}, self.err);
+				}
 			}
-			$('#status').val('Registered '+num+' devices!');
+			$('#status').val('Registered '+num+' sifteos!');
 			$('#sifteo_stuff').removeAttr('disabled');
 		}, this.err);
 	}
@@ -69,10 +75,10 @@ function Tangibles(webRTCSocket) {
 
 	this.eventHandler = function(msg) {
 		if (msg.event == 'pressed') {
-			for (d = 0; d < this.devices.length; d=d+1) {
-				if (this.devices[d].id == msg.devId) {
-					for (i = 0; i < this.devices[d].pressListeners.length; i=i+1) {
-						this.devices[d].pressListeners[i](msg);
+			for (d = 0; d < this.sifteos.length; d=d+1) {
+				if (this.sifteos[d].id == msg.devId) {
+					for (i = 0; i < this.sifteos[d].pressListeners.length; i=i+1) {
+						this.sifteos[d].pressListeners[i](msg);
 					}
 				}
 			}
@@ -98,72 +104,89 @@ function Tangibles(webRTCSocket) {
 	this.showText = function(dev, text, color, bg) {
 		this.setColor(dev, bg);
 		console.log('showText('+dev.id+','+text+','+color+')');
-		setTimeout(function() {self.api.showText(dev.id, text, color, self.err, self.err, self.err);},100);
+		setTimeout(function() {self.api.showText(dev.id, text, color, self.err, self.err);},100);
+	}
+	
+	this.showTime = function(dev) {
+		setInterval(function() {
+			var d = new Date();
+			var s = d.getSeconds();
+			self.api.showText(dev.id, d.getHours()+':'+d.getMinutes()+':'+(s<10?'0':'')+s, '000000', self.err, self.err);
+		}, 1000);
 	}
 
 	this.acceptedCall =	function(call_id, users) {
 		var enabled = true;
 		
-		this.showText(this.devices[0], 'Blank Workspace', '000000', 'FFFFFF');
-		this.showTextPic(this.devices[2], 'http://localhost/client/img/mute.png', 'Mute', '000000', 'FFFFFF');
-		this.showTextPic(this.devices[1], 'http://localhost/client/img/deny.png', 'Deny', '000000', 'FFFFFF');
-		
 		for (i = 0; i < users.length; i = i + 1) {
-			this.showText(this.devices[3+i], users[i].name, '000000', 'FFFFFF');
+			if (this.sifteos.length >= 3+i) this.showText(this.sifteos[3+i], users[i].name, '000000', 'FFFFFF');
 		}
 		
-		this.devices[1].pressListeners.push(function(msg) {
-			if (enabled) {
-				enabled = false;
-				this.showText(this.devices[1], 'Call ended', '000000', 'FFFFFF');
-				this.devices[1].pressListeners = [];
-				onHangup(call_id);
-			}
-		});
+		if (this.sifteos.length >= 1) {
+			this.showText(this.sifteos[0], 'Blank Workspace', '000000', 'FFFFFF');
+			this.sifteos[0].pressListeners.push(function(msg) {
+				if (enabled && onBlank) {
+					onBlank(call_id);
+				}
+			});
+		}
 		
-		this.devices[2].pressListeners.push(function(msg) {
-			if (enabled && onMute) {
-				onMute(call_id);
-			}
-		});
+		if (this.sifteos.length >= 2) {
+			this.showTextPic(this.sifteos[1], 'http://localhost/client/img/deny.png', 'Deny', '000000', 'FFFFFF');
+			this.sifteos[1].pressListeners.push(function(msg) {
+				if (enabled) {
+					enabled = false;
+					this.showText(this.sifteos[1], 'Left room', '000000', 'FFFFFF');
+					this.sifteos[1].pressListeners = [];
+					onHangup(call_id);
+				}
+			});
+			
+		}
 		
-		this.devices[0].pressListeners.push(function(msg) {
-			if (enabled && onBlank) {
-				onBlank(call_id);
-			}
-		});
+		if (this.sifteos.length >= 3) {
+			this.showTextPic(this.sifteos[2], 'http://localhost/client/img/mute.png', 'Mute', '000000', 'FFFFFF');
+			this.sifteos[2].pressListeners.push(function(msg) {
+				if (enabled && onMute) {
+					onMute(call_id);
+				}
+			});
+		}
 	}
 
-	this.incommingCall = function(call_id, caller, room, onAccept, onDeny) {
-		this.showTextPic(this.devices[0], 'http://localhost/client/img/accept.png', 'Accept', '000000', 'FFFFFF');
-		this.showTextPic(this.devices[1], 'http://localhost/client/img/deny.png', 'Decline', '000000', 'FFFFFF');
-		this.showText(this.devices[2], caller+' invited you to '+room+'.', '000000', 'FFFFFF');
-		
+	this.incommingCall = function(call_id, caller, room, onAccept, onDeny) {		
 		var enabled = true;
 		
-		this.devices[0].pressListeners.push(function(msg) {
-			if (enabled) {
-				enabled = false;
-				self.devices[0].pressListeners = [];
-				self.devices[1].pressListeners = [];
-				onAccept(call_id);
-			}
-		});
-		this.devices[1].pressListeners.push(function(msg) {
-			if (enabled) {
-				enabled = false;
-				self.devices[0].pressListeners = [];
-				self.devices[1].pressListeners = [];
-				onDeny(call_id);
-			}
-		});
+		if (this.sifteos.length >= 1) {
+			this.showTextPic(this.sifteos[0], 'http://localhost/client/img/accept.png', 'Accept', '000000', 'FFFFFF');
+			this.sifteos[0].pressListeners.push(function(msg) {
+				if (enabled) {
+					enabled = false;
+					self.sifteos[0].pressListeners = [];
+					if (this.sifteos.length >= 2) self.sifteos[1].pressListeners = [];
+					onAccept(call_id);
+				}
+			});
+		}
+		if (this.sifteos.length >= 2) {
+			this.showTextPic(this.sifteos[1], 'http://localhost/client/img/deny.png', 'Decline', '000000', 'FFFFFF');
+			this.sifteos[1].pressListeners.push(function(msg) {
+				if (enabled) {
+					enabled = false;
+					self.sifteos[0].pressListeners = [];
+					self.sifteos[1].pressListeners = [];
+					onDeny(call_id);
+				}
+			});
+		}
+		if (this.sifteos.length >= 3) this.showText(this.sifteos[2], caller+' invited you to '+room+'.', '000000', 'FFFFFF');
 	}
 
 	this.register = function(callback){
 		// Connect to
 		$('#status').val('Connecting to TangibleAPI...');
 		this.api = new TangibleAPI('127.0.0.1');
-		this.api.register('My this.api', 'Desc', function(d) {
+		this.api.register('Local tangible API', '', function(d) {
 			self.registered = true;
 			$('#status').val('Connected!');
 			if(typeof callback != "undefined"){callback();}
@@ -178,7 +201,7 @@ function Tangibles(webRTCSocket) {
 
 	// API
 	this.onINVITE_SEND = function (name, room, call_id){
-		console.log(name, room, call_id);
+		console.log(name +' '+ room +' '+ call_id);
 		self.api.incommingCall(call_id, caller, room, function() {
 			// Accept
 			self.webRTCSocket.send(API_INVITE_ANSWER, JSON.stringify({
