@@ -11,7 +11,10 @@ function Tangibles(webRTCSocket) {
 	}
 	
 	this.isSifteo = function(devId) {
-		return true;
+		if (devId.length == 24) {
+			return true;
+		} 
+		return false;
 	}
 
 	this.onExit = function(e) {
@@ -120,8 +123,10 @@ function Tangibles(webRTCSocket) {
 	this.showTime = function(dev) {
 		setInterval(function() {
 			var d = new Date();
+			var h = d.getHours();
+			var m = d.getMinutes();
 			var s = d.getSeconds();
-			self.api.showText(dev.id, d.getHours()+':'+d.getMinutes()+':'+(s<10?'0':'')+s, '000000', self.err, self.err);
+			self.api.showText(dev.id, (h<10?'0':'')+h+':'+(m<10?'0':'')+m+':'+(s<10?'0':'')+s, '000000', self.err, self.err);
 		}, 1000);
 	}
 
@@ -151,7 +156,6 @@ function Tangibles(webRTCSocket) {
 					onHangup(call_id);
 				}
 			});
-			
 		}
 		
 		if (this.sifteos.length >= 3) {
@@ -227,6 +231,3 @@ function Tangibles(webRTCSocket) {
 		});
 	}
 }
-
-
-
