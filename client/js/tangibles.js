@@ -31,7 +31,7 @@ function Tangibles(webRTCSocket) {
 	if(this.webRTCSocket){
 		this.webRTCSocket.on(API_INVITE_SEND, function(name, room, call_id) {
 			console.log(name +' '+ room +' '+ call_id);
-			self.api.incommingCall(call_id, caller, room, function() {
+			self.incommingCall(call_id, name, room, function() {
 				lobby.accept(call_id);
 			}, function() {
 				lobby.decline(call_id);
@@ -39,7 +39,7 @@ function Tangibles(webRTCSocket) {
 		});
 		
 		this.webRTCSocket.on(API_INVITE_ACCEPTED, function(room_id) {
-			this.acceptedCall(room_id, []);
+			self.acceptedCall(room_id, []);
 		});
 	}
 
@@ -189,7 +189,7 @@ function Tangibles(webRTCSocket) {
 				if (enabled) {
 					enabled = false;
 					self.sifteos[0].pressListeners = [];
-					if (this.sifteos.length >= 2) self.sifteos[1].pressListeners = [];
+					if (self.sifteos.length >= 2) self.sifteos[1].pressListeners = [];
 					onAccept(call_id);
 				}
 			});

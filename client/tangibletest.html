@@ -3,11 +3,13 @@
 	<meta charset=UTF-8 />
 	<title>Test page Tangibles</title>
 	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8/jquery.min.js"></script>
+	<script	src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
 	<script type="text/javascript" src="/client/js/tangibles.js"></script>
 	<script type="text/javascript" src="/webrtc/socket.js"></script>
+	<script type="text/javascript" src="/webrtc/lobby.js"></script>
 	<script type="text/javascript">
 	$(document).ready(function() {
-		tangibles = new Tangibles(new Socket('ws://130.240.6.191:12345'));
+		tangibles = new Tangibles(socket);
 	});
 	</script>
 	
@@ -33,5 +35,49 @@
     </p>
 	<p><button onclick="tangibles.incommingCall(1, 'John', 'Workroom', console.log, console.log);">Simulate incomming call</button></p>
 	<!-- <p><button id="button_register_one_devices" onclick="regisiterOneDevice();">Register one device</button></p>-->
+	
+	
+		<div id="dialog_error" title="Error">
+		<div class="ui-state-error ui-corner-all" style="padding: 0 .7em;">
+			<p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>
+			<span id="dialog_error_text">Some error occurred.</span></p>
+		</div>
+	</div>
+	<div id="dialog_select_user_name" title="Select user name">
+		<label for="user_name">User name</label>
+		<input type="text" name="user_name" id="user_name" class="text ui-widget-content ui-corner-all" />
+	</div>
+	<div id="dialog_create_room" title="Create new room">
+		<label for="room_name">Room name</label>
+		<input type="text" name="room_name" id="room_name" class="text ui-widget-content ui-corner-all" />
+	</div>
+	
+		<div id="main">
+		<h1>Lobby</h1>
+		<table id="room_table">
+			<thead>
+				<tr>
+					<th>
+						<h2>Room</h2>
+					</th>
+					<th>
+						<h2>Participants</h2>
+						<button id="create_room">Create room</button>
+					</th>
+				</tr>
+			</thead>
+			<tbody>
+			</tbody>
+			<tfoot>
+				<tr>
+					<td colspan="2">No rooms, click on "Create room" to create one.</td>
+				</tr>
+			</tfoot>
+		</table>
+		<div id="call_list"></div>
+	</div>
+	 <div id="roomMain">
+    <iframe id="roomFrame" src="about:blank" scrolling="no"></iframe>
+  </div>
 </body>
 </html>
