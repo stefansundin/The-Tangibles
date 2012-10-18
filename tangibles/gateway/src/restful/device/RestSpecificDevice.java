@@ -161,6 +161,59 @@ public class RestSpecificDevice extends ConditionalAccessResource {
     }
 
     @OPTIONS
+    @Path("/spin_right")
+    public Response spinRightOptions(
+            @HeaderParam("Access-Control-Request-Headers") String requestH,
+            @HeaderParam("Origin") String origin) {
+        return makeCORS(requestH, origin);
+    }
+    @OPTIONS
+    @Path("/spin_left")
+    public Response spinLeftOptions(
+            @HeaderParam("Access-Control-Request-Headers") String requestH,
+            @HeaderParam("Origin") String origin) {
+        return makeCORS(requestH, origin);
+    }
+
+    
+    @PUT
+    @Path("/spin_left")
+    public Response spinLeft(
+    		@PathParam("device_ID") String devID,
+    		@FormParam("velocity") Integer vel,
+            @HeaderParam("Origin") String origin) {
+    	
+    	System.out.println("spin_left on #" + devID);
+    	return this.spinLeftResponse(origin, vel, devID);
+    }
+    @PUT
+    @Path("/spin_right")
+    public Response spinRight(
+    		@PathParam("device_ID") String devID,
+    		@FormParam("velocity") Integer vel,
+            @HeaderParam("Origin") String origin) {
+
+		System.out.println("spin_right on #" + devID);
+    	return this.spinRightResponse(origin, vel, devID);
+    	
+    }
+
+    private Response spinRightResponse(
+            String origin, int vel, String devID) {
+    	TangibleDevice dev = _finder.getDevice(devID);
+    	dev.getTalk().spinRight(vel);
+    	System.out.println("sending ok message.");
+        return this.createOKCtrlMsg(origin);
+    }
+    private Response spinLeftResponse(
+            String origin, int vel, String devID) {
+    	TangibleDevice dev = _finder.getDevice(devID);
+    	dev.getTalk().spinLeft(vel);
+    	System.out.println("sending ok message.");
+        return this.createOKCtrlMsg(origin);
+    }
+
+    @OPTIONS
     @Path("/show_picture")
     public Response showPictureOptions(
             @HeaderParam("Access-Control-Request-Headers") String requestH,

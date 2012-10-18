@@ -29,7 +29,18 @@ function Tangibles(webRTCSocket) {
 	
 	// this.api listen
 	if(this.webRTCSocket){
-		this.webRTCSocket.on(API_INVITE_SEND, this.onINVITE_SEND);
+		this.webRTCSocket.on(API_INVITE_SEND, function(name, room, call_id) {
+			console.log(name +' '+ room +' '+ call_id);
+			self.api.incommingCall(call_id, caller, room, function() {
+				lobby.accept(call_id);
+			}, function() {
+				lobby.decline(call_id);
+			});
+		});
+		
+		this.webRTCSocket.on(API_INVITE_ACCEPTED, function(room_id) {
+			this.acceptedCall(room_id, []);
+		});
 	}
 
 	this.registerDevices = function(){
@@ -213,22 +224,4 @@ function Tangibles(webRTCSocket) {
 		self.register();
 		$(window).on('beforeunload', self.onExit); // If needed make global function
 	});
-
-	// API
-	this.onINVITE_SEND = function (name, room, call_id){
-		console.log(name +' '+ room +' '+ call_id);
-		self.api.incommingCall(call_id, caller, room, function() {
-			// Accept
-			self.webRTCSocket.send(API_INVITE_ANSWER, JSON.stringify({
-				'callId' : call_id,
-				'answer' : 'yes'
-			}));
-		}, function() {
-			// Deny
-			self.webRTCSocket.send(API_INVITE_ANSWER, JSON.stringify({
-				'callId' : call_id,
-				'answer' : 'no'
-			}));
-		});
-	}
 }
