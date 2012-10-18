@@ -179,8 +179,7 @@ public class SpheroDriver extends Thread implements BluetoothDiscoveryListener
 		Bluetooth bt = new Bluetooth( this, Bluetooth.SERIAL_COM );
 		Logger.getLogger( SpheroDriver.class.getName() ).log( Level.INFO, "comes here!" );
 		BluetoothDevice btd = new BluetoothDevice( bt, "btspp://" + id + ":1;authenticate=true;encrypt=false;master=false" );
-		
-			
+					
 		if( btd.getAddress().startsWith( Robot.ROBOT_ADDRESS_PREFIX ) )
 		{
 			 //Create robot

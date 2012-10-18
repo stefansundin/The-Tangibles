@@ -10,6 +10,7 @@ import java.util.logging.Logger;
 
 
 import se.nicklasgavelin.sphero.command.CalibrateCommand;
+import se.nicklasgavelin.sphero.command.FrontLEDCommand;
 import se.nicklasgavelin.sphero.command.RGBLEDCommand;
 import se.nicklasgavelin.sphero.command.RawMotorCommand;
 import se.nicklasgavelin.sphero.command.RollCommand;
@@ -192,31 +193,28 @@ public class GeneralCommunicationProtocol extends JsonTcpCommunication
 					
 //				}
 			}
-			else if( cmdMsg.msg.command.equals( "spin_right" ) ) {
+			else if( cmdMsg.msg.command.equals( "spin_right" ) ) { // Calibrate-command
 				for( final Sphero device : devices )
 					if( device.getId().equals(params.devices[0]) ){
 					    System.out.println("color changed.");
 //						device.sendCommand(new SpinRightCommand(155),0);
 //						device.sendCommand(new SpinRightCommand(0),5000);
-					    device.calibrate(MAX_PRIORITY);
+					    device.calibrate(MIN_PRIORITY);
+					    device.sendCommand( new RGBLEDCommand( 0, 255, 0 ), 10000 );
+					    
 					}
 			}
 			else if( cmdMsg.msg.command.equals( "spin_left" ) ) {
 				for( final Sphero device : devices )
 					if( device.getId().equals(params.devices[0]) ){
-					    System.out.println("color changed.");
-						//device.sendCommand(new SpinLeftCommand(155),0);
-						//device.sendCommand(new SpinLeftCommand(0),5000);
-					    device.sendCommand( new RollCommand( 1, 50, false ),0 );
-//					    pause(100);
-					    device.sendCommand( new RollCommand( 90, 50, false ),100 );
-//					    pause(100);
-					    device.sendCommand( new RollCommand( 180, 50, false ),200 );
-//					    pause(100);
-					    device.sendCommand( new RollCommand( 270, 50, false ),300 );
-//					    pause(100);
-					    device.sendCommand( new RGBLEDCommand( 255, 255, 255 ),400 );    //turn white
-					    device.sendCommand( new RollCommand( 1, 0, true ),500); //stop after 2500
+//					    System.out.println("color changed.");
+//						device.sendCommand(new SpinLeftCommand(155),0);
+//						device.sendCommand(new SpinLeftCommand(0),5000);
+						
+					    device.sendCommand( new RollCommand( 1, 20, false ), 0 );
+					    device.sendCommand( new RGBLEDCommand( 255, 255, 255 ), 400 ); //turn white after 400
+					    device.sendCommand( new RollCommand( 1, 0, true ), 2500); //stop after 2500
+					    device.sendCommand( new RGBLEDCommand( 0, 255, 0 ), 2400 ); //turn green after 2400
 					    
 //					    device.sendCommand(new CalibrateCommand(180));
 //					    device.resetHeading();
@@ -257,7 +255,6 @@ public class GeneralCommunicationProtocol extends JsonTcpCommunication
 		Logger.getLogger( this.getClass().getCanonicalName() ).log( Level.INFO, msg );
 	}
 	
-
 	private void pause(int ms){
 		try
 		{
