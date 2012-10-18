@@ -11,10 +11,11 @@ function Tangibles(webRTCSocket) {
 	}
 	
 	this.isSifteo = function(devId) {
-		if (devId.length == 24) {
-			return true;
-		} 
-		return false;
+		return devId.length == 24;
+	}
+
+	this.isSphero = function(devId) {
+		return devId.length == 12;
 	}
 
 	this.onExit = function(e) {
@@ -36,7 +37,7 @@ function Tangibles(webRTCSocket) {
 			var num = d.msg.length;
 			for (var i=0; i < num; i++) {
 				var devid = d.msg[i].id;
-				if (self.isSifteo(devid)) { 
+				if (self.isSifteo(devid) || self.isSphero(devid)) { 
 					self.api.reserveDevice(devid, function(r) {
 						console.log('Got device: '+r.msg);
 						var device = {id:r.msg, subscribed:false, pressListeners:[]};
@@ -94,15 +95,15 @@ function Tangibles(webRTCSocket) {
 		self.api.showColor(dev.id, color, self.err, self.err);
 	}
 
-  this.setRightSpin=function(dev, velocity) {
-    console.log('setRightSpin('+dev.id+','+velocity+')');
-    self.api.spinRight(dev.id, velocity, err, err);
-  }
+	this.setRightSpin=function(dev, velocity) {
+		console.log('setRightSpin('+dev.id+','+velocity+')');
+		self.api.spinRight(dev.id, velocity, self.err, self.err);
+	}
 
-  this.setLeftSpin=function(dev, velocity) {
-    console.log('setLeftSpin('+dev.id+','+velocity+')');
-    self.api.spinLeft(dev.id, velocity, err, err);
-  }
+	this.setLeftSpin=function(dev, velocity) {
+		console.log('setLeftSpin('+dev.id+','+velocity+')');
+		self.api.spinLeft(dev.id, velocity, self.err, self.err);
+	}
 
 	this.showTextPic = function(dev, url, text, color, bg) {
 		this.showText(dev, text, color, bg);
