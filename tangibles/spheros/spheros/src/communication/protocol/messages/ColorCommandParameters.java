@@ -6,7 +6,7 @@ public class ColorCommandParameters
 {
 	public RGBColor color;
 	
-	@SerializedName( "spheros" )
+	@SerializedName( "devices" )
 	public String[] devices;
 
 	public class RGBColor

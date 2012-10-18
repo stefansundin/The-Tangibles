@@ -23,6 +23,8 @@ import se.nicklasgavelin.sphero.command.SleepCommand;
 import se.nicklasgavelin.sphero.command.SpinLeftCommand;
 import se.nicklasgavelin.sphero.exception.InvalidRobotAddressException;
 import se.nicklasgavelin.sphero.exception.RobotBluetoothException;
+import se.nicklasgavelin.sphero.macro.MacroCommand;
+import se.nicklasgavelin.sphero.macro.MacroObject;
 
 import driver.AppManager;
 import driver.AppManagerImpl;
@@ -48,10 +50,14 @@ public class SpheroDriver extends Thread implements BluetoothDiscoveryListener
 	@Override
 	public void run()
 	{
+		_availableSpheroDevices = new LinkedList<Sphero>();
+		
+		
+		
 		directConnect();
+		//deviceSearch();
 		/*
-		bt = new Bluetooth( this, Bluetooth.SERIAL_COM );
-		_availableSpheroDevices = new LinkedList<Sphero>(); //RBR:000666441796 //WBG:000666440DB8
+		bt = new Bluetooth( this, Bluetooth.SERIAL_COM );    //RBR:000666441796 //WBG:000666440DB8
 		BluetoothDevice btd = new BluetoothDevice( bt, "btspp://000666440DB8:1;authenticate=true;encrypt=true;master=false" );
 		
 		try
@@ -76,6 +82,13 @@ public class SpheroDriver extends Thread implements BluetoothDiscoveryListener
 
 		addShutdownHook();
 		*/
+	}
+	
+	private void deviceSearch(){
+		bt = new Bluetooth( this, Bluetooth.SERIAL_COM );
+		bt.discover(); // # COMMENT THIS IF UNCOMMENTING THE BELOW AREA #
+
+		
 	}
 
 	private void addShutdownHook()
@@ -139,6 +152,7 @@ public class SpheroDriver extends Thread implements BluetoothDiscoveryListener
 
 		if( _availableSpheroDevices.size() > 0 )
 			registerApplication();
+		
 	}
 
 	@Override
@@ -159,17 +173,56 @@ public class SpheroDriver extends Thread implements BluetoothDiscoveryListener
 	}
 	
 	public void directConnect(){
-		String id = "000666440DB8";//WBG     "<BluetoothIdForSphero>";
+		//String id = "000666440DB8";//WBG     "<BluetoothIdForSphero>";
+		//String id = "0006664438B8";//BBR     "<BluetoothIdForSphero>";
+		String id = "000666441796"; //RBR
 		Bluetooth bt = new Bluetooth( this, Bluetooth.SERIAL_COM );
 		Logger.getLogger( SpheroDriver.class.getName() ).log( Level.INFO, "comes here!" );
 		BluetoothDevice btd = new BluetoothDevice( bt, "btspp://" + id + ":1;authenticate=true;encrypt=false;master=false" );
-		Robot r;
-		try {
-			r = new Robot( btd );
+		
 			
-			if( r.connect() )
+		if( btd.getAddress().startsWith( Robot.ROBOT_ADDRESS_PREFIX ) )
+		{
+			 //Create robot
+			try
 			{
-				Logger.getLogger( SpheroDriver.class.getName() ).log( Level.INFO, "Connected to robot!" );
+				Sphero s = new Sphero( btd );
+				if( s.connect() )
+				{
+					// Connected
+					Logger.getLogger( this.getClass().getCanonicalName() ).log( Level.INFO, "Connected to Sphero device " + s.getId() + "(" + s.getAddress() + ")" );
+
+					_availableSpheroDevices.add( s );
+					
+					RobotListener listener = new RobotListener();
+					s.addListener(listener);
+					//s.sendCommand(new SetDataStreamingCommand(10, 17, DATA_STREAMING_MASKS.ACCELEROMETER.ALL.FILTERED, 200));
+					s.sendCommand(new SetDataStreamingCommand(10, 17, DATA_STREAMING_MASKS.GYRO.ALL.FILTERED, 999));
+					if( _availableSpheroDevices.size() > 0 ){
+						registerApplication();
+					}
+					addShutdownHook();
+					//System.out.println( btd.getConnectionURL() );
+				}
+			}
+			catch( Exception e )
+			{
+				e.printStackTrace();
+			}
+		}
+		
+		
+			
+			//a completely different kind of connect
+//			Robot r;
+//			try {
+//				r = new Robot( btd );
+//				if( r.connect() )
+//				{
+//					
+//					Logger.getLogger( SpheroDriver.class.getName() ).log( Level.INFO, "Connected to robot!" );
+					
+				
 			    // Successfully connected to Sphero device
 			    // may start sending commands now
 
@@ -182,16 +235,16 @@ public class SpheroDriver extends Thread implements BluetoothDiscoveryListener
 				
 				
 				//blue - roll
-			    r.sendCommand( new RGBLEDCommand( 255, 0, 0 ) );    //turn blue
-			    r.sendCommand( new RollCommand( 180, 1, false ) );
-			    r.sendCommand( new RollCommand( 180, 1, true ),500); //stop after ..
-			    r.sendCommand( new RGBLEDCommand( 255, 0, 0 ), 500);  //turn red
-			    
-			    pause(2000);
-			    
-
-			    r.addListener(this.r);
-			    r.sendCommand(new SetDataStreamingCommand(1, 10000, DATA_STREAMING_MASKS.ACCELEROMETER.X.FILTERED, 1000));
+//			    r.sendCommand( new RGBLEDCommand( 255, 0, 0 ) );    //turn blue
+//			    r.sendCommand( new RollCommand( 180, 1, false ) );
+//			    r.sendCommand( new RollCommand( 180, 1, true ),500); //stop after ..
+//			    r.sendCommand( new RGBLEDCommand( 255, 0, 0 ), 500);  //turn red
+//			    
+//			    pause(2000);
+//			    
+//
+//			    r.addListener(this.r);
+//			    r.sendCommand(new SetDataStreamingCommand(10, 17, DATA_STREAMING_MASKS.GYRO.X.FILTERED, 200));
 			    
 //			    r.sendCommand( new RGBLEDCommand( 255, 0, 0 ) );    //turn blue
 //			    r.sendCommand( new RollCommand( 180, 1, false ) );
@@ -225,20 +278,23 @@ public class SpheroDriver extends Thread implements BluetoothDiscoveryListener
 //			    r.sendCommand( new RollCommand( 1, 180, false ) );
 //			    r.sendCommand( new RGBLEDCommand( 255, 0, 0 ) );    //turn blue
 //			    r.sendCommand( new RollCommand( 1, 180, true ),2500); //stop after 2500
+//			    MacroObject m =new MacroObject();
+//			    //m.addCommand(new MacroCommand());
+//			    r.sendCommand(m);
 			    
-			    
-			}
-			else{
-			    // Failed to connect to Sphero device due to an error
-			}
-			
-			
-		} catch (InvalidRobotAddressException e) {
-			e.printStackTrace();
-		} catch (RobotBluetoothException e) {
-			e.printStackTrace();
-		}
-		
+//			    
+//			}
+//			else{
+//			    // Failed to connect to Sphero device due to an error
+//			}
+//			
+//			
+//		} catch (InvalidRobotAddressException e) {
+//			e.printStackTrace();
+//		} catch (RobotBluetoothException e) {
+//			e.printStackTrace();
+//		}
+//		
 	}
 	
 	private void pause(int ms){

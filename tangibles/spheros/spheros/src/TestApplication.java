@@ -7,15 +7,25 @@ public class TestApplication extends DefaultApp{
 
 	public TestApplication(String host, int port) {
 		super(host, port);
-		// TODO Auto-generated constructor stub
 	}
 	
 	public static void main( String[] args ) throws InvalidRobotAddressException, RobotBluetoothException
     {
-		String host = "localhost";
-		int port = 14;
-        TestApplication experimental_Main = new TestApplication(host, port);
-        experimental_Main.setupDefaultApp();
+		
+		//SpheroDriver spheroD = new SpheroDriver();
+		new Thread(new SpheroDriver(),"driver").start();
+		try {
+			Thread.sleep(6000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		//String host = "localhost";
+		String host = "0.0.0.0";
+		//int port = 9998;
+		int port = 60000;
+		TestApplication thisApp = new TestApplication(host, port);
+        thisApp.setupDefaultApp();
     }
 
 }
