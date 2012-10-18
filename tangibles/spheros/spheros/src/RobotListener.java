@@ -60,7 +60,7 @@ public class RobotListener implements se.nicklasgavelin.sphero.RobotListener {
 		int len=d.length;
 		int i=0;
 		
-		System.out.println("");
+		//System.out.println("");
 		DeviceSensorsData datum = new DeviceSensorsData(DATA_STREAMING_MASKS.GYRO.ALL.FILTERED, d);
 		AttitudeData attitude = datum.getAttitudeData();
         //Show accelerometer data
@@ -70,7 +70,7 @@ public class RobotListener implements se.nicklasgavelin.sphero.RobotListener {
         p.x=gyro.getRotationRateFiltered().x;
         p.y=gyro.getRotationRateFiltered().y;
         p.z=gyro.getRotationRateFiltered().z;
-        System.out.println("Gyro: "+p);
+        //System.out.println("Gyro: "+p);
         
         
         
