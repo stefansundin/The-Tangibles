@@ -196,18 +196,16 @@ public class GeneralCommunicationProtocol extends JsonTcpCommunication
 			else if( cmdMsg.msg.command.equals( "spin_right" ) ) { // Calibrate-command
 				for( final Sphero device : devices )
 					if( device.getId().equals(params.devices[0]) ){
-					    System.out.println("color changed.");
 //						device.sendCommand(new SpinRightCommand(155),0);
 //						device.sendCommand(new SpinRightCommand(0),5000);
 					    device.calibrate(MIN_PRIORITY);
-					    device.sendCommand( new RGBLEDCommand( 0, 255, 0 ), 10000 );
+					    device.sendCommand( new RGBLEDCommand( 0, 255, 0 ), 2500 );
 					    
 					}
 			}
 			else if( cmdMsg.msg.command.equals( "spin_left" ) ) {
 				for( final Sphero device : devices )
 					if( device.getId().equals(params.devices[0]) ){
-//					    System.out.println("color changed.");
 //						device.sendCommand(new SpinLeftCommand(155),0);
 //						device.sendCommand(new SpinLeftCommand(0),5000);
 						
