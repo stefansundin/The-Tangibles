@@ -202,6 +202,19 @@ function socketserver(){
 		//var room = getRoomById(0);
 		//room.addUser(new _user(connection));
 		
+
+		// TODO: Jonas dethär händer ofta
+		// TODO: Jonas dethär händer ofta
+		// TODO: Det händer då man accepter/declinar ett call som inte finns
+		//node.js:201
+		//        throw e; // process.nextTick error, or 'error' event on first tick
+		//              ^
+		//Error: listen EACCES
+		//    at errnoException (net.js:646:11)
+		//    at Array.0 (net.js:732:28)
+		//    at EventEmitter._tickCallback (node.js:192:41)
+
+		
 		addNewUser(connection);
 		
 	}
