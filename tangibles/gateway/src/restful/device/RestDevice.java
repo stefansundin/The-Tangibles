@@ -12,6 +12,7 @@ import managers.DeviceFinderAccess;
 import managers.ReservationManager;
 import managers.ReservationManagerAccess;
 import restful.utils.ConditionalAccessResource;
+import tangible.devices.TangibleDevice;
 
 /**
  *

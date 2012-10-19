@@ -10,7 +10,7 @@ function tangibleREST(method, svr_ip, uri, params, onSuccess, onError, async) {
 	"use strict";
 	var ajaxParams = {
 		type : method,
-		dataType : "jsonp",
+		dataType : "json",
 		data : params
 	};
 	if (onSuccess !== undefined && onSuccess !== null) {

@@ -52,7 +52,10 @@ public class JSONRestResource {
     protected Gson _gson = new Gson();
 
     protected Response makeCORS() {
-        return Response.ok().build();
+        return Response.ok()
+                .header("Access-Control-Allow-Origin", "*")
+                .header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+                .build();
     }
 
     protected String createJsonMsg(Object o, boolean isCtrl) {
@@ -71,7 +74,11 @@ public class JSONRestResource {
     }
 
     protected Response createJsonResponseMsg(Object o, boolean isCtrl, Status statusCode) {
-        return Response.status(statusCode).entity(createJsonMsg(o, isCtrl)).build();
+        return Response.status(statusCode)
+                .entity(createJsonMsg(o, isCtrl))
+                .header("Access-Control-Allow-Origin", "*")
+                .header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+                .build();
     }
 
     protected Response createJsonCtrlResponseMsg(Object o, Status statusCode) {
