@@ -158,7 +158,7 @@
 	  }
 	  
 	function onUserInvited(invited_user) {
-	    inviting_user = user_name;
+	    inviting_user = parent.lobby.ownname;
 		var room = window.location.hash.slice(1);
       
 		// See if the user exists
@@ -189,7 +189,14 @@
 	  function initInviteUser() {
       var inviteButton = document.getElementById("inviteUser");
       inviteButton.addEventListener('click', function(event) {
-        var invited_user = prompt("Enter user to invite: " + parent.lobby.users, "User");
+		var userlist = [];
+		var list = parent.lobby.users;
+		for (i in list) {
+			if (list[i][1] != parent.lobby.ownname) {
+				userlist.push(list[i][1]);
+			}
+		}
+        var invited_user = prompt("Enter user to invite: " + userlist, "User");
         if (invited_user != '' && invited_user != null) {
           onUserInvited(invited_user);
         }

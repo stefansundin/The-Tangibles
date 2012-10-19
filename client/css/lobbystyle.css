@@ -1,5 +1,3 @@
-
-
 html {
 	height: 100%;
 	width: 100%;
@@ -21,34 +19,37 @@ label,input {
 	display: block;
 }
 
-#call_list {
-	position: absolute;
-	bottom: 0;
-}
-
 h1 {
-	
-	margin-top : 0;
+	margin-top: 0;
 }
 
 #top {
 	position: absolute;
 	top: 0;
-	padding-top : 10px;
+	padding-top: 10px;
 	right: 0;
-	padding-right : 10px;
+	padding-right: 10px;
 }
 
 #header {
-	float:top;
-	height:10%;
+	float: top;
+	height: 10%;
 }
 
 #main {
-  float: bottom;
+	float: bottom;
 	width: 60%;
 	margin: 0 auto;
-  height: 90 %;
+	height: 90%;
+}
+
+#call_list {
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	width: 60%;
+	margin: 0 auto;
 }
 
 #roomMain {
@@ -80,7 +81,7 @@ h1 {
 	color: #0000FF;
 }
 
-#room_table h2, #room_table h3 {
+#room_table h2,#room_table h3 {
 	padding: 0;
 	margin: 0;
 }
@@ -89,12 +90,12 @@ h1 {
 	text-align: left;
 }
 
-#room_table th, td {
+#room_table th,td {
 	width: 50%;
 	padding: 10px;
 }
 
-#room_table tfoot td, #room_table tbody td {
+#room_table tfoot td,#room_table tbody td {
 	border-top: 1px solid #ccc;
 }
 
