@@ -66,6 +66,9 @@ Lobby.prototype.load = function() {
 	socket.on(API_INVITE_ACCEPTED, function(roomId) {
 		self.onCallAccepted(roomId);
 	});
+	socket.on(API_INVITE_DECLINED, function(callId) {
+		self.onCallDeclined(callId);
+	});
 	socket.on(API_ROOM_NEW, function(roomId, roomName, roomDesc, roomType) {
 		self.onRoomAdd(roomId, roomName, roomDesc, roomType);
 	});
@@ -625,6 +628,23 @@ Lobby.prototype.accept = function(callId) {
  */
 Lobby.prototype.onCallAccepted = function(roomId) {
 	this.enterRoom(roomId);
+};
+
+/**
+ * Callback function for when the call has been declined. This will just remove
+ * the call div.
+ * 
+ * @param callId
+ */
+Lobby.prototype.onCallDeclined = function(callId) {
+	if ($('#call_' + callId).length != 0) { // Extra check
+		$('#call_' + callId).removeAttr('id').hide({
+			effect : 'drop',
+			complete : function() {
+				$(this).remove();
+			}
+		});
+	}
 };
 
 /**

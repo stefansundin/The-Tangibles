@@ -10,7 +10,7 @@ import se.nicklasgavelin.sphero.exception.RobotBluetoothException;
 import utils.Event;
 
 public class Sphero extends Robot {
-	private boolean active = false;
+	public boolean active = false;
 
 	public Sphero(BluetoothDevice bt) throws InvalidRobotAddressException,
 			RobotBluetoothException {
@@ -30,11 +30,16 @@ public class Sphero extends Robot {
 		if (!active) {
 			RobotListener listener = new RobotListener(events, getId());
 			addListener(listener);
-
+			activateDataStreaming();
+		}
+	}
+	
+	public void activateDataStreaming(){
+		if (!active) {
 			sendCommand(new SetDataStreamingCommand(10, 17,
 					DATA_STREAMING_MASKS.ACCELEROMETER.ALL.FILTERED, 200));
 			sendCommand(new SetDataStreamingCommand(10, 17,
-					DATA_STREAMING_MASKS.GYRO.ALL.FILTERED, 999));
+					DATA_STREAMING_MASKS.GYRO.ALL.FILTERED, 200));
 		}
 		active = true;
 	}
