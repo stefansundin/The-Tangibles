@@ -14,45 +14,32 @@ app.get('/', function(req, res) {
 
 app.get('/room', function(req, res) {
 //  console.log('Opening room');
-  res.sendfile(__dirname + '/room/index.html');
-});
-
-app.get('/test', function(req, res) {
-//  console.log('Opening test');
-  res.sendfile(__dirname + '/test.html');
-});
-app.get('/test2', function(req, res) {
-//  console.log('Opening test2');
-  res.sendfile(__dirname + '/test2.html');
-});
-app.get('/test3', function(req, res) {
-//  console.log('Opening test3');
-  res.sendfile(__dirname + '/test3.html');
+  res.sendfile(__dirname + '/room.html');
 });
 
 app.get('/workspace', function(req,res) {
 //  console.log('Opening workspace');
-  res.sendfile(__dirname + '/workspace/index.html');
+  res.sendfile(__dirname + '/workspace.html');
 });
 
 app.get('/roomstyle.css', function(req, res) {
-  res.sendfile(__dirname + '/room/roomstyle.css');
+  res.sendfile(__dirname + '/css/roomstyle.css');
 });
 
 app.get('/workspacestyle.css', function(req, res) {
-  res.sendfile(__dirname + '/workspace/workspacestyle.css');
+  res.sendfile(__dirname + '/css/workspacestyle.css');
 });
 
 app.get('/style.css', function(req, res) {
-  res.sendfile(__dirname + '/style.css');
+  res.sendfile(__dirname + '/css/lobbystyle.css');
 });
 
 app.get('/socket.js', function(req, res) {
-  res.sendfile(__dirname + '/socket.js');
+  res.sendfile(__dirname + '/js/socket.js');
 });
 
 app.get('/lobby.js', function(req, res) {
-  res.sendfile(__dirname + '/lobby.js');
+  res.sendfile(__dirname + '/js/lobby.js');
 });
 
 app.get('/webrtc.io.js', function(req, res) {
