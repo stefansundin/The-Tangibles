@@ -26,7 +26,7 @@ app.get('/room/css/roomstyle.css', function(req, res) {
   res.sendfile(__dirname + '/client/css/roomstyle.css');
 });
 
-app.get('/css/workspacestyle.css', function(req, res) {
+app.get('/workspace/css/workspacestyle.css', function(req, res) {
   res.sendfile(__dirname + '/client/css/workspacestyle.css');
 });
 
