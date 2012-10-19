@@ -193,7 +193,7 @@
 		var list = parent.lobby.users;
 		for (i in list) {
 			if (list[i][1] != parent.lobby.ownname) {
-				userlist.append(list[i][1]);
+				userlist.push(list[i][1]);
 			}
 		}
         var invited_user = prompt("Enter user to invite: " + userlist, "User");
