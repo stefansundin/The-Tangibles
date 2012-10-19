@@ -26,6 +26,7 @@ import se.nicklasgavelin.sphero.macro.MacroObject;
 import se.nicklasgavelin.sphero.macro.command.RGB;
 import se.nicklasgavelin.sphero.macro.command.RawMotor;
 import se.nicklasgavelin.sphero.macro.command.Roll;
+import utils.Event;
 import utils.Point3D;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -56,7 +57,7 @@ public class GeneralCommunicationProtocol extends JsonTcpCommunication
 		_readerThread.start();
 	}
 	
-	public void sendEventMessage(String eventName, String devId, Point3D p) throws IOException{
+	public void sendEventMessage(String eventName, String devId, Point3D p){
 		JsonObject params = new JsonObject();
 		params.addProperty("x", p.x);
 		params.addProperty("y", p.y);
@@ -73,7 +74,11 @@ public class GeneralCommunicationProtocol extends JsonTcpCommunication
 		
 		// Best would be to use JsonTcpCommunication.sendEventMessage(obj)
 		// but since it gson.toJsonTree(msg) for me add members it is done this way.
-		sendString(complete.toString()); 
+		try {
+			sendString(complete.toString());
+		} catch (IOException e) {
+			e.printStackTrace();
+		} 
 	}
 
 	private class JsonReaderThread extends Thread
@@ -320,15 +325,11 @@ public class GeneralCommunicationProtocol extends JsonTcpCommunication
 						if(sphero.getId().equals(devID)){
 							System.out.println("Found your device");
 							
-							String[] lisentypes= new String[2];
-							lisentypes[0] = "gyro";
-							lisentypes[1] = "acc";
-							RobotListener listener = new RobotListener(lisentypes,devID);
-							sphero.addListener(listener);
+							Event[] events = new Event[2];
+							events[0] = utils.Event.GYRO;
+							events[1] = utils.Event.ACCELEROMETER;
 							
-							sphero.sendCommand(new SetDataStreamingCommand(10, 17, DATA_STREAMING_MASKS.ACCELEROMETER.ALL.FILTERED, 200));							
-							sphero.sendCommand(new SetDataStreamingCommand(10, 17, DATA_STREAMING_MASKS.GYRO.ALL.FILTERED, 999));
-														
+							sphero.activateEvents(events);														
 						}
 					}
 				}

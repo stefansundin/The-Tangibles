@@ -28,6 +28,7 @@ import se.nicklasgavelin.sphero.exception.InvalidRobotAddressException;
 import se.nicklasgavelin.sphero.exception.RobotBluetoothException;
 import se.nicklasgavelin.sphero.macro.MacroCommand;
 import se.nicklasgavelin.sphero.macro.MacroObject;
+import utils.Event;
 import utils.Point3D;
 
 import driver.AppManager;
@@ -57,23 +58,7 @@ public class SpheroDriver extends Thread implements BluetoothDiscoveryListener
 		
 		
 		
-		directConnect();
-		
-		/*
-		pause(10000);
-		Point3D p = new Point3D();
-		p.x=1;
-		p.y=2;
-		p.z=3;
-		try {
-			_appMgr.getGeneralComm().sendEventMessage("gyro","000666440DB8",p);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}*/
-
-		
-		
+		directConnect();		
 		
 		//deviceSearch();
 		/*
@@ -172,7 +157,6 @@ public class SpheroDriver extends Thread implements BluetoothDiscoveryListener
 
 		if( _availableSpheroDevices.size() > 0 )
 			registerApplication();
-			System.out.println("application registred");
 		
 	}
 
@@ -213,13 +197,14 @@ public class SpheroDriver extends Thread implements BluetoothDiscoveryListener
 					Logger.getLogger( this.getClass().getCanonicalName() ).log( Level.INFO, "Connected to Sphero device " + s.getId() + "(" + s.getAddress() + ")" );
 
 					_availableSpheroDevices.add( s );
-					String[] lisentypes= new String[2];
-					lisentypes[0] = "gyro";
-					
+					Event[] events = new Event[2];
+					events[0] = utils.Event.GYRO;
+
 					/*
-					RobotListener listener = new RobotListener(lisentypes,s.getId());
+					RobotListener listener = new RobotListener(events,s.getId());
 					s.addListener(listener);
 					*/
+					
 					
 					//s.sendCommand(new SetDataStreamingCommand(10, 17, DATA_STREAMING_MASKS.ACCELEROMETER.ALL.FILTERED, 200));
 					//s.sendCommand(new SetDataStreamingCommand(10, 17, DATA_STREAMING_MASKS.GYRO.ALL.FILTERED, 999));
