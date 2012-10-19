@@ -17,9 +17,8 @@ import restful.utils.JSONRestResource;
 public class RestTangibleAPI extends JSONRestResource {
 
     @GET
-    public Response getWelcomeMessage(
-            @HeaderParam("Origin") String origin) {
-        return createJsonCtrlResponseMsg(origin, "Welcome on the tangibleAPI deployed on this computer", Response.Status.OK);
+    public Response getWelcomeMessage() {
+        return createJsonCtrlResponseMsg("Welcome on the tangibleAPI deployed on this computer", Response.Status.OK);
     }
 
 //  @GET @Path("/testuri")
@@ -28,30 +27,26 @@ public class RestTangibleAPI extends JSONRestResource {
 //  }
     @GET
     @Path("/test/")
-    public Response helloGet(@QueryParam("p") String param,
-            @HeaderParam("Origin") String origin) {
-        return this.createJsonCtrlResponseMsg(origin, "p was: " + param, Response.Status.OK);
+    public Response helloGet(@QueryParam("p") String param) {
+        return this.createJsonCtrlResponseMsg("p was: " + param, Response.Status.OK);
     }
 
     @DELETE
     @Path("/test/")
-    public Response helloDelete(@FormParam("p") String param,
-            @HeaderParam("Origin") String origin) {
-        return this.createJsonCtrlResponseMsg(origin, "p was: " + param, Response.Status.OK);
+    public Response helloDelete(@FormParam("p") String param) {
+        return this.createJsonCtrlResponseMsg("p was: " + param, Response.Status.OK);
     }
 
     @POST
     @Path("/test/")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response helloPost(@FormParam("p") String param,
-            @HeaderParam("Origin") String origin) {
-        return this.createJsonCtrlResponseMsg(origin, "p was: " + param, Response.Status.OK);
+    public Response helloPost(@FormParam("p") String param) {
+        return this.createJsonCtrlResponseMsg("p was: " + param, Response.Status.OK);
     }
 
     @PUT
     @Path("/test/")
-    public Response helloPut(@FormParam("p") String param,
-            @HeaderParam("Origin") String origin) {
-        return this.createJsonCtrlResponseMsg(origin, "p was: " + param, Response.Status.OK);
+    public Response helloPut(@FormParam("p") String param) {
+        return this.createJsonCtrlResponseMsg("p was: " + param, Response.Status.OK);
     }
 }

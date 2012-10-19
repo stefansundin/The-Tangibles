@@ -50,10 +50,8 @@ public class RestSpecificDevice extends ConditionalAccessResource {
 
     @OPTIONS
     @Path("/text_message")
-    public Response showTextOptions(
-            @HeaderParam("Access-Control-Request-Headers") String requestH,
-            @HeaderParam("Origin") String origin) {
-        return makeCORS(requestH, origin);
+    public Response showTextOptions() {
+        return makeCORS();
     }
 
     @PUT
@@ -61,32 +59,29 @@ public class RestSpecificDevice extends ConditionalAccessResource {
     public Response showText(
             @PathParam("device_ID") String devID,
             @FormParam("msg") String msg,
-            @FormParam("color") @DefaultValue("000000") String color,
-            @HeaderParam("Origin") String origin) {
+            @FormParam("color") @DefaultValue("000000") String color) {
         if (!_mgr.isAReservation(devID, _appuuid)) {
-            return this.createErrorMsg(origin, "the device is not reserved by "
+            return this.createErrorMsg("the device is not reserved by "
                     + "the specified application!", "device: " + devID + " / app: " + _appuuid);
         }
         Integer color_value = null;
         try {
             color_value = Integer.parseInt(color, 16);
         } catch (NumberFormatException ex) {
-            return this.createMissingCompulsoryParamMsg(origin, "a color must be specified "
+            return this.createMissingCompulsoryParamMsg("a color must be specified "
                     + "using the parameters r, g & b or color");
         }
 
         TangibleDevice dev = _finder.getDevice(devID);
         System.out.println("text_message on #" + devID);
         dev.getTalk().showText(msg, color_value);
-        return this.createOKCtrlMsg(origin);
+        return this.createOKCtrlMsg();
     }
 
     @OPTIONS
     @Path("/show_color")
-    public Response showColorOptions(
-            @HeaderParam("Access-Control-Request-Headers") String requestH,
-            @HeaderParam("Origin") String origin) {
-        return makeCORS(requestH, origin);
+    public Response showColorOptions() {
+        return makeCORS();
     }
 
     @PUT
@@ -97,8 +92,7 @@ public class RestSpecificDevice extends ConditionalAccessResource {
             @FormParam("r") Integer r_value,
             @FormParam("g") Integer g_value,
             @FormParam("b") Integer b_value,
-            @FormParam("color") String color,
-            @HeaderParam("Origin") String origin) {
+            @FormParam("color") String color) {
         Integer color_value;
         System.out.println("show_color on #" + devID);
 //    System.out.println("trying to change the cubes'color!");
@@ -111,7 +105,7 @@ public class RestSpecificDevice extends ConditionalAccessResource {
 //    }
         //let's check that the device is reserved by the application
         if (!_mgr.isAReservation(devID, _appuuid)) {
-            return this.createErrorMsg(origin, "the device is not reserved by "
+            return this.createErrorMsg("the device is not reserved by "
                     + "the specified application!", "device: " + devID + " / app: " + _appuuid);
         }
         try {
@@ -124,55 +118,49 @@ public class RestSpecificDevice extends ConditionalAccessResource {
         if (r_value == null || g_value == null || b_value == null) {
             //one of the component is null ... let's try to use color instead
             if (color_value == null) {
-                return this.createMissingCompulsoryParamMsg(origin, "a color must be specified "
+                return this.createMissingCompulsoryParamMsg("a color must be specified "
                         + "using the parameters r, g & b or color");
             } else {
                 if (ColorHelper.isValidColor(color_value)) {
-                    return this.showColor(origin, color_value, devID);
+                    return this.showColor(color_value, devID);
                 } else {
-                    return this.createErrorMsg(origin, "the specified color is not"
+                    return this.createErrorMsg("the specified color is not"
                             + " a valid representation of the color", color_value.toString());
                 }
             }
         } else {
             //let's use the three components to print the color on the cubes!
             if (ColorHelper.isValidColor(r_value, g_value, b_value)) {
-                return this.showColor(origin, r_value, g_value, b_value, devID);
+                return this.showColor(r_value, g_value, b_value, devID);
             } else {
-                return this.createErrorMsg(origin, "the specified color is not"
+                return this.createErrorMsg("the specified color is not"
                         + " a valid representation of the color",
                         "r:" + r_value + " g:" + g_value + " b:" + b_value);
             }
         }
     }
 
-    private Response showColor(
-            String origin, int rgb, String devID) {
+    private Response showColor(int rgb, String devID) {
         int[] rgb_array = ColorHelper.decompose(rgb);
-        return showColor(origin, rgb_array[0], rgb_array[1], rgb_array[2], devID);
+        return showColor(rgb_array[0], rgb_array[1], rgb_array[2], devID);
 
     }
 
-    private Response showColor(
-            String origin, int r, int g, int b, String devID) {
+    private Response showColor(int r, int g, int b, String devID) {
         TangibleDevice dev = _finder.getDevice(devID);
         dev.getTalk().showColor(r, g, b);
-        return this.createOKCtrlMsg(origin);
+        return this.createOKCtrlMsg();
     }
 
     @OPTIONS
     @Path("/spin_right")
-    public Response spinRightOptions(
-            @HeaderParam("Access-Control-Request-Headers") String requestH,
-            @HeaderParam("Origin") String origin) {
-        return makeCORS(requestH, origin);
+    public Response spinRightOptions() {
+        return makeCORS();
     }
     @OPTIONS
     @Path("/spin_left")
-    public Response spinLeftOptions(
-            @HeaderParam("Access-Control-Request-Headers") String requestH,
-            @HeaderParam("Origin") String origin) {
-        return makeCORS(requestH, origin);
+    public Response spinLeftOptions() {
+        return makeCORS();
     }
 
     
@@ -180,52 +168,45 @@ public class RestSpecificDevice extends ConditionalAccessResource {
     @Path("/spin_left")
     public Response spinLeft(
     		@PathParam("device_ID") String devID,
-    		@FormParam("velocity") Integer vel,
-            @HeaderParam("Origin") String origin) {
+    		@FormParam("velocity") Integer vel) {
     	
     	System.out.println("spin_left on #" + devID);
-    	return this.spinLeftResponse(origin, vel, devID);
+    	return this.spinLeftResponse(vel, devID);
     }
     @PUT
     @Path("/spin_right")
     public Response spinRight(
     		@PathParam("device_ID") String devID,
-    		@FormParam("velocity") Integer vel,
-            @HeaderParam("Origin") String origin) {
+    		@FormParam("velocity") Integer vel) {
 
 		System.out.println("spin_right on #" + devID);
-    	return this.spinRightResponse(origin, vel, devID);
+    	return this.spinRightResponse(vel, devID);
     	
     }
 
-    private Response spinRightResponse(
-            String origin, int vel, String devID) {
+    private Response spinRightResponse(int vel, String devID) {
     	TangibleDevice dev = _finder.getDevice(devID);
     	dev.getTalk().spinRight(vel);
     	System.out.println("sending ok message.");
-        return this.createOKCtrlMsg(origin);
+        return this.createOKCtrlMsg();
     }
-    private Response spinLeftResponse(
-            String origin, int vel, String devID) {
+    private Response spinLeftResponse(int vel, String devID) {
     	TangibleDevice dev = _finder.getDevice(devID);
     	dev.getTalk().spinLeft(vel);
     	System.out.println("sending ok message.");
-        return this.createOKCtrlMsg(origin);
+        return this.createOKCtrlMsg();
     }
 
     @OPTIONS
     @Path("/show_picture")
-    public Response showPictureOptions(
-            @HeaderParam("Access-Control-Request-Headers") String requestH,
-            @HeaderParam("Origin") String origin) {
-        return makeCORS(requestH, origin);
+    public Response showPictureOptions() {
+        return makeCORS();
     }
 
     @PUT
     @Path("/show_picture")
     @Consumes(MediaType.APPLICATION_OCTET_STREAM)
-    public Response showPicture(@PathParam("device_ID") String devId, InputStream input,
-            @HeaderParam("Origin") String origin) {
+    public Response showPicture(@PathParam("device_ID") String devId, InputStream input) {
         System.out.println("show_picture on #" + devId);
         try {
 //      Date startTime = new Date();
@@ -237,73 +218,66 @@ public class RestSpecificDevice extends ConditionalAccessResource {
             dev.getTalk().showPicture(image);
 //      Date endTime = new Date();
 //      Logger.getLogger(RestSpecificDevice.class.getName()).log(Level.INFO, "Ending to process the showPicture command : time is -> {0}", format.format(endTime));
-            return this.createOKCtrlMsg(origin);
+            return this.createOKCtrlMsg();
         } catch (IOException ex) {
             Logger.getLogger(RestSpecificDevice.class.getName()).log(Level.SEVERE, null, ex);
-            return this.createErrorMsg(origin, "Could not procceed the picture", "something didn't work with the given picture");
+            return this.createErrorMsg("Could not procceed the picture", "something didn't work with the given picture");
         }
     }
 
     @PUT
     @Path("/show_picture")
     public Response showPictureFromURL(@PathParam("device_ID") String devId,
-            @FormParam("url") String pic_url,
-            @HeaderParam("Origin") String origin) {
+            @FormParam("url") String pic_url) {
         try {
             URL url = new URL(pic_url);
             BufferedImage img = ImageIO.read(url);
             TangibleDevice dev = _finder.getDevice(devId);
             dev.getTalk().showPicture(img);
-            return this.createOKCtrlMsg(origin);
+            return this.createOKCtrlMsg();
         } catch (MalformedURLException ex) {
-            return this.createErrorMsg(origin, new ApiException(
+            return this.createErrorMsg(new ApiException(
                     Response.Status.BAD_REQUEST, "the given URL is not malformed"));
         } catch (IOException ex) {
-            return this.createErrorMsg(origin, new ApiException(
+            return this.createErrorMsg(new ApiException(
                     Response.Status.BAD_REQUEST, "the given url couldn't be loaded"));
         }
     }
 
     @OPTIONS
     @Path("/fade_color")
-    public Response fadeColorOptions(
-            @HeaderParam("Access-Control-Request-Headers") String requestH,
-            @HeaderParam("Origin") String origin) {
-        return makeCORS(requestH, origin);
+    public Response fadeColorOptions() {
+        return makeCORS();
     }
 
     @PUT
     @Path("/fade_color")
     public Response fadeColor(
             @PathParam("device_ID") String devId,
-            @FormParam("color") String color,
-            @HeaderParam("Origin") String origin) {
+            @FormParam("color") String color) {
         Integer color_value;
         try {
             color_value = Integer.parseInt(color, 16);
         } catch (NumberFormatException ex) {
-            return this.createMissingCompulsoryParamMsg(origin, "a color must be specified "
+            return this.createMissingCompulsoryParamMsg("a color must be specified "
                     + "using the parameters r, g & b or color");
         }
         TangibleDevice dev = _finder.getDevice(devId);
         dev.getTalk().fadeColor(color_value);
-        return this.createOKCtrlMsg(origin);
+        return this.createOKCtrlMsg();
     }
 
     @OPTIONS
     @Path("/subscribe")
-    public Response subscribeOptions(
-            @HeaderParam("Access-Control-Request-Headers") String requestH,
-            @HeaderParam("Origin") String origin) {
-        return makeCORS(requestH, origin);
+    public Response subscribeOptions() {
+        return makeCORS();
     }
 
     @PUT
     @Path("/subscribe")
     public Response addSubscription(
-            @PathParam("device_ID") String devId //TODO_LATER add a filter here to register only some events
-            , @FormParam("sock_type") String sockType,
-            @HeaderParam("Origin") String origin) {
+            @PathParam("device_ID") String devId 
+            , @FormParam("sock_type") String sockType) {
         System.out.println("subscription required for #" + devId);
         //check if there is already a streaming socket for this appuuid
         synchronized (synchronizer) {
@@ -321,11 +295,11 @@ public class RestSpecificDevice extends ConditionalAccessResource {
                     try {
                         sTh = _subs.createStreamingSocket(_appuuid, type);
                     } catch (AlreadyExistingSocket ex) {
-                        return new RestApiException(origin, ex, true).getResponse();
+                        return new RestApiException(ex, true).getResponse();
                     } catch (IOException ex) {
                         JsonObject msg = new JsonObject();
                         msg.addProperty("error", "streaming socket creation failed");
-                        return createJsonCtrlResponseMsg(origin, msg, Response.Status.INTERNAL_SERVER_ERROR);
+                        return createJsonCtrlResponseMsg(msg, Response.Status.INTERNAL_SERVER_ERROR);
                     }
                 }
                 //setup the subscription
@@ -335,10 +309,10 @@ public class RestSpecificDevice extends ConditionalAccessResource {
                 int port = (type.equals(SubscriptionManager.StreamingThreadType.WEB_SOCKET))
                         ? _subs.getWsPort() : _subs.getTcpPort();
                 obj.addProperty("port", port);
-                return createJsonCtrlResponseMsg(origin, obj, Response.Status.OK);
+                return createJsonCtrlResponseMsg(obj, Response.Status.OK);
             } catch (ApiException ex) {
                 Logger.getLogger(RestSpecificDevice.class.getName()).log(Level.INFO, "", ex);
-                return new RestApiException(origin, ex, true).getResponse();
+                return new RestApiException(ex, true).getResponse();
             }
         }
     }

@@ -12,8 +12,6 @@ import managers.DeviceFinderAccess;
 import managers.ReservationManager;
 import managers.ReservationManagerAccess;
 import restful.utils.ConditionalAccessResource;
-//import sun.reflect.generics.reflectiveObjects.NotImplementedException;
-import tangible.devices.TangibleDevice;
 
 /**
  *
@@ -32,59 +30,50 @@ public class RestDevice extends ConditionalAccessResource {
     }
 
     @OPTIONS
-    public Response getDeviceListOption(
-            @HeaderParam("Access-Control-Request-Headers") String requestH,
-            @HeaderParam("Origin") String origin) {
-        return makeCORS(requestH, origin);
+    public Response getDeviceListOption() {
+        return makeCORS();
     }
 
     @GET
-    public Response getDeviceList(
-            @HeaderParam("Origin") String origin) {
+    public Response getDeviceList() {
         System.out.println("listing devices");
         List<TangibleDevice> list = _finder.getDevices();
         if (list.isEmpty()) {
-            return createErrorMsg(origin, "no registered devices", "Connect some devices to the API to solve this problem");
+            return createErrorMsg("no registered devices", "Connect some devices to the API to solve this problem");
         } else {
-            return createJsonCtrlResponseMsg(origin, _finder.getDevices(), Status.OK);
+            return createJsonCtrlResponseMsg(_finder.getDevices(), Status.OK);
         }
     }
 
     @OPTIONS
     @Path("/reservation")
-    public Response reservationOptions(
-            @HeaderParam("Access-Control-Request-Headers") String requestH,
-            @HeaderParam("Origin") String origin) {
-        return makeCORS(requestH, origin);
+    public Response reservationOptions() {
+        return makeCORS();
     }
 
     @PUT
     @Path("/reservation")
-    public Response makeReservationByCapability(
-            @HeaderParam("Origin") String origin) {
-        return createJsonCtrlResponseMsg(origin, new Exception(), Response.Status.SERVICE_UNAVAILABLE);
+    public Response makeReservationByCapability() {
+        return createJsonCtrlResponseMsg(new Exception(), Response.Status.SERVICE_UNAVAILABLE);
     }
 
     @OPTIONS
     @Path("/reservation/{deviceId}")
-    public Response reservationDeviceOptions(
-            @HeaderParam("Access-Control-Request-Headers") String requestH,
-            @HeaderParam("Origin") String origin) {
-        return makeCORS(requestH, origin);
+    public Response reservationDeviceOptions() {
+        return makeCORS();
     }
 
     @PUT
     @Path("/reservation/{deviceId}")
     public Response makeReservationById(
             @PathParam("deviceId") String id,
-            @PathParam("appuuid") String appUUID,
-            @HeaderParam("Origin") String origin) {
+            @PathParam("appuuid") String appUUID) {
         System.out.println("Reserving device #" + id + " for application " + appUUID);
         try {
             String reservation = _mgr.reserveDeviceById(id, _appuuid);
-            return createJsonCtrlResponseMsg(origin, reservation, Status.OK);
+            return createJsonCtrlResponseMsg(reservation, Status.OK);
         } catch (ReservationManager.UnsuccessfulReservationException ex) {
-            return new RestApiException(origin, ex, true).getResponse();
+            return new RestApiException(ex, true).getResponse();
         }
     }
 
@@ -92,44 +81,37 @@ public class RestDevice extends ConditionalAccessResource {
     @Path("/reservation/{deviceId}")
     public Response cancelReservation(
             @PathParam("deviceId") String id,
-            @PathParam("appuuid") String appUUID,
-            @HeaderParam("Origin") String origin) {
+            @PathParam("appuuid") String appUUID) {
         System.out.println("Releasing device #" + id + " hold by app " + appUUID);
         try {
             _mgr.endReservation(id, _appuuid);
-            return createJsonResponseMsg(origin, id, true, Status.OK);
+            return createJsonResponseMsg(id, true, Status.OK);
         } catch (ReservationManager.NoSuchReservationException ex) {
-            return createErrorMsg(origin, "this reservation doesn't exist", "device: " + id + " / appUUID: " + appUUID);
+            return createErrorMsg("this reservation doesn't exist", "device: " + id + " / appUUID: " + appUUID);
         }
     }
 
     @OPTIONS
     @Path("/info")
-    public Response infoOptions(
-            @HeaderParam("Access-Control-Request-Headers") String requestH,
-            @HeaderParam("Origin") String origin) {
-        return makeCORS(requestH, origin);
+    public Response infoOptions() {
+        return makeCORS();
     }
 
     @GET
     @Path("/info")
-    public Response getInformations(
-            @HeaderParam("Origin") String origin) {
-        return createJsonCtrlResponseMsg(origin, new Exception(), Response.Status.SERVICE_UNAVAILABLE);
+    public Response getInformations() {
+        return createJsonCtrlResponseMsg(new Exception(), Response.Status.SERVICE_UNAVAILABLE);
     }
 
     @OPTIONS
     @Path("/info/{deviceUUID}")
-    public Response infoDeviceOptions(
-            @HeaderParam("Access-Control-Request-Headers") String requestH,
-            @HeaderParam("Origin") String origin) {
-        return makeCORS(requestH, origin);
+    public Response infoDeviceOptions( ) {
+        return makeCORS();
     }
 
     @GET
     @Path("/info/{deviceUUID}")
-    public Response getDeviceInformation(
-            @HeaderParam("Origin") String origin) {
-        return createJsonCtrlResponseMsg(origin, new Exception(), Response.Status.SERVICE_UNAVAILABLE);
+    public Response getDeviceInformation() {
+        return createJsonCtrlResponseMsg(new Exception(), Response.Status.SERVICE_UNAVAILABLE);
     }
 }

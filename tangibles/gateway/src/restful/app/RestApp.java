@@ -8,7 +8,6 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import managers.ApplicationManager;
-import managers.ApplicationManager.UnsuccessfulApplicationUnRegistration;
 import managers.ApplicationManagerAccess;
 import restful.utils.JSONRestResource;
 
@@ -22,52 +21,43 @@ public class RestApp extends JSONRestResource {
     ApplicationManager app = ApplicationManagerAccess.getInstance();
 
     @GET
-    public Response getAppListing(
-            @HeaderParam("Origin") String origin) {
-        //just a dummy method supposed to return all the application currently running on the devices
-
-        return createJsonCtrlResponseMsg(origin, "you cannot see the list 'cause I don't want you to do so!", Response.Status.FORBIDDEN);
+    public Response getAppListing() {
+        return createJsonCtrlResponseMsg("you cannot see the list 'cause I don't want you to do so!", Response.Status.FORBIDDEN);
     }
 
     @OPTIONS
     @Path("/registration/")
-    public Response registerApplicationCORS(
-            @HeaderParam("Access-Control-Request-Headers") String requestH,
-            @HeaderParam("Origin") String origin) {
-        return makeCORS(requestH, origin);
+    public Response registerApplicationCORS() {
+        return makeCORS();
     }
 
     @PUT
     @Path("/registration/")
     public Response registerApplication(
             @FormParam("appname") String name,
-            @FormParam("description") String description,
-            @HeaderParam("Origin") String origin) {
+            @FormParam("description") String description) {
         //TODO_LATER check that the request sender has the right to ask for that!
         System.out.println("registration: \n"
                 + "appname : " + name + "\n"
                 + "description: " + description);
 
-        return createJsonCtrlResponseMsg(origin, app.registerApp(name, description), Status.OK);
+        return createJsonCtrlResponseMsg(app.registerApp(name, description), Status.OK);
     }
 
     @OPTIONS
     @Path("/registration/{appUUID}")
-    public Response removeApplicationOption(
-            @HeaderParam("Access-Control-Request-Headers") String requestH,
-            @HeaderParam("Origin") String origin) {
-        return makeCORS(requestH, origin);
+    public Response removeApplicationOption() {
+        return makeCORS();
     }
 
     @DELETE
     @Path("/registration/{appUUID}")
-    public Response removeApplication(@PathParam("appUUID") String uuid,
-            @HeaderParam("Origin") String origin) {
+    public Response removeApplication(@PathParam("appUUID") String uuid) {
         System.out.println("unregistration: " + uuid);
         try {
-            return createJsonCtrlResponseMsg(origin, app.removeApplication(uuid), Status.OK);
+            return createJsonCtrlResponseMsg(app.removeApplication(uuid), Status.OK);
         } catch (ApiException e) {
-            return createErrorMsg(origin, e);
+            return createErrorMsg(e);
         }
     }
 }

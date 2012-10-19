@@ -11,7 +11,8 @@ function tangibleREST(method, svr_ip, uri, params, onSuccess, onError, async) {
 	var ajaxParams = {
 		type : method,
 		dataType : "json",
-		data : params
+		data : params,
+		crossDomain : true
 	};
 	if (onSuccess !== undefined && onSuccess !== null) {
 		ajaxParams.success =
