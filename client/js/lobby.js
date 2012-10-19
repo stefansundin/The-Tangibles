@@ -14,6 +14,8 @@ function assert(exp, message) {
 function Lobby() {
 	this.AUTO_DECLINE_TIME = 60;
 	this.lobbyId = 0; // Special room id for the lobby
+	this.room_type_public = "public"; // TODO Fix types
+	this.room_type_private = "private";
 	this.rooms = []; // [id, name, desc, type]
 	this.users = []; // [id, name, room_id]
 	this.ownName = 'User#' + Math.floor((Math.random() * 999) + 1);
@@ -151,10 +153,16 @@ Lobby.prototype.load = function() {
 	}).keypress(
 			function(e) {
 				if (e.which == 13) {
-					$(this).parents('.ui-dialog').first().find('.ui-button')
-							.first().click();
+					$(this).parents('.ui-dialog').first().find(
+							'.ui-button:contains(OK)').first().click();
 				}
 			});
+
+	$("#room_type").buttonset();
+	$("#create_room_advanced_content").hide();
+	$("#create_room_advanced_button").button().click(function() {
+		$("#create_room_advanced_content").toggle();
+	}).button("disable");
 
 };
 
@@ -275,10 +283,19 @@ Lobby.prototype.onLobbyLoad = function(rooms, users) {
 Lobby.prototype.onCreateRoom = function(roomName) {
 	console.log('onCreateRoom: ' + roomName);
 
+	var roomType;
+	if ($("#room_type_private").attr('checked')) {
+		roomType = this.room_type_private;
+	} else {
+		roomType = this.room_type_public;
+	}
+
+	var roomPassword = $("#room_password").val(); // TODO Fix password
+
 	if (roomName != '') {
 		socket.on(API_ROOM_NEW, JSON.stringify({
 			name : roomName,
-			type : "public" // TODO Fix types
+			type : roomType
 		}));
 	}
 };
