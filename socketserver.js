@@ -583,7 +583,9 @@ function socketserver(){
 			sendMessage(con, API_INVITE_ACCEPTED, data);
 			
 		} else { // answer = no
-			sendMessage(con, API_INVITE_DECLINED, JSON.stringify({}));
+			sendMessage(con, API_INVITE_DECLINED, JSON.stringify({
+				id : callId
+			}));
 		}
 		
 		
