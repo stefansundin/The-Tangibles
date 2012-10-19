@@ -174,6 +174,8 @@ Lobby.prototype.load = function() {
  */
 Lobby.prototype.onSocketOpen = function() {
 	console.log('onOpen');
+	
+	$('#dialog_error').dialog('close');
 
 	// request stuff
 	this.changeOwnName(this.ownName);
