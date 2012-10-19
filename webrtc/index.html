@@ -29,7 +29,21 @@
 	</div>
 	<div id="dialog_create_room" title="Create new room">
 		<label for="room_name">Room name</label>
-		<input type="text" name="room_name" id="room_name" class="text ui-widget-content ui-corner-all" />
+		<input type="text" id="room_name" class="text ui-widget-content ui-corner-all" />
+		<br />
+		<input type="checkbox" id="create_room_advanced_button" />
+		<label for="create_room_advanced_button">Advanced</label>
+		<div id="create_room_advanced_content">
+			<br />
+			<label for="room_type">Room type</label>
+			<div id="room_type">
+				<input type="radio" id="room_type_public" name="radio" checked="checked" /><label for="room_type_public">Public</label>
+				<input type="radio" id="room_type_private" name="radio" /><label for="room_type_private">Private</label>
+			</div>
+			<br />
+			<label for="room_password">Password (optional)</label>
+			<input type="password" id="room_password" class="text ui-widget-content ui-corner-all" />
+		</div>
 	</div>
 	
   <!-- Header div-->
