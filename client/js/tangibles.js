@@ -235,7 +235,7 @@ function Tangibles(webRTCSocket) {
 		}, self.err);
 	}
 
-	$.getScript("/client/js/tangibleLib.js", function(){
+	$.getScript("/js/tangibleLib.js", function(){
 		self.register();
 		$(window).on('beforeunload', self.onExit); // If needed make global function
 	});
