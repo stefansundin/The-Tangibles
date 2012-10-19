@@ -46,6 +46,10 @@ app.get('/js/tangibles.js', function(req, res) {
   res.sendfile(__dirname + '/client/js/tangibles.js');
 });
 
+app.get('/js/tangibleLib.js', function(req, res) {
+  res.sendfile(__dirname + '/client/js/tangibleLib.js');
+});
+
 app.get('/webrtc.io.js', function(req, res) {
 	var path = __dirname + '/node_modules/webrtc.io/node_modules/webrtc.io-client/lib/webrtc.io.js';
   res.sendfile(path);
