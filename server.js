@@ -22,23 +22,23 @@ app.get('/workspace', function(req,res) {
   res.sendfile(__dirname + '/client/workspace.html');
 });
 
-app.get('/roomstyle.css', function(req, res) {
+app.get('/css/roomstyle.css', function(req, res) {
   res.sendfile(__dirname + '/client/css/roomstyle.css');
 });
 
-app.get('/workspacestyle.css', function(req, res) {
+app.get('/css/workspacestyle.css', function(req, res) {
   res.sendfile(__dirname + '/client/css/workspacestyle.css');
 });
 
-app.get('/style.css', function(req, res) {
+app.get('/css/lobbystyle.css', function(req, res) {
   res.sendfile(__dirname + '/client/css/lobbystyle.css');
 });
 
-app.get('/socket.js', function(req, res) {
+app.get('/js/socket.js', function(req, res) {
   res.sendfile(__dirname + '/client/js/socket.js');
 });
 
-app.get('/lobby.js', function(req, res) {
+app.get('/js/lobby.js', function(req, res) {
   res.sendfile(__dirname + '/client/js/lobby.js');
 });
 
