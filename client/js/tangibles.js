@@ -46,8 +46,9 @@ function Tangibles(webRTCSocket) {
 		});
 		
 		this.webRTCSocket.on(API_USER_ENTER, function(old_r, user, new_r) {
-			if (user != lobby.ownName || new_r) return;
-			self.disableSifteos();
+			if (user != lobby.ownName) return;
+			if (!new_r) self.disableSifteos();
+			if (new_r) self.acceptedCall(new_r, []);
 		});
 	}
 	
