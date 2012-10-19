@@ -44,6 +44,7 @@ function socketserver(){
 	var API_INVITE_LEAVE = "inviteleave";
 	var API_INVITE_TIMEOUT = "invitetimeout";
 	var API_INVITE_ACCEPTED = "inviteroom";
+	var API_INVITE_DECLINED = "declineroom";
 	
 	var API_MESSAGE = "msg";
 	var API_MESSAGE_BROADCAST = "msgbroadcast";
@@ -568,9 +569,9 @@ function socketserver(){
 			
 			sendMessage(con, API_INVITE_ACCEPTED, data);
 			
+		} else { // answer = no
+			sendMessage(con, API_INVITE_DECLINED);
 		}
-		
-		
 		
 		
 		
