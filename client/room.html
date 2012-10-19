@@ -141,7 +141,7 @@
 			clbutton.disabled = false;
 			wsbutton.disabled = true;
 			var room = window.location.hash.slice(1);
-			workspaceWindow=window.open('http://localhost:8000/workspace/#' + room + '_desk');
+			workspaceWindow=window.open('/workspace/#' + room + '_desk');
       writeMessageToChat(user_name + " opened the workspace.");
     })
 	  }
@@ -187,7 +187,7 @@
       
 		// If the user does not exist:
 		} else if (uid == -2) {
-			addToChat("Stop inviting yourself John...");
+			addToChat("Stop inviting yourself " + inviting_user + "...");
 		} else {
 			addToChat("User " + invited_user + " does not exist.");
 		}
