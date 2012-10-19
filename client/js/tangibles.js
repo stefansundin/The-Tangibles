@@ -41,7 +41,7 @@ function Tangibles(webRTCSocket) {
 			self.acceptedCall(room_id, []);
 		});
 		
-		this.webRTCSocket.on(API_INVITE_DECLINED, function(room_id) {
+		this.webRTCSocket.on(API_INVITE_DECLINED, function() {
 			self.disableSifteos();
 		});
 		

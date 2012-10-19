@@ -16,9 +16,11 @@
 	</style>
 </head>
 <body>
-	<p>Test page For tangibles, Probably not working</p>
+	<p>Test page For tangibles</p>
 	<p>Status: <input type="text" id="status" readonly /></p>
-	
+	<div id="roomMain">
+    <iframe id="roomFrame" src="about:blank" scrolling="no"></iframe>
+  </div>
 	<p id="sifteo_stuff" disabled>
 		<button onclick="tangibles.showPicture(tangibles.sifteos[0],'http://cdn.ghacks.net/wp-content/themes/magatheme/img/mozilla-firefox.png');">Show picture (remote)</button>
 		<button onclick="tangibles.showPicture(tangibles.sifteos[0],'http://localhost/mozilla-firefox.png');">Show picture (local)</button>
@@ -75,8 +77,6 @@
 		</table>
 		<div id="call_list"></div>
 	</div>
-	 <div id="roomMain">
-    <iframe id="roomFrame" src="about:blank" scrolling="no"></iframe>
-  </div>
+	 
 </body>
 </html>
