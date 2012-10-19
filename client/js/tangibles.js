@@ -41,12 +41,12 @@ function Tangibles(webRTCSocket) {
 			self.acceptedCall(room_id, []);
 		});
 		
-		this.webRTCSocket.on(API_INVITE_DECLINED, function(room_id) {
+		this.webRTCSocket.on(API_INVITE_DECLINED, function() {
 			self.disableSifteos();
 		});
 		
 		this.webRTCSocket.on(API_USER_ENTER, function(old_r, user, new_r) {
-			if (user == socket.ownName && new_r) return;
+			if (user != lobby.ownName || new_r) return;
 			self.disableSifteos();
 		});
 	}
