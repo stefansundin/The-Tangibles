@@ -158,7 +158,7 @@
 	  }
 	  
 	function onUserInvited(invited_user) {
-	    inviting_user = parent.lobby.ownname;
+	    var inviting_user = parent.lobby.ownName;
 		var room = window.location.hash.slice(1);
       
 		// See if the user exists
@@ -169,6 +169,11 @@
 				uid = list[i][0];
 				break;
 			}
+		}
+		
+		// Check to see if the user invited himself
+		if (invited_user == inviting_user) {
+			uid = -2;
 		}
 	
 		// If the user exists:
@@ -181,6 +186,8 @@
 			console.log('The user ' + invited_user + '(id:'+uid+') was invited by ' + inviting_user + ' to this room (' + room + ')');
       
 		// If the user does not exist:
+		} else if (uid == -2) {
+			addToChat("Stop inviting yourself John...");
 		} else {
 			addToChat("User " + invited_user + " does not exist.");
 		}
@@ -192,7 +199,7 @@
 		var userlist = [];
 		var list = parent.lobby.users;
 		for (i in list) {
-			if (list[i][1] != parent.lobby.ownname) {
+			if (list[i][1] != parent.lobby.ownName) {
 				userlist.push(list[i][1]);
 			}
 		}
