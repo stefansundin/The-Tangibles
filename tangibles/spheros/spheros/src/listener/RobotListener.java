@@ -11,10 +11,12 @@ import se.nicklasgavelin.sphero.response.information.DataResponse;
 import utils.Event;
 import utils.Point3D;
 import driver.AppManagerImpl;
+import driver.Sphero;
 
 public class RobotListener implements se.nicklasgavelin.sphero.RobotListener {
 	private Event[] events;
 	private String devId;
+	private int counter = 0;
 
 	public RobotListener(Event[] events, String devId) {
 		this.events = events;
@@ -24,8 +26,8 @@ public class RobotListener implements se.nicklasgavelin.sphero.RobotListener {
 	@Override
 	public void responseReceived(Robot r, ResponseMessage response,
 			CommandMessage dc) {
-		System.out.println("response received: " + dc.getCommand().toString());
-
+		Logger.getLogger(RobotListener.class.getName()).log(Level.INFO,
+				"response received: " + dc.getCommand().toString());
 	}
 
 	@Override
@@ -37,7 +39,7 @@ public class RobotListener implements se.nicklasgavelin.sphero.RobotListener {
 	public void informationResponseReceived(Robot r,
 			InformationResponseMessage response) {
 
-		DataResponse dataResponse = (DataResponse) response;
+		DataResponse dataResponse = (DataResponse) response;		
 		byte[] data = dataResponse.getSensorData();
 
 		for (Event event : events) {
@@ -48,6 +50,13 @@ public class RobotListener implements se.nicklasgavelin.sphero.RobotListener {
 
 			AppManagerImpl.getInstance().getGeneralComm()
 					.sendEventMessage(event.toString(), devId, p);
+		}
+		counter+=1;
+		if(counter >= 200){
+			Sphero s = (Sphero) r;
+			s.active = false;
+			s.activateDataStreaming();
+			counter = 0;
 		}
 	}
 
