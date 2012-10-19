@@ -27,8 +27,7 @@ function Tangibles(webRTCSocket) {
 		}));
 	}
 	
-	// this.api listen
-	if(this.webRTCSocket){
+	if(this.webRTCSocket){ // LISTEN FOR SERVER EVENTS
 		this.webRTCSocket.on(API_INVITE_SEND, function(name, room, call_id) {
 			console.log(name +' '+ room +' '+ call_id);
 			self.incommingCall(call_id, name, room, function() {
@@ -41,6 +40,22 @@ function Tangibles(webRTCSocket) {
 		this.webRTCSocket.on(API_INVITE_ACCEPTED, function(room_id) {
 			self.acceptedCall(room_id, []);
 		});
+		
+		this.webRTCSocket.on(API_INVITE_DECLINED, function(room_id) {
+			self.disableSifteos();
+		});
+		
+		this.webRTCSocket.on(API_USER_ENTER, function(old_r, user, new_r) {
+			if (user == socket.ownName && new_r) return;
+			self.disableSifteos();
+		});
+	}
+	
+	this.disableSifteos = function() {
+		for (d = 0; d < self.sifteos.length; d=d+1) {
+			self.api.showColor(self.sifteos[d].id, 'FFFFFF', self.err, self.err, false);
+			self.sifteos[d].pressListeners = [];
+		}
 	}
 
 	this.registerDevices = function(){
@@ -163,9 +178,9 @@ function Tangibles(webRTCSocket) {
 			this.sifteos[1].pressListeners.push(function(msg) {
 				if (enabled) {
 					enabled = false;
-					this.showText(this.sifteos[1], 'Left room', '000000', 'FFFFFF');
-					this.sifteos[1].pressListeners = [];
-					onHangup(call_id);
+					self.showText(self.sifteos[1], 'Left room', '000000', 'FFFFFF');
+					self.sifteos[1].pressListeners = [];
+					lobby.leaveRoom();
 				}
 			});
 		}
@@ -225,3 +240,5 @@ function Tangibles(webRTCSocket) {
 		$(window).on('beforeunload', self.onExit); // If needed make global function
 	});
 }
+
+var tangibles = new Tangibles(socket);

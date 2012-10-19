@@ -19,6 +19,7 @@ var API_INVITE_ANSWER = "inviteanswer";
 var API_INVITE_LEAVE = "inviteleave";
 var API_INVITE_TIMEOUT = "invitetimeout";
 var API_INVITE_ACCEPTED = "inviteroom";
+var API_INVITE_DECLINED = "declineroom";
 
 var API_MESSAGE = "msg";
 var API_MESSAGE_BROADCAST = "msgbroadcast";
