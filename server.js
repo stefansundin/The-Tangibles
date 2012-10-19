@@ -22,7 +22,7 @@ app.get('/workspace', function(req,res) {
   res.sendfile(__dirname + '/client/workspace.html');
 });
 
-app.get('/css/roomstyle.css', function(req, res) {
+app.get('/room/css/roomstyle.css', function(req, res) {
   res.sendfile(__dirname + '/client/css/roomstyle.css');
 });
 
