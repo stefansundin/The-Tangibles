@@ -9,37 +9,37 @@ var socketserver = require('./socketserver.js').socketserver();
 app.get('/', function(req, res) {
   //console.log('Opening lobby');	
   //var path = "C://Users//Karl//Desktop//ParnesProjeect//webrtc//";
-  res.sendfile(__dirname + '/index.html');
+  res.sendfile(__dirname + '../client/index.html');
 });
 
 app.get('/room', function(req, res) {
 //  console.log('Opening room');
-  res.sendfile(__dirname + '/room.html');
+  res.sendfile(__dirname + '../client/room.html');
 });
 
 app.get('/workspace', function(req,res) {
 //  console.log('Opening workspace');
-  res.sendfile(__dirname + '/workspace.html');
+  res.sendfile(__dirname + '../client/workspace.html');
 });
 
 app.get('/roomstyle.css', function(req, res) {
-  res.sendfile(__dirname + '/css/roomstyle.css');
+  res.sendfile(__dirname + '../client/css/roomstyle.css');
 });
 
 app.get('/workspacestyle.css', function(req, res) {
-  res.sendfile(__dirname + '/css/workspacestyle.css');
+  res.sendfile(__dirname + '../client/css/workspacestyle.css');
 });
 
 app.get('/style.css', function(req, res) {
-  res.sendfile(__dirname + '/css/lobbystyle.css');
+  res.sendfile(__dirname + '../client/css/lobbystyle.css');
 });
 
 app.get('/socket.js', function(req, res) {
-  res.sendfile(__dirname + '/js/socket.js');
+  res.sendfile(__dirname + '../client/js/socket.js');
 });
 
 app.get('/lobby.js', function(req, res) {
-  res.sendfile(__dirname + '/js/lobby.js');
+  res.sendfile(__dirname + '../client/js/lobby.js');
 });
 
 app.get('/webrtc.io.js', function(req, res) {
