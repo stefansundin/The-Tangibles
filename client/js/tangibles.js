@@ -30,7 +30,7 @@ function Tangibles(webRTCSocket) {
 	if(this.webRTCSocket){ // LISTEN FOR SERVER EVENTS
 		this.webRTCSocket.on(API_INVITE_SEND, function(name, room, call_id) {
 			console.log(name +' '+ room +' '+ call_id);
-			self.incommingCall(call_id, caller, room, function() {
+			self.incommingCall(call_id, name, room, function() {
 				lobby.accept(call_id);
 			}, function() {
 				lobby.decline(call_id);
