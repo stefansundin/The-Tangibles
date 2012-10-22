@@ -5,3 +5,4 @@ bin
 Debug
 /.project
 /.settings
+node_modules
