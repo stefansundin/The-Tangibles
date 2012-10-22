@@ -32,3 +32,28 @@ Utilities.mergeImages = function(images) {
         return images[0];
     }	
 }
+
+/*
+ * Downloads the data of the given canvas as filename.PNG or 
+ * <TODAYSDATE>.png if no argument is supplied.
+ *
+ */
+Utilities.downloadCanvasAsPng = function(filename, canvas) {
+    if (canvas) {
+        var link = document.createElement('a');
+        link.href = canvas.toDataURL("image/png");
+
+        if (filename) {
+            link.download = filename;
+        } else {
+            var d = new Date();
+            var date = d.getFullYear()
+                + ('0' + String(d.getMonth()+1)).substr(-2)
+                + ('0' + String(d.getDate())).substr(-2);
+                link.download=date;
+        }
+        link.click();
+    } else {
+        console.log("No canvas passed Utilities.downloadCanvasAsPng.");
+    }
+}

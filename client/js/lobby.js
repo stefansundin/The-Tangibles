@@ -175,6 +175,8 @@ Lobby.prototype.load = function() {
 Lobby.prototype.onSocketOpen = function() {
 	console.log('onOpen');
 
+	$('#dialog_error').dialog('close');
+
 	// request stuff
 	this.changeOwnName(this.ownName);
 	socket.send(API_LIST, '');
@@ -184,13 +186,11 @@ Lobby.prototype.onSocketOpen = function() {
  * Called when the socket connection is closed.
  */
 Lobby.prototype.onSocketClose = function() {
-	console.log('onClose');
+	console.error('onClose');
 
 	// TODO Fix better error handling?
 	$('#room_table tbody').empty();
 	$('#room_table tfoot').show();
-
-	this.showError('Lost server connection...');
 };
 
 /**
