@@ -108,4 +108,4 @@ var Socket = function(url) {
 	};
 };
 
-var socket = new Socket("ws://130.240.5.191:12345");
+var socket = new Socket("ws://"+ window.location.host +":12345");
