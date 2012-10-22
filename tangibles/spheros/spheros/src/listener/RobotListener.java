@@ -3,8 +3,13 @@ package listener;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import orbotix.robot.sensor.AttitudeData;
+import orbotix.robot.sensor.DeviceSensorsData;
+
 import se.nicklasgavelin.sphero.Robot;
 import se.nicklasgavelin.sphero.command.CommandMessage;
+import se.nicklasgavelin.sphero.command.SetDataStreamingCommand;
+import se.nicklasgavelin.sphero.command.SetDataStreamingCommand.DATA_STREAMING_MASKS;
 import se.nicklasgavelin.sphero.response.InformationResponseMessage;
 import se.nicklasgavelin.sphero.response.ResponseMessage;
 import se.nicklasgavelin.sphero.response.information.DataResponse;
@@ -44,6 +49,8 @@ public class RobotListener implements se.nicklasgavelin.sphero.RobotListener {
 
 		for (Event event : events) {
 			Point3D p = event.read(data);
+			if(p == null)
+				continue;
 
 			Logger.getLogger(RobotListener.class.getName()).log(Level.INFO,
 					event.toString() + ": " + p);
@@ -51,6 +58,7 @@ public class RobotListener implements se.nicklasgavelin.sphero.RobotListener {
 			AppManagerImpl.getInstance().getGeneralComm()
 					.sendEventMessage(event.toString(), devId, p);
 		}
+
 		counter+=1;
 		if(counter >= 200){
 			Sphero s = (Sphero) r;

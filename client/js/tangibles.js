@@ -2,6 +2,7 @@ function Tangibles(webRTCSocket) {
 	var self = this;
 	this.api = null;
 	this.sifteos = [];
+	this.sphero = [];
 	this.APIsocket = null;
 	this.registered = false;
 	this.webRTCSocket = webRTCSocket;
@@ -64,16 +65,23 @@ function Tangibles(webRTCSocket) {
 			var num = d.msg.length;
 			for (var i=0; i < num; i++) {
 				var devid = d.msg[i].id;
-				if (self.isSifteo(devid) || self.isSphero(devid)) { 
+				if (self.isSifteo(devid)) { 
 					self.api.reserveDevice(devid, function(r) {
-						console.log('Got device: '+r.msg);
+						console.log('Got sifteo device: '+r.msg);
 						var device = {id:r.msg, subscribed:false, pressListeners:[]};
 						self.listenToEvents(device);
 						self.sifteos.push(device);
 					}, self.err);
+				} else if (self.isSphero(devid)) { 
+					self.api.reserveDevice(devid, function(r) {
+						console.log('Got sphero device: '+r.msg);
+						var device = {id:r.msg, subscribed:false, gyroListeners:[], accListeners:[]};
+						self.listenToEvents(device);
+						self.sphero.push(device);
+					}, self.err);
 				}
 			}
-			$('#status').val('Registered '+num+' sifteos!');
+			$('#status').val('Registered '+num+' devices!');
 			$('#sifteo_stuff').removeAttr('disabled');
 		}, this.err);
 	}
@@ -98,13 +106,33 @@ function Tangibles(webRTCSocket) {
 			};
 			self.APIsocket.onmessage = function(e) {
 				var data = $.parseJSON(e.data);
-				console.log('Received: '+e.data);
+				//console.log('Received: '+e.data);
 				self.eventHandler(data.msg);
 			};
 		}, self.err);
 	}
 
 	this.eventHandler = function(msg) {
+		if (msg.event == 'Accelerometer') {
+			for (d = 0; d < this.sphero.length; d=d+1) {
+				if (this.sphero[d].id == msg.devId) {
+					for (i = 0; i < this.sphero[d].accListeners.length; i=i+1) {
+						this.sphero[d].accListeners[i](msg);
+					}
+				}
+			}
+		}
+
+		if (msg.event == 'GyroAttitude') {
+			for (d = 0; d < this.sphero.length; d=d+1) {
+				if (this.sphero[d].id == msg.devId) {
+					for (i = 0; i < this.sphero[d].gyroListeners.length; i=i+1) {
+						this.sphero[d].gyroListeners[i](msg);
+					}
+				}
+			}
+		}
+
 		if (msg.event == 'pressed') {
 			for (d = 0; d < this.sifteos.length; d=d+1) {
 				if (this.sifteos[d].id == msg.devId) {
@@ -122,12 +150,12 @@ function Tangibles(webRTCSocket) {
 		self.api.showColor(dev.id, color, self.err, self.err);
 	}
 
-	this.setRightSpin=function(dev, velocity) {
+	this.setRightSpin = function(dev, velocity) {
 		console.log('setRightSpin('+dev.id+','+velocity+')');
 		self.api.spinRight(dev.id, velocity, self.err, self.err);
 	}
 
-	this.setLeftSpin=function(dev, velocity) {
+	this.setLeftSpin = function(dev, velocity) {
 		console.log('setLeftSpin('+dev.id+','+velocity+')');
 		self.api.spinLeft(dev.id, velocity, self.err, self.err);
 	}
@@ -238,6 +266,26 @@ function Tangibles(webRTCSocket) {
 
 	$.getScript("/js/tangibleLib.js", function(){
 		self.register();
+
+		testSpheroEvents = function(){
+			if(self.sphero.length < 1){return;}
+			self.sphero[0].gyroListeners.push(function(msg) {
+				var params = msg.params;
+				game(params.x*10, params.y*10,"myCanvas");
+				console.log(msg.event+" x: "+params.x*10+" y: "+params.y*10);
+			});
+						
+			self.sphero[0].accListeners.push(function(msg) {
+				var params = msg.params;
+				game(params.x*50, params.y*50,"myCanvas");
+				console.log(msg.event+" x: "+ params.x*50 +" y: "+params.y*50);
+			});
+		};
+
+
+		setTimeout(testSpheroEvents,1000); // TODO make in a cleaner way
+
+
 		$(window).on('beforeunload', self.onExit); // If needed make global function
 	});
 }

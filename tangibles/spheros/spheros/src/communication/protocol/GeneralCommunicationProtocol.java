@@ -314,9 +314,7 @@ public class GeneralCommunicationProtocol extends JsonTcpCommunication
 			CommandMessage cmdMsg = _gson.fromJson( msg, CommandMessage.class );
 			
 			if( cmdMsg.msg.command.equals( "report_all_events" )){
-				System.out.println("Should activate reporting of all events");
 			
-				System.out.println("command: "+cmdMsg.msg.command);
 				ParamsDevices paramsD = _gson.fromJson( cmdMsg.msg.params, ParamsDevices.class );
 				
 				for (String devID : paramsD.devices) {
@@ -325,9 +323,9 @@ public class GeneralCommunicationProtocol extends JsonTcpCommunication
 						if(sphero.getId().equals(devID)){
 							System.out.println("Found your device");
 							
-							Event[] events = new Event[2];
-							events[0] = utils.Event.GYRO;
-							events[1] = utils.Event.ACCELEROMETER;
+							Event[] events = new Event[1];
+							events[0] = utils.Event.GYROATTITUDE;
+							//events[1] = utils.Event.ACCELEROMETER; // Change to size 2 if added
 							
 							sphero.activateEvents(events);														
 						}

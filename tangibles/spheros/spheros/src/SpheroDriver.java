@@ -1,3 +1,4 @@
+
 import java.io.IOException;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -179,8 +180,8 @@ public class SpheroDriver extends Thread implements BluetoothDiscoveryListener
 	
 	public void directConnect(){
 		//String id = "000666440DB8";    //WBG     "<BluetoothIdForSphero>";
-		String id = "0006664438B8";  //BBR     "<BluetoothIdForSphero>";
-		//String id = "000666441796";  //RBR     "<BluetoothIdForSphero>";
+		//String id = "0006664438B8";  //BBR     "<BluetoothIdForSphero>";
+		String id = "000666441796";  //RBR     "<BluetoothIdForSphero>";
 		Bluetooth bt = new Bluetooth( this, Bluetooth.SERIAL_COM );
 		Logger.getLogger( SpheroDriver.class.getName() ).log( Level.INFO, "comes here!" );
 		BluetoothDevice btd = new BluetoothDevice( bt, "btspp://" + id + ":1;authenticate=true;encrypt=false;master=false" );
