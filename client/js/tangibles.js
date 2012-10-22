@@ -264,7 +264,7 @@ function Tangibles(webRTCSocket) {
 		}, self.err);
 	}
 
-	$.getScript("/client/js/tangibleLib.js", function(){
+	$.getScript("/js/tangibleLib.js", function(){
 		self.register();
 
 		testSpheroEvents = function(){
