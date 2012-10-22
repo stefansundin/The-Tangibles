@@ -19,7 +19,7 @@
 	<p>Test page For tangibles</p>
 	<p>Status: <input type="text" id="status" readonly /></p>
 	<div id="roomMain">
-    <iframe id="roomFrame" src="about:blank" scrolling="no"></iframe>
+	<iframe id="roomFrame" src="about:blank" scrolling="no"></iframe>
   </div>
 	<p id="sifteo_stuff" disabled>
 		<button onclick="tangibles.showPicture(tangibles.sifteos[0],'http://cdn.ghacks.net/wp-content/themes/magatheme/img/mozilla-firefox.png');">Show picture (remote)</button>
@@ -28,10 +28,50 @@
 		<button onclick="tangibles.setColor(tangibles.sifteos[0],'0000ff');">Set color to blue</button>
 	</p>
 	<p>
-      <button onclick="tangibles.setRightSpin(tangibles.sifteos[0],150);">Make sphero spin right</button>
-      <button onclick="tangibles.setLeftSpin(tangibles.sifteos[0],150);">Make sphero spin left</button>
-    </p>
+	  <button onclick="tangibles.setRightSpin(tangibles.sifteos[0],150);">Make sphero spin right</button>
+	  <button onclick="tangibles.setLeftSpin(tangibles.sifteos[0],150);">Make sphero spin left</button>
+	</p>
 	<p><button onclick="tangibles.incommingCall(1, 'John', 'Workroom', console.log, console.log);">Simulate incomming call</button></p>
+
+	<canvas id="myCanvas" width="400" height="400" style="background-color:#FAFAD2;" title="accelerometer">    
+		Your Browser does not support the HTML5 CANVAS Property. //displays on a non-HTML5 supporting browser.
+	</canvas> 
+	<canvas id="myCanvas2" width="400" height="400" style="background-color:#FAFAD2;" title="gyro">    
+		Your Browser does not support the HTML5 CANVAS Property. //displays on a non-HTML5 supporting browser.
+	</canvas>
+
+		<script type="text/javascript">
+		function game(x,y,name){
+			var myCanvas  = document.getElementById(name); 
+			var myContext = myCanvas.getContext("2d");     
+			var middlex = myCanvas.width  / 2; 
+			var middley = myCanvas.height / 2;
+
+			//myContext.clearRect(0, 0, myCanvas.width, myCanvas.height); 
+			myContext.beginPath();
+			myContext.rect(0, 0, myCanvas.width, myCanvas.height);
+			myContext.fillStyle = '#FAFAD2';
+			myContext.fill();
+			myContext.stroke();
+
+			// Big circle
+			var r = 50;
+			myContext.fillStyle="#FF8C00";     
+			myContext.beginPath();
+			myContext.arc(middlex, middley, r, 0, 6 * Math.PI, false);
+			myContext.fill();
+			myContext.strokeStyle = "yellow";
+			myContext.stroke();
+
+			// Small circle(controlled by sphero)
+			myContext.fillStyle="#000000";     
+			myContext.beginPath();
+			myContext.arc(middlex+x, middley+y, r/3, 0, 6 * Math.PI, false);
+			myContext.fill();
+			myContext.strokeStyle = "yellow";
+			myContext.stroke();
+		}
+	</script>
 	
 	<div id="top">
 		<div id="display_user_name"></div>

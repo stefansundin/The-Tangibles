@@ -326,7 +326,7 @@ public class GeneralCommunicationProtocol extends JsonTcpCommunication
 							System.out.println("Found your device");
 							
 							Event[] events = new Event[2];
-							events[0] = utils.Event.GYRO;
+							events[0] = utils.Event.GYROATTITUDE;
 							events[1] = utils.Event.ACCELEROMETER;
 							
 							sphero.activateEvents(events);														

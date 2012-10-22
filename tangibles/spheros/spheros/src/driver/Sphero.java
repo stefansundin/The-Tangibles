@@ -36,10 +36,11 @@ public class Sphero extends Robot {
 	
 	public void activateDataStreaming(){
 		if (!active) {
-			sendCommand(new SetDataStreamingCommand(10, 17,
-					DATA_STREAMING_MASKS.ACCELEROMETER.ALL.FILTERED, 200));
-			sendCommand(new SetDataStreamingCommand(10, 17,
-					DATA_STREAMING_MASKS.GYRO.ALL.FILTERED, 200));
+			int accMask = DATA_STREAMING_MASKS.ACCELEROMETER.ALL.FILTERED;
+			int gyroMask = DATA_STREAMING_MASKS.GYRO.ALL.FILTERED;
+			int imoMask = DATA_STREAMING_MASKS.IMU.ALL.FILTERED;
+			
+			sendCommand(new SetDataStreamingCommand(1, 17, imoMask, 200));//imomask?10,  acc 17
 		}
 		active = true;
 	}

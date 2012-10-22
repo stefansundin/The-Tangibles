@@ -98,13 +98,32 @@ function Tangibles(webRTCSocket) {
 			};
 			self.APIsocket.onmessage = function(e) {
 				var data = $.parseJSON(e.data);
-				console.log('Received: '+e.data);
+				//console.log('Received: '+e.data);
 				self.eventHandler(data.msg);
 			};
 		}, self.err);
 	}
 
 	this.eventHandler = function(msg) {
+		if(msg.event == "Accelerometer"){
+			for (d = 0; d < this.sifteos.length; d=d+1) {
+				if (this.sifteos[d].id == msg.devId) {
+					var params = msg.params;
+					//game(params.x*50, params.y*50,"myCanvas");
+					console.log("x: "+ params.x +" y: "+params.y);
+				}
+			}
+		}
+		if(msg.event == "GyroAttitude"){
+			for (d = 0; d < this.sifteos.length; d=d+1) {
+				if (this.sifteos[d].id == msg.devId) {
+					var params = msg.params;
+					game(params.x*10, params.y*10,"myCanvas2");
+					console.log("x: "+params.x*10+" y: "+params.y*10);
+				}
+			}
+		}
+
 		if (msg.event == 'pressed') {
 			for (d = 0; d < this.sifteos.length; d=d+1) {
 				if (this.sifteos[d].id == msg.devId) {
