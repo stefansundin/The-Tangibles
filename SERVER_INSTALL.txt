@@ -1,0 +1,14 @@
+HOWTO install server
+- install node js.
+- go to Tangibles root folder
+- LINUX: make and c++ compiler (apt-get install build-essential)
+- WINDOWS: visual studio c++ 2010 express
+- BOTH: python (2.7?) in path
+- install: (make sure to use correct versions!)
+	- npm install node-gyp
+	- npm install ws@0.4.22
+	- npm install websocket@1.0.7
+	- npm install webrtc.io@0.0.2-3
+	- npm install express@2.5.1
+
+run node server.js to start server (as root / adminstrator)
