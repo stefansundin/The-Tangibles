@@ -33,21 +33,18 @@
 	</p>
 	<p><button onclick="tangibles.incommingCall(1, 'John', 'Workroom', console.log, console.log);">Simulate incomming call</button></p>
 
-	<canvas id="myCanvas" width="400" height="400" style="background-color:#FAFAD2;" title="accelerometer">    
+	<canvas id="myCanvas" width="400" height="400" style="background-color:#FAFAD2;" title="gyro">    
 		Your Browser does not support the HTML5 CANVAS Property. //displays on a non-HTML5 supporting browser.
 	</canvas> 
-	<canvas id="myCanvas2" width="400" height="400" style="background-color:#FAFAD2;" title="gyro">    
-		Your Browser does not support the HTML5 CANVAS Property. //displays on a non-HTML5 supporting browser.
-	</canvas>
 
-		<script type="text/javascript">
+	<script type="text/javascript">
 		function game(x,y,name){
 			var myCanvas  = document.getElementById(name); 
 			var myContext = myCanvas.getContext("2d");     
 			var middlex = myCanvas.width  / 2; 
 			var middley = myCanvas.height / 2;
 
-			//myContext.clearRect(0, 0, myCanvas.width, myCanvas.height); 
+			// Clean
 			myContext.beginPath();
 			myContext.rect(0, 0, myCanvas.width, myCanvas.height);
 			myContext.fillStyle = '#FAFAD2';

@@ -66,20 +66,6 @@ public class RobotListener implements se.nicklasgavelin.sphero.RobotListener {
 			s.activateDataStreaming();
 			counter = 0;
 		}
-		/*
-		long a = SetDataStreamingCommand.DATA_STREAMING_MASKS.ACCELEROMETER.ALL.FILTERED |
-				SetDataStreamingCommand.DATA_STREAMING_MASKS.IMU.ALL.FILTERED;
-		//DeviceSensorsData datum = new DeviceSensorsData(
-		//		DATA_STREAMING_MASKS.MAGNETOMETER.ALL.FILTERED, data);
-		DeviceSensorsData datum = new DeviceSensorsData(a, data);
-		//Show attitude data
-        AttitudeData attitude = datum.getAttitudeData();
-        if(attitude != null){
-        	System.out.println("Something from gyro");
-            System.out.println("" + attitude.getAttitudeSensor().pitch);
-            System.out.println("" + attitude.getAttitudeSensor().roll);
-            System.out.println("" + attitude.getAttitudeSensor().yaw);
-        }*/
 	}
 
 }

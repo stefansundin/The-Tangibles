@@ -4,13 +4,13 @@ import listener.RobotListener;
 import se.nicklasgavelin.bluetooth.BluetoothDevice;
 import se.nicklasgavelin.sphero.Robot;
 import se.nicklasgavelin.sphero.command.SetDataStreamingCommand;
-import se.nicklasgavelin.sphero.command.SetDataStreamingCommand.DATA_STREAMING_MASKS;
 import se.nicklasgavelin.sphero.exception.InvalidRobotAddressException;
 import se.nicklasgavelin.sphero.exception.RobotBluetoothException;
 import utils.Event;
 
 public class Sphero extends Robot {
 	public boolean active = false;
+	private Event[] events;
 
 	public Sphero(BluetoothDevice bt) throws InvalidRobotAddressException,
 			RobotBluetoothException {
@@ -28,6 +28,7 @@ public class Sphero extends Robot {
 
 	public void activateEvents(Event[] events) {
 		if (!active) {
+			this.events = events;
 			RobotListener listener = new RobotListener(events, getId());
 			addListener(listener);
 			activateDataStreaming();
@@ -36,11 +37,15 @@ public class Sphero extends Robot {
 	
 	public void activateDataStreaming(){
 		if (!active) {
-			int accMask = DATA_STREAMING_MASKS.ACCELEROMETER.ALL.FILTERED;
-			int gyroMask = DATA_STREAMING_MASKS.GYRO.ALL.FILTERED;
-			int imoMask = DATA_STREAMING_MASKS.IMU.ALL.FILTERED;
+			long mask = 0;
+			if(this.events.length == 0) return;
 			
-			sendCommand(new SetDataStreamingCommand(1, 17, imoMask, 200));//imomask?10,  acc 17
+			// TODO figure out how to enable all
+			for (Event event : this.events) {
+				mask |= event.getMask();
+				break;
+			}			
+			sendCommand(new SetDataStreamingCommand(1, 17, (int) mask, 200));//imomask?10,  acc 17
 		}
 		active = true;
 	}
