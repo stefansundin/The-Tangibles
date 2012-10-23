@@ -725,7 +725,7 @@ function socketserver(){
 	// # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 	
 	function createNewRoom(name, typeS, desc, pass){
-		if (lRooms.length < LIMIT_ROOMS){
+		if (lRooms.length > LIMIT_ROOMS){
 			return;
 		}
 		var room = new obj_room(name, typeS, desc, pass);
@@ -762,7 +762,7 @@ function socketserver(){
 	// # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 	
 	function addNewUser(socket){
-		if (lUsers.length < LIMIT_USERS){
+		if (lUsers.length > LIMIT_USERS){
 			return;
 		}
 		lUsers.push(new obj_user(socket));
@@ -801,7 +801,7 @@ function socketserver(){
 	// # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 	
 	function createNewCall(caller, called, roomId){
-		if (lCalls.length < LIMIT_CALLS){
+		if (lCalls.length > LIMIT_CALLS){
 			return;
 		}
 		var call = new obj_call(caller, called, roomId);
