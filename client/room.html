@@ -25,10 +25,10 @@
         <button id="openDialog">Invite</button>
         <button id="leaveRoom">Leave the room</button>
         <div id="messages"></div>
-	
+		<br>
+	<input id="chatinput" type="text"/>
       </div>
-<br>
-	<input id="chatinput" type="text"/>	  
+	  
     </div>
 	
 	<!-- Invite user dialog -->
@@ -309,7 +309,7 @@
   
       input.addEventListener('keydown', function(event) {
         var key = event.which || event.keyCode;
-		var msg = parent.lobby.ownName + '>' + input.value;
+		var msg = parent.lobby.ownName + '> ' + input.value;
 		
         if (key === 13) {
           rtc._socket.send(JSON.stringify({
