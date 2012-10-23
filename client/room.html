@@ -43,14 +43,18 @@
         autoOpen : false,
         modal : true,
 		buttons: {
-			Ok: function() {				
+			Ok: function() {
+				console.log('All users: ' + ulist);			
 				$(this).find('input[type="checkbox"]').each(function(){
 					if($(this).is(':checked')){
-						console.log('Fancy method on user with id: ' + $(this).attr('id'));
 						uid = $(this).attr('id');
 						ulist = parent.lobby.users;
+						console.log('User id: ' + uid);
+						
+						
 						for (i in ulist) {
 							if(ulist[i][0] == uid) {
+								console.log('Found user: ' + ulist[i][1]);
 								onUserInvited(ulist[i][1]);
 								break;
 							}
@@ -68,13 +72,11 @@
     });
 
     $("button#openDialog").click(function() {
-		var uname = ['john','karl']
-		var uid = [4,5]
 		var userlist = [];
 		var list = parent.lobby.users;
 		for (i in list) {
 			if (list[i][1] != parent.lobby.ownName) {
-				userlist.push(list[i][1]);
+				userlist.push(list[i]);
 			}
 		}
 		
