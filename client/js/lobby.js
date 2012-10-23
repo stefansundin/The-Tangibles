@@ -378,6 +378,10 @@ Lobby.prototype.onRoomAdd = function(roomId, roomName, roomDesc, roomType) {
 	console.log('onRoomAdd: ' + roomId + ' ' + roomName + ' ' + roomDesc + ' '
 			+ roomType);
 
+	// Ignore lobby
+	if (roomId == this.lobbyId) {
+		return;
+	}
 	// Unique ids
 	if ($('#room_list_' + roomId).length != 0) {
 		return;
