@@ -25,6 +25,8 @@
         <button id="openDialog">Invite</button>
         <button id="leaveRoom">Leave the room</button>
         <div id="messages"></div>
+		<br>
+		<input id="chatinput" type="text"/>
       </div> 
     </div>
 	
@@ -304,7 +306,7 @@
       var room = window.location.hash.slice(1);
       var color = "#"+((1<<24)*Math.random()|0).toString(16);
   
-  /*    input.addEventListener('keydown', function(event) {
+      input.addEventListener('keydown', function(event) {
         var key = event.which || event.keyCode;
         if (key === 13) {
           rtc._socket.send(JSON.stringify({
@@ -322,7 +324,7 @@
           addToChat(input.value);
           input.value = "";
         }
-      }, false); */
+      }, false);
       rtc.on('receive_chat_msg', function(data) {
         console.log(data.color);
         addToChat(data.messages, data.color.toString(16));
@@ -330,8 +332,6 @@
     }
 
     function init() {
-      console.log("Testing");
-      console.log($(window.parent.document).find("#roomMain"));
       if ($(window.parent.document).find("#roomMain").length == 0) {
         console.log("Attempted to access this page without going through the lobby.");
         //window.location.replace("http://www.youtube.com/watch?v=_1mB5rM8WHU");
@@ -355,7 +355,7 @@
         alert('Your browser is not supported or you have to turn on flags. In chrome you go to chrome://flags and turn on Enable PeerConnection remember to restart chrome');
       }
       var room = window.location.hash.slice(1);
-	  
+	  //parent.window.parent.document.title = room;
       //When using localhost
       console.log('Connecting');
       rtc.connect("ws://"+ window.location.host +"/", room);
