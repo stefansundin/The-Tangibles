@@ -12,6 +12,10 @@ app.get('/', function(req, res) {
   res.sendfile(__dirname + '/client/index.html');
 });
 
+app.get('/favicon.ico', function(req, res) {
+  res.sendfile(__dirname + '/client/img/favicon.ico');
+});
+
 app.get('/room', function(req, res) {
 //  console.log('Opening room');
   res.sendfile(__dirname + '/client/room.html');

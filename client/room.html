@@ -22,13 +22,68 @@
         <button id="fullscreen">Enter Full Screen</button>     
         <button id="openWorkspace">Open the workspace</button>
         <button id="closeWorkspace">Close the workspace</button>
-        <button id="inviteUser">Intvite</button>
+        <button id="openDialog">Invite</button>
         <button id="leaveRoom">Leave the room</button>
         <div id="messages"></div>
       </div> 
     </div>
+	
+	<div id="dialog">
+		<form>
+        <div id="formContainer">
+            Dialog Checkbox 1: <input type="checkbox" value=0 class="check1"/>
+            Dialog Checkbox 2: <input type="checkbox" value=1 class="check2"/>
+        </div>
+		</form>
+	</div>
     
     <script>
+	
+	$(document).ready(function() {
+		$('#dialog').dialog({
+			autoOpen : false,
+			modal : true,
+			buttons: {
+				Ok: function() {
+					
+					$(this).find('input[type="checkbox"]').each(function(){
+					//console.log($(this).val() + " is " + $(this).is(':checked'));
+					if($(this).is(':checked')){
+						console.log('Fancy method on user with id: ' + $(this).val());
+					}
+					})
+					$( this ).dialog( 'close' );
+				},
+				Cancel: function() {
+					$( this ).dialog( 'close' );
+				}
+			}
+		});
+
+		$("button#openDialog").click(function() {
+			//$("#formContainer .check1").attr("defaultChecked", true);
+			var userlist = [];
+			var list = parent.lobby.users;
+			for (i in list) {
+				if (list[i][1] != parent.lobby.ownName) {
+					userlist.push(list[i][1]);
+					var checkbox = document.createElement('input');
+					checkbox.type = "checkbox";
+				//	checkbox.name = "name";
+				//	checkbox.value = "value";
+					checkbox.id = list[i][0];
+					$('#formcontainer').append(checkbox);
+				}
+			} 
+			$('#formcontainer').append
+			$('#dialog').dialog('open');
+			$("#formContainer .check2").attr("checked", true);
+		});
+	});
+	
+	
+	
+	
       var videos = [];
       var rooms = [1,2,3,4,5];
       var PeerConnection = window.PeerConnection || window.webkitPeerConnection00;
@@ -194,7 +249,7 @@
 	}
 	  
 	  function initInviteUser() {
-      var inviteButton = document.getElementById("inviteUser");
+/*      var inviteButton = document.getElementById("inviteUser");
       inviteButton.addEventListener('click', function(event) {
 		var userlist = [];
 		var list = parent.lobby.users;
@@ -207,7 +262,7 @@
         if (invited_user != '' && invited_user != null) {
           onUserInvited(invited_user);
         }
-      })
+      }) */
 	  }
 	  
 	  function initLeaveRoom() {

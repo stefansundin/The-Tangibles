@@ -2,6 +2,7 @@
 import java.io.IOException;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -198,21 +199,17 @@ public class SpheroDriver extends Thread implements BluetoothDiscoveryListener
 					Logger.getLogger( this.getClass().getCanonicalName() ).log( Level.INFO, "Connected to Sphero device " + s.getId() + "(" + s.getAddress() + ")" );
 
 					_availableSpheroDevices.add( s );
-					Event[] events = new Event[2];
-					events[0] = utils.Event.GYRO;
-
-					/*
-					RobotListener listener = new RobotListener(events,s.getId());
-					s.addListener(listener);
-					*/
-					
-					
-					//s.sendCommand(new SetDataStreamingCommand(10, 17, DATA_STREAMING_MASKS.ACCELEROMETER.ALL.FILTERED, 200));
-					//s.sendCommand(new SetDataStreamingCommand(10, 17, DATA_STREAMING_MASKS.GYRO.ALL.FILTERED, 999));
 					
 					if( _availableSpheroDevices.size() > 0 ){
 						registerApplication();
 					}
+					
+					/*
+					ArrayList<Event> events = new ArrayList<Event>();
+					events.add(Event.ACCELEROMETER);
+					s.activateEvents(events);
+					*/
+					
 					addShutdownHook();
 					//System.out.println( btd.getConnectionURL() );
 				}
