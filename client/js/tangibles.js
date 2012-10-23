@@ -4,7 +4,6 @@ function Tangibles(webRTCSocket) {
 	this.sifteos = [];
 	this.sphero = [];
 	this.APIsocket = null;
-	this.registered = false;
 	this.webRTCSocket = webRTCSocket;
 	
 	
@@ -71,6 +70,11 @@ function Tangibles(webRTCSocket) {
 		}
 	}
 	this.disableSpheros = function() {
+		for (d = 0; d < self.sphero.length; d=d+1) {
+			self.api.showColor(self.sphero[d].id, 'FFFFFF', self.err, self.err, false);
+			self.sphero[d].gyroListeners = [];
+			self.sphero[d].accListeners = [];
+		}
 	}
 	
 	
