@@ -13,15 +13,8 @@
 </div>
 <div id="chatbox">
 <button id="fullscreen">Enter Full Screen</button>
-<!--      <button id="newRoom">Create A New Room</button>
-<button id="openWorkspace">Open the workspace</button>
-<button id="closeWorkspace">Close the workspace</button>
-<button id="inviteUser">Intvite</button>
-<button id="leaveRoom">Leave the room</button>	
-<div id="messages"> -->
 </div>
 <br>
-<!-- <input id="chatinput" type="text"/> -->
 </div>
 <script>
 var videos = [];
@@ -33,15 +26,14 @@ function cloneVideo(domId, socketId) {
 	var video = document.getElementById(domId);
 	var clone = video.cloneNode(false);
 	clone.id = "remote" + socketId;
-	//document.getElementById('videos').appendChild(clone);
 	videos.push(clone);
 	return clone;
 }
+
 function removeVideo(socketId) {
-	//   var video = document.getElementById('remote' + socketId);
 	var index = -1;
 	for (var i = 0; i < videos.length; i++) {
-		if ( videos[i].id == 'remote' + socketId){
+		if (videos[i].id == 'remote' + socketId) {
 			index = i;
 			break;
 		}
@@ -50,12 +42,6 @@ function removeVideo(socketId) {
 		videoStreams.splice(index, 1);
 		videos.splice(index, 1);
 	}
-
-	//    if (video) {
-	//		videoStreams.splice(videos.indexOf(video),1);
-	//        videos.splice(videos.indexOf(video), 1);
-	//        video.parentNode.removeChild(video);
-	//     }
 }
 
 function initFullScreen() { 
@@ -64,11 +50,13 @@ function initFullScreen() {
 			var elem = document.getElementById("videos"); 
 			//show full screen 
 			elem.webkitRequestFullScreen();
+			// TODO start calibration
+			// TODO start merging video and display it
 			});
 } 
 
 function init() {
-	if(PeerConnection){
+	if (PeerConnection) {
 
 		rtc.createStream({"video": true, "audio": true}, function(stream) {
 				document.getElementById('you').src = URL.createObjectURL(stream);
@@ -77,25 +65,21 @@ function init() {
 				videoStreams.push(stream);
 				document.getElementById("notice").innerHTML = "";
 				});
-	}else {
+	} else {
 		alert('Your browser is not supported or you have to turn on flags. In chrome you go to chrome://flags and turn on Enable PeerConnection remember to restart chrome');
 	}
-
 
 	var room = window.location.hash.slice(1);
 
 	//When using localhost
 	console.log('Connecting');
 	rtc.connect("ws://"+ window.location.host +":80/", room);
-	//rtc.connect("ws://localhost:8000/", room);
 
 	rtc.on('add remote stream', function(stream, socketId) {
 			console.log("ADDING REMOTE STREAM...");
+			// TODO replace cloneVideo
 			var clone = cloneVideo('you', socketId);
-			//clone.setAttribute("class", "");
 			clone.class="";
-			//document.getElementById(clone.id).setAttribute("class", "");
-			//rtc.attachStream(stream, clone.id);
 			var streamUrl = URL.createObjectURL(stream);
 			clone.setAttribute("src", streamUrl);
 			videoStreams.push(stream);
@@ -106,6 +90,8 @@ function init() {
 			});
 	initFullScreen();
 }
+
+
 
 </script>
 </body>
