@@ -46,6 +46,18 @@ app.get('/js/tangibles.js', function(req, res) {
   res.sendfile(__dirname + '/client/js/tangibles.js');
 });
 
+app.get('/img/accept.png', function(req, res) {
+  res.sendfile(__dirname + '/client/img/accept.png');
+});
+
+app.get('/img/deny.png', function(req, res) {
+  res.sendfile(__dirname + '/client/img/deny.png');
+});
+
+app.get('/img/mute.png', function(req, res) {
+    res.sendfile(__dirname + '/client/img/mute.png');
+});
+
 app.get('/js/tangibleLib.js', function(req, res) {
   res.sendfile(__dirname + '/client/js/tangibleLib.js');
 });
