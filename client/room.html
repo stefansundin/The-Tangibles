@@ -309,11 +309,13 @@
   
       input.addEventListener('keydown', function(event) {
         var key = event.which || event.keyCode;
+		var msg = parent.lobby.ownName + '>' + input.value;
+		
         if (key === 13) {
           rtc._socket.send(JSON.stringify({
             "eventName": "chat_msg",
             "data": {
-            "messages": input.value,
+            "messages": msg,
             "room": room,
             "color": color
             }
@@ -322,7 +324,7 @@
               console.log(error);
             }
           });
-          addToChat(input.value);
+          addToChat(msg);
           input.value = "";
         }
       }, false);
