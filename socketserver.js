@@ -892,8 +892,8 @@ function socketserver(){
 		createNewRoom("Lobby", ROOM_PUBLIC, "Da LOBBY!!!!!", "");
 	
 		// Create some public test rooms
-		createNewRoom("Paris", ROOM_PUBLIC, "", "");
-		createNewRoom("Berlin", ROOM_PUBLIC, "", "");	
+		createNewRoom("Paris", ROOM_PUBLIC, "Public room", "");
+		createNewRoom("Berlin", ROOM_PUBLIC, "Public room", "");	
 	}
 	
 	
