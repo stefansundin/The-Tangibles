@@ -594,7 +594,18 @@ function socketserver(){
 	
 	
 	addCallbacks(API_ROOM_NEW, function(con, name, typeS, desc, pass){
+		
+		if (desc == null) {
+			desc = ""
+		}
+		
+		if (pass == null) {
+			pass = ""
+		}
+		
 		var roomId = createNewRoom(name, typeS, desc, pass);
+		
+		console.log(rooms)
 		
 		var data = JSON.stringify({
 			id: roomId,
