@@ -28,61 +28,64 @@
       </div> 
     </div>
 	
-	<div id="dialog">
+	<!-- Invite user dialog -->
+	<div id="dialog" title="Invite user">
 		<form>
-        <div id="formContainer">
-            Dialog Checkbox 1: <input type="checkbox" value=0 class="check1"/>
-            Dialog Checkbox 2: <input type="checkbox" value=1 class="check2"/>
-        </div>
+			<div id="formContainer">
+			</div>
 		</form>
 	</div>
     
     <script>
 	
 	$(document).ready(function() {
-		$('#dialog').dialog({
-			autoOpen : false,
-			modal : true,
-			buttons: {
-				Ok: function() {
-					
-					$(this).find('input[type="checkbox"]').each(function(){
-					//console.log($(this).val() + " is " + $(this).is(':checked'));
+    $('#dialog').dialog({
+        autoOpen : false,
+        modal : true,
+		buttons: {
+			Ok: function() {				
+				$(this).find('input[type="checkbox"]').each(function(){
 					if($(this).is(':checked')){
-						console.log('Fancy method on user with id: ' + $(this).val());
+						console.log('Fancy method on user with id: ' + $(this).attr('id'));
+						uid = $(this).attr('id');
+						ulist = parent.lobby.users;
+						for (i in ulist) {
+							if(ulist[i][0] == uid) {
+								onUserInvited(ulist[i][1]);
+								break;
+							}
+						}
+					
 					}
-					})
-					$( this ).dialog( 'close' );
-				},
-				Cancel: function() {
-					$( this ).dialog( 'close' );
-				}
+				})
+				document.getElementById('formContainer').innerHTML = "";
+				$( this ).dialog( 'close' );
+			},
+			Cancel: function() {
+				$( this ).dialog( 'close' );
 			}
-		});
+        }
+    });
 
-		$("button#openDialog").click(function() {
-			//$("#formContainer .check1").attr("defaultChecked", true);
-			var userlist = [];
-			var list = parent.lobby.users;
-			for (i in list) {
-				if (list[i][1] != parent.lobby.ownName) {
-					userlist.push(list[i][1]);
-					var checkbox = document.createElement('input');
-					checkbox.type = "checkbox";
-				//	checkbox.name = "name";
-				//	checkbox.value = "value";
-					checkbox.id = list[i][0];
-					$('#formcontainer').append(checkbox);
-				}
-			} 
-			$('#formcontainer').append
-			$('#dialog').dialog('open');
-			$("#formContainer .check2").attr("checked", true);
-		});
+    $("button#openDialog").click(function() {
+		var uname = ['john','karl']
+		var uid = [4,5]
+		var userlist = [];
+		var list = parent.lobby.users;
+		for (i in list) {
+			if (list[i][1] != parent.lobby.ownName) {
+				userlist.push(list[i][1]);
+			}
+		}
+		
+		for (i in userlist) {
+			var node = document.createElement('div');        
+			node.innerHTML = '<input type="checkbox" id="' + userlist[i][0] + '" name="' + userlist[i][0] + '"><label for="check' + userlist[i][0] + '">'+ userlist[i][1] +'</label>';       
+			document.getElementById('formContainer').appendChild(node);
+		}
+		$('#dialog').dialog('open');
 	});
-	
-	
-	
+});
 	
       var videos = [];
       var rooms = [1,2,3,4,5];
