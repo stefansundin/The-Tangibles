@@ -72,6 +72,7 @@ function Workspace() {
 		}
 
 		var room = window.location.hash.slice(1);
+		var self = this;
 
 		//When using localhost
 		console.log('Connecting');
@@ -80,7 +81,7 @@ function Workspace() {
 		rtc.on('add remote stream', function(stream, socketId) {
 				console.log("ADDING REMOTE STREAM...");
 				// TODO replace cloneVideo
-				var clone = this.cloneVideo('you', socketId);
+				var clone = self.cloneVideo('you', socketId);
 				clone.class="";
 				var streamUrl = URL.createObjectURL(stream);
 				clone.setAttribute("src", streamUrl);
