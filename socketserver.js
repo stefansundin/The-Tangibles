@@ -593,12 +593,14 @@ function socketserver(){
 	});
 	
 	
-	addCallbacks(API_ROOM_NEW, function(con, name, type){
-		var roomId = createNewRoom(name, type);
+	addCallbacks(API_ROOM_NEW, function(con, name, typeS, desc, pass){
+		var roomId = createNewRoom(name, typeS, desc, pass);
 		
 		var data = JSON.stringify({
 			id: roomId,
-			name: name
+			name: name,
+			type: typeS,
+			desc: desc,
 		});
 		
 		//TODO: Callback to creator (if want to go into room directly)
@@ -876,11 +878,11 @@ function socketserver(){
 	
 	function startup(){
 		// Create looby (gets ID 0)
-		createNewRoom("Lobby", ROOM_PUBLIC);
+		createNewRoom("Lobby", ROOM_PUBLIC, "Da LOBBY!!!!!", "");
 	
 		// Create some public test rooms
-		createNewRoom("Paris", ROOM_PUBLIC);
-		createNewRoom("Berlin", ROOM_PUBLIC);	
+		createNewRoom("Paris", ROOM_PUBLIC, "", "");
+		createNewRoom("Berlin", ROOM_PUBLIC, "", "");	
 	}
 	
 	
@@ -903,12 +905,12 @@ function socketserver(){
 		}
 	}
 	
-	function obj_room(name, typeS) {
+	function obj_room(name, typeS, desc, pass) {
 		this.id = getNextRoomId();
 		this.name = name;
 		this.type = typeS;
-		this.pass = ""; // maybe not yet?
-		this.desc = ""; // not necissary
+		this.pass = pass; // maybe not yet?
+		this.desc = desc; // not necissary
 	}
 	
 	
