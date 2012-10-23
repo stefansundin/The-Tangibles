@@ -1,5 +1,7 @@
 package driver;
 
+import java.util.ArrayList;
+
 import listener.RobotListener;
 import se.nicklasgavelin.bluetooth.BluetoothDevice;
 import se.nicklasgavelin.sphero.Robot;
@@ -10,7 +12,7 @@ import utils.Event;
 
 public class Sphero extends Robot {
 	public boolean active = false;
-	private Event[] events;
+	private ArrayList<Event> events;
 
 	public Sphero(BluetoothDevice bt) throws InvalidRobotAddressException,
 			RobotBluetoothException {
@@ -26,7 +28,7 @@ public class Sphero extends Robot {
 		return false;
 	}
 
-	public void activateEvents(Event[] events) {
+	public void activateEvents(ArrayList<Event> events) {
 		if (!active) {
 			this.events = events;
 			RobotListener listener = new RobotListener(events, getId());
@@ -38,7 +40,7 @@ public class Sphero extends Robot {
 	public void activateDataStreaming(){
 		if (!active) {
 			long mask = 0;
-			if(this.events.length == 0) return;
+			if(this.events.size() == 0) return;
 			
 			// TODO figure out how to enable all
 			for (Event event : this.events) {

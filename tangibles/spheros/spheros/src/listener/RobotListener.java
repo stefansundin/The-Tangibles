@@ -1,15 +1,11 @@
 package listener;
 
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import orbotix.robot.sensor.AttitudeData;
-import orbotix.robot.sensor.DeviceSensorsData;
-
 import se.nicklasgavelin.sphero.Robot;
 import se.nicklasgavelin.sphero.command.CommandMessage;
-import se.nicklasgavelin.sphero.command.SetDataStreamingCommand;
-import se.nicklasgavelin.sphero.command.SetDataStreamingCommand.DATA_STREAMING_MASKS;
 import se.nicklasgavelin.sphero.response.InformationResponseMessage;
 import se.nicklasgavelin.sphero.response.ResponseMessage;
 import se.nicklasgavelin.sphero.response.information.DataResponse;
@@ -19,11 +15,11 @@ import driver.AppManagerImpl;
 import driver.Sphero;
 
 public class RobotListener implements se.nicklasgavelin.sphero.RobotListener {
-	private Event[] events;
+	private ArrayList<Event> events;
 	private String devId;
 	private int counter = 0;
 
-	public RobotListener(Event[] events, String devId) {
+	public RobotListener(ArrayList<Event> events, String devId) {
 		this.events = events;
 		this.devId = devId;
 	}

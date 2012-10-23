@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -323,9 +324,10 @@ public class GeneralCommunicationProtocol extends JsonTcpCommunication
 						if(sphero.getId().equals(devID)){
 							System.out.println("Found your device");
 							
-							Event[] events = new Event[1];
-							events[0] = utils.Event.GYROATTITUDE;
-							//events[1] = utils.Event.ACCELEROMETER; // Change to size 2 if added
+							
+							ArrayList<Event> events = new ArrayList<Event>();
+							//events.add(utils.Event.GYROATTITUDE);
+							events.add(utils.Event.ACCELEROMETER);
 							
 							sphero.activateEvents(events);														
 						}
