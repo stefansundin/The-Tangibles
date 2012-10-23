@@ -74,6 +74,7 @@ app.get('/webrtc.io.js', function(req, res) {
 
 webRTC.rtc.on('connect', function(rtc) {
   //Client connected
+  console.log("WEBRTC: connect");
 });
 
 webRTC.rtc.on('send answer', function(rtc) {
@@ -82,6 +83,7 @@ webRTC.rtc.on('send answer', function(rtc) {
 
 webRTC.rtc.on('disconnect', function(rtc) {
   //Client disconnect 
+  console.log("WEBRTC: disconnect");
 });
 
 webRTC.rtc.on('chat_msg', function(data, socket) {

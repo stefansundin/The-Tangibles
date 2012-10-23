@@ -471,7 +471,7 @@ function socketserver(){
 		var recipients = getUserBySocket(con);
 		
 		var data = JSON.stringify({
-			sender: recipients,
+			sender: recipients.id,
 			msg: message
 		});
 		
@@ -488,12 +488,13 @@ function socketserver(){
 	 * @param message
 	 * 		Message to deliver to the recipient
 	 */
-	addCallbacks(API_CORNERS, function(con, recipientId, message){
+	addCallbacks(API_CORNERS, function(con, recipientId, message, label){
 		
 		var recipient = getUserById(recipientId);
 		
 		var data = JSON.stringify({
-			msg: message
+			msg: message,
+			videoLabel: label
 		});
 		
 		sendMessage(API_CORNERS, recipient.socket, data);
@@ -507,7 +508,7 @@ function socketserver(){
 	 * @param message
 	 *  	Message to deliver to the recipients
 	 */
-	addCallbacks(API_CORNERS_BROADCAST, function(con, message){
+	addCallbacks(API_CORNERS_BROADCAST, function(con, message, label){
 		
 		var recipients = getUserBySocket(con);
 		
@@ -515,7 +516,8 @@ function socketserver(){
 		
 		var data = JSON.stringify({
 			sender: recipients.id,
-			msg: message
+			msg: message, 
+			videoLabel: label
 		});
 		
 		sendMessageToRoom(recipients.id, recipients.roomId, API_CORNERS_BROADCAST, data);
