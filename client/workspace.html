@@ -6,7 +6,7 @@
 
 <script src="/webrtc.io.js"></script>
 </head>
-<body onload="init()">
+<body>
 <div id="notice">This is the workspace view. Choose the appropriate camera and move this window to where you want it.</div>
 <div id="videos">
 <video id="you" autoplay height="100%"></video>
@@ -94,15 +94,15 @@ function Workspace() {
 		this.initFullScreen();
 	}
 	
-	this.getVideos = function(){
+	this.getVideos = function() {
 		return videos;
 	}
 	
-	this.getVideoStreams = function(){
+	this.getVideoStreams = function() {
 		return videoStreams;
 	}
 	
-	this.getPeerConnection = function(){
+	this.getPeerConnection = function() {
 		return PeerConnection;
 	}
 	
