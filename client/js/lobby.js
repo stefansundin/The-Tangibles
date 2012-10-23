@@ -137,6 +137,7 @@ Lobby.prototype.load = function() {
 		modal : true,
 		resizable : false,
 		open : function(event, ui) {
+			$('#room_name').select();
 			$('#room_name').removeClass('ui-state-error');
 		},
 		buttons : {
@@ -293,13 +294,14 @@ Lobby.prototype.onCreateRoom = function(roomName) {
 		roomType = this.room_type_public;
 	}
 
+	var roomDesc = $("#room_desc").val();
 	var roomPassword = $("#room_password").val();
 
 	if (roomName != '') {
 		socket.send(API_ROOM_NEW, JSON.stringify({
 			name : roomName,
 			type : roomType,
-			desc : '', // TODO description
+			desc : roomDesc,
 			password : roomPassword
 		}));
 	}
