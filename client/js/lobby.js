@@ -419,22 +419,21 @@ Lobby.prototype.onRoomAdd = function(roomId, roomName, roomDesc, roomType) {
 		text : roomName
 	})).append(roomDesc)).append($('<td/>', {
 		id : 'room_user_list_' + roomId
-	})).append($('<td/>', {
-		click : function(event) {
-			event.stopPropagation();
-			self.deleteRoom(roomId);
-		}
-	}).hover(function() {
-		$(this).children().first().css({
-			margin : '-1px'
-		}).addClass('ui-state-error');
-	}, function() {
-		$(this).children().first().css({
-			margin : '0px'
-		}).removeClass('ui-state-error');
+	})).append($('<td/>').css({
+		width : '26px',
+		'font-size' : '0px'
+	}).append($('<button/>').button({
+		icons : {
+			primary : 'ui-icon-trash'
+		},
+		text : false
 	}).css({
-		padding : '10px'
-	}).append($('<span/>').addClass('ui-icon ui-icon-trash'))));
+		height : '26px',
+		width : '26px'
+	}).click(function(event) {
+		event.stopPropagation();
+		self.deleteRoom(roomId);
+	}))));
 };
 
 /**
