@@ -80,7 +80,7 @@ function Workspace() {
 		rtc.on('add remote stream', function(stream, socketId) {
 				console.log("ADDING REMOTE STREAM...");
 				// TODO replace cloneVideo
-				var clone = cloneVideo('you', socketId);
+				var clone = this.cloneVideo('you', socketId);
 				clone.class="";
 				var streamUrl = URL.createObjectURL(stream);
 				clone.setAttribute("src", streamUrl);
@@ -90,7 +90,7 @@ function Workspace() {
 				console.log('remove ' + data);
 				removeVideo(data);
 				});
-		initFullScreen();
+		this.initFullScreen();
 	}
 }
 
