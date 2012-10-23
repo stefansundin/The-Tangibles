@@ -374,6 +374,7 @@ function socketserver(){
 		
 		for(var i=0,j=lRooms.length; i<j; i++){
 			var r = lRooms[i];
+			console.log(r)
 			listRooms.push([r.id, r.name, r.desc, r.type]);
 		};
 		
