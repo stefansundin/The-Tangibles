@@ -599,8 +599,8 @@ function socketserver(){
 		var data = JSON.stringify({
 			id: roomId,
 			name: name,
-			type: typeS,
 			desc: desc,
+			type: typeS
 		});
 		
 		//TODO: Callback to creator (if want to go into room directly)
