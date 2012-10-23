@@ -22,7 +22,7 @@ var Buttons = function (transform) {
 
 	this.CheckPressed = function (contextBlended) {
 		for (i in listOfButtons) {
-			listOfButtons[i].CheckPressed(contextBlended, this.transform);
+			listOfButtons[i].CheckPressed(contextBlended, trans); // this.transform);
 		}
 	}
 
@@ -48,14 +48,14 @@ var Buttons = function (transform) {
 	}
 
 	this.blend = function () {
-		var width = contextSource.canvas.width;
-		var height = contextSource.canvas.height;
+		var width = this.contextSource.canvas.width;
+		var height = this.contextSource.canvas.height;
 		// get webcam image data
 		var sourceData = this.contextSource.getImageData(0, 0, width, height);
 		// create an image if the previous image doesn’t exist
 		if (!this.lastImageData) this.lastImageData = this.contextSource.getImageData(0, 0, width, height);
 		// create a ImageData instance to receive the blended result
-		var blendedData = contextSource.createImageData(width, height);
+		var blendedData = this.contextSource.createImageData(width, height);
 		// blend the 2 images
 		this.differenceAccuracy(blendedData.data, sourceData.data, this.lastImageData.data);
 		// draw the result in a canvas
@@ -136,8 +136,8 @@ Button.prototype.CheckPressed = function (contextBlended, transform) {
 			this.enabled = true;
 		}
 		this.Draw()
-		if (!!(method && method.constructor && method.call && method.apply))
-			method()
+		if (!!(this.method && this.method.constructor && this.method.call && this.method.apply))
+			this.method();
 	} else {
 		this.pressed = false;
 	}

@@ -17,20 +17,43 @@ Geometry.Rectangle = function(x, y, width, height) {
     this.height = height;
 };
 
+Geometry.Rectangle.prototype.copy = function() {
+    return new Geometry.Rectangle(this.x, this.y, this.width, this.height);
+}
+
+Geometry.Rectangle.prototype.makePositive = function() {
+    
+    if (this.width < 0) {
+        this.width = -this.width;
+        this.x -= this.width;
+    }
+    
+    if (this.height < 0) {
+        this.height = -this.height;
+        this.y -= this.height;
+    }
+};
+
+Geometry.Rectangle.prototype.draw = function(ctx) {
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = "blue";
+    ctx.strokeRect(this.x, this.y, this.width, this.height);
+}
+
 /**
  Returns a rectangle containing all points of poly
  */
 Geometry.rectFromPoly = function(poly) {
     
     var minX = Infinity,
-        maxX = -Infinity,
         minY = Infinity,
+        maxX = -Infinity,
         maxY = -Infinity;
     
     for (var i = 0; i < poly.length; i++) {
         minX = Math.min(minX, poly[i].x);
         maxX = Math.max(maxX, poly[i].x);
-        minY = Math.min(minX, poly[i].y);
+        minY = Math.min(minY, poly[i].y);
         maxY = Math.max(maxY, poly[i].y);
     }
     
@@ -129,6 +152,16 @@ Geometry.Transform = function(fromPoly, toPoly) {
     this._b = Minv.multiply(B);
 };
 
+Geometry.PolyToRectTransform = function(fromPoly, toRect) {
+    
+    toPoly = [new Geometry.Point(toRect.x, toRect.y),
+              new Geometry.Point(toRect.x + toRect.width, toRect.y),
+              new Geometry.Point(toRect.x + toRect.width, toRect.y + toRect.height),
+              new Geometry.Point(toRect.x, toRect.y + toRect.height)];
+    
+    return new Geometry.Transform(fromPoly, toPoly);
+}
+
 Geometry.Transform.prototype.transformPoint = function(p) {
     var nx, ny;
     nx = Math.round(this._a.e(1, 1) * p.x * p.y +
@@ -139,7 +172,7 @@ Geometry.Transform.prototype.transformPoint = function(p) {
                     this._b.e(2, 1) * p.x +
                     this._b.e(3, 1) * p.y +
                     this._b.e(4, 1));
-    return new Point(nx, ny);
+    return new Geometry.Point(nx, ny);
 };
 
 /**
@@ -151,17 +184,7 @@ Geometry.Transform.prototype.transformPoly = function(poly) {
     var nx, ny;
     
     for (var i = 0; i < poly.length; i++) {
-        // Use transformPoint?
-        nx = Math.round(this._a.e(1, 1) * poly[i].x * poly[i].y +
-                        this._a.e(2, 1) * poly[i].x +
-                        this._a.e(3, 1) * poly[i].y +
-                        this._a.e(4, 1));
-        ny = Math.round(this._b.e(1, 1) * poly[i].x * poly[i].y +
-                        this._b.e(2, 1) * poly[i].x +
-                        this._b.e(3, 1) * poly[i].y +
-                        this._b.e(4, 1));
-
-        newPoly.push(new Point(nx, ny));
+        newPoly.push(this.transformPoint(poly[i]));
     }
     
     return newPoly;
@@ -195,27 +218,33 @@ Geometry.Transform.prototype.transformImage = function(imageDataIn, dstCanvas) {
         }
     }
     
-    ctx.putImageData(imageData, 0, 0);
+    ctx.putImageData(newData, 0, 0);
 };
 
-/*
- 
- Not done, and maybe not necessary
 
-Geometry.Transform.prototype.transformImageWithRect = function(imageDataIn, dstCanvas, dstRect) {
+Geometry.Transform.prototype.transformImageToRect = function(imageDataIn, dstCanvas, dstRect) {
     
     var ctx = dstCanvas.getContext("2d");
-    var newData = ctx.createImageData(dstCanvas.width, dstCanvas.height);
+    var newData = ctx.createImageData(dstRect.width, dstRect.height);
     var dataIn = imageDataIn.data;
     var dataOut = newData.data;
     
-    for (var i = 0; i < dstCanvas.width; i++) {
-        for (var j = 0; j < dstCanvas.height; j++) {
+    // console.log(dataIn.length + "," + dataOut.length);
+    
+    for (var i = 0; i < dstRect.width; i++) {
+        for (var j = 0; j < dstRect.height; j++) {
             
-            var I = Math.round(a.e(1, 1) * i * j + a.e(2, 1) * i + a.e(3, 1) * j + a.e(4, 1));
-            var J = Math.round(b.e(1, 1) * i * j + b.e(2, 1) * i + b.e(3, 1) * j + b.e(4, 1));
-            var ci = i * 4 + j * c.width * 4,
-            di = I * 4 + J * c.width * 4;
+            var I = Math.round(this._a.e(1, 1) * i * j +
+                               this._a.e(2, 1) * i +
+                               this._a.e(3, 1) * j +
+                               this._a.e(4, 1));
+            var J = Math.round(this._b.e(1, 1) * i * j +
+                               this._b.e(2, 1) * i +
+                               this._b.e(3, 1) * j +
+                               this._b.e(4, 1));
+            
+            var ci = i * 4 + j * newData.width * 4,
+                di = I * 4 + J * imageDataIn.width * 4;
             
             dataOut[ci]     = dataIn[di];
             dataOut[ci + 1] = dataIn[di + 1];
@@ -223,9 +252,10 @@ Geometry.Transform.prototype.transformImageWithRect = function(imageDataIn, dstC
             dataOut[ci + 3] = dataIn[di + 3];
         }
     }
+    // newCtx.putImageData(newData, 0, 0);
+    // ctx.drawImage(newCanvas, dstRect.x, dstRect.y, dstRect.width, dstRect.height);
     
-    ctx.putImageData(imageData, 0, 0);
-}
- */
+    ctx.putImageData(newData, dstRect.x, dstRect.y);
+};
 
 
