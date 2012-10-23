@@ -552,6 +552,11 @@ function socketserver(){
 	addCallbacks(API_INVITE_ANSWER, function(con, callId, answer){
 		var call = getCallById(callId);
 		
+		if (call == null) {
+			console.log((new Date()) + " call is null, stop hacking! " + con.remoteAddress);
+			return;
+		}
+		
 		var data = JSON.stringify({
 			id: call.called.id,
 			answer: answer
