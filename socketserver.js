@@ -605,7 +605,7 @@ function socketserver(){
 		
 		var roomId = createNewRoom(name, typeS, desc, pass);
 		
-		console.log(rooms)
+		console.log(lRooms)
 		
 		var data = JSON.stringify({
 			id: roomId,
