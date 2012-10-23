@@ -358,7 +358,7 @@
 	  
       //When using localhost
       console.log('Connecting');
-      rtc.connect("ws://"+ window.location.host +"/", room);
+      rtc.connect("ws://"+ window.location.host +":80/", room);
       //rtc.connect("ws://localhost:8000/", room);
 	  
       rtc.on('add remote stream', function(stream, socketId) {
