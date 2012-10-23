@@ -997,8 +997,8 @@ function socketserver(){
 	// # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 	
 	
-	function createNewRoom(name, typeS){
-		var room = new obj_room(name, typeS);
+	function createNewRoom(name, typeS, desc, pass){
+		var room = new obj_room(name, typeS, desc, pass);
 		lRooms.push(room);
 		return room.id;
 	}
