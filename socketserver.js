@@ -509,7 +509,7 @@ function socketserver(){
 		console.log(message);
 		
 		var data = JSON.stringify({
-			sender: recipients,
+			sender: recipients.id,
 			msg: message
 		});
 		
