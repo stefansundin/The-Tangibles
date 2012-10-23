@@ -146,7 +146,7 @@ Lobby.prototype.load = function() {
 				if (name == '') {
 					$('#room_name').addClass('ui-state-error');
 				} else {
-					self.onCreateRoom(name);
+					self.createRoom(name);
 					$(this).dialog('close');
 				}
 			},
@@ -284,8 +284,8 @@ Lobby.prototype.onLobbyLoad = function(rooms, users) {
  * @param roomName
  *            Name of the new room
  */
-Lobby.prototype.onCreateRoom = function(roomName) {
-	console.log('onCreateRoom: ' + roomName);
+Lobby.prototype.createRoom = function(roomName) {
+	console.log('createRoom: ' + roomName);
 
 	var roomType;
 	if ($("#room_type_private").attr('checked')) {
@@ -305,6 +305,20 @@ Lobby.prototype.onCreateRoom = function(roomName) {
 			password : roomPassword
 		}));
 	}
+};
+
+/**
+ * Deletes a room on the server.
+ * 
+ * @param roomId
+ *            ID to delete
+ */
+Lobby.prototype.deleteRoom = function(roomId) {
+	console.log('deleteRoom: ' + roomId);
+
+	socket.send(API_ROOM_REMOVE, JSON.stringify({
+		id : roomId
+	}));
 };
 
 /**
@@ -384,7 +398,7 @@ Lobby.prototype.onRoomAdd = function(roomId, roomName, roomDesc, roomType) {
 
 	// Ignore lobby
 	if (roomId == this.lobbyId) {
-		return;
+		// return; TODO Uncomment again...
 	}
 	// Unique ids
 	if ($('#room_list_' + roomId).length != 0) {
@@ -405,7 +419,22 @@ Lobby.prototype.onRoomAdd = function(roomId, roomName, roomDesc, roomType) {
 		text : roomName
 	})).append(roomDesc)).append($('<td/>', {
 		id : 'room_user_list_' + roomId
-	})));
+	})).append($('<td/>', {
+		click : function(event) {
+			event.stopPropagation();
+			self.deleteRoom(roomId);
+		}
+	}).hover(function() {
+		$(this).children().first().css({
+			margin : '-1px'
+		}).addClass('ui-state-error');
+	}, function() {
+		$(this).children().first().css({
+			margin : '0px'
+		}).removeClass('ui-state-error');
+	}).css({
+		padding : '10px'
+	}).append($('<span/>').addClass('ui-icon ui-icon-trash'))));
 };
 
 /**
