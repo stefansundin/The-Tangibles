@@ -374,6 +374,7 @@ function socketserver(){
 		
 		for(var i=0,j=lRooms.length; i<j; i++){
 			var r = lRooms[i];
+			console.log(r)
 			listRooms.push([r.id, r.name, r.desc, r.type]);
 		};
 		
@@ -892,8 +893,8 @@ function socketserver(){
 		createNewRoom("Lobby", ROOM_PUBLIC, "Da LOBBY!!!!!", "");
 	
 		// Create some public test rooms
-		createNewRoom("Paris", ROOM_PUBLIC, "", "");
-		createNewRoom("Berlin", ROOM_PUBLIC, "", "");	
+		createNewRoom("Paris", ROOM_PUBLIC, "Public room", "");
+		createNewRoom("Berlin", ROOM_PUBLIC, "Public room", "");	
 	}
 	
 	
