@@ -22,7 +22,7 @@
         <button id="fullscreen">Enter Full Screen</button>     
         <button id="openWorkspace">Open the workspace</button>
         <button id="closeWorkspace">Close the workspace</button>
-        <button id="dialog">Intvite</button>
+        <button id="openDialog">Invite</button>
         <button id="leaveRoom">Leave the room</button>
         <div id="messages"></div>
       </div> 
@@ -40,11 +40,11 @@
     <script>
 	
 	$(document).ready(function() {
-    $('#dialog').dialog({
-        autoOpen : false,
-        modal : true,
-		buttons: {
-                Ok: function() {
+		$('#dialog').dialog({
+			autoOpen : false,
+			modal : true,
+			buttons: {
+				Ok: function() {
 					
 					$(this).find('input[type="checkbox"]').each(function(){
 					//console.log($(this).val() + " is " + $(this).is(':checked'));
@@ -52,21 +52,20 @@
 						console.log('Fancy method on user with id: ' + $(this).val());
 					}
 					})
-                    $( this ).dialog( 'close' );
-                },
+					$( this ).dialog( 'close' );
+				},
 				Cancel: function() {
 					$( this ).dialog( 'close' );
 				}
-            }
-    });
+			}
+		});
 
-	$("a#openDialog").click(function() {
-		$("#formContainer .check1").attr("defaultChecked", true);
-		$('#dialog').dialog('open');
-		$("#formContainer .check2").attr("checked", true);
+		$("a#openDialog").click(function() {
+			$("#formContainer .check1").attr("defaultChecked", true);
+			$('#dialog').dialog('open');
+			$("#formContainer .check2").attr("checked", true);
+		});
 	});
-
-});
 	
 	
 	
