@@ -187,7 +187,7 @@ Lobby.prototype.onSocketOpen = function() {
  * Called when the socket connection is closed.
  */
 Lobby.prototype.onSocketClose = function() {
-	console.error('onClose');
+	console.warn('onClose');
 
 	// TODO Fix better error handling?
 	$('#room_table tbody').empty();
