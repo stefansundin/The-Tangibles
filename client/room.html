@@ -25,64 +25,73 @@
         <button id="openDialog">Invite</button>
         <button id="leaveRoom">Leave the room</button>
         <div id="messages"></div>
-      </div> 
+	
+      </div>
+<br>
+	<input id="chatinput" type="text"/>	  
     </div>
 	
-	<div id="dialog">
+	<!-- Invite user dialog -->
+	<div id="dialog" title="Invite user">
 		<form>
-        <div id="formContainer">
-            Dialog Checkbox 1: <input type="checkbox" value=0 class="check1"/>
-            Dialog Checkbox 2: <input type="checkbox" value=1 class="check2"/>
-        </div>
+			<div id="formContainer">
+			</div>
 		</form>
 	</div>
     
     <script>
 	
 	$(document).ready(function() {
-		$('#dialog').dialog({
-			autoOpen : false,
-			modal : true,
-			buttons: {
-				Ok: function() {
-					
-					$(this).find('input[type="checkbox"]').each(function(){
-					//console.log($(this).val() + " is " + $(this).is(':checked'));
+    $('#dialog').dialog({
+        autoOpen : false,
+        modal : true,
+		buttons: {
+			Ok: function() {
+			//	console.log('All users: ' + ulist);			
+				$(this).find('input[type="checkbox"]').each(function(){
 					if($(this).is(':checked')){
-						console.log('Fancy method on user with id: ' + $(this).val());
+						uid = $(this).attr('id');
+						ulist = parent.lobby.users;
+						console.log('User id: ' + uid);
+						
+						
+						for (i in ulist) {
+							if(ulist[i][0] == uid) {
+								console.log('Found user: ' + ulist[i][1]);
+								onUserInvited(ulist[i][1]);
+								break;
+							}
+						}
+					
 					}
-					})
-					$( this ).dialog( 'close' );
-				},
-				Cancel: function() {
-					$( this ).dialog( 'close' );
-				}
+				})
+				document.getElementById('formContainer').innerHTML = "";
+				$( this ).dialog( 'close' );
+			},
+			Cancel: function() {
+				document.getElementById('formContainer').innerHTML = "";
+				$( this ).dialog( 'close' );
 			}
-		});
+        }
+    });
 
-		$("button#openDialog").click(function() {
-			//$("#formContainer .check1").attr("defaultChecked", true);
-			var userlist = [];
-			var list = parent.lobby.users;
-			for (i in list) {
-				if (list[i][1] != parent.lobby.ownName) {
-					userlist.push(list[i][1]);
-					var checkbox = document.createElement('input');
-					checkbox.type = "checkbox";
-				//	checkbox.name = "name";
-				//	checkbox.value = "value";
-					checkbox.id = list[i][0];
-					$('#formcontainer').append(checkbox);
-				}
-			} 
-			$('#formcontainer').append
-			$('#dialog').dialog('open');
-			$("#formContainer .check2").attr("checked", true);
-		});
+    $("button#openDialog").click(function() {
+		var userlist = [];
+		var list = parent.lobby.users;
+		for (i in list) {
+			if (list[i][1] != parent.lobby.ownName) {
+				userlist.push(list[i]);
+			}
+		}
+		
+		for (i in userlist) {
+			var node = document.createElement('div');        
+			node.innerHTML = '<input type="checkbox" id="' + userlist[i][0] + '" name="' + userlist[i][0] + '"><label for="check' + userlist[i][0] + '">'+ userlist[i][1] +'</label>';       
+			document.getElementById('formContainer').appendChild(node);
+		}
+		$('#dialog').dialog('open');
 	});
-	
-	
-	
+});
 	
       var videos = [];
       var rooms = [1,2,3,4,5];
@@ -298,7 +307,7 @@
       var room = window.location.hash.slice(1);
       var color = "#"+((1<<24)*Math.random()|0).toString(16);
   
-  /*    input.addEventListener('keydown', function(event) {
+      input.addEventListener('keydown', function(event) {
         var key = event.which || event.keyCode;
         if (key === 13) {
           rtc._socket.send(JSON.stringify({
@@ -316,7 +325,7 @@
           addToChat(input.value);
           input.value = "";
         }
-      }, false); */
+      }, false);
       rtc.on('receive_chat_msg', function(data) {
         console.log(data.color);
         addToChat(data.messages, data.color.toString(16));
@@ -324,8 +333,6 @@
     }
 
     function init() {
-      console.log("Testing");
-      console.log($(window.parent.document).find("#roomMain"));
       if ($(window.parent.document).find("#roomMain").length == 0) {
         console.log("Attempted to access this page without going through the lobby.");
         //window.location.replace("http://www.youtube.com/watch?v=_1mB5rM8WHU");
@@ -349,10 +356,10 @@
         alert('Your browser is not supported or you have to turn on flags. In chrome you go to chrome://flags and turn on Enable PeerConnection remember to restart chrome');
       }
       var room = window.location.hash.slice(1);
-	  
+	  //parent.window.parent.document.title = room;
       //When using localhost
       console.log('Connecting');
-      rtc.connect("ws://"+ window.location.host +":80/", room);
+      rtc.connect("ws://"+ window.location.host +"/", room);
       //rtc.connect("ws://localhost:8000/", room);
 	  
       rtc.on('add remote stream', function(stream, socketId) {
