@@ -620,6 +620,20 @@ function socketserver(){
 	});
 	
 	addCallbacks(API_ROOM_REMOVE, function(con, id){
+		
+		if (id == 0){
+			console.log((new Date()) + " trying to remove lobby...");
+			return;
+		}
+		
+		
+		for(var i=0,j=lUsers.length; i<j; i++){
+			if (lUsers[i].roomId == id) {
+				console.log((new Date()) + " trying to remove non-empty room");
+				return;
+			}
+		};
+		
 		removeRoomById(id);
 		
 		var data = JSON.stringify({
