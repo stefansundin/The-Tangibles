@@ -111,6 +111,33 @@ function Workspace() {
 workspace = new Workspace();
 workspace.init();
 
+
+window.opener.parent.socket.on(window.opener.parent.socket.API_CORNERS_BROADCAST, function(msg, videoLabel) {
+	// func to projectors here...
+	console.log("");
+	
+	
+	var label = workspace.getVideoStreams()[0].label;
+	
+	var message = "My corners";
+	
+	var data = JSON.stringify({
+		id: id,
+		msg: message,
+		videoLabel: label
+	});
+	
+	// This should be run inside the function that calculates the corners.
+	//window.opener.parent.Socket.send(window.opener.parent.socket.API_CORNERS, data);
+	
+});
+
+window.opener.parent.socket.on(window.opener.parent.socket.API_CORNERS, function(id, msg, videoLabel) {
+	// func to projectors here...
+	console.log(videoLabel);
+	
+});
+
 </script>
 </body>
 </html>
