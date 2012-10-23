@@ -69,8 +69,8 @@ Lobby.prototype.load = function() {
 	socket.on(API_INVITE_DECLINED, function(callId) {
 		self.onCallDeclined(callId);
 	});
-	socket.on(API_ROOM_NEW, function(roomId, roomName, roomDesc, roomType) {
-		self.onRoomAdd(roomId, roomName, roomDesc, roomType);
+	socket.on(API_ROOM_NEW, function(roomId, roomName, roomType, roomDesc) {
+		self.onRoomAdd(roomId, roomName, roomType, roomDesc);
 	});
 	socket.on(API_ROOM_REMOVE, function(roomId) {
 		self.onRoomDelete(roomId);
@@ -293,12 +293,14 @@ Lobby.prototype.onCreateRoom = function(roomName) {
 		roomType = this.room_type_public;
 	}
 
-	var roomPassword = $("#room_password").val(); // TODO Fix password
+	var roomPassword = $("#room_password").val();
 
 	if (roomName != '') {
 		socket.on(API_ROOM_NEW, JSON.stringify({
 			name : roomName,
-			type : roomType
+			type : roomType,
+			desc : '', // TODO description
+			password : roomPassword
 		}));
 	}
 };
@@ -369,14 +371,14 @@ Lobby.prototype.onRoomChangeName = function(roomId, roomName) {
  *            ID of the added room
  * @param roomName
  *            Name of the added room
- * @param roomDesc
- *            The description of the room
  * @param roomType
  *            Type of the room
+ * @param roomDesc
+ *            The description of the room
  */
-Lobby.prototype.onRoomAdd = function(roomId, roomName, roomDesc, roomType) {
-	console.log('onRoomAdd: ' + roomId + ' ' + roomName + ' ' + roomDesc + ' '
-			+ roomType);
+Lobby.prototype.onRoomAdd = function(roomId, roomName, roomType, roomDesc) {
+	console.log('onRoomAdd: ' + roomId + ' ' + roomName + ' ' + roomType + ' '
+			+ roomDesc);
 
 	// Ignore lobby
 	if (roomId == this.lobbyId) {
