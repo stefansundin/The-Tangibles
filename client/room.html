@@ -358,7 +358,7 @@
         alert('Your browser is not supported or you have to turn on flags. In chrome you go to chrome://flags and turn on Enable PeerConnection remember to restart chrome');
       }
       var room = window.location.hash.slice(1);
-	  //parent.window.parent.document.title = room;
+	  parent.window.parent.document.title = 'Room: ' + room;
       //When using localhost
       console.log('Connecting');
       rtc.connect("ws://"+ window.location.host +"/", room);
