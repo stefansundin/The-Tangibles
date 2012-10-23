@@ -25,10 +25,10 @@
         <button id="openDialog">Invite</button>
         <button id="leaveRoom">Leave the room</button>
         <div id="messages"></div>
-	
+		<br>
+	<input id="chatinput" type="text"/>
       </div>
-<br>
-	<input id="chatinput" type="text"/>	  
+	  
     </div>
 	
 	<!-- Invite user dialog -->
@@ -279,6 +279,7 @@
       leaveButton.addEventListener('click', function(event) {
         writeMessageToChat(user_name + " left the room.");
         console.log('Left the room');
+		parent.window.parent.document.title = 'The-Tangibles';
         parent.lobby.leaveRoom();
       })
 	  }
@@ -309,7 +310,7 @@
   
       input.addEventListener('keydown', function(event) {
         var key = event.which || event.keyCode;
-		var msg = parent.lobby.ownName + '>' + input.value;
+		var msg = parent.lobby.ownName + '> ' + input.value;
 		
         if (key === 13) {
           rtc._socket.send(JSON.stringify({

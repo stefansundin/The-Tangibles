@@ -93,12 +93,23 @@ function Workspace() {
 				});
 		this.initFullScreen();
 	}
+	
+	this.getVideos = function(){
+		return videos;
+	}
+	
+	this.getVideoStreams = function(){
+		return videoStreams;
+	}
+	
+	this.getPeerConnection = function(){
+		return PeerConnection;
+	}
+	
 }
 
-function init() {
-	workspace = new Workspace();
-	workspace.init();
-}
+workspace = new Workspace();
+workspace.init();
 
 </script>
 </body>

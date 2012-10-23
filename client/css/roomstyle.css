@@ -33,22 +33,23 @@ html {
 
 #chatinput {
 	width: 100%;
-	position: absolute;
-	top: 50px;
-	/*padding-top: 7px;
-	padding-bottom: 7px; */
-	border-radius: 8px;
+	height:15%;
+	/*top: 50px;
+	padding-top: 7px;
+	padding-bottom: 7px; 
+	border-radius: 8px; */
 	border-style:solid;
 	border-width:1px;
 }
 
 #messages {
-	overflow: scroll;
-	height: 100px;
+	overflow-y: scroll;
+	height: 55%;
 	width: 100%;
 	background-color: white;
-	border-radius: 8px;
+/*	border-radius: 8px; */
 	border-style:solid;
+	overflow-x: hidden;
 	border-width:1px;
 }
 

@@ -506,8 +506,10 @@ function socketserver(){
 		
 		var recipients = getUserBySocket(con);
 		
+		console.log(message);
+		
 		var data = JSON.stringify({
-			sender: recipients,
+			sender: recipients.id,
 			msg: message
 		});
 		
