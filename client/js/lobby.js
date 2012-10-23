@@ -296,7 +296,7 @@ Lobby.prototype.onCreateRoom = function(roomName) {
 	var roomPassword = $("#room_password").val();
 
 	if (roomName != '') {
-		socket.on(API_ROOM_NEW, JSON.stringify({
+		socket.send(API_ROOM_NEW, JSON.stringify({
 			name : roomName,
 			type : roomType,
 			desc : '', // TODO description
