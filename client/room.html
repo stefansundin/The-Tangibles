@@ -279,6 +279,7 @@
       leaveButton.addEventListener('click', function(event) {
         writeMessageToChat(user_name + " left the room.");
         console.log('Left the room');
+		parent.window.parent.document.title = 'The-Tangibles';
         parent.lobby.leaveRoom();
       })
 	  }
