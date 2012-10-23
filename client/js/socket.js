@@ -108,13 +108,4 @@ var Socket = function(url) {
 	};
 };
 
-function getHost() {
-	var host = window.location.host;
-	var index = host.lastIndexOf(':');
-	if (index > 6) { // Remove ':' but not from http: etc.
-		host = host.substring(0, index);
-	}
-	return host;
-}
-
-var socket = new Socket("ws://"+ getHost() +":12345");
+var socket = new Socket("ws://" + window.location.hostname + ":12345");
