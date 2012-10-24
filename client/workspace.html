@@ -30,15 +30,14 @@
 
 const CANVAS_WIDTH = 640, CANVAS_HEIGHT = 480;
 
-var c = $('#myCanvas')[0];
-c.hide();
+$('#myCanvas').hide();
 
-var fullscreen = $('#fullscreen')[0];
+var fullscreen = $('#fullscreen');
 
-var doneCalibration = $('#button')[0];
+var doneCalibration = $('#button');
 doneCalibartion.hide();
 
-var notice = $('#notice')[0];
+var notice = $('#notice');
 
 function Workspace() {
 	var video, detector, imageData;
