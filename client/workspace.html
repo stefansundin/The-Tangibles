@@ -14,11 +14,14 @@
 </head>
 <body style="font-family: monospace; background-color: white;">
 <div id="notice">This is the workspace view. Choose the appropriate camera and move this window to where you want it.</div>
+<div>
 <button id="fullscreen">Enter Full Screen</button>
 </div>
 <center>
 <canvas id ="myCanvas" style="width: 100%; height: 100%"></canvas>
-<button type="button" onClick="calibrator.confirmSharedRectangle();">Done Calibrating</button>
+<div>
+<button id="button">Done Calibrating</button>
+</div>
 </center>
 <script>
 
@@ -72,7 +75,16 @@ function Workspace() {
 				self.startCalibration();
 				// TODO start merging video and display it
 				});
+
+		var button2 = document.getElementById('button');
+		button2.addEventListener('click', function(event) {
+			self.finishedCalibration();
+			});
 	} 
+
+	this.finishedCalibration = function () {
+		calibrator.confirmSharedRectangle();
+	}
 
 	this.init = function () {
 		if (PeerConnection) {
