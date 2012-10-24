@@ -30,6 +30,7 @@
 
 const CANVAS_WIDTH = 640, CANVAS_HEIGHT = 480;
 
+// hide and show correct html elements
 var c = $('#myCanvas');
 c.hide();
 
@@ -83,7 +84,6 @@ function Workspace() {
 		var self = this;
 		fullscreen.click(function(event) {
 				// TODO enter full screen 
-				// TODO remove fullscreen button and notice text
 				notice.hide();
 				fullscreen.hide();
 				// enable calibration button
@@ -187,6 +187,7 @@ function Workspace() {
 	/* Keeps calibrating until the correct rectangle is found,
 	   then displays the transformed video stream */
 	this.tick = function() {
+		console.log('tick');
 		this.snapshot();
 		var markers = detector.detect(imageData);
 		calibrator.calibrateWithMarkers(markers);
