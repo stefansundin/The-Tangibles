@@ -8,8 +8,8 @@
 <script src="js/lib/sylvester.js"></script>
 <script type="text/javascript" src="js/mediaext.js"></script>
 <script type="text/javascript" src="js/geometry.js"></script>
-<script type="text/javascript" src="js/cv.js"></script>
-<script type="text/javascript" src="js/aruco.js"></script>
+<script type="text/javascript" src="js/lib/cv.js"></script>
+<script type="text/javascript" src="js/lib/aruco.js"></script>
 <script type="text/javascript" src="js/imageproc.js"></script>
 <script type="text/javascript" src="js/buttons.js"></script>
 <script type="text/javascript" src="js/calibration.js"></script>
@@ -25,11 +25,13 @@
 <div>
 <button id="button">Done Calibrating</button>
 </div>
+<video id="you" autoplay></video> 
 </center>
 <script>
 
 const CANVAS_WIDTH = 640, CANVAS_HEIGHT = 480;
 
+// hide and show correct html elements
 var c = $('#myCanvas');
 c.hide();
 
@@ -39,6 +41,8 @@ var doneCalibration = $('#button');
 doneCalibration.hide();
 
 var notice = $('#notice');
+
+$('#you').hide();
 
 function Workspace() {
 	var video, detector, imageData;
@@ -83,7 +87,6 @@ function Workspace() {
 		var self = this;
 		fullscreen.click(function(event) {
 				// TODO enter full screen 
-				// TODO remove fullscreen button and notice text
 				notice.hide();
 				fullscreen.hide();
 				// enable calibration button
@@ -110,7 +113,7 @@ function Workspace() {
 					videos.push(v);
 					video = v;
 					// TODO fix this, add a video tag and hide it
-					//rtc.attachStream(stream, 'you');
+					rtc.attachStream(stream, 'you');
 					videoStreams.push(stream);
 					});
 		} else {
@@ -161,7 +164,7 @@ function Workspace() {
 		fullContext = fullCanvas.getContext("2d");
 
 		detector = new AR.Detector();
-		calibrator = new Calibrator(fullCanvas, video);
+		calibrator = new Calibrator(fullCanvas);
 
 		fullCanvas.width = window.innerWidth;
 		fullCanvas.height = window.innerHeight;

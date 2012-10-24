@@ -5,7 +5,7 @@ var Buttons = function (transform) {
 	var listOfButtons = [];
 	var trans = transform;
 
-	this.AddButton = function (button) {
+	this.addButton = function (button) {
 		listOfButtons.push(button)
 	}
 
@@ -14,19 +14,19 @@ var Buttons = function (transform) {
 	//  
 	//}
 
-	this.Draw = function () {
+	this.draw = function () {
 		for (i in listOfButtons) {
-			listOfButtons[i].Draw();
+			listOfButtons[i].draw();
 		}
 	}
 
-	this.CheckPressed = function (contextBlended) {
+	this.checkPressed = function (contextBlended) {
 		for (i in listOfButtons) {
-			listOfButtons[i].CheckPressed(contextBlended, trans); // this.transform);
+			listOfButtons[i].checkPressed(contextBlended, trans); // this.transform);
 		}
 	}
 
-	this.Start = function (video, contextSource, contextBlended) {
+	this.start = function (video, contextSource, contextBlended) {
 		this.video = video;
 		this.contextSource = contextSource;
 		this.contextBlended = contextBlended;
@@ -38,7 +38,7 @@ var Buttons = function (transform) {
 		this.drawVideo();
 		this.blend();
 
-		this.CheckPressed(this.contextBlended)
+		this.checkPressed(this.contextBlended)
 		var self = this;
 		this.timeOut = setTimeout(function () {self.update()}, 200);
 	}
@@ -112,7 +112,7 @@ var Button = function (x, y, sizeX, sizeY, image, ctx) {
 	this.pressed = false;
 	this.enabled = true;
 }
-Button.prototype.CheckPressed = function (contextBlended, transform) {
+Button.prototype.checkPressed = function (contextBlended, transform) {
 	var p1 = transform.transformPoint(this.p1);
 	var p4 = transform.transformPoint(this.p4);
 
@@ -135,7 +135,7 @@ Button.prototype.CheckPressed = function (contextBlended, transform) {
 		} else {
 			this.enabled = true;
 		}
-		this.Draw()
+		this.draw()
 		if (!!(this.method && this.method.constructor && this.method.call && this.method.apply))
 			this.method();
 	} else {
@@ -144,7 +144,7 @@ Button.prototype.CheckPressed = function (contextBlended, transform) {
 }
 
 
-Button.prototype.Draw = function () {
+Button.prototype.draw = function () {
 	if (this.enabled) {
 		this.ctx.strokeStyle = 'red'
 	} else {
@@ -173,18 +173,18 @@ var VideoButton = function (x, y, sizeX, sizeY, image, ctx) {
 }
 VideoButton.prototype = new Button;
 
-VideoButton.prototype.Draw = function () {
+VideoButton.prototype.draw = function () {
 	this.ctx.strokeStyle = 'black';
 	this.ctx.strokeRect(this.x, this.y, this.sizeX, this.sizeY);
 	if (this.enabled) {
 		var self = this;
-		this.i = window.setInterval(function () {self.DrawMovie();},  40);
+		this.i = window.setInterval(function () {self.drawMovie();},  40);
 	} else {
 		window.clearInterval(this.i);
 		this.ctx.fillRect(this.x, this.y, this.sizeX, this.sizeY);
 	}
 }
 
-VideoButton.prototype.DrawMovie = function () {
+VideoButton.prototype.drawMovie = function () {
 	this.ctx.drawImage(this.v, this.x, this.y, this.sizeX, this.sizeY);
 }
