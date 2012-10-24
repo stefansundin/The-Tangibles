@@ -50,6 +50,10 @@ app.get('/js/lobby.js', function(req, res) {
   res.sendfile(__dirname + '/client/js/lobby.js');
 });
 
+app.get('/room/js/room.js', function(req, res) {
+  res.sendfile(__dirname + '/client/js/room.js');
+});
+
 app.get('/js/tangibles.js', function(req, res) {
   res.sendfile(__dirname + '/client/js/tangibles.js');
 });
