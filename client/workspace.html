@@ -93,6 +93,13 @@ function Workspace() {
 				doneCalibration.click(function(event) {
 					self.finishedCalibration();
 				});
+				$(document).keypress(function(event) {
+					var keycode = (event.keyCode ? event.keyCode : event.which);
+					if(keycode == 13) {
+						self.finishedCalibration();
+					}
+					// TODO remove keypress
+				});
 				doneCalibration.show();
 				self.startCalibration();
 				// TODO start merging video and display it
@@ -112,7 +119,6 @@ function Workspace() {
 					v.src = URL.createObjectURL(stream);
 					videos.push(v);
 					video = v;
-					// TODO fix this, add a video tag and hide it
 					rtc.attachStream(stream, 'you');
 					videoStreams.push(stream);
 					});
