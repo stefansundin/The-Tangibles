@@ -127,7 +127,7 @@ Calibrator.prototype.firstCalibration = function(markers) {
             
             // Add a button for confirming the shared rectangle
             var buttonImage = new Image();
-            buttonImage.src = 'doneButton.png';
+            buttonImage.src = 'img/doneButton.png';
             
             var button = new Button(5, 5, 100, 100, buttonImage, this.fullContext);
             button.method = this.confirmSharedRectangle;

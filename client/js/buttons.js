@@ -35,6 +35,7 @@ var Buttons = function (transform) {
 	}
 
 	this.update = function () {
+		console.log('update');
 		this.drawVideo();
 		this.blend();
 

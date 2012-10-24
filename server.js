@@ -12,6 +12,10 @@ app.get('/', function(req, res) {
   res.sendfile(__dirname + '/client/index.html');
 });
 
+app.get('/workspace/img/doneButton.png', function(req, res) {
+  res.sendfile(__dirname + '/client/img/doneButton.png');
+});
+
 app.get('/workspace/img/qr1012.png', function(req, res) {
   res.sendfile(__dirname + '/client/img/qr1012.png');
 });
