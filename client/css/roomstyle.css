@@ -1,29 +1,22 @@
 
-html {
-	/*overflow-y: scroll;*/
-}
-
 #content {
 	position: absolute;
-	top: 0px;
+	top: 50px;
 	left: 0px;
 	right: 0px;
 	bottom: 0px;
 }
 
 #videos {
-	/*float:top;*/
 	position: absolute; 
 	top: 0px;
 	left: 0px;
 	right: 0px;
 	bottom: 0px;
-	background-color: #ffffff;
 	height: 65%;
 }
 
 #chatbox {
-	/*float:bottom; */
 	position: absolute; 
 	height: 25%;
 	right: 20px;
@@ -62,7 +55,7 @@ body {
 }
 
 .ui-widget {
-	font-size: 0.8em;
+	font-size: 0.7em;
 }
 
 video {

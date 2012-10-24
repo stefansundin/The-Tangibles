@@ -24,47 +24,48 @@
 		</div>
 	</div>
 	<div id="dialog_select_user_name" title="Select user name">
-		<label for="user_name">User name</label>
+		<label for="user_name">User name</label><br />
 		<input type="text" name="user_name" id="user_name" class="text ui-widget-content ui-corner-all" />
 	</div>
 	<div id="dialog_create_room" title="Create new room">
-		<label for="room_name">Room name</label>
+		<label for="room_name">Room name</label><br />
 		<input type="text" id="room_name" class="text ui-widget-content ui-corner-all" />
 		<br />
-		<label for="room_desc">Description (optional)</label>
+		<br />
+		<label for="room_desc">Description (optional)</label><br />
 		<input type="text" id="room_desc" class="text ui-widget-content ui-corner-all" />
 		<br />
+		<br />
 		<input type="checkbox" id="create_room_advanced_button" />
-		<label for="create_room_advanced_button">Advanced</label>
+		<label for="create_room_advanced_button">Advanced</label><br />
 		<div id="create_room_advanced_content">
 			<br />
-			<label for="room_type">Room type</label>
+			<label for="room_type">Room type</label><br />
 			<div id="room_type">
 				<input type="radio" id="room_type_public" name="radio" checked="checked" /><label for="room_type_public">Public</label>
 				<input type="radio" id="room_type_private" name="radio" /><label for="room_type_private">Private</label>
 			</div>
 			<br />
-			<label for="room_password">Password (optional)</label>
+			<label for="room_password">Password (optional)</label><br />
 			<input type="password" id="room_password" class="text ui-widget-content ui-corner-all" />
 		</div>
 	</div>
 	
-	<!-- Splash div -->
-	<div id="splash">
-		<h1>The-Tangibles</h1>
-		<label for="splash_name">Enter your name:</label>
-		<input type="text" id="splash_name" class="text ui-widget-content ui-corner-all" />
-		<button id="splash_continue">Continue</button>
+	<!-- Top DIVs -->
+	<div id="tangible_status">
+		Status: <input type="text" id="status" class="text ui-widget-content ui-corner-all" readonly />
 	</div>
-
-
-	<!-- Header div-->
-	<div id ="header"></div>
-	
-	<!-- Top box -->
 	<div id="top">
 		<div id="display_user_name"></div>
 		<button id="change_user_name">Change user name</button>
+	</div>
+	
+	<!-- Splash div -->
+	<div id="splash">
+		<h1>Welcome to The-Tangibles!</h1>
+		<label for="splash_name">Enter your name:</label>
+		<input type="text" id="splash_name" class="text ui-widget-content ui-corner-all" />
+		<button id="splash_continue">Continue</button>
 	</div>
   
 	<!-- Lobby div -->
@@ -92,13 +93,10 @@
 		</table>
 	</div>
 	
+	<!-- Room frame -->
+	<iframe id="roomFrame" src="about:blank" seamless></iframe>
+	
 	<div id="call_list"></div>
 	
-	<!-- Room frame -->
-	<iframe id="roomFrame" src="about:blank" seamless="seamless"></iframe>
-	
-	<div id="tangible_status" style="z-index:0;position:absolute;top:0px;width:200px">
-		Status: <input type="text" id="status" readonly />
-	</div>
 </body>
 </html>

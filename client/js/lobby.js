@@ -138,17 +138,15 @@ Lobby.prototype.init = function() {
 	$('#create_room_advanced_content').hide();
 	$('#create_room_advanced_button').button().click(function() {
 		$('#create_room_advanced_content').toggle();
-	}).button('disable'); // TODO Enable again :)
+	});
 
-	$('#splash_name').keypress(
-			function(e) {
-				if (e.which == 13) {
-					$(this).parents().first().find(
-							'.ui-button:contains(Continue)').first().click();
-				} else {
-					$('#splash_name').removeClass('ui-state-error');
-				}
-			});
+	$('#splash_name').keypress(function(e) {
+		if (e.which == 13) {
+			$('#splash_continue').click();
+		} else {
+			$('#splash_name').removeClass('ui-state-error');
+		}
+	});
 
 	$('#splash_continue').button().click(function() {
 		var name = $('#splash_name').val();
@@ -172,8 +170,6 @@ Lobby.prototype.loadSplash = function() {
 	$('#tangible_status').hide();
 	$('#roomFrame').hide();
 	$('#splash').show();
-
-	$('#splash_name').val(this.ownName);
 
 	$('#splash_name').select();
 };
