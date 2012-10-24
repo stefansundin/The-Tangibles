@@ -25,6 +25,7 @@
 <div>
 <button id="button">Done Calibrating</button>
 </div>
+<video id="you" autoplay></video> 
 </center>
 <script>
 
@@ -40,6 +41,8 @@ var doneCalibration = $('#button');
 doneCalibration.hide();
 
 var notice = $('#notice');
+
+$('#you').hide();
 
 function Workspace() {
 	var video, detector, imageData;
@@ -110,7 +113,7 @@ function Workspace() {
 					videos.push(v);
 					video = v;
 					// TODO fix this, add a video tag and hide it
-					//rtc.attachStream(stream, 'you');
+					rtc.attachStream(stream, 'you');
 					videoStreams.push(stream);
 					});
 		} else {
@@ -187,7 +190,6 @@ function Workspace() {
 	/* Keeps calibrating until the correct rectangle is found,
 	   then displays the transformed video stream */
 	this.tick = function() {
-		console.log('tick');
 		this.snapshot();
 		var markers = detector.detect(imageData);
 		calibrator.calibrateWithMarkers(markers);
