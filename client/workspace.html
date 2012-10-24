@@ -133,7 +133,7 @@ function Workspace() {
 		this.fullContext = this.fullCanvas.getContext("2d");
 
 		this.detector = new AR.Detector();
-		this.calibrator = new Calibrator(fullCanvas, video);
+		this.calibrator = new Calibrator(this.fullCanvas, this.video);
 
 		this.fullCanvas.width = window.innerWidth;
 		this.fullCanvas.height = window.innerHeight;
