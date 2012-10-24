@@ -81,7 +81,7 @@ function Workspace() {
 					var v = self.cloneVideo('you');
 					v.src = URL.createObjectURL(stream);
 					videos.push(v);
-					video = v;
+					this.video = v;
 					// TODO fix this, add a video tag and hide it
 					//rtc.attachStream(stream, 'you');
 					videoStreams.push(stream);
