@@ -23,6 +23,12 @@ h1 {
 	margin-top: 0;
 }
 
+#splash {
+	width: 60%;
+	margin: 0 auto;
+	height: 90%;
+}
+
 #top {
 	position: absolute;
 	top: 0;
