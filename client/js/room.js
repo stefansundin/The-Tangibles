@@ -82,7 +82,7 @@ var videos = [];
 //var rooms = [1,2,3,4,5]; IF SOMETHING ISN'T WORKING, TRY ENABLING THIS ONE.
 
 // These ones aren't used except for checking if the browser know what they are.
-var PeerConnection = window.webkitRTCPeerConnection || window.PeerConnection || window.webkitPeerConnection00;
+var PeerConnection = window.PeerConnection || window.webkitPeerConnection00 || window.webkitRTCPeerConnection;
       
 function getNumPerRow() {
 	var len = videos.length;
