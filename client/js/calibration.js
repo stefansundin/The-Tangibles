@@ -35,7 +35,7 @@ Calibrator = function(fullscreenCanvas, video) {
                                    fullscreenCanvas.width,
                                    fullscreenCanvas.height);
     };*/
-    this.qrImg.src = "qr1012.png";
+    this.qrImg.src = "img/qr1012.png";
 }
 
 Calibrator.prototype.isDone = function() {

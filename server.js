@@ -12,6 +12,10 @@ app.get('/', function(req, res) {
   res.sendfile(__dirname + '/client/index.html');
 });
 
+app.get('/workspace/img/qr1012.png', function(req, res) {
+  res.sendfile(__dirname + '/client/img/qr1012.png');
+});
+
 app.get('/favicon.ico', function(req, res) {
   res.sendfile(__dirname + '/client/img/favicon.ico');
 });
@@ -44,6 +48,10 @@ app.get('/js/socket.js', function(req, res) {
 
 app.get('/js/lobby.js', function(req, res) {
   res.sendfile(__dirname + '/client/js/lobby.js');
+});
+
+app.get('/room/js/room.js', function(req, res) {
+  res.sendfile(__dirname + '/client/js/room.js');
 });
 
 app.get('/js/tangibles.js', function(req, res) {
