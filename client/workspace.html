@@ -164,7 +164,7 @@ function Workspace() {
 		var markers = detector.detect(imageData);
 		calibrator.calibrateWithMarkers(markers);
 		self = this;
-		setTimeout(self.tick, 1);
+		setTimeout(funtion() {self.tick();}, 1);
 	}
 }
 
