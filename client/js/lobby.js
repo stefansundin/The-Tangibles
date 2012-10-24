@@ -18,7 +18,11 @@ function Lobby() {
 	this.room_type_private = "private";
 	this.rooms = []; // [id, name, desc, type]
 	this.users = []; // [id, name, room_id]
-	this.ownName = 'User#' + Math.floor((Math.random() * 999) + 1);
+	if (sessionStorage.ownName) { // TODO Change all session to localStorage?
+		this.ownName = sessionStorage.ownName;
+	} else {
+		this.ownName = 'User#' + Math.floor((Math.random() * 999) + 1);
+	}
 }
 
 /**
@@ -240,6 +244,7 @@ Lobby.prototype.changeOwnName = function(newName) {
 
 	if (newName != '') {
 		this.ownName = newName;
+		sessionStorage.ownName = newName;
 		$('#display_user_name').text(this.ownName);
 
 		socket.send(API_NAME_SET, JSON.stringify({
