@@ -2,6 +2,9 @@
 <head>
 <title>Workspace view</title>
 <link type="text/css" href="css/workspacestyle.css" rel="stylesheet"></link>
+<link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel="stylesheet" type="text/css" />
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8/jquery.min.js"></script>
+<script	src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
 <script src="js/lib/sylvester.js"></script>
 <script type="text/javascript" src="js/mediaext.js"></script>
 <script type="text/javascript" src="js/geometry.js"></script>
@@ -26,6 +29,16 @@
 <script>
 
 const CANVAS_WIDTH = 640, CANVAS_HEIGHT = 480;
+
+var c = $('#myCanvas')[0];
+c.hide();
+
+var fullscreen = $('#fullscreen')[0];
+
+var doneCalibration = $('#button')[0];
+doneCalibartion.hide();
+
+var notice = $('#notice')[0];
 
 function Workspace() {
 	var video, detector, imageData;
@@ -67,19 +80,20 @@ function Workspace() {
 	}
 
 	this.initFullScreen = function () { 
-		var button = document.getElementById("fullscreen");
 		var self = this;
-		button.addEventListener('click', function(event) {
+		fullscreen.addEventListener('click', function(event) {
 				// TODO enter full screen 
 				// TODO remove fullscreen button and notice text
+				notice.hide();
+				fullscreen.hide();
+				// enable calibration button
+				doneCalibration.addEventListener('click', function(event) {
+					self.finishedCalibration();
+				});
+				doneCalibration.show();
 				self.startCalibration();
 				// TODO start merging video and display it
 				});
-
-		var button2 = document.getElementById('button');
-		button2.addEventListener('click', function(event) {
-			self.finishedCalibration();
-			});
 	} 
 
 	this.finishedCalibration = function () {
@@ -138,6 +152,7 @@ function Workspace() {
 	}
 
 	this.startCalibration = function() {
+		c.show();
 
 		miniCanvas = MediaExt.createCanvas(CANVAS_WIDTH, CANVAS_HEIGHT);
 		miniContext = miniCanvas.getContext("2d");
