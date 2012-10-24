@@ -309,11 +309,16 @@
       var color = "#"+((1<<24)*Math.random()|0).toString(16);
   
       input.addEventListener('keydown', function(event) {
-        var key = event.which || event.keyCode;
-		var msg = parent.lobby.ownName + '> ' + input.value;
+      var key = event.which || event.keyCode;
+			var msg = parent.lobby.ownName + '> ' + input.value;
 		
         if (key === 13) {
-          rtc._socket.send(JSON.stringify({
+					parent.socket.send(
+						parent.API_MESSAGE_BROADCAST, 
+						JSON.stringify({
+							"msg" : msg
+						}));
+          /*rtc._socket.send(JSON.stringify({
             "eventName": "chat_msg",
             "data": {
             "messages": msg,
@@ -324,14 +329,13 @@
             if (error) {
               console.log(error);
             }
-          });
+          });*/
           addToChat(msg);
           input.value = "";
         }
       }, false);
-      rtc.on('receive_chat_msg', function(data) {
-        console.log(data.color);
-        addToChat(data.messages, data.color.toString(16));
+      parent.socket.on(parent.API_MESSAGE, function(clientID, msg) {
+        addToChat(msg);
       });
     }
 
