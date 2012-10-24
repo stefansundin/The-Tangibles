@@ -35,12 +35,11 @@ var Buttons = function (transform) {
 	}
 
 	this.update = function () {
-		console.log('update');
 		this.drawVideo();
 		this.blend();
 
 		this.CheckPressed(this.contextBlended)
-		self = this;
+		var self = this;
 		this.timeOut = setTimeout(function () {self.update()}, 200);
 	}
 

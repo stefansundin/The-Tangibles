@@ -65,7 +65,7 @@ function Workspace() {
 
 	this.initFullScreen = function () { 
 		var button = document.getElementById("fullscreen");
-		self = this;
+		var self = this;
 		button.addEventListener('click', function(event) {
 				//show full screen 
 				self.startCalibration();
@@ -163,7 +163,7 @@ function Workspace() {
 		this.snapshot();
 		var markers = detector.detect(imageData);
 		calibrator.calibrateWithMarkers(markers);
-		self = this;
+		var self = this;
 		setTimeout(function() {self.tick();}, 1);
 	}
 }
