@@ -41,7 +41,7 @@ function Workspace() {
     	video.height = CANVAS_HEIGHT;
     	video.autoplay = true;
 		if (socketId == 'you') {
-			video.id = 'you')
+			video.id = 'you';
 		} else {
 			video.id = "remote" + socketId;
 		}
@@ -125,7 +125,6 @@ function Workspace() {
 	}
 
 	this.startCalibration = function() {
-		console.log('in startCal')
 
 		miniCanvas = MediaExt.createCanvas(CANVAS_WIDTH, CANVAS_HEIGHT);
 		miniContext = miniCanvas.getContext("2d");
@@ -143,7 +142,6 @@ function Workspace() {
 			fullCanvas.width = window.innerWidth;
 			fullCanvas.height = window.innerHeight;
 		};
-		console.log('end startCal');
 	}
 
 
