@@ -164,7 +164,7 @@ function Workspace() {
 		fullContext = fullCanvas.getContext("2d");
 
 		detector = new AR.Detector();
-		calibrator = new Calibrator(fullCanvas, video);
+		calibrator = new Calibrator(fullCanvas);
 
 		fullCanvas.width = window.innerWidth;
 		fullCanvas.height = window.innerHeight;

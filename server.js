@@ -86,12 +86,12 @@ app.get('/workspace/js/geometry.js', function(req, res) {
   res.sendfile(__dirname + '/client/js/geometry.js');
 });
 
-app.get('/workspace/js/cv.js', function(req, res) {
-  res.sendfile(__dirname + '/client/js/cv.js');
+app.get('/workspace/js/lib/cv.js', function(req, res) {
+  res.sendfile(__dirname + '/client/js/lib/cv.js');
 });
 
-app.get('/workspace/js/aruco.js', function(req, res) {
-  res.sendfile(__dirname + '/client/js/aruco.js');
+app.get('/workspace/js/lib/aruco.js', function(req, res) {
+  res.sendfile(__dirname + '/client/js/lib/aruco.js');
 });
 
 app.get('/workspace/js/imageproc.js', function(req, res) {
