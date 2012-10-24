@@ -127,10 +127,10 @@ function Workspace() {
 	this.startCalibration = function() {
 
 		this.miniCanvas = MediaExt.createCanvas(CANVAS_WIDTH, CANVAS_HEIGHT);
-		this.miniContext = miniCanvas.getContext("2d");
+		this.miniContext = this.miniCanvas.getContext("2d");
 
 		this.fullCanvas = document.getElementById("myCanvas");
-		this.fullContext = fullCanvas.getContext("2d");
+		this.fullContext = this.fullCanvas.getContext("2d");
 
 		this.detector = new AR.Detector();
 		this.calibrator = new Calibrator(fullCanvas, video);
