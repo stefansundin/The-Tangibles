@@ -22,9 +22,9 @@
       <!-- Message box and buttons -->
       <div id="chatbox">  
         <button id="fullscreen">Enter Full Screen</button>     
-        <button id="openWorkspace">Open the workspace</button>
-        <button id="closeWorkspace">Close the workspace</button>
-        <button id="openDialog">Invite</button>
+        <button id="openWorkspace">Toggle workspace</button>
+        <button id="openUserlistDialog">View users in this room</button>
+        <button id="openInviteDialog">Invite</button>
         <button id="leaveRoom">Leave the room</button>
         <div id="messages"></div>
 		<br>
@@ -34,11 +34,19 @@
     </div>
 	
 	<!-- Invite user dialog -->
-	<div id="dialog" title="Invite user">
+	<div id="invite_dialog" title="Invite user">
 		<form>
 			<div id="formContainer">
 			</div>
 		</form>
+	</div>
+	
+	<!-- List users dialog -->
+	<div id="userlist_dialog" title="Users in this room">
+		
+		<div id="userlistContainer">
+		</div>
+		
 	</div>
     
   </body>
