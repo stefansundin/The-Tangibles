@@ -61,9 +61,10 @@ function Workspace() {
 
 	this.initFullScreen = function () { 
 		var button = document.getElementById("fullscreen");
+		self = this;
 		button.addEventListener('click', function(event) {
 				//show full screen 
-				this.startCalibration();
+				self.startCalibration();
 				// TODO start calibration
 				// TODO start merging video and display it
 				});
