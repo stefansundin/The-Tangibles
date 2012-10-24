@@ -4,11 +4,11 @@ $(function() {
 	lobby = new Lobby();
 	lobby.init();
 
-	//if (sessionStorage.ownName) {
+	if (sessionStorage.ownName) {
 		lobby.loadMain();
-	/*} else {
+	} else {
 		lobby.loadSplash();
-	}*/
+	}
 });
 
 function assert(exp, message) {
@@ -20,8 +20,8 @@ function assert(exp, message) {
 function Lobby() {
 	this.AUTO_DECLINE_TIME = 60;
 	this.lobbyId = 0; // Special room id for the lobby
-	this.room_type_public = "public"; // TODO Fix types
-	this.room_type_private = "private";
+	this.room_type_public = 'public'; // TODO Fix types
+	this.room_type_private = 'private';
 	this.rooms = []; // [id, name, desc, type]
 	this.users = []; // [id, name, room_id]
 	if (sessionStorage.ownName) { // TODO Change all session to localStorage?
@@ -49,7 +49,7 @@ Lobby.prototype.init = function() {
 	var self = this;
 
 	$('#roomFrame').hide();
-	
+
 	$('#room_table tfoot').hide();
 
 	$('#display_user_name').text(this.ownName);
@@ -134,11 +134,32 @@ Lobby.prototype.init = function() {
 				}
 			});
 
-	$("#room_type").buttonset();
-	$("#create_room_advanced_content").hide();
-	$("#create_room_advanced_button").button().click(function() {
-		$("#create_room_advanced_content").toggle();
-	}).button("disable");
+	$('#room_type').buttonset();
+	$('#create_room_advanced_content').hide();
+	$('#create_room_advanced_button').button().click(function() {
+		$('#create_room_advanced_content').toggle();
+	}).button('disable'); // TODO Enable again :)
+
+	$('#splash_name').keypress(
+			function(e) {
+				if (e.which == 13) {
+					$(this).parents().first().find(
+							'.ui-button:contains(Continue)').first().click();
+				} else {
+					$('#splash_name').removeClass('ui-state-error');
+				}
+			});
+
+	$('#splash_continue').button().click(function() {
+		var name = $('#splash_name').val();
+		if (name != '') {
+			self.ownName = name;
+			self.loadMain();
+		} else {
+			// TODO Better error handling in the input boxes
+			$('#splash_name').addClass('ui-state-error');
+		}
+	});
 };
 
 /**
@@ -150,6 +171,11 @@ Lobby.prototype.loadSplash = function() {
 	$('#call_list').hide();
 	$('#tangible_status').hide();
 	$('#roomFrame').hide();
+	$('#splash').show();
+
+	$('#splash_name').val(this.ownName);
+
+	$('#splash_name').select();
 };
 
 /**
@@ -162,6 +188,7 @@ Lobby.prototype.loadMain = function() {
 	$('#call_list').show();
 	$('#tangible_status').show();
 	$('#roomFrame').hide();
+	$('#splash').hide();
 
 	var self = this;
 
@@ -330,14 +357,14 @@ Lobby.prototype.createRoom = function(roomName) {
 	console.log('createRoom: ' + roomName);
 
 	var roomType;
-	if ($("#room_type_private").attr('checked')) {
+	if ($('#room_type_private').attr('checked')) {
 		roomType = this.room_type_private;
 	} else {
 		roomType = this.room_type_public;
 	}
 
-	var roomDesc = $("#room_desc").val();
-	var roomPassword = $("#room_password").val();
+	var roomDesc = $('#room_desc').val();
+	var roomPassword = $('#room_password').val();
 
 	if (roomName != '') {
 		socket.send(API_ROOM_NEW, JSON.stringify({
@@ -686,7 +713,7 @@ Lobby.prototype.accept = function(callId) {
 		// send answer
 		socket.send(API_INVITE_ANSWER, JSON.stringify({
 			callId : callId,
-			answer : "yes"
+			answer : 'yes'
 		}));
 
 		$('#call_' + callId).removeAttr('id').hide({
@@ -741,7 +768,7 @@ Lobby.prototype.decline = function(callId) {
 		// send answer
 		socket.send(API_INVITE_ANSWER, JSON.stringify({
 			callId : callId,
-			answer : "no"
+			answer : 'no'
 		}));
 
 		$('#call_' + callId).removeAttr('id').hide({
