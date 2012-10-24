@@ -30,6 +30,7 @@ function Workspace() {
 	var miniCanvas, miniContext;
 	var fullCanvas, fullContext;
 	var calibrator;
+	var imageData;
 	var videos = [];
 	var videoStreams = [];
 	var PeerConnection = window.PeerConnection || window.webkitPeerConnection00;
@@ -81,7 +82,7 @@ function Workspace() {
 					var v = self.cloneVideo('you');
 					v.src = URL.createObjectURL(stream);
 					videos.push(v);
-					this.video = v;
+					video = v;
 					// TODO fix this, add a video tag and hide it
 					//rtc.attachStream(stream, 'you');
 					videoStreams.push(stream);
@@ -126,21 +127,21 @@ function Workspace() {
 
 	this.startCalibration = function() {
 
-		this.miniCanvas = MediaExt.createCanvas(CANVAS_WIDTH, CANVAS_HEIGHT);
-		this.miniContext = this.miniCanvas.getContext("2d");
+		miniCanvas = MediaExt.createCanvas(CANVAS_WIDTH, CANVAS_HEIGHT);
+		miniContext = miniCanvas.getContext("2d");
 
-		this.fullCanvas = document.getElementById("myCanvas");
-		this.fullContext = this.fullCanvas.getContext("2d");
+		fullCanvas = document.getElementById("myCanvas");
+		fullContext = fullCanvas.getContext("2d");
 
-		this.detector = new AR.Detector();
-		this.calibrator = new Calibrator(this.fullCanvas, this.video);
+		detector = new AR.Detector();
+		calibrator = new Calibrator(fullCanvas, video);
 
-		this.fullCanvas.width = window.innerWidth;
-		this.fullCanvas.height = window.innerHeight;
+		fullCanvas.width = window.innerWidth;
+		fullCanvas.height = window.innerHeight;
 
 		window.onresize = function() {
-			this.fullCanvas.width = window.innerWidth;
-			this.fullCanvas.height = window.innerHeight;
+			fullCanvas.width = window.innerWidth;
+			fullCanvas.height = window.innerHeight;
 		};
 		this.tick();
 	}
@@ -150,18 +151,18 @@ function Workspace() {
 	this.snapshot = function() {
 
 		// Draw video to an offscreen canvas, marker detection is done there
-		this.miniContext.drawImage(this.video, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-		this.imageData = this.miniContext.getImageData(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+		miniContext.drawImage(video, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+		imageData = miniContext.getImageData(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
-		this.calibrator.draw(this.imageData);
+		calibrator.draw(imageData);
 	}
 
 	/* Keeps calibrating until the correct rectangle is found,
 	   then displays the transformed video stream */
 	this.tick = function() {
 		this.snapshot();
-		var markers = this.detector.detect(this.imageData);
-		this.calibrator.calibrateWithMarkers(markers);
+		var markers = detector.detect(imageData);
+		calibrator.calibrateWithMarkers(markers);
 		var self = this;
 		setTimeout(function() {self.tick();}, 1);
 	}
