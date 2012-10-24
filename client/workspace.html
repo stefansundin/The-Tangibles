@@ -12,6 +12,15 @@
 <script type="text/javascript" src="js/buttons.js"></script>
 <script type="text/javascript" src="js/calibration.js"></script>
 <script src="/webrtc.io.js"></script>
+</head>
+<body style="font-family: monospace; background-color: white;" onLoad="init();">
+<div id="notice">This is the workspace view. Choose the appropriate camera and move this window to where you want it.</div>
+<button id="fullscreen">Enter Full Screen</button>
+</div>
+<center>
+<canvas id ="myCanvas" style="width: 100%; height: 100%"></canvas>
+<button type="button" onClick="calibrator.confirmSharedRectangle();">Done Calibrating</button>
+</center>
 <script>
 
 
@@ -184,14 +193,5 @@ window.opener.parent.socket.on(window.opener.parent.socket.API_CORNERS, function
 		});
 
 </script>
-</head>
-<body style="font-family: monospace; background-color: white;" onLoad="init();">
-<div id="notice">This is the workspace view. Choose the appropriate camera and move this window to where you want it.</div>
-<button id="fullscreen">Enter Full Screen</button>
-</div>
-<center>
-<canvas id ="myCanvas" style="width: 100%; height: 100%"></canvas>
-<button type="button" onClick="calibrator.confirmSharedRectangle();">Done Calibrating</button>
-</center>
 </body>
 </html>
