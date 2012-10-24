@@ -3,141 +3,195 @@
 <head>
 <title>Workspace view</title>
 <link type="text/css" href="css/workspacestyle.css" rel="stylesheet"></link>
-<body>
+<script src="js/lib/sylvester.js"></script>
+<script type="text/javascript" src="js/mediaext.js"></script>
+<script type="text/javascript" src="js/geometry.js"></script>
+<script type="text/javascript" src="js/cv.js"></script>
+<script type="text/javascript" src="js/aruco.js"></script>
+<script type="text/javascript" src="js/imageproc.js"></script>
+<script type="text/javascript" src="js/buttons.js"></script>
+<script type="text/javascript" src="js/calibration.js"></script>
 <script src="/webrtc.io.js"></script>
-</head>
-<body>
-<div id="notice">This is the workspace view. Choose the appropriate camera and move this window to where you want it.</div>
-<div id="videos">
-<video id="you" autoplay height="100%"></video>
-</div>
-<div id="chatbox">
-<button id="fullscreen">Enter Full Screen</button>
-</div>
-<br>
-</div>
 <script>
 
 
 function Workspace() {
 	var videos = [];
-	var videoStreams = [];
-	var PeerConnection = window.PeerConnection || window.webkitPeerConnection00;
-
-	this.cloneVideo = function (domId, socketId) {
-		var video = document.getElementById(domId);
-		var clone = video.cloneNode(false);
-		clone.id = "remote" + socketId;
-		videos.push(clone);
-		return clone;
-	}
-
-	this.removeVideo = function (socketId) {
-		var index = -1;
-		for (var i = 0; i < videos.length; i++) {
-			if (videos[i].id == 'remote' + socketId) {
-				index = i;
-				break;
+		var videoStreams = [];
+		var PeerConnection = window.PeerConnection || window.webkitPeerConnection00;
+		
+		this.cloneVideo = function (domId, socketId) {
+			var video = document.getElementById(domId);
+				var clone = video.cloneNode(false);
+				clone.id = "remote" + socketId;
+				videos.push(clone);
+				return clone;
+		}
+	
+		this.removeVideo = function (socketId) {
+			var index = -1;
+				for (var i = 0; i < videos.length; i++) {
+					if (videos[i].id == 'remote' + socketId) {
+						index = i;
+							break;
+					}
+				}
+			if (index > -1) {
+				videoStreams.splice(index, 1);
+					videos.splice(index, 1);
 			}
 		}
-		if (index > -1) {
-			videoStreams.splice(index, 1);
-			videos.splice(index, 1);
-		}
-	}
-
-	this.initFullScreen = function () { 
-		var button = document.getElementById("fullscreen");
-		button.addEventListener('click', function(event) {
-				var elem = document.getElementById("videos"); 
-				//show full screen 
-				elem.webkitRequestFullScreen();
-				// TODO start calibration
-				// TODO start merging video and display it
-				});
-	} 
-
-	this.init = function () {
-		if (PeerConnection) {
-
-			rtc.createStream({"video": true, "audio": true}, function(stream) {
-					document.getElementById('you').src = URL.createObjectURL(stream);
-					videos.push(document.getElementById('you'));
-					rtc.attachStream(stream, 'you');
-					videoStreams.push(stream);
-					document.getElementById("notice").innerHTML = "";
+	
+		this.initFullScreen = function () { 
+			var button = document.getElementById("fullscreen");
+				button.addEventListener('click', function(event) {
+						var elem = document.getElementById("videos"); 
+						//show full screen 
+						elem.webkitRequestFullScreen();
+						// TODO start calibration
+						// TODO start merging video and display it
+						});
+		} 
+	
+		this.init = function () {
+			if (PeerConnection) {
+				
+					rtc.createStream({"video": true, "audio": true}, function(stream) {
+							document.getElementById('you').src = URL.createObjectURL(stream);
+							videos.push(document.getElementById('you'));
+							rtc.attachStream(stream, 'you');
+							videoStreams.push(stream);
+							document.getElementById("notice").innerHTML = "";
+							});
+			} else {
+				alert('Your browser is not supported or you have to turn on flags. In chrome you go to chrome://flags and turn on Enable PeerConnection remember to restart chrome');
+			}
+			
+				var room = window.location.hash.slice(1);
+				var self = this;
+				
+				//When using localhost
+				console.log('Connecting');
+				rtc.connect("ws://"+ window.location.host +"/", room);
+				
+				rtc.on('add remote stream', function(stream, socketId) {
+						console.log("ADDING REMOTE STREAM...");
+						// TODO replace cloneVideo
+						var clone = self.cloneVideo('you', socketId);
+						clone.class="";
+						var streamUrl = URL.createObjectURL(stream);
+						clone.setAttribute("src", streamUrl);
+						videoStreams.push(stream);
+						});
+			rtc.on('disconnect stream', function(data) {
+					console.log('remove ' + data);
+					self.removeVideo(data);
 					});
-		} else {
-			alert('Your browser is not supported or you have to turn on flags. In chrome you go to chrome://flags and turn on Enable PeerConnection remember to restart chrome');
+			this.initFullScreen();
 		}
-
-		var room = window.location.hash.slice(1);
-		var self = this;
-
-		//When using localhost
-		console.log('Connecting');
-		rtc.connect("ws://"+ window.location.host +"/", room);
-
-		rtc.on('add remote stream', function(stream, socketId) {
-				console.log("ADDING REMOTE STREAM...");
-				// TODO replace cloneVideo
-				var clone = self.cloneVideo('you', socketId);
-				clone.class="";
-				var streamUrl = URL.createObjectURL(stream);
-				clone.setAttribute("src", streamUrl);
-				videoStreams.push(stream);
-				});
-		rtc.on('disconnect stream', function(data) {
-				console.log('remove ' + data);
-				self.removeVideo(data);
-				});
-		this.initFullScreen();
-	}
 	
-	this.getVideos = function() {
-		return videos;
-	}
+		this.getVideos = function() {
+			return videos;
+		}
 	
-	this.getVideoStreams = function() {
-		return videoStreams;
-	}
+		this.getVideoStreams = function() {
+			return videoStreams;
+		}
 	
-	this.getPeerConnection = function() {
-		return PeerConnection;
-	}
+		this.getPeerConnection = function() {
+			return PeerConnection;
+		}
 	
 }
 
 workspace = new Workspace();
 workspace.init();
+            var video, detector, imageData;
+var buttons;
+var miniCanvas, miniContext;
+var fullCanvas, fullContext;
+var calibrator;
+
+const CANVAS_WIDTH = 640, CANVAS_HEIGHT = 480;
+
+function init() {
+
+	video = MediaExt.getCameraAccess(CANVAS_WIDTH, CANVAS_HEIGHT, tick);
+
+	miniCanvas = MediaExt.createCanvas(CANVAS_WIDTH, CANVAS_HEIGHT);
+	miniContext = miniCanvas.getContext("2d");
+
+	fullCanvas = document.getElementById("myCanvas");
+	fullContext = fullCanvas.getContext("2d");
+
+	detector = new AR.Detector();
+	calibrator = new Calibrator(fullCanvas, video);
+
+	fullCanvas.width = window.innerWidth;
+	fullCanvas.height = window.innerHeight;
+
+	window.onresize = function() {
+		fullCanvas.width = window.innerWidth;
+		fullCanvas.height = window.innerHeight;
+	};
+}
+
+
+// Stores an image from the local video stream in imageData
+function snapshot() {
+
+	// Draw video to an offscreen canvas, marker detection is done there
+	miniContext.drawImage(video, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+	imageData = miniContext.getImageData(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+	calibrator.draw(imageData);
+}
+
+/* Keeps calibrating until the correct rectangle is found,
+   then displays the transformed video stream */
+function tick() {
+	snapshot();
+	var markers = detector.detect(imageData);
+	calibrator.calibrateWithMarkers(markers);
+	setTimeout(tick, 1);
+}
 
 
 window.opener.parent.socket.on(window.opener.parent.socket.API_CORNERS_BROADCAST, function(msg, videoLabel) {
-	// func to projectors here...
-	console.log("");
-	
-	
-	var label = workspace.getVideoStreams()[0].label;
-	
-	var message = "My corners";
-	
-	var data = JSON.stringify({
-		id: id,
-		msg: message,
-		videoLabel: label
-	});
-	
-	// This should be run inside the function that calculates the corners.
-	//window.opener.parent.Socket.send(window.opener.parent.socket.API_CORNERS, data);
-	
-});
+		// func to projectors here...
+		console.log("");
+		
+		
+		var label = workspace.getVideoStreams()[0].label;
+		
+		var message = "My corners";
+		
+		var data = JSON.stringify({
+			id: id,
+			msg: message,
+			videoLabel: label
+			});
+		
+		// This should be run inside the function that calculates the corners.
+		//window.opener.parent.Socket.send(window.opener.parent.socket.API_CORNERS, data);
+		
+		});
 
 window.opener.parent.socket.on(window.opener.parent.socket.API_CORNERS, function(id, msg, videoLabel) {
-	// func to projectors here...
-	console.log(videoLabel);
-	
-});
+		// func to projectors here...
+		console.log(videoLabel);
+		
+		});
 
 </script>
+</head>
+<body style="font-family: monospace; background-color: white;" onLoad="init();">
+<div id="notice">This is the workspace view. Choose the appropriate camera and move this window to where you want it.</div>
+<button id="fullscreen">Enter Full Screen</button>
+</div>
+<center>
+<canvas id ="myCanvas" style="width: 100%; height: 100%"></canvas>
+<button type="button" onClick="calibrator.confirmSharedRectangle();">Done Calibrating</button>
+</center>
 </body>
 </html>
