@@ -62,10 +62,8 @@ function Workspace() {
 	this.initFullScreen = function () { 
 		var button = document.getElementById("fullscreen");
 		button.addEventListener('click', function(event) {
-				var elem = document.getElementById("videos"); 
 				//show full screen 
-				elem.webkitRequestFullScreen();
-				init();
+				this.startCalibration();
 				// TODO start calibration
 				// TODO start merging video and display it
 				});
@@ -164,9 +162,6 @@ function Workspace() {
 
 workspace = new Workspace();
 workspace.init();
-
-
-
 
 window.opener.parent.socket.on(window.opener.parent.socket.API_CORNERS_BROADCAST, function(msg, videoLabel) {
 		// func to projectors here...
