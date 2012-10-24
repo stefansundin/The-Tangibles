@@ -66,6 +66,34 @@ app.get('/js/tangibleLib.js', function(req, res) {
   res.sendfile(__dirname + '/client/js/tangibleLib.js');
 });
 
+app.get('/js/mediaext.js', function(req, res) {
+  res.sendfile(__dirname + '/client/js/mediaext.js');
+});
+
+app.get('/js/geometry.js', function(req, res) {
+  res.sendfile(__dirname + '/client/js/geometry.js');
+});
+
+app.get('/js/cv.js', function(req, res) {
+  res.sendfile(__dirname + '/client/js/cv.js');
+});
+
+app.get('/js/aruco.js', function(req, res) {
+  res.sendfile(__dirname + '/client/js/aruco.js');
+});
+
+app.get('/js/imageproc.js', function(req, res) {
+  res.sendfile(__dirname + '/client/js/imageproc.js');
+});
+
+app.get('/js/buttons.js', function(req, res) {
+  res.sendfile(__dirname + '/client/js/buttons.js');
+});
+
+app.get('/js/calibration.js', function(req, res) {
+  res.sendfile(__dirname + '/client/js/calibration.js');
+});
+
 app.get('/webrtc.io.js', function(req, res) {
 	var path = __dirname + '/node_modules/webrtc.io/node_modules/webrtc.io-client/lib/webrtc.io.js';
   res.sendfile(path);
