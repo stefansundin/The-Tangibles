@@ -83,7 +83,7 @@ function Workspace() {
 					v.src = URL.createObjectURL(stream);
 					videos.push(v);
 					video = v;
-					rtc.attachStream(stream, 'you');
+					//rtc.attachStream(stream, 'you');
 					videoStreams.push(stream);
 					});
 		} else {
@@ -142,6 +142,7 @@ function Workspace() {
 			fullCanvas.width = window.innerWidth;
 			fullCanvas.height = window.innerHeight;
 		};
+		this.tick();
 	}
 
 
@@ -163,7 +164,7 @@ function Workspace() {
 		var markers = detector.detect(imageData);
 		calibrator.calibrateWithMarkers(markers);
 		self = this;
-		setTimeout(self.tick, 1);
+		setTimeout(funtion() {self.tick();}, 1);
 	}
 }
 
