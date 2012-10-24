@@ -37,10 +37,14 @@ function Workspace() {
 
 	this.cloneVideo = function (socketId) {
 		var video = document.createElement('video');
-    	video.width = width;
-    	video.height = height;
+    	video.width = CANVAS_WIDTH;
+    	video.height = CANVAS_HEIGHT;
     	video.autoplay = true;
-		video.id = "remote" + socketId;
+		if (socketId == 'you') {
+			video.id = 'you')
+		} else {
+			video.id = "remote" + socketId;
+		}
 		videos.push(video);
 		return video;
 	}
@@ -72,13 +76,15 @@ function Workspace() {
 
 	this.init = function () {
 		if (PeerConnection) {
+			var self = this;
 
 			rtc.createStream({"video": true, "audio": true}, function(stream) {
-					document.getElementById('you').src = URL.createObjectURL(stream);
-					videos.push(document.getElementById('you'));
+					var v = self.cloneVideo('you');
+					v.src = URL.createObjectURL(stream);
+					videos.push(v);
+					video = v;
 					rtc.attachStream(stream, 'you');
 					videoStreams.push(stream);
-					document.getElementById("notice").innerHTML = "";
 					});
 		} else {
 			alert('Your browser is not supported or you have to turn on flags. In chrome you go to chrome://flags and turn on Enable PeerConnection remember to restart chrome');
@@ -120,7 +126,6 @@ function Workspace() {
 
 	this.startCalibration = function() {
 		console.log('in startCal')
-		video = MediaExt.getCameraAccess(CANVAS_WIDTH, CANVAS_HEIGHT, this.tick);
 
 		miniCanvas = MediaExt.createCanvas(CANVAS_WIDTH, CANVAS_HEIGHT);
 		miniContext = miniCanvas.getContext("2d");
@@ -159,7 +164,8 @@ function Workspace() {
 		this.snapshot();
 		var markers = detector.detect(imageData);
 		calibrator.calibrateWithMarkers(markers);
-		setTimeout(this.tick, 1);
+		self = this;
+		setTimeout(self.tick, 1);
 	}
 }
 

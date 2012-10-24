@@ -6,7 +6,6 @@
 var MediaExt = MediaExt || {};
 
 MediaExt.getCameraAccess = function(width, height, onSuccessCallback) {
-	console.log('getting camera access');
 	
 	video = document.createElement('video');
     video.width = width;
@@ -38,9 +37,7 @@ MediaExt.getCameraAccess = function(width, height, onSuccessCallback) {
                  function(stream) {
                     var url = createObjectURL(stream);
                     video.src = url;
-					console.log('success call');
                     onSuccessCallback();
-					console.log('success call');
                  },
                  function(error) {
                     alert("Couldn't access webcam.");
