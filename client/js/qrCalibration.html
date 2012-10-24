@@ -1,0 +1,261 @@
+
+<html>
+    
+    <head>
+        
+        <title>Projector Group Test</title>
+        
+        <script src="sylvester.js"></script>
+        <script type="text/javascript" src="geometry.js"></script>
+        <script type="text/javascript" src="cv.js"></script>
+        <script type="text/javascript" src="aruco.js"></script>
+        <script type="text/javascript" src="imageproc.js"></script>
+        <script type="text/javascript" src="mediaext.js"></script>
+        
+        <script>
+            
+            var video, detector, imageData;
+            
+            var miniCanvas, miniContext;
+            var fullCanvas, fullContext;
+            var calibrationStage = 1;
+            
+            const CANVAS_WIDTH = 640, CANVAS_HEIGHT = 480;
+            const DEFAULT_RATIO = 3.0 / 4.0;
+
+            const SCREEN_MARKER_ID = 1012, FINAL_MARKER_ID = 1012; //windowMarkerId = 1012
+            const LEFT_MARKER_ID = 188, RIGHT_MARKER_ID = 956;
+            //const windowMarkerId = 1012;
+            
+            const defaultWindowRectangle = [{x:100, y:100},
+                                            {x:500, y:100},
+                                            {x:500, y:400},
+                                            {x:100, y:400}];
+
+            var screenRectangle = [], windowRectangle = [], finalRectangle = [];
+            var finalTransform;
+            var screenMarker;
+            
+            var qrImg;
+            
+            function init() {
+                
+                video = MediaExt.getCameraAccess(CANVAS_WIDTH, CANVAS_HEIGHT, tick);
+                
+                miniCanvas = MediaExt.createCanvas(CANVAS_WIDTH, CANVAS_HEIGHT);
+                miniContext = miniCanvas.getContext("2d");
+                
+                fullCanvas = document.getElementById("myCanvas");
+                fullContext = fullCanvas.getContext("2d");
+                
+                detector = new AR.Detector();
+                
+                qrImg = new Image();
+                qrImg.onload = function() {
+                    fullContext.drawImage(qrImg, 0, 0, fullCanvas.width, fullCanvas.height);
+                };
+                qrImg.src = "qr1012.png";
+            }
+            
+            
+            // Stores an image from the local video stream in imageData
+            function snapshot() {
+                if (calibrationStage == 3) {
+                    var tempRect = rectFromPoly(windowRectangle);
+                    fullContext.drawImage(qrImg, tempRect.x, tempRect.y,
+                                          tempRect.width, tempRect.height);
+                }
+                
+                // Draw video to an offscreen canvas, marker detection is done there
+                miniContext.drawImage(video, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+                imageData = miniContext.getImageData(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+            }
+            
+            /* Keeps calibrating until the correct rectangle is found,
+            then displays the transformed video stream */
+            function tick() {
+                snapshot();
+            
+                var markers = detector.detect(imageData);
+                /* Perform actions depending on what calibration stage the
+                program is currently in */
+                switch (calibrationStage) {
+                    case 1:
+                    firstCalibration(markers);
+                    break;
+                    
+                    case 2:
+                    secondCalibration(markers);
+                    break;
+                    
+                    case 3:
+                    thirdCalibration(markers);
+                    break;
+                                        
+                    case 4:
+                    
+                    // TODO finalTransform.transformImage(...);
+                    transform(canvas, finalRectangle, imageData,
+                              windowRectangle[0], windowRectangle[1],
+                              windowRectangle[2], windowRectangle[3]);
+                    break;
+                }
+                setTimeout(tick, 1);
+            }
+            
+            /**
+             --The first calibration step--
+             Looks for a fullscreen AR marker that is for
+             mapping coordinates from camera to canvas
+             */
+            function firstCalibration(markers) {
+                
+                var marker;
+                for (var i = 0; i < markers.length; i++) {
+                    
+                    var marker = markers[i];
+                    console.log(marker.id);
+                    if (marker.id == SCREEN_MARKER_ID) {
+                        
+                        screenRectangle = marker.corners;
+                        //========================================================
+                        // The thing above: Calculated from defaultWindowRectangle
+                        //========================================================
+                        windowRectangle = defaultWindowRectangle;
+                        console.log("Stage 1 finished!!");
+                        calibrationStage = 2;
+                        
+                        
+                        fullContext.clearRect(0, 0, fullCanvas.width, fullCanvas.height);
+                    }
+                }
+            }
+            
+            /** 
+             --The second calibration step--
+             Checks for two markers and draws a rectangle of
+             the area of the workspace that will be shared
+             */
+            function secondCalibration(markers) {
+                //==========================
+                //draw calibrationButton!!!!
+                //==========================
+
+                var foundLeft = false, foundRight = false;
+                var marker, leftMarker, rightMarker;
+                
+                for (var i = 0; i < markers.length; i++) {
+                    marker = markers[i];
+                    console.log(marker.id);
+
+                    if (marker.id == LEFT_MARKER_ID) {
+                        leftMarker = marker;
+                        foundLeft = true;
+                    }
+                    if (marker.id == RIGHT_MARKER_ID) {
+                        rightMarker = marker;
+                        foundRight = true;
+                    }
+                }
+                /* If both helper markers were found,
+                update the windowMarker. */
+                if (foundLeft && foundRight) {
+                    if (leftMarker.corners[0].x > rightMarker.corners[0].x) {
+                        windowRectangle = getCalibrationRectangle(rightMarker, leftMarker);
+                    } else {
+                        windowRectangle = getCalibrationRectangle(leftMarker, rightMarker);
+                    }
+                }
+                
+                fullContext.clearRect(0, 0, fullCanvas.width, fullCanvas.height);
+                Geometry.drawPolys([windowRectangle], fullContext);
+            }
+            
+            /**
+             -- The third calibration step --
+             Finds the final marker to make the transform that
+             will be sent to the other users 
+             */
+            function thirdCalibration(markers) {
+                
+                var marker;
+                
+                for (var i = 0; i < markers.length; i++) {
+                    marker = markers[i];
+                    if (marker.id == FINAL_MARKER_ID) {
+                        finalRectangle = marker.corners;
+                        finalTransform = new Geometry.Transform(finalRectangle, windowRectangle);
+                        calibrationStage = 4;
+                    }
+                }
+            }
+            
+            /**
+             Is called when the calibration button is clicked
+             Will be used in the second calibration step to
+             confirm the shared window size
+             */
+            function doneCalibrating() {
+                calibrationStage = 3;
+            }
+            
+            /**
+             Generates shared workspace rectangle from to markers
+             */
+            function getCalibrationRectangle(leftMarker, rightMarker) {
+                
+                var leftMarkerCorner, rightMarkerCorner;
+                var width, height;
+                var leftPoly, rightPoly;
+                var bottomLeftCorner, bottomRightCorner;
+                var topLeftCorner, topRightCorner;
+
+                /* Get the lower left corner of the rectangle using the
+                 left AR marker */
+                var canvasRectangle = [{x:0, y:0},
+                                       {x:fullCanvas.width, y:0},
+                                       {x:fullCanvas.width, y:fullCanvas.height},
+                                       {x:0, y:fullCanvas.height}];
+                
+                //screenRectangle ska användas egentligen....
+                var map = new Geometry.Transform(windowRectangle, canvasRectangle);
+                
+                leftPoly = map.transformPoly(leftMarker.corners);
+                upperLeftIndex = Geometry.findTopLeftCorner(leftPoly);
+                leftMarkerCorner = leftPoly[upperLeftIndex];
+                
+                rightPoly = map.transformPoly(rightMarker.corners);
+                upperRightIndex = Geometry.findTopLeftCorner(rightPoly);
+                rightMarkerCorner = rightPoly[upperRightIndex];
+           
+                width = rightMarkerCorner.x - leftMarkerCorner.x;
+                height = width * DEFAULT_RATIO;
+                
+                bottomLeftCorner = leftMarkerCorner;
+                bottomRightCorner = rightMarkerCorner;
+                topLeftCorner = {x:bottomLeftCorner.x, y:bottomLeftCorner.y - height}
+                topRightCorner = {x:bottomRightCorner.x, y:bottomRightCorner.y - height};
+                
+                return [topLeftCorner,
+                        topRightCorner,
+                        bottomRightCorner,
+                        bottomLeftCorner];
+                //================
+                // WRONG ORDER????
+                //================
+            }
+       
+            </script>
+        
+    </head>
+    
+    <body style="font-family: monospace; background-color: white;" onLoad="init();">
+        
+        <center>
+            <canvas id ="myCanvas" style="width: 100%; height: 100%"></canvas>
+            <button type="button" onClick="doneCalibrating();">Done Calibrating</button>
+        </center>
+        
+    </body>
+
+</html>

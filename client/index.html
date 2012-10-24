@@ -16,7 +16,7 @@
 
 </head>
 <body>
-  <!-- Popup dialogs-->
+	<!-- Popup dialogs-->
 	<div id="dialog_error" title="Error">
 		<div class="ui-state-error ui-corner-all" style="padding: 0 .7em;">
 			<p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>
@@ -48,17 +48,17 @@
 			<input type="password" id="room_password" class="text ui-widget-content ui-corner-all" />
 		</div>
 	</div>
+
+	<!-- Header div-->
+	<div id ="header"></div>
 	
-  <!-- Header div-->
-  <div id ="header"></div>
-  
-  <!-- Top box -->
+	<!-- Top box -->
 	<div id="top">
 		<div id="display_user_name"></div>
 		<button id="change_user_name">Change user name</button>
 	</div>
   
-  <!-- Lobby div -->
+	<!-- Lobby div -->
 	<div id="main">
 		<h1>Lobby</h1>
 		<table id="room_table">
@@ -84,11 +84,13 @@
 	</div>
 	
 	<div id="call_list"></div>
-  
-  <!-- Room div -->
-  <div id="roomMain">
-    <iframe id="roomFrame" src="about:blank" scrolling="no"></iframe>
-  </div>
-  <div style="z-index:-10;":>Status: <input type="text" id="status" readonly /></div>
+	
+	<!-- Room div -->
+	<div id="roomMain">
+		<iframe id="roomFrame" src="about:blank" seamless></iframe>
+	</div>
+	<div style="z-index:0;position:absolute;top:0px;width:200px">
+		Status: <input type="text" id="status" readonly />
+	</div>
 </body>
 </html>
