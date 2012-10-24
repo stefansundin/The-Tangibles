@@ -1,6 +1,6 @@
 
 html {
-	overflow-y: scroll;
+	/*overflow-y: scroll;*/
 }
 
 #content {
@@ -28,7 +28,7 @@ html {
 	height: 25%;
 	right: 20px;
 	left: 20px;
-	bottom: 0px;
+	bottom: 10px;
 }
 
 #chatinput {

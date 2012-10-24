@@ -39,6 +39,8 @@ var Socket = function(url) {
 
 	this.conn = new WebSocket(url, 'tangibles');
 
+	this.opened = false;
+
 	var callbacks = {};
 
 	var self = this;
@@ -77,12 +79,14 @@ var Socket = function(url) {
 
 	this.conn.onclose = function() {
 		fire('close', null);
+		self.opened = false;
 		setTimeout(function() {
 			self.reconnect();
 		}, 1000); // Try to reconnect after 1 second
 	};
 	this.conn.onopen = function() {
 		fire('open', null);
+		self.opened = true;
 	};
 
 	var fire = function(event_name, message) {

@@ -52,24 +52,9 @@ h1 {
 	margin: 0 auto;
 }
 
-#roomMain {
-	padding: 0;
-	float: bottom;
-	margin: 0;
-	background-color: white;
-	display: none;
-	height: 90%;
-	width: 100%;
-}
-
 #roomFrame {
-	height: 100%;
+	min-height: 90%;
 	width: 100%;
-	/*float: bottom;
-	background-color: white;
-	framespacing: 0;
-	border: 0;
-	frameborder: 0;*/
 }
 
 #display_user_name {
