@@ -76,6 +76,36 @@ $(function() {
 		}
 		$('#userlist_dialog').dialog('open');
 	});
+	
+	$('#leaveRoom').button().click(function() {
+		writeMessageToChat(parent.lobby.ownName + " left the room.");
+		console.log('Left the room');
+		parent.window.parent.document.title = 'The-Tangibles';
+		parent.lobby.leaveRoom();
+	});
+	
+	$('#fullscreen').button().click(function() {
+		var elem = document.getElementById("videos"); 
+		//show full screen 
+		elem.webkitRequestFullScreen();
+	});
+	
+	var isOpen = false;
+	var workspaceWindow = "";
+	
+	$('#openWorkspace').button().click(function() {
+		if(isOpen) {
+			workspaceWindow.close();
+			writeMessageToChat(parent.lobby.ownName + " closed the workspace.");
+			isOpen = false;
+		} else {
+			var room = window.location.hash.slice(1);
+			workspaceWindow=window.open('/workspace/#' + room + '_desk');
+			writeMessageToChat(parent.lobby.ownName + " opened the workspace.");
+			isOpen = true;
+		}
+	});
+	
 });
 	
 var videos = [];
@@ -156,19 +186,25 @@ function sanitize(msg) {
 }
 
 function initFullScreen() { 
-	var button = document.getElementById("fullscreen");
-	button.addEventListener('click', function(event) {
+	$('#fullscreen').button().click(function() {
 		var elem = document.getElementById("videos"); 
 		//show full screen 
 		elem.webkitRequestFullScreen();
 	});
+/*	var button = document.getElementById("fullscreen");
+	button.addEventListener('click', function(event) {
+		var elem = document.getElementById("videos"); 
+		//show full screen 
+		elem.webkitRequestFullScreen();
+	}); */
 } 
   
 function initOpenWorkspace() {
-	var wsbutton = document.getElementById("openWorkspace");
+//	var wsbutton = document.getElementById("openWorkspace");
 	var isOpen = false;
 	var workspaceWindow = "";
-	wsbutton.addEventListener('click', function(event){
+	
+	$('#openWorkspace').button().click(function() {
 		if(isOpen) {
 			workspaceWindow.close();
 			writeMessageToChat(parent.lobby.ownName + " closed the workspace.");
@@ -179,7 +215,20 @@ function initOpenWorkspace() {
 			writeMessageToChat(parent.lobby.ownName + " opened the workspace.");
 			isOpen = true;
 		}
-	})
+	});
+	
+/*	wsbutton.addEventListener('click', function(event){
+		if(isOpen) {
+			workspaceWindow.close();
+			writeMessageToChat(parent.lobby.ownName + " closed the workspace.");
+			isOpen = false;
+		} else {
+			var room = window.location.hash.slice(1);
+			workspaceWindow=window.open('/workspace/#' + room + '_desk');
+			writeMessageToChat(parent.lobby.ownName + " opened the workspace.");
+			isOpen = true;
+		}
+	}) */
 }
   
 function onUserInvited(invited_user) {
@@ -222,113 +271,119 @@ function onUserInvited(invited_user) {
 }
 	 
 function initLeaveRoom() {
-	var leaveButton = document.getElementById("leaveRoom");
+/*	var leaveButton = document.getElementById("leaveRoom");
 	leaveButton.addEventListener('click', function(event) {
 		writeMessageToChat(parent.lobby.ownName + " left the room.");
 		console.log('Left the room');
 		parent.window.parent.document.title = 'The-Tangibles';
 		parent.lobby.leaveRoom();
-	})
+	}) */
+	$('#leaveRoom').button().click(function() {
+		writeMessageToChat(parent.lobby.ownName + " left the room.");
+		console.log('Left the room');
+		parent.window.parent.document.title = 'The-Tangibles';
+		parent.lobby.leaveRoom();
+	});
 }
 	  
-	  function writeMessageToChat(message) {
-	    var room = window.location.hash.slice(1);
-      var color = "#"+((1<<24)*Math.random()|0).toString(16);
+function writeMessageToChat(message) {
+	var room = window.location.hash.slice(1);
+	var color = "#"+((1<<24)*Math.random()|0).toString(16);
 
-      rtc._socket.send(JSON.stringify({
-        "eventName": "chat_msg",
-        "data": {
-        "messages": message,
-        "room": room,
-        "color": color
-        }
-      }), function(error) {
-        if (error) {
-          console.log(error);
-        }
-      });
-      addToChat(message);
-	  }
+	rtc._socket.send(JSON.stringify({
+		"eventName": "chat_msg",
+		"data": {
+		"messages": message,
+		"room": room,
+		"color": color
+		}
+	}), function(error) {
+			if (error) {
+				console.log(error);
+			}
+		});
+	addToChat(message);
+}
 
-    function initChat() {
-      var input = document.getElementById("chatinput");
-      var room = window.location.hash.slice(1);
-      var color = "#"+((1<<24)*Math.random()|0).toString(16);
-  
-      input.addEventListener('keydown', function(event) {
-        var key = event.which || event.keyCode;
+function initChat() {
+	var input = document.getElementById("chatinput");
+	var room = window.location.hash.slice(1);
+	var color = "#"+((1<<24)*Math.random()|0).toString(16);
+
+	input.addEventListener('keydown', function(event) {
+		var key = event.which || event.keyCode;
 		var msg = parent.lobby.ownName + '> ' + input.value;
-		
-        if (key === 13) {
-          rtc._socket.send(JSON.stringify({
-            "eventName": "chat_msg",
-            "data": {
-            "messages": msg,
-            "room": room,
-            "color": color
-            }
-          }), function(error) {
-            if (error) {
-              console.log(error);
-            }
-          });
-          addToChat(msg);
-          input.value = "";
-        }
-      }, false);
-      rtc.on('receive_chat_msg', function(data) {
-        console.log(data.color);
-        addToChat(data.messages, data.color.toString(16));
-      });
-    }
+
+		if (key === 13) {
+			rtc._socket.send(JSON.stringify({
+				"eventName": "chat_msg",
+				"data": {
+				"messages": msg,
+				"room": room,
+				"color": color
+				}
+			}), function(error) {
+				if (error) {
+					console.log(error);
+				}
+			});
+			addToChat(msg);
+			input.value = "";
+		}
+	}, false);
+	rtc.on('receive_chat_msg', function(data) {
+		console.log(data.color);
+		addToChat(data.messages, data.color.toString(16));
+	});
+}
 
 function init() {
 	if ($(window.parent.document).find("#roomFrame").length == 0) {
 		console.log("Attempted to access this page without going through the lobby.");
 		//window.location.replace("http://www.youtube.com/watch?v=_1mB5rM8WHU");
-		initRoom();
+		window.location.replace("index.html");
 	} else {
 		initRoom();
 	}
 }
 	  
-	  function initRoom() {
+function initRoom() {
       
-	    if(PeerConnection){
-		
-        rtc.createStream({"video": true, "audio": true}, function(stream) {
-          document.getElementById('you').src = URL.createObjectURL(stream);
-          videos.push(document.getElementById('you'));
-          rtc.attachStream(stream, 'you');
-          subdivideVideos();
-        });
-      }else {
-        alert('Your browser is not supported or you have to turn on flags. In chrome you go to chrome://flags and turn on Enable PeerConnection remember to restart chrome');
-      }
-      var room = window.location.hash.slice(1);
-	  parent.window.parent.document.title = 'Room: ' + room;
-      
-      console.log('Connecting to websocket');
-      rtc.connect("ws://"+ window.location.host +"/", room);
-      
-      rtc.on('add remote stream', function(stream, socketId) {
-        console.log("ADDING REMOTE STREAM...");
-        var clone = cloneVideo('you', socketId);
-        document.getElementById(clone.id).setAttribute("class", "");
-        rtc.attachStream(stream, clone.id);
-        subdivideVideos();
-		
-      });
-      rtc.on('disconnect stream', function(data) {
-        console.log('remove ' + data);
-        removeVideo(data);
-      });
-      initFullScreen();
-      initChat();
-      initOpenWorkspace();
-      initLeaveRoom();
-    }
+	if(PeerConnection){
+
+		rtc.createStream({"video": true, "audio": true}, function(stream) {
+			document.getElementById('you').src = URL.createObjectURL(stream);
+			videos.push(document.getElementById('you'));
+			rtc.attachStream(stream, 'you');
+			subdivideVideos();
+		});
+	}else {
+		alert('Your browser is not supported or you have to turn on flags. In chrome you go to chrome://flags and turn on Enable PeerConnection remember to restart chrome');
+	}
+	var room = window.location.hash.slice(1);
+	parent.window.parent.document.title = 'Room: ' + room;
+
+	console.log('Connecting to websocket');
+	rtc.connect("ws://"+ window.location.host +"/", room);
+
+	rtc.on('add remote stream', function(stream, socketId) {
+		console.log("ADDING REMOTE STREAM...");
+		var clone = cloneVideo('you', socketId);
+		document.getElementById(clone.id).setAttribute("class", "");
+		rtc.attachStream(stream, clone.id);
+		subdivideVideos();
+	});
+	rtc.on('disconnect stream', function(data) {
+		console.log('remove ' + data);
+		removeVideo(data);
+	});
+	  
+	//initFullScreen();
+	initChat();
+	//initOpenWorkspace();
+	//initLeaveRoom();	
+}
     
-    window.onresize = function(event) {
-      subdivideVideos();
-    };
+window.onresize = function(event) {
+    subdivideVideos();
+};
