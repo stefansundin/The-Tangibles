@@ -3,12 +3,6 @@ var lobby; // Global object for the lobby
 $(function() {
 	lobby = new Lobby();
 	lobby.init();
-
-	if (sessionStorage.ownName) {
-		lobby.loadMain();
-	} else {
-		lobby.loadSplash();
-	}
 });
 
 function assert(exp, message) {
@@ -47,6 +41,13 @@ Lobby.prototype.showError = function(text) {
  */
 Lobby.prototype.init = function() {
 	var self = this;
+
+	$('#main').hide();
+	$('#top').hide();
+	$('#call_list').hide();
+	$('#tangible_status').hide();
+	$('#roomFrame').hide();
+	$('#splash').hide();
 
 	$('#roomFrame').hide();
 
@@ -151,43 +152,17 @@ Lobby.prototype.init = function() {
 	$('#splash_continue').button().click(function() {
 		var name = $('#splash_name').val();
 		if (name != '') {
-			self.ownName = name;
+			self.changeOwnName(name);
 			self.loadMain();
 		} else {
 			// TODO Better error handling in the input boxes
 			$('#splash_name').addClass('ui-state-error');
 		}
 	});
-};
 
-/**
- * Called when the user name doesn't exist in the storage.
- */
-Lobby.prototype.loadSplash = function() {
-	$('#main').hide();
-	$('#top').hide();
-	$('#call_list').hide();
-	$('#tangible_status').hide();
-	$('#roomFrame').hide();
-	$('#splash').show();
-
-	$('#splash_name').select();
-};
-
-/**
- * Called when the main page should be loaded.
- */
-Lobby.prototype.loadMain = function() {
-	// Make sure is shown properly
-	$('#main').show();
-	$('#top').show();
-	$('#call_list').show();
-	$('#tangible_status').show();
-	$('#roomFrame').hide();
-	$('#splash').hide();
-
-	var self = this;
-
+	/*
+	 * Initialize socket stuff
+	 */
 	if (socket.opened) {
 		// See if the socket was already open
 		this.onSocketOpen();
@@ -235,15 +210,49 @@ Lobby.prototype.loadMain = function() {
 };
 
 /**
+ * Called when the user name doesn't exist in the storage.
+ */
+Lobby.prototype.loadSplash = function() {
+	$('#main').hide();
+	$('#top').hide();
+	$('#call_list').hide();
+	$('#tangible_status').hide();
+	$('#roomFrame').hide();
+	$('#splash').show();
+
+	$('#splash_name').focus();
+};
+
+/**
+ * Called when the main page should be loaded.
+ */
+Lobby.prototype.loadMain = function() {
+	$('#main').show();
+	$('#top').show();
+	$('#call_list').show();
+	$('#tangible_status').show();
+	$('#roomFrame').hide();
+	$('#splash').hide();
+};
+
+/**
  * Called when the socket connection is opened.
  */
 Lobby.prototype.onSocketOpen = function() {
 	console.log('onOpen');
 
+	$('#server_loading').hide();
+
+	if (sessionStorage.ownName) {
+		this.changeOwnName(this.ownName);
+		lobby.loadMain();
+	} else {
+		lobby.loadSplash();
+	}
+
 	$('#dialog_error').dialog('close');
 
 	// request stuff
-	this.changeOwnName(this.ownName);
 	socket.send(API_LIST, '');
 };
 
@@ -252,6 +261,15 @@ Lobby.prototype.onSocketOpen = function() {
  */
 Lobby.prototype.onSocketClose = function() {
 	console.warn('onClose');
+
+	$('#server_loading').show();
+
+	$('#main').hide();
+	$('#top').hide();
+	$('#call_list').hide();
+	$('#tangible_status').hide();
+	$('#roomFrame').hide();
+	$('#splash').hide();
 
 	// TODO Fix better error handling?
 	$('#room_table tbody').empty();

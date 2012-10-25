@@ -7,6 +7,17 @@
 <link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel="stylesheet" type="text/css" />
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8/jquery.min.js"></script>
 <script	src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
+<script src="http://heartcode-canvasloader.googlecode.com/files/heartcode-canvasloader-min-0.9.1.js"></script>
+
+<script type="text/javascript">
+$(function() {
+	var cl = new CanvasLoader('server_loading_spinner');
+	cl.setDiameter(50);
+	cl.setDensity(60);
+	cl.setRange(1);
+	cl.show();
+});
+</script>
 
 <link href="css/lobbystyle.css" rel="stylesheet" type="text/css" />
 
@@ -58,6 +69,12 @@
 	<div id="top">
 		<div id="display_user_name"></div>
 		<button id="change_user_name">Change user name</button>
+	</div>
+	
+	<!-- Loading div -->
+	<div id="server_loading">
+		<div id="server_loading_spinner"></div>
+		<h2>Connecting...</h2>
 	</div>
 	
 	<!-- Splash div -->

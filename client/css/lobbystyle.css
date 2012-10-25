@@ -36,6 +36,19 @@ body {
 	vertical-align: middle;
 }
 
+#server_loading {
+	position: absolute;
+	top: 35%;
+	width: 100%;
+	text-align: center;
+}
+
+#server_loading h2 {
+	margin: 0;
+	padding: 0;
+	padding-left: 10px;
+}
+
 #splash {
 	position: absolute;
 	top: 30%;
