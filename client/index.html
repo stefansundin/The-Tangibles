@@ -19,6 +19,7 @@ $(function() {
 });
 </script>
 
+<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Ubuntu:regular,bold&subset=Latin">
 <link href="css/lobbystyle.css" rel="stylesheet" type="text/css" />
 
 <script src="js/socket.js"></script>
@@ -62,7 +63,12 @@ $(function() {
 		</div>
 	</div>
 	
-	<!-- Top DIVs -->
+	
+	<div id="header">
+		<img id="logo" src="img/logo.png" />
+		<div id="title"></div>
+	</div>
+	
 	<div id="tangible_status">
 		Status: <input type="text" id="status" class="text ui-widget-content ui-corner-all" readonly />
 	</div>
@@ -79,7 +85,7 @@ $(function() {
 	
 	<!-- Splash div -->
 	<div id="splash">
-		<h1>Welcome to The-Tangibles!</h1>
+		<h1>Welcome to The Tangibles!</h1>
 		<label for="splash_name">Enter your name:</label>
 		<input type="text" id="splash_name" class="text ui-widget-content ui-corner-all" />
 		<button id="splash_continue">Continue</button>
@@ -87,17 +93,17 @@ $(function() {
   
 	<!-- Lobby div -->
 	<div id="main">
-		<h1>Lobby</h1>
 		<table id="room_table">
 			<thead>
 				<tr>
 					<th>
 						<h2>Room</h2>
 					</th>
-					<th colspan="2">
+					<th>
 						<h2>Participants</h2>
 						<button id="create_room">Create room</button>
 					</th>
+					<th></th>
 				</tr>
 			</thead>
 			<tbody>

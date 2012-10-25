@@ -20,15 +20,41 @@ body {
 #tangible_status {
 	position: absolute;
 	top: 0;
-	left: 0;
+	right: 0;
 	padding: 10px;
 }
 
 #top {
 	position: absolute;
-	top: 0;
+	top: 40px;
 	right: 0;
 	padding: 10px;
+}
+
+#header {
+	position: absolute;
+	height: 90px;
+	width: 100%;
+	background-color: #F5F5F5;
+	border-bottom: 1px solid #E5E5E5;
+}
+
+#logo {
+	position: absolute;
+	top: 5px;
+	left: 5px;
+}
+
+#title {
+	position: absolute;
+	margin: 0;
+	padding: 0;
+	top: 33px;
+	left: 290px;
+	font-family: Ubuntu, sans-serif;
+	font-weight: normal;
+	font-size: 36px;
+	color: #909090;
 }
 
 #display_user_name {
@@ -57,9 +83,13 @@ body {
 }
 
 #main {
+	position: absolute;
+	top: 90px;
+	left: 0;
+	right: 0;
 	width: 60%;
 	margin: 0 auto;
-	padding-bottom: 10px;
+	padding: 20px 0 10px 0;
 }
 
 #roomFrame {
@@ -76,6 +106,10 @@ body {
 	margin: 0 auto;
 }
 
+#room_table {
+	table-layout: fixed;
+}
+
 #room_table tbody h3 {
 	color: #0000FF;
 }
@@ -87,15 +121,24 @@ body {
 
 #room_table th {
 	text-align: left;
+	max-width: 50%;
+}
+
+#room_table th:first-child {
+	width: 50%;
+}
+
+#room_table th:last-child {
+	width: 26px;
 }
 
 #room_table th,td {
-	width: 50%;
 	padding: 10px;
+	word-wrap: break-word;
 }
 
 #room_table tfoot td,#room_table tbody td {
-	border-top: 1px solid #ccc;
+	border-top: 1px solid #E5E5E5;
 }
 
 #room_table {
@@ -105,7 +148,7 @@ body {
 }
 
 #room_table tbody tr:hover {
-	background: #f0f0f0;
+	background: #F5F5F5;
 	-webkit-transition: all 0.1s ease-in-out;
 	cursor: pointer;
 }

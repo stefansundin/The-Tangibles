@@ -213,6 +213,8 @@ Lobby.prototype.init = function() {
  * Called when the user name doesn't exist in the storage.
  */
 Lobby.prototype.loadSplash = function() {
+	$('#title').text('Welcome');
+
 	$('#main').hide();
 	$('#top').hide();
 	$('#call_list').hide();
@@ -227,6 +229,8 @@ Lobby.prototype.loadSplash = function() {
  * Called when the main page should be loaded.
  */
 Lobby.prototype.loadMain = function() {
+	$('#title').text('Lobby');
+
 	$('#main').show();
 	$('#top').show();
 	$('#call_list').show();
@@ -426,6 +430,8 @@ Lobby.prototype.enterRoom = function(roomId) {
 		id : roomId
 	}));
 
+	$('#title').text('Room');
+
 	$('#main').hide();
 	$('#roomFrame').show();
 	$('#roomFrame').attr('src', 'room/#' + roomId);
@@ -438,6 +444,8 @@ Lobby.prototype.leaveRoom = function() {
 	socket.send(API_USER_CHANGE, JSON.stringify({
 		id : this.lobbyId
 	}));
+
+	$('#title').text('Lobby');
 
 	$('#roomFrame').attr('src', 'about:blank');
 	$('#main').show();
