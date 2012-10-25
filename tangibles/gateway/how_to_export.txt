@@ -1,0 +1,2 @@
+In Eclipse:
+File -> Export -> Java -> Runnable JAR file -> Next -> Check 'Extract required libraries into generated JAR' -> Finish
