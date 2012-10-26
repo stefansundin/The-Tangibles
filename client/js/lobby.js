@@ -306,7 +306,7 @@ Lobby.prototype.onSocketClose = function() {
 Lobby.prototype.findRoomIndex = function(roomId) {
 	// Find room with given id
 	for ( var i = 0; i < this.rooms.length; i++) {
-		if (this.rooms[i][0] === roomId) {
+		if (this.rooms[i][0] == roomId) {
 			return i;
 		}
 	}
@@ -323,7 +323,7 @@ Lobby.prototype.findRoomIndex = function(roomId) {
 Lobby.prototype.findUserIndex = function(userId) {
 	// Find remote_user with given id
 	for ( var i = 0; i < this.users.length; i++) {
-		if (this.users[i][0] === userId) {
+		if (this.users[i][0] == userId) {
 			return i;
 		}
 	}
