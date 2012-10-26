@@ -537,8 +537,6 @@ function socketserver(){
 	function cornersBroadcast(con, nw, ne, se, sw, label){
 	 	var recipients = getUserBySocket(con);
 		
-		console.log(message);
-		
 		var data = JSON.stringify({
 			sender: recipients.id,
 			nw: nw,
