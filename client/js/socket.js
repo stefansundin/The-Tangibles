@@ -1,41 +1,40 @@
-var API_USER_ENTER = "userenter";
-var API_USER_LEAVE = "userleave";
-var API_ROOM_ENTER = "roomenter";
-var API_ROOM_LEAVE = "roomleave";
-
-var API_LIST_ROOMS = "listrooms";
-var API_LIST_USERS = "listusers";
-var API_LIST = "listall";
-
-var API_USER_CHANGE = "userchange";
-var API_USER_NEW = "useradd";
-var API_USER_REMOVE = "userremove";
-var API_ROOM_NEW = "roomadd";
-var API_ROOM_REMOVE = "roomremove";
-
-var API_INVITE_SEND = "invitesend";
-var API_INVITE_ANSWER = "inviteanswer";
-var API_INVITE_LEAVE = "inviteleave";
-var API_INVITE_TIMEOUT = "invitetimeout";
-var API_INVITE_ACCEPTED = "inviteroom";
-var API_INVITE_DECLINED = "declineroom";
-
-var API_MESSAGE = "msg";
-var API_MESSAGE_BROADCAST = "msgbroadcast";
-
-var API_CORNERS = "corners";
-var API_CORNERS_BROADCAST = "cornersbroadcast";
-
-var API_NAME_SET = "setname";
-var API_NAME_CHANGE = "changename";
-
-var API_ECHO = "echo";
-
-var ROOM_PUBLIC = "public";
-var ROOM_PRIVATE = "private";
-var ROOM_PASSWORD = "password";
 
 var Socket = function(url) {
+	
+	this.API_USER_ENTER = "userenter";
+	this.API_USER_LEAVE = "userleave";
+	this.API_ROOM_ENTER = "roomenter";
+	this.API_ROOM_LEAVE = "roomleave";
+	
+	this.API_LIST_ROOMS = "listrooms";
+	this.API_LIST_USERS = "listusers";
+	this.API_LIST = "listall";
+	
+	this.API_USER_CHANGE = "userchange" 
+	this.API_USER_NEW = "useradd";
+	this.API_USER_REMOVE = "userremove";
+	this.API_ROOM_NEW = "roomadd";
+	this.API_ROOM_REMOVE = "roomremove";
+	
+	this.API_INVITE_SEND = "invitesend";
+	this.API_INVITE_ANSWER = "inviteanswer";
+	this.API_INVITE_LEAVE = "inviteleave";
+	this.API_INVITE_TIMEOUT = "invitetimeout";
+	this.API_INVITE_ACCEPTED = "inviteroom";
+	this.API_INVITE_DECLINED = "declineroom";
+	
+	this.API_MESSAGE = "msg";
+	this.API_MESSAGE_BROADCAST = "msgbroadcast";
+	
+	this.API_CORNERS = "corners";
+	this.API_CORNERS_BROADCAST = "cornersbroadcast";
+	
+	this.API_NAME_SET = "setname";
+	this.API_NAME_CHANGE = "changename";
+	
+	this.API_ECHO = "echo";
+	
+	
 
 	this.conn = new WebSocket(url, 'tangibles');
 

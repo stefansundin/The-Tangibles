@@ -62,18 +62,20 @@ $(function() {
 		</div>
 	</div>
 	
+	<!-- Room frame -->
+	<iframe id="roomFrame" src="about:blank" seamless></iframe>
 	
 	<div id="header">
 		<img id="logo" src="img/logo.png" />
 		<div id="title"></div>
-	</div>
-	
-	<div id="tangible_status">
-		Status: <input type="text" id="status" class="text ui-widget-content ui-corner-all" readonly />
-	</div>
-	<div id="top">
-		<div id="display_user_name"></div>
-		<button id="change_user_name">Change user name</button>
+		
+		<div id="tangible_status">
+			Status: <input type="text" id="status" class="text ui-widget-content ui-corner-all" readonly />
+		</div>
+		<div id="top">
+			<div id="display_user_name"></div>
+			<button id="change_user_name">Change name</button>
+		</div>
 	</div>
 	
 	<!-- Loading div -->
@@ -114,9 +116,6 @@ $(function() {
 			</tfoot>
 		</table>
 	</div>
-	
-	<!-- Room frame -->
-	<iframe id="roomFrame" src="about:blank" seamless></iframe>
 	
 	<div id="call_list"></div>
 	

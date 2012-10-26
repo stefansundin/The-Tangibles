@@ -1,12 +1,14 @@
 //#!/usr/bin/env node
 
-
+/**
+*	@class socketserver
+*
+*
+*/
 function socketserver(){
 	
 	var WebSocketServer = require('websocket').server;
 	var http = require('http')
-	
-	
 	/*
 	 * TODO: 
 	 * 		calls: timer for timeout 
@@ -195,11 +197,11 @@ function socketserver(){
 	});
 	
 	/**
+	 * 
 	 * Handling a new connection, adding it to the lobby. NOT notifying those
 	 * already in the lobby (wait until the name has been chosen).
-	 * 
-	 * @param connection
-	 *            Socket
+	 * @method handleNewConnection
+	 * @param connection Socket
 	 */
 	function handleNewConnection(connection){
 		//var room = getRoomById(0);
@@ -219,17 +221,16 @@ function socketserver(){
 
 		
 		addNewUser(connection);
-		
 	}
 	
 	/**
 	 * Handling when a connection is reset (closed). Notify all users in the room
 	 * the leaving user was last seen in.
 	 * 
+	 * @method connectionClosed
 	 * @addon TODO Should lobbyn also be notified? (if the users always should be
 	 *        seen there but with a status symbol)
-	 * @param connection
-	 *            Socket
+	 * @param connection Socket
 	 */
 	function connectionClosed(connection){
 		
@@ -275,13 +276,10 @@ function socketserver(){
 	
 	/**
 	 * Send a message to a socket.
-	 * 
-	 * @param connection
-	 *            WebSocket to send to
-	 * @param event_name
-	 *            Event name of the message
-	 * @param event_data
-	 *            Message payload
+	 * @method sendMessage
+	 * @param connection {websocket} the reciving socket
+	 * @param event_name {String} Event name of the message
+	 * @param event_data {JSONData} Message payload
 	 */
 	function sendMessage(connection, event_name, event_data) {
 		var payload = JSON.stringify({
@@ -323,15 +321,61 @@ function socketserver(){
 	// Handle message
 	// # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 	
+	addCallbacks(API_NAME_SET, function(con, name){
+		setName(con, name);
+	});
+	
+	addCallbacks(API_LIST, function(con){
+		list(con);
+	});
+	
+	addCallbacks(API_USER_CHANGE, function(con, newRoomId){
+		userChange(con, newRoomId);
+	});
+	
+	addCallbacks(API_MESSAGE, function(con, recipientId, message){
+		message(con, recipientId, message);
+	});
+	
+	addCallbacks(API_MESSAGE_BROADCAST, function(con, message){
+		messageBroadcast(con, message);
+	});
+	
+	addCallbacks(API_CORNERS, function(con, recipientId, nw, ne, se, sw, label){
+		corners(con, recipientId, nw, ne, se, sw, label);
+	});
+	
+	addCallbacks(API_CORNERS_BROADCAST, function(con, nw, ne, se, sw, label){
+		cornersBroadcast(con, nw, ne, se, sw, label);
+	});
+	
+	addCallbacks(API_INVITE_SEND, function(con, recipientId, roomId){
+		inviteSend(con, recipientId, roomId);
+	});
+	
+	addCallbacks(API_INVITE_ANSWER, function(con, callId, answer){
+		inviteAnswer(con, callId, answer);
+	});
+	
+	addCallbacks(API_ROOM_NEW, function(con, name, typeS, desc, pass){
+		newRoom(con, name, typeS, desc, pass);
+	});
+	
+	addCallbacks(API_ROOM_REMOVE, function(con, id){
+		removeRoom(con, id);
+	});
+	
+	addCallbacks(API_ECHO, function(con, message){
+		echo(con, message);
+	});
+	
 	/**
 	 * Change the name of a user based on the connection, i.e. only the owner of the socket can change it's name. 
-	 * 
-	 * @param con
-	 * 		Websocket connection
-	 * @param name
-	 *  	New name
-	 */
-	addCallbacks(API_NAME_SET, function (con, name){
+	 * @method setName
+	 * @param con {Websocket} connection
+	 * @param name {String} New name
+	*/
+	function setName(con, name){
 		var user = getUserBySocket(con);
 		var room = getRoomById(user.roomId);
 		
@@ -361,16 +405,14 @@ function socketserver(){
 			//sendMessageToAllButSelf(user.id, API_NAME_CHANGE, data);
 			sendMessageToAll(API_NAME_CHANGE, data);
 		}
-		
-	});
+	}
 	
 	/**
 	 * Request a list of all rooms and users. 
-	 * 
-	 * @param con
-	 * 		Websocket connection
+	 * @method list
+	 * @param con {websocket} connection
 	 */
-	addCallbacks(API_LIST, function(con){
+	function list(con){
 		var listRooms = [];
 		var listUsers = [];		
 		
@@ -393,18 +435,15 @@ function socketserver(){
 		});
 		
 		sendMessage(con, API_LIST, data);
-	});
-	
+	}
+
 	/**
 	 * Move between two rooms, notifying the leaving room with a API_USER_LEAVE event and the entering room with a API_USER_ENTER
-	 * 
-	 * @param con
-	 * 		Websocket connection
-	 * @param newRoomId
-	 *  	The if of the room to move to
+	 * @method userChange
+	 * @param con {websocket} connection
+	 * @param newRoomId {Int} The if of the room to move to
 	 */
-	addCallbacks(API_USER_CHANGE, function(con, newRoomId){
-		
+	function userChange(con, newRoomId){
 		var user = getUserBySocket(con);
 		var room = getRoomById(user.roomId);
 		
@@ -434,62 +473,48 @@ function socketserver(){
 		
 		//sendMessageToRoom(user.id, newRoomId, API_USER_ENTER, data);
 		sendMessageToAll(API_USER_ENTER, data);
-	});
+	}
 	
 	/**
 	 * Send a message to a recipient. 
-	 * 
-	 * @param con
-	 * 		Websocket connection
-	 * @param recipientId
-	 *  	The id of the recipient
-	 * @param message
-	 * 		Message to deliver to the recipient
+	 * @method message
+	 * @param con {websocket} connection
+	 * @param recipientId {Int} The id of the recipient
+	 * @param message {String} Message to deliver to the recipient
 	 */
-	addCallbacks(API_MESSAGE, function(con, recipientId, message){
-		
-		var recipient = getUserById(recipientId);
-		
+	function message(con, recipientId, message){
+	 	var recipient = getUserById(recipientId);
 		var data = JSON.stringify({
 			msg: message
 		});
-		
 		sendMessage(API_MESSAGE, recipient.socket, data);
-	});
-	
+	}
+	 
 	/**
 	 * Send a message to all users in the current room. 
 	 * (do we want to differentiate between broadcast or not?) 
-	 * 
-	 * @param con
-	 * 		Websocket connection
-	 * @param message
-	 * 		Message to deliver to the recipients
+	 * @method messageBroadcast
+	 * @param con {websocket} connection
+	 * @param message {String} Message to deliver to the recipients
 	 */
-	addCallbacks(API_MESSAGE_BROADCAST, function(con, message){
-		
+	function messageBroadcast(con, message){
 		var recipients = getUserBySocket(con);
 		
 		var data = JSON.stringify({
 			sender: recipients.id,
 			msg: message
 		});
-		
 		sendMessageToRoom(recipients.id, recipients.roomId, API_MESSAGE, data);
-	});
+	}
 	
 	/**
 	 * Send a API_CORNERS to an recipient, notifying it of the new corners for use by the projector. 
-	 * 
-	 * @param con
-	 * 		Websocket connection
-	 * @param recipientId
-	 *  	The id of the recipient
-	 * @param message
-	 * 		Message to deliver to the recipient
+	 * @method corners
+	 * @param con {websocket} connection
+	 * @param recipientId {Int} The id of the recipient
+	 * @param message {JSONData} Message to deliver to the recipient
 	 */
-	addCallbacks(API_CORNERS, function(con, recipientId, nw, ne, se, sw, label){
-		
+	function corners(con, recipientId, nw, ne, se, sw, label){
 		var recipient = getUserById(recipientId);
 		
 		var data = JSON.stringify({
@@ -501,21 +526,16 @@ function socketserver(){
 		});
 		
 		sendMessage(API_CORNERS, recipient.socket, data);
-	});
+	}
 	
 	/**
 	 * Send a API_CORNERS_BROADCAST to all users in the current room, notifying the users of the new corners for use by the projector. 
-	 * 
-	 * @param con
-	 * 		Websocket connection
-	 * @param message
-	 *  	Message to deliver to the recipients
+	 * @method cornersBroadcast
+	 * @param con {websocket} connection
+	 * @param message {JSONData} Message to deliver to the recipients
 	 */
-	addCallbacks(API_CORNERS_BROADCAST, function(con, nw, ne, se, sw, label){
-		
-		var recipients = getUserBySocket(con);
-		
-		console.log(message);
+	function cornersBroadcast(con, nw, ne, se, sw, label){
+	 	var recipients = getUserBySocket(con);
 		
 		var data = JSON.stringify({
 			sender: recipients.id,
@@ -525,12 +545,10 @@ function socketserver(){
 			sw: sw, 
 			videoLabel: label
 		});
-		
 		sendMessageToRoom(recipients.id, recipients.roomId, API_CORNERS_BROADCAST, data);
-	});
+	}
 	
-	
-	addCallbacks(API_INVITE_SEND, function(con, recipientId, roomId){
+	function inviteSend(con, recipientId, roomId){
 		if (roomId < 1) {
 			return null;
 		}
@@ -561,10 +579,9 @@ function socketserver(){
 		});
 		
 		sendMessage(recipient.socket, API_INVITE_SEND, data);
-	});
+	}
 	
-	
-	addCallbacks(API_INVITE_ANSWER, function(con, callId, answer){
+	function inviteAnswer(con, callId, answer){
 		var call = getCallById(callId);
 		
 		if (call == null) {
@@ -602,13 +619,9 @@ function socketserver(){
 				id : callId
 			}));
 		}
-		
-		
-		
-	});
+	}
 	
-	
-	addCallbacks(API_ROOM_NEW, function(con, name, typeS, desc, pass){
+	function newRoom(con, name, typeS, desc, pass){
 		
 		if (desc == null) {
 			desc = ""
@@ -632,9 +645,10 @@ function socketserver(){
 		//TODO: Callback to creator (if want to go into room directly)
 		
 		sendMessageToAll(API_ROOM_NEW, data);
-	});
+	}
+
 	
-	addCallbacks(API_ROOM_REMOVE, function(con, id){
+	function removeRoom(con, id){
 		
 		if (id == 0){
 			console.log((new Date()) + " trying to remove lobby...");
@@ -656,17 +670,22 @@ function socketserver(){
 		});
 		
 		sendMessageToAll(API_ROOM_REMOVE, data);
+	}
+	
+	addCallbacks(API_ROOM_REMOVE, function(con, id){
+		removeRoom(con, id);
 	});
 	
-	
-	addCallbacks(API_ECHO, function(con, message){
+	function echo(con, message){
 		
 		var data = JSON.stringify({
 			msg: message
 		});
 		
 		sendMessage(con, API_ECHO, data);
-	});
+	}
+	
+
 	
 	/*
 	addCallbacks(, function(con, ){

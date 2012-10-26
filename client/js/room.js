@@ -2,6 +2,21 @@ $(function() {
 	// Function that starts all the things we need
 	init();
 	
+	var showHeader = true;
+	$(document).mousemove(function(event){
+		if (event.pageY <= 90) {
+			if (!showHeader) {
+				parent.lobby.showHeader();
+				showHeader = true;
+			}
+		} else {
+			if (showHeader) {
+				parent.lobby.hideHeader();
+				showHeader = false;
+			}
+		}
+	});
+	
 	// Dialogs
 	
     $('#invite_dialog').dialog({
