@@ -359,7 +359,9 @@ function socketserver(){
 		}
 	}
 
-	addCallbacks(API_NAME_SET, setName(con, name));
+	addCallbacks(API_NAME_SET, function(con, name){
+		setName(con, name);
+	});
 	
 	/**
 	 * Request a list of all rooms and users. 
@@ -391,7 +393,9 @@ function socketserver(){
 		sendMessage(con, API_LIST, data);
 	}
 
-	addCallbacks(API_LIST, list(con));
+	addCallbacks(API_LIST, function(con){
+		list(con);
+	});
 	
 	/**
 	 * Move between two rooms, notifying the leaving room with a API_USER_LEAVE event and the entering room with a API_USER_ENTER
