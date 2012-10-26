@@ -26,38 +26,42 @@ function socketserver(){
 	
 	var PORT_NUMBER = 12345;
 	
-	var API_USER_ENTER = "userenter";
-	var API_USER_LEAVE = "userleave";
-	var API_ROOM_ENTER = "roomenter";
-	var API_ROOM_LEAVE = "roomleave";
+	this.API_USER_ENTER = "userenter";
+	this.API_USER_LEAVE = "userleave";
+	this.API_ROOM_ENTER = "roomenter";
+	this.API_ROOM_LEAVE = "roomleave";
 	
-	var API_LIST_ROOMS = "listrooms";
-	var API_LIST_USERS = "listusers";
-	var API_LIST = "listall";
+	this.API_LIST_ROOMS = "listrooms";
+	this.API_LIST_USERS = "listusers";
+	this.API_LIST = "listall";
 	
-	var API_USER_CHANGE = "userchange" 
-	var API_USER_NEW = "useradd";
-	var API_USER_REMOVE = "userremove";
-	var API_ROOM_NEW = "roomadd";
-	var API_ROOM_REMOVE = "roomremove";
+	this.API_USER_CHANGE = "userchange" 
+	this.API_USER_NEW = "useradd";
+	this.API_USER_REMOVE = "userremove";
+	this.API_ROOM_NEW = "roomadd";
+	this.API_ROOM_REMOVE = "roomremove";
 	
-	var API_INVITE_SEND = "invitesend";
-	var API_INVITE_ANSWER = "inviteanswer";
-	var API_INVITE_LEAVE = "inviteleave";
-	var API_INVITE_TIMEOUT = "invitetimeout";
-	var API_INVITE_ACCEPTED = "inviteroom";
-	var API_INVITE_DECLINED = "declineroom";
+	this.API_INVITE_SEND = "invitesend";
+	this.API_INVITE_ANSWER = "inviteanswer";
+	this.API_INVITE_LEAVE = "inviteleave";
+	this.API_INVITE_TIMEOUT = "invitetimeout";
+	this.API_INVITE_ACCEPTED = "inviteroom";
+	this.API_INVITE_DECLINED = "declineroom";
 	
-	var API_MESSAGE = "msg";
-	var API_MESSAGE_BROADCAST = "msgbroadcast";
+	this.API_MESSAGE = "msg";
+	this.API_MESSAGE_BROADCAST = "msgbroadcast";
 	
-	var API_CORNERS = "corners";
-	var API_CORNERS_BROADCAST = "cornersbroadcast";
+	this.API_CORNERS = "corners";
+	this.API_CORNERS_BROADCAST = "cornersbroadcast";
 	
-	var API_NAME_SET = "setname";
-	var API_NAME_CHANGE = "changename";
+	this.API_NAME_SET = "setname";
+	this.API_NAME_CHANGE = "changename";
 	
-	var API_ECHO = "echo";
+	this.API_ECHO = "echo";
+	
+	
+	
+	
 	
 	var ROOM_PUBLIC = "public";
 	var ROOM_PRIVATE = "private";
@@ -252,10 +256,10 @@ function socketserver(){
 			});
 			
 			//sendMessageToRoom(user.id, user.roomId, API_USER_LEAVE, data);
-			sendMessageToAll(API_USER_LEAVE, data);
+			sendMessageToAll(this.API_USER_LEAVE, data);
 			
 			if (user.inCall){
-				sendMessageToRoom(user.id, user.roomId, API_INVITE_LEAVE, data);	
+				sendMessageToRoom(user.id, user.roomId, this.API_INVITE_LEAVE, data);	
 			}
 		}
 		
@@ -268,7 +272,7 @@ function socketserver(){
 	// 	
 		// for ( var i = 0; i < roomOld.users.length; i++) {
 			// if (roomOld.users[i] != null) {
-				// sendMessage(roomOld.users[i].socket, API_USER_LEAVE, name);	
+				// sendMessage(roomOld.users[i].socket, this.API_USER_LEAVE, name);	
 			// }
 		// }
 	
@@ -321,51 +325,51 @@ function socketserver(){
 	// Handle message
 	// # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 	
-	addCallbacks(API_NAME_SET, function(con, name){
+	addCallbacks(this.API_NAME_SET, function(con, name){
 		setName(con, name);
 	});
 	
-	addCallbacks(API_LIST, function(con){
+	addCallbacks(this.API_LIST, function(con){
 		list(con);
 	});
 	
-	addCallbacks(API_USER_CHANGE, function(con, newRoomId){
+	addCallbacks(this.API_USER_CHANGE, function(con, newRoomId){
 		userChange(con, newRoomId);
 	});
 	
-	addCallbacks(API_MESSAGE, function(con, recipientId, message){
+	addCallbacks(this.API_MESSAGE, function(con, recipientId, message){
 		message(con, recipientId, message);
 	});
 	
-	addCallbacks(API_MESSAGE_BROADCAST, function(con, message){
+	addCallbacks(this.API_MESSAGE_BROADCAST, function(con, message){
 		messageBroadcast(con, message);
 	});
 	
-	addCallbacks(API_CORNERS, function(con, recipientId, nw, ne, se, sw, label){
+	addCallbacks(this.API_CORNERS, function(con, recipientId, nw, ne, se, sw, label){
 		corners(con, recipientId, nw, ne, se, sw, label);
 	});
 	
-	addCallbacks(API_CORNERS_BROADCAST, function(con, nw, ne, se, sw, label){
+	addCallbacks(this.API_CORNERS_BROADCAST, function(con, nw, ne, se, sw, label){
 		cornersBroadcast(con, nw, ne, se, sw, label);
 	});
 	
-	addCallbacks(API_INVITE_SEND, function(con, recipientId, roomId){
+	addCallbacks(this.API_INVITE_SEND, function(con, recipientId, roomId){
 		inviteSend(con, recipientId, roomId);
 	});
 	
-	addCallbacks(API_INVITE_ANSWER, function(con, callId, answer){
+	addCallbacks(this.API_INVITE_ANSWER, function(con, callId, answer){
 		inviteAnswer(con, callId, answer);
 	});
 	
-	addCallbacks(API_ROOM_NEW, function(con, name, typeS, desc, pass){
+	addCallbacks(this.API_ROOM_NEW, function(con, name, typeS, desc, pass){
 		newRoom(con, name, typeS, desc, pass);
 	});
 	
-	addCallbacks(API_ROOM_REMOVE, function(con, id){
+	addCallbacks(this.API_ROOM_REMOVE, function(con, id){
 		removeRoom(con, id);
 	});
 	
-	addCallbacks(API_ECHO, function(con, message){
+	addCallbacks(this.API_ECHO, function(con, message){
 		echo(con, message);
 	});
 	
@@ -387,7 +391,7 @@ function socketserver(){
 			name: user.name,
 		}); 
 		
-		sendMessage(con, API_NAME_SET, data);	
+		sendMessage(con, this.API_NAME_SET, data);	
 		
 		if (oldName == ""){
 			var data = JSON.stringify({
@@ -395,15 +399,15 @@ function socketserver(){
 				name: user.name,
 				roomId: user.roomId
 			}); 
-			//sendMessageToAllButSelf(user.id, API_USER_ENTER, data);
-			sendMessageToAll(API_USER_ENTER, data);
+			//sendMessageToAllButSelf(user.id, this.API_USER_ENTER, data);
+			sendMessageToAll(this.API_USER_ENTER, data);
 		} else {
 			var data = JSON.stringify({
 				id: user.id,
 				name: user.name
 			}); 
-			//sendMessageToAllButSelf(user.id, API_NAME_CHANGE, data);
-			sendMessageToAll(API_NAME_CHANGE, data);
+			//sendMessageToAllButSelf(user.id, this.API_NAME_CHANGE, data);
+			sendMessageToAll(this.API_NAME_CHANGE, data);
 		}
 	}
 	
@@ -434,7 +438,7 @@ function socketserver(){
 			users: listUsers
 		});
 		
-		sendMessage(con, API_LIST, data);
+		sendMessage(con, this.API_LIST, data);
 	}
 
 	/**
@@ -456,10 +460,10 @@ function socketserver(){
 		
 		if (user.name != "" && user.roomId != -1) {
 			//sendMessageToRoom(user.id, user.roomId, API_USER_LEAVE, data);
-			sendMessageToAll(API_USER_LEAVE, data);
+			sendMessageToAll(this.API_USER_LEAVE, data);
 			
 			if (user.inCall){
-				sendMessageToRoom(user.id, user.roomId, API_INVITE_LEAVE, data);
+				sendMessageToRoom(user.id, user.roomId, this.API_INVITE_LEAVE, data);
 				//TODO: change user to not in call anymore?	
 			}
 		}
@@ -471,8 +475,8 @@ function socketserver(){
 			roomId: user.roomId
 		}); 
 		
-		//sendMessageToRoom(user.id, newRoomId, API_USER_ENTER, data);
-		sendMessageToAll(API_USER_ENTER, data);
+		//sendMessageToRoom(user.id, newRoomId, this.API_USER_ENTER, data);
+		sendMessageToAll(this.API_USER_ENTER, data);
 	}
 	
 	/**
@@ -487,7 +491,7 @@ function socketserver(){
 		var data = JSON.stringify({
 			msg: message
 		});
-		sendMessage(API_MESSAGE, recipient.socket, data);
+		sendMessage(this.API_MESSAGE, recipient.socket, data);
 	}
 	 
 	/**
@@ -504,7 +508,7 @@ function socketserver(){
 			sender: recipients.id,
 			msg: message
 		});
-		sendMessageToRoom(recipients.id, recipients.roomId, API_MESSAGE, data);
+		sendMessageToRoom(recipients.id, recipients.roomId, this.API_MESSAGE, data);
 	}
 	
 	/**
@@ -525,7 +529,7 @@ function socketserver(){
 			videoLabel: label
 		});
 		
-		sendMessage(API_CORNERS, recipient.socket, data);
+		sendMessage(this.API_CORNERS, recipient.socket, data);
 	}
 	
 	/**
@@ -545,7 +549,7 @@ function socketserver(){
 			sw: sw, 
 			videoLabel: label
 		});
-		sendMessageToRoom(recipients.id, recipients.roomId, API_CORNERS_BROADCAST, data);
+		sendMessageToRoom(recipients.id, recipients.roomId, this.API_CORNERS_BROADCAST, data);
 	}
 	
 	function inviteSend(con, recipientId, roomId){
@@ -578,7 +582,7 @@ function socketserver(){
 			callId: call.id
 		});
 		
-		sendMessage(recipient.socket, API_INVITE_SEND, data);
+		sendMessage(recipient.socket, this.API_INVITE_SEND, data);
 	}
 	
 	function inviteAnswer(con, callId, answer){
@@ -594,7 +598,7 @@ function socketserver(){
 			answer: answer
 		});
 		
-		sendMessage(call.caller.socket, API_INVITE_ANSWER, data);
+		sendMessage(call.caller.socket, this.API_INVITE_ANSWER, data);
 		
 		console.log("Answer: " + answer);
 		
@@ -612,10 +616,10 @@ function socketserver(){
 				console.log("not same");
 			}
 			
-			sendMessage(con, API_INVITE_ACCEPTED, data);
+			sendMessage(con, this.API_INVITE_ACCEPTED, data);
 			
 		} else { // answer = no
-			sendMessage(con, API_INVITE_DECLINED, JSON.stringify({
+			sendMessage(con, this.API_INVITE_DECLINED, JSON.stringify({
 				id : callId
 			}));
 		}
@@ -644,7 +648,7 @@ function socketserver(){
 		
 		//TODO: Callback to creator (if want to go into room directly)
 		
-		sendMessageToAll(API_ROOM_NEW, data);
+		sendMessageToAll(this.API_ROOM_NEW, data);
 	}
 
 	
@@ -669,10 +673,10 @@ function socketserver(){
 			id: id
 		});
 		
-		sendMessageToAll(API_ROOM_REMOVE, data);
+		sendMessageToAll(this.API_ROOM_REMOVE, data);
 	}
 	
-	addCallbacks(API_ROOM_REMOVE, function(con, id){
+	addCallbacks(this.API_ROOM_REMOVE, function(con, id){
 		removeRoom(con, id);
 	});
 	
@@ -682,7 +686,7 @@ function socketserver(){
 			msg: message
 		});
 		
-		sendMessage(con, API_ECHO, data);
+		sendMessage(con, this.API_ECHO, data);
 	}
 	
 
