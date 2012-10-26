@@ -66,7 +66,7 @@ $(function() {
 		var room = window.location.hash.slice(1);
 		var list = parent.lobby.users;
 		for (i in list) {
-			if (list[i][0] == room) {
+			if (list[i][2] == room) {
 				userlist.push(list[i]);	
 			}
 				
