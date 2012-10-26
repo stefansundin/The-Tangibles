@@ -82,6 +82,10 @@ app.get('/js/tangibleLib.js', function(req, res) {
   res.sendfile(__dirname + '/client/js/tangibleLib.js');
 });
 
+app.get('/workspace/js/videoBucket.js', function(req, res) {
+  res.sendfile(__dirname + '/client/js/videoBucket.js');
+});
+
 app.get('/workspace/js/mediaext.js', function(req, res) {
   res.sendfile(__dirname + '/client/js/mediaext.js');
 });
@@ -108,6 +112,16 @@ app.get('/workspace/js/buttons.js', function(req, res) {
 
 app.get('/workspace/js/calibration.js', function(req, res) {
   res.sendfile(__dirname + '/client/js/calibration.js');
+});
+
+app.get('/workspace/js/lib/blend.js', function(req, res) {
+  res.sendfile(__dirname + '/client/js/lib/blend.js');
+});
+app.get('/workspace/js/lib/pixastic.core.js', function(req, res) {
+  res.sendfile(__dirname + '/client/js/lib/pixastic.core.js');
+});
+app.get('/workspace/js/utilities.js', function(req, res) {
+  res.sendfile(__dirname + '/client/js/utilities.js');
 });
 
 app.get('/workspace/js/lib/sylvester.js', function(req, res) {

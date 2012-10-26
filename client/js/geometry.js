@@ -162,6 +162,14 @@ Geometry.PolyToRectTransform = function(fromPoly, toRect) {
 	return new Geometry.Transform(fromPoly, toPoly);
 }
 
+Geometry.PolyToCanvasTransform = function(poly, canvas) {
+    var canvasPoly = [new Geometry.Point(0, 0),
+                      new Geometry.Point(canvas.width, 0),
+                      new Geometry.Point(canvas.width, canvas.height),
+                      new Geometry.Point(0, canvas.height)];
+    return new Geometry.Transform(poly, canvasPoly);
+}
+
 Geometry.Transform.prototype.transformPoint = function(p) {
 	var nx, ny;
 	nx = Math.round(this._a.e(1, 1) * p.x * p.y +
