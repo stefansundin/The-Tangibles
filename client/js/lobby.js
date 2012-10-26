@@ -181,28 +181,28 @@ Lobby.prototype.init = function() {
 	socket.on(Socket.API_LIST, function(rooms, users) {
 		self.onLobbyLoad(rooms, users);
 	});
-	socket.on(socket.API_USER_ENTER, function(userId, userName, roomId) {
+	socket.on(Socket.API__USER_ENTER, function(userId, userName, roomId) {
 		self.onUserEnter(userId, userName, roomId);
 	});
-	socket.on(socket.API_USER_LEAVE, function(userId) {
+	socket.on(Socket.API__USER_LEAVE, function(userId) {
 		self.onUserLeave(userId);
 	});
-	socket.on(socket.API_NAME_CHANGE, function(userId, userName) {
+	socket.on(Socket.API__NAME_CHANGE, function(userId, userName) {
 		self.onUserChangeName(userId, userName);
 	});
-	socket.on(socket.API_INVITE_SEND, function(userName, roomName, callId) {
+	socket.on(Socket.API__INVITE_SEND, function(userName, roomName, callId) {
 		self.onIncomingCall(userName, roomName, callId);
 	});
-	socket.on(socket.API_INVITE_ACCEPTED, function(roomId) {
+	socket.on(Socket.API__INVITE_ACCEPTED, function(roomId) {
 		self.onCallAccepted(roomId);
 	});
-	socket.on(socket.API_INVITE_DECLINED, function(callId) {
+	socket.on(Socket.API__INVITE_DECLINED, function(callId) {
 		self.onCallDeclined(callId);
 	});
-	socket.on(socket.API_ROOM_NEW, function(roomId, roomName, roomDesc, roomType) {
+	socket.on(Socket.API__ROOM_NEW, function(roomId, roomName, roomDesc, roomType) {
 		self.onRoomAdd(roomId, roomName, roomDesc, roomType);
 	});
-	socket.on(socket.API_ROOM_REMOVE, function(roomId) {
+	socket.on(Socket.API__ROOM_REMOVE, function(roomId) {
 		self.onRoomDelete(roomId);
 	});
 
