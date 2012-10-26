@@ -85,12 +85,13 @@ $(function() {
 		parent.lobby.leaveRoom();
 	});
 	
-	$('#fullscreen').button().click(function() {
-		var elem = document.getElementById("videos"); 
+/*	$('#fullscreen').button().click(function() {
+		var elem = document.getElementById("videos");
+		console.log('Fullscreen. elem: ' + elem);
 		//show full screen 
 		elem.webkitRequestFullScreen();
 	});
-	
+	*/
 	var isOpen = false;
 	var workspaceWindow = "";
 	
