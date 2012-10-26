@@ -139,7 +139,7 @@ Lobby.prototype.init = function() {
 	$('#create_room_advanced_content').hide();
 	$('#create_room_advanced_button').button().click(function() {
 		$('#create_room_advanced_content').toggle();
-	});
+	}).button('disable'); // TODO Enable advanced button
 
 	$('#splash_name').keypress(function(e) {
 		if (e.which == 13) {
