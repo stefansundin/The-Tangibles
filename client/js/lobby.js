@@ -1,5 +1,7 @@
 var lobby; // Global object for the lobby
 
+// TODO Add separators between users!
+
 $(function() {
 	lobby = new Lobby();
 	lobby.init();
