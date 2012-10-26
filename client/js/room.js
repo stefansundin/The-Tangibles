@@ -61,7 +61,7 @@ $(function() {
 		$('#invite_dialog').dialog('open');
 	});
 	
-	$('#openUserListDialog').button().click(function() {
+	$('#openUserlistDialog').button().click(function() {
 		var userlist = [];
 		var list = parent.lobby.users;
 		for (i in list) {
