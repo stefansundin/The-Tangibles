@@ -2,7 +2,7 @@ $(function() {
 	// Function that starts all the things we need
 	init();
 	
-	// Invite dialog things
+	// Dialogs
 	
     $('#invite_dialog').dialog({
         autoOpen : false,
@@ -13,7 +13,6 @@ $(function() {
 					if($(this).is(':checked')){
 						uid = $(this).attr('id');
 						ulist = parent.lobby.users;
-						
 						for (i in ulist) {
 							if(ulist[i][0] == uid) {
 								onUserInvited(ulist[i][1]);
@@ -31,8 +30,21 @@ $(function() {
 			}
         }
     });
-
-    $("button#openInviteDialog").click(function() {
+	
+	$('#userlist_dialog').dialog({
+        autoOpen : false,
+        modal : true,
+		buttons: {
+			Ok: function() {
+				$( this ).dialog( 'close' );
+				document.getElementById('userlistContainer').innerHTML = "";
+			}
+		}
+	});
+	
+	// Buttons that open dialogs
+	
+	$('#openInviteDialog').button().click(function() {
 		var userlist = [];
 		var list = parent.lobby.users;
 		for (i in list) {
@@ -49,20 +61,7 @@ $(function() {
 		$('#invite_dialog').dialog('open');
 	});
 	
-	// Userlist dialog things
-	
-	$('#userlist_dialog').dialog({
-        autoOpen : false,
-        modal : true,
-		buttons: {
-			Ok: function() {
-				$( this ).dialog( 'close' );
-				document.getElementById('userlistContainer').innerHTML = "";
-			}
-		}
-	});
-	
-	$("button#openUserListDialog").click(function() {
+	$('#openUserListDialog').button().click(function() {
 		var userlist = [];
 		var list = parent.lobby.users;
 		for (i in list) {
@@ -76,6 +75,8 @@ $(function() {
 		}
 		$('#userlist_dialog').dialog('open');
 	});
+	
+	// Other buttons
 	
 	$('#leaveRoom').button().click(function() {
 		writeMessageToChat(parent.lobby.ownName + " left the room.");
@@ -184,53 +185,7 @@ function addToChat(msg, color) {
 function sanitize(msg) {
 	return msg.replace(/</g, '&lt;');
 }
-
-function initFullScreen() { 
-	$('#fullscreen').button().click(function() {
-		var elem = document.getElementById("videos"); 
-		//show full screen 
-		elem.webkitRequestFullScreen();
-	});
-/*	var button = document.getElementById("fullscreen");
-	button.addEventListener('click', function(event) {
-		var elem = document.getElementById("videos"); 
-		//show full screen 
-		elem.webkitRequestFullScreen();
-	}); */
-} 
-  
-function initOpenWorkspace() {
-//	var wsbutton = document.getElementById("openWorkspace");
-	var isOpen = false;
-	var workspaceWindow = "";
-	
-	$('#openWorkspace').button().click(function() {
-		if(isOpen) {
-			workspaceWindow.close();
-			writeMessageToChat(parent.lobby.ownName + " closed the workspace.");
-			isOpen = false;
-		} else {
-			var room = window.location.hash.slice(1);
-			workspaceWindow=window.open('/workspace/#' + room + '_desk');
-			writeMessageToChat(parent.lobby.ownName + " opened the workspace.");
-			isOpen = true;
-		}
-	});
-	
-/*	wsbutton.addEventListener('click', function(event){
-		if(isOpen) {
-			workspaceWindow.close();
-			writeMessageToChat(parent.lobby.ownName + " closed the workspace.");
-			isOpen = false;
-		} else {
-			var room = window.location.hash.slice(1);
-			workspaceWindow=window.open('/workspace/#' + room + '_desk');
-			writeMessageToChat(parent.lobby.ownName + " opened the workspace.");
-			isOpen = true;
-		}
-	}) */
-}
-  
+    
 function onUserInvited(invited_user) {
 	var inviting_user = parent.lobby.ownName;
 	var room = window.location.hash.slice(1);
@@ -247,12 +202,11 @@ function onUserInvited(invited_user) {
 			break;
 		}
 	}
-	
 	// Check to see if the user invited himself
 	if (invited_user == inviting_user) {
-		uid = -2;
+		addToChat("Stop inviting yourself " + inviting_user + "...");
+		return;
 	}
-
 	// If the user exists:
 	if (uid > -1) {
 		parent.socket.send(parent.API_INVITE_SEND, JSON.stringify({
@@ -261,29 +215,9 @@ function onUserInvited(invited_user) {
 		}));
 		writeMessageToChat(inviting_user + ' invited ' + invited_user);
 		console.log('The user ' + invited_user + '(id:'+uid+') was invited by ' + inviting_user + ' to this room (' + room + ')');
-  
-	// If the user does not exist:
-	} else if (uid == -2) {
-		addToChat("Stop inviting yourself " + inviting_user + "...");
 	} else {
 		addToChat("User " + invited_user + " does not exist.");
 	}
-}
-	 
-function initLeaveRoom() {
-/*	var leaveButton = document.getElementById("leaveRoom");
-	leaveButton.addEventListener('click', function(event) {
-		writeMessageToChat(parent.lobby.ownName + " left the room.");
-		console.log('Left the room');
-		parent.window.parent.document.title = 'The-Tangibles';
-		parent.lobby.leaveRoom();
-	}) */
-	$('#leaveRoom').button().click(function() {
-		writeMessageToChat(parent.lobby.ownName + " left the room.");
-		console.log('Left the room');
-		parent.window.parent.document.title = 'The-Tangibles';
-		parent.lobby.leaveRoom();
-	});
 }
 	  
 function writeMessageToChat(message) {
@@ -301,7 +235,7 @@ function writeMessageToChat(message) {
 			if (error) {
 				console.log(error);
 			}
-		});
+	});
 	addToChat(message);
 }
 
@@ -378,10 +312,7 @@ function initRoom() {
 		removeVideo(data);
 	});
 	  
-	//initFullScreen();
 	initChat();
-	//initOpenWorkspace();
-	//initLeaveRoom();	
 }
     
 window.onresize = function(event) {
