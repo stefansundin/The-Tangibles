@@ -175,10 +175,10 @@ Lobby.prototype.init = function() {
 	socket.on('close', function() {
 		self.onSocketClose();
 	});
-	socket.on(socket.API_NAME_SET, function(userName) {
+	socket.on(Socket.API_NAME_SET, function(userName) {
 		$('#display_user_name').text(userName);
 	});
-	socket.on(socket.API_LIST, function(rooms, users) {
+	socket.on(Socket.API_LIST, function(rooms, users) {
 		self.onLobbyLoad(rooms, users);
 	});
 	socket.on(socket.API_USER_ENTER, function(userId, userName, roomId) {
