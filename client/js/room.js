@@ -63,9 +63,13 @@ $(function() {
 	
 	$('#openUserlistDialog').button().click(function() {
 		var userlist = [];
+		var room = window.location.hash.slice(1);
 		var list = parent.lobby.users;
 		for (i in list) {
-			userlist.push(list[i]);	
+			if (list[i][0] == room) {
+				userlist.push(list[i]);	
+			}
+				
 		}
 		
 		for (i in userlist) {
