@@ -1,7 +1,5 @@
 var lobby; // Global object for the lobby
 
-// TODO Add separators between users!
-
 $(function() {
 	lobby = new Lobby();
 	lobby.init();
@@ -294,7 +292,6 @@ Lobby.prototype.onSocketClose = function() {
 	$('#roomFrame').hide();
 	$('#splash').hide();
 
-	// TODO Fix better error handling?
 	$('#room_table tbody').empty();
 	$('#room_table tfoot').show();
 };
@@ -560,7 +557,8 @@ Lobby.prototype.onRoomAdd = function(roomId, roomName, roomDesc, roomType) {
 	}).append($('<td/>').append($('<h3/>', {
 		text : roomName
 	})).append(roomDesc)).append($('<td/>', {
-		id : 'room_user_list_' + roomId
+		id : 'room_user_list_' + roomId,
+		class : 'remote_user_list'
 	})).append($('<td/>').css({
 		width : '26px',
 		'font-size' : '0px'
@@ -637,10 +635,16 @@ Lobby.prototype.onUserEnterRoom = function(userId, roomId) {
 			// Make sure each user only exist in one room in the list
 			$('.remote_user_' + this.users[user_index][0]).remove();
 
-			$('#room_user_list_' + roomId).append($('<span/>', {
+			$('#room_user_list_' + roomId).append($('<div/>', {
+				class : 'remote_user_' + this.users[user_index][0]
+			}).css({
+				display : 'inline'
+			}).append($('<span/>', {
 				class : 'remote_user_' + this.users[user_index][0],
-				text : this.users[user_index][1] + ' '
-			}));
+				text : this.users[user_index][1]
+			})).append($('<span/>', {
+				text : ', '
+			})));
 		}
 	}
 };
@@ -677,7 +681,7 @@ Lobby.prototype.onUserChangeName = function(userId, userName) {
 	var index = this.findUserIndex(userId);
 	if (index != -1) {
 		this.users[index][1] = userName;
-		$('span.remote_user_' + userId).text(userName + ' ');
+		$('span.remote_user_' + userId).text(userName);
 	}
 };
 
