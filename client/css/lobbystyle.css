@@ -1,3 +1,10 @@
+@font-face {
+  font-family: 'Ubuntu';
+  font-style: normal;
+  font-weight: 400;
+  src: url(http://themes.googleusercontent.com/static/fonts/ubuntu/v4/_xyN3apAT_yRRDeqB3sPRg.woff) format('woff');
+}
+
 html {
 	margin: 0;
 	padding: 0;
@@ -49,7 +56,7 @@ body {
 	position: absolute;
 	margin: 0;
 	padding: 0;
-	top: 33px;
+	top: 35px;
 	left: 290px;
 	font-family: Ubuntu, sans-serif;
 	font-weight: normal;
