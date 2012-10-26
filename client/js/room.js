@@ -2,7 +2,7 @@ $(function() {
 	// Function that starts all the things we need
 	init();
 	
-	var showHeader = true;
+	var showHeader = false;
 	$(document).mousemove(function(event){
 		if (event.pageY <= 90) {
 			if (!showHeader) {

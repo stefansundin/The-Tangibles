@@ -178,12 +178,12 @@ Lobby.prototype.init = function() {
 	socket.on('close', function() {
 		self.onSocketClose();
 	});
-	
+
 	console.log("########################NAME IS SET:");
 	console.log(API_NAME_SET);
 	console.log(Socket.API_NAME_SET);
 	console.log(socket.API_NAME_SET);
-	
+
 	socket.on(API_NAME_SET, function(userName) {
 		console.log("########################NAME IS HERE");
 		$('#display_user_name').text(userName);
@@ -461,29 +461,27 @@ Lobby.prototype.enterRoom = function(roomId) {
 	$('#title').html(
 			'<span class="room_' + roomId + '">' + roomName + '</span>');
 
+	$('#header').delay(5000).hide(0);
 	$('#main').hide();
 	$('#roomFrame').show();
 	$('#roomFrame').attr('src', 'room/#' + roomId);
 };
 
 /**
- * Function to show the header with a slide effect.
+ * Function to show the header.
  */
 Lobby.prototype.showHeader = function() {
-	$('#header').show({
-		effect : 'slide',
-		direction : 'up'
-	});
+	$('#header').stop();
+	$('#header').show(0
+	/* { effect : 'slide', direction : 'up' } */);
 };
 
 /**
- * Function to hide the header with a slide effect.
+ * Function to hide the header.
  */
 Lobby.prototype.hideHeader = function() {
-	$('#header').hide({
-		effect : 'slide',
-		direction : 'up'
-	});
+	$('#header').hide(0
+	/* { effect : 'slide', direction : 'up' } */);
 };
 
 /**
