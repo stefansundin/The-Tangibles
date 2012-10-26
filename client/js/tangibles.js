@@ -80,7 +80,7 @@ function Tangibles(webRTCSocket) {
 	
 	// Server API
 	if(this.webRTCSocket){ 
-		this.webRTCSocket.on(socket.API_INVITE_SEND, function(name, room, call_id) {
+		this.webRTCSocket.on(API_INVITE_SEND, function(name, room, call_id) {
 			console.log(name +' '+ room +' '+ call_id);
 			self.incommingCall(call_id, name, room, function() {
 				lobby.accept(call_id);
@@ -89,15 +89,15 @@ function Tangibles(webRTCSocket) {
 			});
 		});
 		
-		this.webRTCSocket.on(socket.API_INVITE_ACCEPTED, function(room_id) {
+		this.webRTCSocket.on(API_INVITE_ACCEPTED, function(room_id) {
 			self.acceptedCall(room_id, []);
 		});
 		
-		this.webRTCSocket.on(socket.API_INVITE_DECLINED, function() {
+		this.webRTCSocket.on(API_INVITE_DECLINED, function() {
 			self.disableSifteos();
 		});
 		
-		this.webRTCSocket.on(socket.API_USER_ENTER, function(old_r, user, new_r) {
+		this.webRTCSocket.on(API_USER_ENTER, function(old_r, user, new_r) {
 			if (user != lobby.ownName) return;
 			if (!new_r) self.disableSifteos();
 			if (new_r) self.acceptedCall(new_r, []);
@@ -287,7 +287,7 @@ function Tangibles(webRTCSocket) {
 		$(window).on('beforeunload', function() { // TODO: Make global if needed
 			self.disableSpheros();
 			self.disableSifteos();
-			self.webRTCSocket.send(socket.API_USER_CHANGE, JSON.stringify({
+			self.webRTCSocket.send(API_USER_CHANGE, JSON.stringify({
 				'id' : 0  // Goto Lobby
 			}));
 		});

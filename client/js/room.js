@@ -214,7 +214,7 @@ function onUserInvited(invited_user) {
 	}
 	// If the user exists:
 	if (uid > -1) {
-		parent.socket.send(parent.socket.API_INVITE_SEND, JSON.stringify({
+		parent.socket.send(parent.API_INVITE_SEND, JSON.stringify({
 			id:uid,
 			roomId:room
 		}));
@@ -255,7 +255,7 @@ function initChat() {
 
 		if (key === 13) {
 			parent.socket.send(
-				parent.socket.API_MESSAGE_BROADCAST, 
+				parent.API_MESSAGE_BROADCAST, 
 				JSON.stringify({
 					"msg" : msg
 			}));
@@ -263,7 +263,7 @@ function initChat() {
 			input.value = "";
 		}
 	}, false);
-	parent.socket.on(parent.socket.API_MESSAGE, function(clientID, msg) {
+	parent.socket.on(parent.API_MESSAGE, function(clientID, msg) {
 		addToChat(msg);
 	});
 }
