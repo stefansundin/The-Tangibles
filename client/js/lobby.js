@@ -430,6 +430,10 @@ Lobby.prototype.onRoomCreated = function(roomId) {
  *            ID of the room
  */
 Lobby.prototype.enterRoom = function(roomId) {
+	if (roomId == this.lobbyId) {
+		return;
+	}
+
 	socket.send(API_USER_CHANGE, JSON.stringify({
 		id : roomId
 	}));
@@ -707,6 +711,8 @@ Lobby.prototype.onIncomingCall = function(userName, roomName, callId) {
 	$('<div/>', {
 		id : 'call_' + callId,
 		text : userName + ' invited you to ' + roomName + '.'
+	}).css({
+		padding : '5px'
 	}).append($('<button/>', {
 		text : 'Accept',
 		click : function() {
