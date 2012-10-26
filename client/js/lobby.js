@@ -215,6 +215,8 @@ Lobby.prototype.init = function() {
 Lobby.prototype.loadSplash = function() {
 	$('#title').text('Welcome');
 
+	$('#roomFrame').attr('src', 'about:blank');
+
 	$('#main').hide();
 	$('#top').hide();
 	$('#call_list').hide();
@@ -230,6 +232,8 @@ Lobby.prototype.loadSplash = function() {
  */
 Lobby.prototype.loadMain = function() {
 	$('#title').text('Lobby');
+
+	$('#roomFrame').attr('src', 'about:blank');
 
 	$('#main').show();
 	$('#top').show();
@@ -430,7 +434,13 @@ Lobby.prototype.enterRoom = function(roomId) {
 		id : roomId
 	}));
 
-	$('#title').text('Room');
+	var roomName = 'Room';
+	var index = this.findRoomIndex(roomId);
+	if (index != -1) {
+		roomName = this.rooms[index][1];
+	}
+	$('#title').html(
+			'<span class="room_' + roomId + '">' + roomName + '</span>');
 
 	$('#main').hide();
 	$('#roomFrame').show();
@@ -462,6 +472,8 @@ Lobby.prototype.leaveRoom = function() {
  */
 Lobby.prototype.onRoomChangeName = function(roomId, roomName) {
 	console.log('onRoomChangeName: ' + roomId + ' ' + roomName);
+
+	$('.room_' + roomId).text(roomName);
 
 	var index = this.findRoomIndex(roomId);
 	if (index != -1) {
