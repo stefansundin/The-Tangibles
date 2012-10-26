@@ -25,11 +25,14 @@
 		<button onclick="tangibles.showPicture(tangibles.sifteos[0],'http://cdn.ghacks.net/wp-content/themes/magatheme/img/mozilla-firefox.png');">Show picture (remote)</button>
 		<button onclick="tangibles.showPicture(tangibles.sifteos[0],'http://localhost/mozilla-firefox.png');">Show picture (local)</button>
 		<button onclick="tangibles.showText(tangibles.sifteos[0],'Test text','0000ff');">Show text</button>
-		<button onclick="tangibles.setColor(tangibles.sifteos[0],'0000ff');">Set color to blue</button>
+		<button onclick="tangibles.setColor(tangibles.sifteos[0],'0000ff');">Set color to blue on sifteo</button>
+		<button onclick="tangibles.setColor(tangibles.sphero[0],'0000ff');">Set color to blue on sphero</button>
+		<button onclick="tangibles.setColor(tangibles.sphero[0],'00FFFF');">Set color to light green/blue on sphero</button>
+		<button onclick="tangibles.setColor(tangibles.sphero[0],'00FF00');">Set color to green on sphero</button>
 	</p>
 	<p>
-	  <button onclick="tangibles.setRightSpin(tangibles.sifteos[0],150);">Make sphero spin right</button>
-	  <button onclick="tangibles.setLeftSpin(tangibles.sifteos[0],150);">Make sphero spin left</button>
+	  <button onclick="tangibles.setRightSpin(tangibles.sphero[0],150);">Make sphero spin right</button>
+	  <button onclick="tangibles.setLeftSpin(tangibles.sphero[0],150);">Make sphero spin left</button>
 	</p>
 	<p><button onclick="tangibles.incommingCall(1, 'John', 'Workroom', console.log, console.log);">Simulate incomming call</button></p>
 
@@ -89,8 +92,8 @@
 		<label for="room_name">Room name</label>
 		<input type="text" name="room_name" id="room_name" class="text ui-widget-content ui-corner-all" />
 	</div>
-	
-		<div id="main">
+	<!--
+	<div id="main">
 		<h1>Lobby</h1>
 		<table id="room_table">
 			<thead>
@@ -114,6 +117,7 @@
 		</table>
 		<div id="call_list"></div>
 	</div>
+	-->
 	 
 </body>
 </html>
