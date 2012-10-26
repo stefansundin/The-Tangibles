@@ -85,7 +85,7 @@ $(function() {
 	$('#leaveRoom').button().click(function() {
 		writeMessageToChat(parent.lobby.ownName + " left the room.");
 		console.log('Left the room');
-		parent.window.parent.document.title = 'The-Tangibles';
+	//	parent.window.parent.document.title = 'The-Tangibles';
 		parent.lobby.leaveRoom();
 	});
 	
@@ -300,7 +300,7 @@ function initRoom() {
 		alert('Your browser is not supported or you have to turn on flags. In chrome you go to chrome://flags and turn on Enable PeerConnection remember to restart chrome');
 	}
 	var room = window.location.hash.slice(1);
-	parent.window.parent.document.title = 'Room: ' + room;
+//	parent.window.parent.document.title = 'Room: ' + room;
 
 	console.log('Connecting to websocket');
 	rtc.connect("ws://"+ window.location.host +"/", room);
