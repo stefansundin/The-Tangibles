@@ -207,7 +207,7 @@ function Workspace() {
 workspace = new Workspace();
 workspace.init();
 
-window.opener.parent.socket.on(window.opener.parent.socket.API_CORNERS_BROADCAST, function(msg, videoLabel) {
+window.opener.parent.socket.on(window.opener.parent.socket.API_CORNERS_BROADCAST, function(nw, ne, se, sw, videoLabel) {
 		// func to projectors here...
 		console.log("");
 
@@ -227,7 +227,7 @@ videoLabel: label
 
 		});
 
-window.opener.parent.socket.on(window.opener.parent.socket.API_CORNERS, function(id, msg, videoLabel) {
+window.opener.parent.socket.on(window.opener.parent.socket.API_CORNERS, function(id, nw, ne, se, sw, videoLabel) {
 		// func to projectors here...
 		console.log(videoLabel);
 
