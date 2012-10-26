@@ -1,12 +1,14 @@
 //#!/usr/bin/env node
 
-
+/**
+*	@class socketserver
+*
+*
+*/
 function socketserver(){
 	
 	var WebSocketServer = require('websocket').server;
 	var http = require('http')
-	
-	
 	/*
 	 * TODO: 
 	 * 		calls: timer for timeout 
@@ -195,11 +197,11 @@ function socketserver(){
 	});
 	
 	/**
+	 * 
 	 * Handling a new connection, adding it to the lobby. NOT notifying those
 	 * already in the lobby (wait until the name has been chosen).
-	 * 
-	 * @param connection
-	 *            Socket
+	 * @method handleNewConnection
+	 * @param connection Socket
 	 */
 	function handleNewConnection(connection){
 		//var room = getRoomById(0);
@@ -219,17 +221,16 @@ function socketserver(){
 
 		
 		addNewUser(connection);
-		
 	}
 	
 	/**
 	 * Handling when a connection is reset (closed). Notify all users in the room
 	 * the leaving user was last seen in.
 	 * 
+	 * @method connectionClosed
 	 * @addon TODO Should lobbyn also be notified? (if the users always should be
 	 *        seen there but with a status symbol)
-	 * @param connection
-	 *            Socket
+	 * @param connection Socket
 	 */
 	function connectionClosed(connection){
 		
@@ -275,13 +276,10 @@ function socketserver(){
 	
 	/**
 	 * Send a message to a socket.
-	 * 
-	 * @param connection
-	 *            WebSocket to send to
-	 * @param event_name
-	 *            Event name of the message
-	 * @param event_data
-	 *            Message payload
+	 * @method sendMessage
+	 * @param connection {websocket} the reciving socket
+	 * @param event_name {String} Event name of the message
+	 * @param event_data {JSONData} Message payload
 	 */
 	function sendMessage(connection, event_name, event_data) {
 		var payload = JSON.stringify({
@@ -325,13 +323,11 @@ function socketserver(){
 	
 	/**
 	 * Change the name of a user based on the connection, i.e. only the owner of the socket can change it's name. 
-	 * 
-	 * @param con
-	 * 		Websocket connection
-	 * @param name
-	 *  	New name
-	 */
-	addCallbacks(API_NAME_SET, function (con, name){
+	 * @method setName
+	 * @param con {Websocket} connection
+	 * @param name {String} New name
+	*/
+	function setName(con, name){
 		var user = getUserBySocket(con);
 		var room = getRoomById(user.roomId);
 		
@@ -361,16 +357,16 @@ function socketserver(){
 			//sendMessageToAllButSelf(user.id, API_NAME_CHANGE, data);
 			sendMessageToAll(API_NAME_CHANGE, data);
 		}
-		
-	});
+	}
+
+	addCallbacks(API_NAME_SET, setName(con, name));
 	
 	/**
 	 * Request a list of all rooms and users. 
-	 * 
-	 * @param con
-	 * 		Websocket connection
+	 * @method list
+	 * @param con {websocket} connection
 	 */
-	addCallbacks(API_LIST, function(con){
+	function list(con){
 		var listRooms = [];
 		var listUsers = [];		
 		
@@ -393,7 +389,9 @@ function socketserver(){
 		});
 		
 		sendMessage(con, API_LIST, data);
-	});
+	}
+
+	addCallbacks(API_LIST, list(con));
 	
 	/**
 	 * Move between two rooms, notifying the leaving room with a API_USER_LEAVE event and the entering room with a API_USER_ENTER
