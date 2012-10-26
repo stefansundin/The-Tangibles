@@ -3,19 +3,20 @@ $(function() {
 	init();
 	
 	var showHeader = false;
-	$(document).mousemove(function(event){
-		if (event.pageY <= 90) {
-			if (!showHeader) {
-				parent.lobby.showHeader();
-				showHeader = true;
+	setTimeout(function() {
+		$(document).mousemove(function(event){
+			if (event.pageY <= 90) {
+				if (!showHeader) {
+					parent.lobby.showHeader();
+					showHeader = true;
+				}
+			} else {
+				if (showHeader) {
+					parent.lobby.hideHeader();
+					showHeader = false;
+				}
 			}
-		} else {
-			if (showHeader) {
-				parent.lobby.hideHeader();
-				showHeader = false;
-			}
-		}
-	});
+	}); }, 500);
 	
 	// Dialogs
 	
@@ -35,7 +36,7 @@ $(function() {
 							}
 						}
 					}
-				})
+				});
 				document.getElementById('formContainer').innerHTML = "";
 				$( this ).dialog( 'close' );
 			},
@@ -215,7 +216,7 @@ function onUserInvited(invited_user) {
 	
 	// See if the user exists
 	var uid = -1;
-	var list = parent.lobby.users
+	var list = parent.lobby.users;
 	for (i in list) {
 		if (list[i][1] == invited_user) {
 			uid = list[i][0];
