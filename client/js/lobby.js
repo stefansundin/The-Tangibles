@@ -170,12 +170,14 @@ Lobby.prototype.init = function() {
 
 	// Set up socket handlers
 	socket.on('open', function() {
+		console.log("########################OPEN IS HERE");
 		self.onSocketOpen();
 	});
 	socket.on('close', function() {
 		self.onSocketClose();
 	});
 	socket.on(API_NAME_SET, function(userName) {
+		console.log("########################NAME IS HERE");
 		$('#display_user_name').text(userName);
 	});
 	socket.on(API_LIST, function(rooms, users) {
