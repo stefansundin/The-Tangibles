@@ -78,7 +78,7 @@ app.get('/img/mute.png', function(req, res) {
     res.sendfile(__dirname + '/client/img/mute.png');
 });
 
-app.get('/workspace/js/tangibleLib.js', function(req, res) {
+app.get('/js/tangibleLib.js', function(req, res) {
   res.sendfile(__dirname + '/client/js/tangibleLib.js');
 });
 
