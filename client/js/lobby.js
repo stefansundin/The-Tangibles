@@ -175,34 +175,34 @@ Lobby.prototype.init = function() {
 	socket.on('close', function() {
 		self.onSocketClose();
 	});
-	socket.on(API_NAME_SET, function(userName) {
+	socket.on(socket.API_NAME_SET, function(userName) {
 		$('#display_user_name').text(userName);
 	});
-	socket.on(API_LIST, function(rooms, users) {
+	socket.on(socket.API_LIST, function(rooms, users) {
 		self.onLobbyLoad(rooms, users);
 	});
-	socket.on(API_USER_ENTER, function(userId, userName, roomId) {
+	socket.on(socket.API_USER_ENTER, function(userId, userName, roomId) {
 		self.onUserEnter(userId, userName, roomId);
 	});
-	socket.on(API_USER_LEAVE, function(userId) {
+	socket.on(socket.API_USER_LEAVE, function(userId) {
 		self.onUserLeave(userId);
 	});
-	socket.on(API_NAME_CHANGE, function(userId, userName) {
+	socket.on(socket.API_NAME_CHANGE, function(userId, userName) {
 		self.onUserChangeName(userId, userName);
 	});
-	socket.on(API_INVITE_SEND, function(userName, roomName, callId) {
+	socket.on(socket.API_INVITE_SEND, function(userName, roomName, callId) {
 		self.onIncomingCall(userName, roomName, callId);
 	});
-	socket.on(API_INVITE_ACCEPTED, function(roomId) {
+	socket.on(socket.API_INVITE_ACCEPTED, function(roomId) {
 		self.onCallAccepted(roomId);
 	});
-	socket.on(API_INVITE_DECLINED, function(callId) {
+	socket.on(socket.API_INVITE_DECLINED, function(callId) {
 		self.onCallDeclined(callId);
 	});
-	socket.on(API_ROOM_NEW, function(roomId, roomName, roomDesc, roomType) {
+	socket.on(socket.API_ROOM_NEW, function(roomId, roomName, roomDesc, roomType) {
 		self.onRoomAdd(roomId, roomName, roomDesc, roomType);
 	});
-	socket.on(API_ROOM_REMOVE, function(roomId) {
+	socket.on(socket.API_ROOM_REMOVE, function(roomId) {
 		self.onRoomDelete(roomId);
 	});
 
@@ -216,6 +216,8 @@ Lobby.prototype.loadSplash = function() {
 	$('#title').text('Welcome');
 
 	$('#roomFrame').attr('src', 'about:blank');
+
+	$('#header').show();
 
 	$('#main').hide();
 	$('#top').hide();
@@ -234,6 +236,8 @@ Lobby.prototype.loadMain = function() {
 	$('#title').text('Lobby');
 
 	$('#roomFrame').attr('src', 'about:blank');
+
+	$('#header').show();
 
 	$('#main').show();
 	$('#top').show();
@@ -261,7 +265,7 @@ Lobby.prototype.onSocketOpen = function() {
 	$('#dialog_error').dialog('close');
 
 	// request stuff
-	socket.send(API_LIST, '');
+	socket.send(socket.API_LIST, '');
 };
 
 /**
@@ -333,7 +337,7 @@ Lobby.prototype.changeOwnName = function(newName) {
 		sessionStorage.ownName = newName;
 		$('#display_user_name').text(this.ownName);
 
-		socket.send(API_NAME_SET, JSON.stringify({
+		socket.send(socket.API_NAME_SET, JSON.stringify({
 			name : this.ownName
 		}));
 	}
@@ -389,7 +393,7 @@ Lobby.prototype.createRoom = function(roomName) {
 	var roomPassword = $('#room_password').val();
 
 	if (roomName != '') {
-		socket.send(API_ROOM_NEW, JSON.stringify({
+		socket.send(socket.API_ROOM_NEW, JSON.stringify({
 			name : roomName,
 			type : roomType,
 			desc : roomDesc,
@@ -407,7 +411,7 @@ Lobby.prototype.createRoom = function(roomName) {
 Lobby.prototype.deleteRoom = function(roomId) {
 	console.log('deleteRoom: ' + roomId);
 
-	socket.send(API_ROOM_REMOVE, JSON.stringify({
+	socket.send(socket.API_ROOM_REMOVE, JSON.stringify({
 		id : roomId
 	}));
 };
@@ -434,7 +438,7 @@ Lobby.prototype.enterRoom = function(roomId) {
 		return;
 	}
 
-	socket.send(API_USER_CHANGE, JSON.stringify({
+	socket.send(socket.API_USER_CHANGE, JSON.stringify({
 		id : roomId
 	}));
 
@@ -452,14 +456,36 @@ Lobby.prototype.enterRoom = function(roomId) {
 };
 
 /**
+ * Function to show the header with a slide effect.
+ */
+Lobby.prototype.showHeader = function() {
+	$('#header').show({
+		effect : 'slide',
+		direction : 'up'
+	});
+};
+
+/**
+ * Function to hide the header with a slide effect.
+ */
+Lobby.prototype.hideHeader = function() {
+	$('#header').hide({
+		effect : 'slide',
+		direction : 'up'
+	});
+};
+
+/**
  * Is called by the room frame content when it wants to close the room.
  */
 Lobby.prototype.leaveRoom = function() {
-	socket.send(API_USER_CHANGE, JSON.stringify({
+	socket.send(socket.API_USER_CHANGE, JSON.stringify({
 		id : this.lobbyId
 	}));
 
 	$('#title').text('Lobby');
+
+	$('#header').show();
 
 	$('#roomFrame').attr('src', 'about:blank');
 	$('#main').show();
@@ -751,7 +777,7 @@ Lobby.prototype.accept = function(callId) {
 		$('#call_timer_' + callId).text('');
 
 		// send answer
-		socket.send(API_INVITE_ANSWER, JSON.stringify({
+		socket.send(socket.API_INVITE_ANSWER, JSON.stringify({
 			callId : callId,
 			answer : 'yes'
 		}));
@@ -806,7 +832,7 @@ Lobby.prototype.decline = function(callId) {
 		$('#call_timer_' + callId).text('');
 
 		// send answer
-		socket.send(API_INVITE_ANSWER, JSON.stringify({
+		socket.send(socket.API_INVITE_ANSWER, JSON.stringify({
 			callId : callId,
 			answer : 'no'
 		}));
