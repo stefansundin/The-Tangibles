@@ -254,25 +254,17 @@ function initChat() {
 		var msg = parent.lobby.ownName + '> ' + input.value;
 
 		if (key === 13) {
-			rtc._socket.send(JSON.stringify({
-				"eventName": "chat_msg",
-				"data": {
-				"messages": msg,
-				"room": room,
-				"color": color
-				}
-			}), function(error) {
-				if (error) {
-					console.log(error);
-				}
-			});
+			parent.socket.send(
+				parent.API_MESSAGE_BROADCAST, 
+				JSON.stringify({
+					"msg" : msg
+			}));
 			addToChat(msg);
 			input.value = "";
 		}
 	}, false);
-	rtc.on('receive_chat_msg', function(data) {
-		console.log(data.color);
-		addToChat(data.messages, data.color.toString(16));
+	parent.socket.on(parent.API_MESSAGE, function(clientID, msg) {
+		addToChat(msg);
 	});
 }
 
