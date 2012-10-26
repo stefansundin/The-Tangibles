@@ -1,39 +1,17 @@
 
 import java.io.IOException;
-import java.net.Socket;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.Timer;
-
-import listener.RobotListener;
-
-import com.google.gson.JsonObject;
-import com.intel.bluetooth.btgoep.Connection;
 
 import se.nicklasgavelin.bluetooth.Bluetooth;
 import se.nicklasgavelin.bluetooth.Bluetooth.EVENT;
 import se.nicklasgavelin.bluetooth.BluetoothDevice;
 import se.nicklasgavelin.bluetooth.BluetoothDiscoveryListener;
 import se.nicklasgavelin.sphero.Robot;
-import se.nicklasgavelin.sphero.command.RGBLEDCommand;
-import se.nicklasgavelin.sphero.command.RollCommand;
-import se.nicklasgavelin.sphero.command.SetDataStreamingCommand;
-import se.nicklasgavelin.sphero.command.SetDataStreamingCommand.DATA_STREAMING_MASKS;
-import se.nicklasgavelin.sphero.command.SleepCommand;
-import se.nicklasgavelin.sphero.command.SpinLeftCommand;
-import se.nicklasgavelin.sphero.exception.InvalidRobotAddressException;
-import se.nicklasgavelin.sphero.exception.RobotBluetoothException;
-import se.nicklasgavelin.sphero.macro.MacroCommand;
-import se.nicklasgavelin.sphero.macro.MacroObject;
-import utils.Event;
-import utils.Point3D;
-
-import driver.AppManager;
 import driver.AppManagerImpl;
 import driver.Sphero;
 
@@ -93,9 +71,7 @@ public class SpheroDriver extends Thread implements BluetoothDiscoveryListener
 	
 	private void deviceSearch(){
 		bt = new Bluetooth( this, Bluetooth.SERIAL_COM );
-		bt.discover(); // # COMMENT THIS IF UNCOMMENTING THE BELOW AREA #
-
-		
+		bt.discover(); // # COMMENT THIS IF UNCOMMENTING THE BELOW AREA #		
 	}
 
 	private void addShutdownHook()
@@ -180,9 +156,9 @@ public class SpheroDriver extends Thread implements BluetoothDiscoveryListener
 	}
 	
 	public void directConnect(){
-		//String id = "000666440DB8";    //WBG     "<BluetoothIdForSphero>";
+		String id = "000666440DB8";    //WBG     "<BluetoothIdForSphero>";
 		//String id = "0006664438B8";  //BBR     "<BluetoothIdForSphero>";
-		String id = "000666441796";  //RBR     "<BluetoothIdForSphero>";
+		//String id = "000666441796";  //RBR     "<BluetoothIdForSphero>";
 		Bluetooth bt = new Bluetooth( this, Bluetooth.SERIAL_COM );
 		Logger.getLogger( SpheroDriver.class.getName() ).log( Level.INFO, "comes here!" );
 		BluetoothDevice btd = new BluetoothDevice( bt, "btspp://" + id + ":1;authenticate=true;encrypt=false;master=false" );
