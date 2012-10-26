@@ -488,12 +488,15 @@ function socketserver(){
 	 * @param message
 	 * 		Message to deliver to the recipient
 	 */
-	addCallbacks(API_CORNERS, function(con, recipientId, message, label){
+	addCallbacks(API_CORNERS, function(con, recipientId, nw, ne, se, sw, label){
 		
 		var recipient = getUserById(recipientId);
 		
 		var data = JSON.stringify({
-			msg: message,
+			nw: nw,
+			ne: ne,
+			se: se,
+			sw: sw,
 			videoLabel: label
 		});
 		
@@ -508,7 +511,7 @@ function socketserver(){
 	 * @param message
 	 *  	Message to deliver to the recipients
 	 */
-	addCallbacks(API_CORNERS_BROADCAST, function(con, message, label){
+	addCallbacks(API_CORNERS_BROADCAST, function(con, nw, ne, se, sw, label){
 		
 		var recipients = getUserBySocket(con);
 		
@@ -516,7 +519,10 @@ function socketserver(){
 		
 		var data = JSON.stringify({
 			sender: recipients.id,
-			msg: message, 
+			nw: nw,
+			ne: ne,
+			se: se,
+			sw: sw, 
 			videoLabel: label
 		});
 		
@@ -679,10 +685,10 @@ function socketserver(){
 		createNewRoom("Lobby", ROOM_PUBLIC, "Da LOBBY!!!!!", "");
 	
 		// Create some public test rooms
-		createNewRoom("From", ROOM_PUBLIC, "", "");
 		createNewRoom("Paris", ROOM_PUBLIC, "", "");
-		createNewRoom("To", ROOM_PUBLIC, "", "");
-		createNewRoom("Berlin", ROOM_PUBLIC, "", "");	
+		createNewRoom("Berlin", ROOM_PUBLIC, "", "");
+		createNewRoom("Rome", ROOM_PUBLIC, "", "");
+		createNewRoom("Stockholm", ROOM_PUBLIC, "", "");	
 	}
 	
 	
