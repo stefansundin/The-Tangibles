@@ -45,12 +45,8 @@ var notice = $('#notice');
 $('#you').hide();
 
 function Workspace() {
-	var video, detector, imageData;
-	var buttons;
-	var miniCanvas, miniContext;
-	var fullCanvas, fullContext;
+	var video, screenCanvas, screenContext;
 	var calibrator;
-	var imageData;
 	var videos = [];
 	var videoStreams = [];
 	var PeerConnection = window.PeerConnection || window.webkitPeerConnection00;
@@ -89,26 +85,9 @@ function Workspace() {
 				// TODO enter full screen 
 				notice.hide();
 				fullscreen.hide();
-				// enable calibration button
-				doneCalibration.click(function(event) {
-					self.finishedCalibration();
-				});
-				$(document).keypress(function(event) {
-					var keycode = (event.keyCode ? event.keyCode : event.which);
-					if(keycode == 13) {
-						self.finishedCalibration();
-					}
-					// TODO remove keypress
-				});
-				doneCalibration.show();
 				self.startCalibration();
-				// TODO start merging video and display it
-				});
+			});
 	} 
-
-	this.finishedCalibration = function () {
-		calibrator.confirmSharedRectangle();
-	}
 
 	this.init = function () {
 		if (PeerConnection) {
@@ -126,6 +105,10 @@ function Workspace() {
 			alert('Your browser is not supported or you have to turn on flags. In chrome you go to chrome://flags and turn on Enable PeerConnection remember to restart chrome');
 		}
 
+		// setup listener
+		window.opener.parent.socket.on(window.opener.parent.socket.API_CORNERS_BROADCAST, self.onBroadcast);
+		window.opener.parent.socket.on(window.opener.parent.socket.API_CORNERS, self.onGotCorners);
+
 		var room = window.location.hash.slice(1);
 		var self = this;
 
@@ -140,98 +123,114 @@ function Workspace() {
 				var streamUrl = URL.createObjectURL(stream);
 				clone.setAttribute("src", streamUrl);
 				videoStreams.push(stream);
-				});
+			});
 		rtc.on('disconnect stream', function(data) {
 				console.log('remove ' + data);
 				self.removeVideo(data);
-				});
+			});
 		this.initFullScreen();
 	}
 
-	this.getVideos = function() {
-		return videos;
-	}
-
-	this.getVideoStreams = function() {
-		return videoStreams;
-	}
-
-	this.getPeerConnection = function() {
-		return PeerConnection;
-	}
-
-	this.startCalibration = function() {
+	this.startCalibration = function () {
+		// start showing fullscreen canvas
 		c.show();
+		screenCanvas = document.getElementById("myCanvas");
+		screenContext = screenCanvas.getContext("2d");
 
-		miniCanvas = MediaExt.createCanvas(CANVAS_WIDTH, CANVAS_HEIGHT);
-		miniContext = miniCanvas.getContext("2d");
-
-		fullCanvas = document.getElementById("myCanvas");
-		fullContext = fullCanvas.getContext("2d");
-
-		detector = new AR.Detector();
-		calibrator = new Calibrator(fullCanvas);
-
-		fullCanvas.width = window.innerWidth;
-		fullCanvas.height = window.innerHeight;
+		screenCanvas.width = window.innerWidth;
+		screenCanvas.height = window.innerHeight;
 
 		window.onresize = function() {
-			fullCanvas.width = window.innerWidth;
-			fullCanvas.height = window.innerHeight;
+			screenCanvas.width = window.innerWidth;
+			screenCanvas.height = window.innerHeight;
 		};
-		this.tick();
+
+		calibrator = new Calibrator(video, screenCanvas);
+		calibrator.startCalibration(this.onGotTransform, this.onFinishedCalibration);
 	}
 
 
-	// Stores an image from the local video stream in imageData
-	this.snapshot = function() {
+	this.onGotTransform = function (trans) {
+		console.log('got transform');
+		transform = trans;
 
-		// Draw video to an offscreen canvas, marker detection is done there
-		miniContext.drawImage(video, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-		imageData = miniContext.getImageData(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-
-		calibrator.draw(imageData);
-	}
-
-	/* Keeps calibrating until the correct rectangle is found,
-	   then displays the transformed video stream */
-	this.tick = function() {
-		this.snapshot();
-		var markers = detector.detect(imageData);
-		calibrator.calibrateWithMarkers(markers);
+		// enable calibration buttons
 		var self = this;
-		setTimeout(function() {self.tick();}, 1);
+		doneCalibration.click(function(event) {
+			calibrator.confirmSharedRectangle();
+		});
+		$(document).keypress(function(event) {
+			var keycode = (event.keyCode ? event.keyCode : event.which);
+			if (keycode == 13) {
+				calibrator.confirmSharedRectangle();
+			}
+			// TODO remove keypress
+		});
+		screenCanvas.onclick = function() {
+			calibrator.confirmSharedRectangle();
+		};
+		doneCalibration.show();
+	}
+
+	this.onFinishedCalibration = function (sharedRect, sharedPoly) {
+		console.log('finished calibration');
+		// TODO broadcast corners
+		// start merging incoming videos in workspace
+	}
+
+	this.onBroadcast = function (id, nw, ne, se, sw, label) {
+		console.log('got broadcast');
+
+		// TODO add corners to a list or something
+
+		// TODO add label to a list for answering
+
+	}
+
+	this.onGotCorners = function (id, nw, ne, se, sw, label) {
+		console.log('got corners');
+
+		// TODO add corners to a list or something
+	}
+
+	this.sendBroadcast = function (nw, ne, se, sw) {
+
+		var label = videoStreams[0].label;
+		// data to broadcast
+		var data = JSON.stringify({
+			nw: nw,
+			ne: ne,
+			se: se,
+			sw: sw,
+			videoLabel: label
+		});
+		window.opener.parent.Socket.send(window.opener.parent.socket.API_CORNERS_BROADCAST, data);
+	}
+
+	this.answerBroadcast = function (id, nw, ne, se, sw) {
+		var label = videoStreams[0].label;
+ 
+		var data = JSON.stringify({
+			id: id, // to who we are going to send
+			nw: nw,
+			ne: ne,
+			se: se,
+			sw: sw,
+			videoLabel: label
+		});
+
+		window.opener.parent.Socket.send(window.opener.parent.socket.API_CORNERS, data);
+	}
+
+	this.mergeVideos = function () {
+		// TODO merge videos
+		self = this;
+		setTimeout(function() {self.mergeVideos();}, 50);
 	}
 }
 
 workspace = new Workspace();
 workspace.init();
-
-window.opener.parent.socket.on(window.opener.parent.socket.API_CORNERS_BROADCAST, function(nw, ne, se, sw, videoLabel) {
-		// func to projectors here...
-		console.log("");
-
-
-		var label = workspace.getVideoStreams()[0].label;
-
-		var message = "My corners";
-
-		var data = JSON.stringify({
-id: id,
-msg: message,
-videoLabel: label
-});
-
-		// This should be run inside the function that calculates the corners.
-		//window.opener.parent.Socket.send(window.opener.parent.socket.API_CORNERS, data);
-
-		});
-
-window.opener.parent.socket.on(window.opener.parent.socket.API_CORNERS, function(id, nw, ne, se, sw, videoLabel) {
-		// func to projectors here...
-		console.log(videoLabel);
-
-		});
 
 </script>
 </body>
