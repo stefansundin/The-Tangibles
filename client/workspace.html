@@ -60,6 +60,9 @@ function Workspace() {
     var self = this;
     
 	this.createVideo = function (stream, socketId) {
+        
+        console.log('createVideo: ' + stream.label);
+        
 		var v = document.createElement('video');
     	v.width = CANVAS_WIDTH;
     	v.height = CANVAS_HEIGHT;
@@ -71,6 +74,9 @@ function Workspace() {
             videoObj = new VideoBucket(v, stream.label);
 			v.id = 'you';
 			video = v;
+            
+            // videos.push(videoObj);
+            
 		} else {
             v.id = 'remote' + socketId;
             var bucket = new VideoBucket(v, stream.label);
@@ -81,7 +87,8 @@ function Workspace() {
 	this.removeVideo = function (socketId) {
 		var index = -1;
 		for (var i = 0; i < videos.length; i++) {
-			if (videos[i].id == 'remote' + socketId) {
+			if (videos[i].video.id == 'remote' + socketId) {
+                console.log('Removing stream: ' + videos[i].label);
 				index = i;
 				break;
 			}
@@ -173,6 +180,8 @@ function Workspace() {
 		sharedRect = sRect;
 		sharedPoly = sPoly;
 
+        videoObj.setTransform(sPoly, sRect);
+        
 		// setup listener and broadcast your coordinates
         
 		window.opener.parent.socket.on(window.opener.parent.API_CORNERS, self.onGotCorners);
@@ -184,11 +193,13 @@ function Workspace() {
 	}
 
 	this.onBroadcast = function (id, nw, ne, se, sw, label) {
-		console.log('got broadcast');
+        
+		console.log('got broadcast, ' + label);
 
 		// TODO add corners to right video
         
-        for (v in videos) {
+        for (var i = 0; i < videos.length; i++) {
+            var v = videos[i];
             if (v.label == label) {
                 v.setTransform([nw, ne, se, sw], sharedRect);
             }
@@ -199,9 +210,10 @@ function Workspace() {
 	}
 
 	this.onGotCorners = function (nw, ne, se, sw, label) {
-		console.log('got corners');
+		console.log('got corners, ' + label);
 
-		for (v in videos) {
+		for (var i = 0; i < videos.length; i++) {
+            var v = videos[i];
             if (v.label == label) {
                 v.setTransform([nw, ne, se, sw], sharedRect);
             }
@@ -217,6 +229,8 @@ function Workspace() {
 			sw: sharedPoly[3],
 			videoLabel: videoObj.label
 		});
+        
+        console.log('Sending broadcast, ' + videoObj.label);
 		window.opener.parent.socket.send(window.opener.parent.API_CORNERS_BROADCAST, data);
 	}
 
@@ -230,23 +244,24 @@ function Workspace() {
 			videoLabel: videoObj.label
 		});
 
+        console.log('Sending broadcast reply');
 		window.opener.parent.socket.send(window.opener.parent.API_CORNERS, data);
 	}
 
 	this.mergeVideos = function () {
 		
-        var aha = VideoBucket.transformList(videos);
-        var mergedVideos = Utilities.mergeImages(aha);
+        var transformedVideos = VideoBucket.transformList(videos);
+        var mergedImage = Utilities.mergeImages(transformedVideos);
         
-        if (mergedVideos != null) {
-            screenContext.drawImage(mergedVideos,
+        if (mergedImage != null) {
+            // console.log('drawing merged videos, ' + sharedRect.x + ' ' + sharedRect.width);
+            screenContext.drawImage(mergedImage,
                                     sharedRect.x,
                                     sharedRect.y,
                                     sharedRect.width,
                                     sharedRect.height);
         }
         
-		self = this;
 		setTimeout(function() {self.mergeVideos();}, 50);
 	}
 }

@@ -150,6 +150,8 @@ Geometry.Transform = function(fromPoly, toPoly) {
 
 	this._a = Minv.multiply(A);
 	this._b = Minv.multiply(B);
+    
+    this._imageDataOut = null;
 };
 
 Geometry.PolyToRectTransform = function(fromPoly, toRect) {
@@ -201,9 +203,18 @@ Geometry.Transform.prototype.transformPoly = function(poly) {
 Geometry.Transform.prototype.transformImage = function(imageDataIn, dstCanvas) {
 
 	var ctx = dstCanvas.getContext("2d");
-	var newData = ctx.createImageData(dstCanvas.width, dstCanvas.height);
+    var imageDataOut;
+    
+    if (this._imageDataOut == null ||
+        this._imageDataOut.width != dstCanvas.width ||
+        this._imageDataOut.height != dstCanvas.height) {
+        imageDataOut = ctx.createImageData(dstCanvas.width, dstCanvas.height);
+    } else {
+        imageDataOut = this._imageDataOut;
+    }
+    
 	var dataIn = imageDataIn.data;
-	var dataOut = newData.data;
+	var dataOut = imageDataOut.data;
 
 	for (var i = 0; i < dstCanvas.width; i++) {
 		for (var j = 0; j < dstCanvas.height; j++) {
@@ -216,8 +227,8 @@ Geometry.Transform.prototype.transformImage = function(imageDataIn, dstCanvas) {
 					this._b.e(2, 1) * i +
 					this._b.e(3, 1) * j +
 					this._b.e(4, 1));
-			var ci = i * 4 + j * dstCanvas.width * 4,
-				di = I * 4 + J * dstCanvas.width * 4;
+			var ci = i * 4 + j * imageDataOut.width * 4,
+				di = I * 4 + J * imageDataIn.width * 4;
 
 			dataOut[ci]     = dataIn[di];
 			dataOut[ci + 1] = dataIn[di + 1];
@@ -226,7 +237,8 @@ Geometry.Transform.prototype.transformImage = function(imageDataIn, dstCanvas) {
 		}
 	}
 
-	ctx.putImageData(newData, 0, 0);
+	ctx.putImageData(imageDataOut, 0, 0);
+    this._imageDataOut = imageDataOut;
 };
 
 
