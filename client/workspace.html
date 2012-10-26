@@ -47,22 +47,27 @@ $('#you').hide();
 function Workspace() {
 	var video, screenCanvas, screenContext;
 	var calibrator;
+	var sharedRect, sharedPoly, transform;
 	var videos = [];
-	var videoStreams = [];
+	var videoObj;
 	var PeerConnection = window.PeerConnection || window.webkitPeerConnection00;
 
-	this.cloneVideo = function (socketId) {
-		var video = document.createElement('video');
-    	video.width = CANVAS_WIDTH;
-    	video.height = CANVAS_HEIGHT;
-    	video.autoplay = true;
+	this.createVideo = function (stream, socketId) {
+		var v = document.createElement('video');
+    	v.width = CANVAS_WIDTH;
+    	v.height = CANVAS_HEIGHT;
+    	v.autoplay = true;
+		v.class = "";
+		v.src = URL.createObjectURL(stream);
 		if (socketId == 'you') {
-			video.id = 'you';
+			// TODO add video to VideoObj
+			v.id = 'you';
+			video = v;
 		} else {
-			video.id = "remote" + socketId;
+			// TODO add video to VideoObj
+			v.id = "remote" + socketId;
+			videos.push(v);
 		}
-		videos.push(video);
-		return video;
 	}
 
 	this.removeVideo = function (socketId) {
@@ -74,7 +79,6 @@ function Workspace() {
 			}
 		}
 		if (index > -1) {
-			videoStreams.splice(index, 1);
 			videos.splice(index, 1);
 		}
 	}
@@ -94,20 +98,12 @@ function Workspace() {
 			var self = this;
 
 			rtc.createStream({"video": true, "audio": true}, function(stream) {
-					var v = self.cloneVideo('you');
-					v.src = URL.createObjectURL(stream);
-					videos.push(v);
-					video = v;
+					self.createVideo(stream, 'you');
 					rtc.attachStream(stream, 'you');
-					videoStreams.push(stream);
-					});
+				});
 		} else {
 			alert('Your browser is not supported or you have to turn on flags. In chrome you go to chrome://flags and turn on Enable PeerConnection remember to restart chrome');
 		}
-
-		// setup listener
-		window.opener.parent.socket.on(window.opener.parent.socket.API_CORNERS_BROADCAST, self.onBroadcast);
-		window.opener.parent.socket.on(window.opener.parent.socket.API_CORNERS, self.onGotCorners);
 
 		var room = window.location.hash.slice(1);
 		var self = this;
@@ -118,11 +114,7 @@ function Workspace() {
 
 		rtc.on('add remote stream', function(stream, socketId) {
 				console.log("ADDING REMOTE STREAM...");
-				var clone = self.cloneVideo(socketId);
-				clone.class="";
-				var streamUrl = URL.createObjectURL(stream);
-				clone.setAttribute("src", streamUrl);
-				videoStreams.push(stream);
+				self.createVideo(socketId);
 			});
 		rtc.on('disconnect stream', function(data) {
 				console.log('remove ' + data);
@@ -172,51 +164,56 @@ function Workspace() {
 		doneCalibration.show();
 	}
 
-	this.onFinishedCalibration = function (sharedRect, sharedPoly) {
+	this.onFinishedCalibration = function (sRect, sPoly) {
 		console.log('finished calibration');
-		// TODO broadcast corners
+		sharedRect = sRect;
+		sharedPoly = sPoly;
+
+		// setup listener and broadcast your coordinates
+		window.opener.parent.socket.on(window.opener.parent.socket.API_CORNERS, self.onGotCorners);
+		this.sendBroadcast();
+		window.opener.parent.socket.on(window.opener.parent.socket.API_CORNERS_BROADCAST, self.onBroadcast);
+
 		// start merging incoming videos in workspace
+		this.mergeVideos();
 	}
 
 	this.onBroadcast = function (id, nw, ne, se, sw, label) {
 		console.log('got broadcast');
 
-		// TODO add corners to a list or something
+		// TODO add corners to right video
 
-		// TODO add label to a list for answering
 
+		// answer broadcast
+		this.answerBroadcast(id);
 	}
 
-	this.onGotCorners = function (id, nw, ne, se, sw, label) {
+	this.onGotCorners = function (nw, ne, se, sw, label) {
 		console.log('got corners');
 
-		// TODO add corners to a list or something
+		// TODO add corners to the right video
 	}
 
-	this.sendBroadcast = function (nw, ne, se, sw) {
-
-		var label = videoStreams[0].label;
+	this.sendBroadcast = function () {
 		// data to broadcast
 		var data = JSON.stringify({
-			nw: nw,
-			ne: ne,
-			se: se,
-			sw: sw,
-			videoLabel: label
+			nw: sharedPoly[0],
+			ne: sharedPoly[1],
+			se: sharedPoly[2],
+			sw: sharedPoly[3],
+			videoLabel: videoObj.label
 		});
 		window.opener.parent.Socket.send(window.opener.parent.socket.API_CORNERS_BROADCAST, data);
 	}
 
-	this.answerBroadcast = function (id, nw, ne, se, sw) {
-		var label = videoStreams[0].label;
- 
+	this.answerBroadcast = function (id) {
 		var data = JSON.stringify({
 			id: id, // to who we are going to send
-			nw: nw,
-			ne: ne,
-			se: se,
-			sw: sw,
-			videoLabel: label
+			nw: sharedPoly[0],
+			ne: sharedPoly[1],
+			se: sharedPoly[2],
+			sw: sharedPoly[3],
+			videoLabel: videoObj.label
 		});
 
 		window.opener.parent.Socket.send(window.opener.parent.socket.API_CORNERS, data);
