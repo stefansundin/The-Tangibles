@@ -181,7 +181,6 @@ Lobby.prototype.init = function() {
 		$('#display_user_name').text(userName);
 	});
 	socket.on(API_LIST, function(rooms, users) {
-		console.error(API_LIST);
 		self.onLobbyLoad(rooms, users);
 	});
 	socket.on(API_USER_ENTER, function(userId, userName, roomId) {
