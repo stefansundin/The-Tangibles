@@ -248,7 +248,7 @@ function writeMessageToChat(message) {
 	parent.socket.send(
 				parent.API_MESSAGE_BROADCAST, 
 				JSON.stringify({
-					"msg" : msg
+					"msg" : message
 			}));
 	addToChat(msg);
 /*	parent.socket.send(JSON.stringify({
