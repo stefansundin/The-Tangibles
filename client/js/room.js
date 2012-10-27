@@ -250,7 +250,7 @@ function writeMessageToChat(message) {
 				JSON.stringify({
 					"msg" : message
 			}));
-	addToChat(msg);
+	addToChat(message);
 /*	parent.socket.send(JSON.stringify({
 		"eventName": "chat_msg",
 		"data": {
