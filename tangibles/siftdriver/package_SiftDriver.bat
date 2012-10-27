@@ -1,8 +1,9 @@
 del /S Sifteo
-mkdir Sifteo
-copy bin\JsonFx.dll Sifteo
-copy bin\Sifteo.dll Sifteo
-copy bin\SiftDriver.exe Sifteo
-copy run_SiftDriver.bat Sifteo
-copy manifest.json Sifteo
-copy cover.png Sifteo
+mkdir package
+mkdir package\Sifteo
+copy bin\JsonFx.dll package\Sifteo
+copy bin\Sifteo.dll package\Sifteo
+copy bin\SiftDriver.exe package\Sifteo
+copy run_SiftDriver.bat package
+copy manifest.json package\Sifteo
+copy cover.png package\Sifteo
