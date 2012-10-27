@@ -486,6 +486,7 @@ Lobby.prototype.leaveRoom = function() {
 
 	$('#title').text('Lobby');
 
+	$('#header').stop();
 	$('#header').show();
 
 	$('#roomFrame').attr('src', 'about:blank');
