@@ -179,8 +179,6 @@ Lobby.prototype.init = function() {
 	
 	console.log("########################NAME IS SET:");
 	console.log(API_NAME_SET);
-	console.log(Socket.API_NAME_SET);
-	console.log(socket.API_NAME_SET);
 	
 	socket.on(API_NAME_SET, function(userName) {
 		console.log("########################NAME IS HERE");
