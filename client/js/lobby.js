@@ -177,17 +177,7 @@ Lobby.prototype.init = function() {
 		self.onSocketClose();
 	});
 
-	console.log("########################NAME IS SET:");
-	console.log(API_NAME_SET);
-<<<<<<< HEAD
-	
-=======
-	console.log(Socket.API_NAME_SET);
-	console.log(socket.API_NAME_SET);
-
->>>>>>> 3ebdca401ebebcbf2a95ad2acdada74767b10dba
 	socket.on(API_NAME_SET, function(userName) {
-		console.log("########################NAME IS HERE");
 		$('#display_user_name').text(userName);
 	});
 	socket.on(API_LIST, function(rooms, users) {
