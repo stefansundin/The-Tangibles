@@ -61,8 +61,6 @@ function Workspace() {
     
 	this.createVideo = function (stream, socketId) {
         
-        console.log('createVideo: ' + stream.label);
-        
 		var v = document.createElement('video');
     	v.width = CANVAS_WIDTH;
     	v.height = CANVAS_HEIGHT;
@@ -196,8 +194,6 @@ function Workspace() {
         
 		console.log('got broadcast, ' + label);
 
-		// TODO add corners to right video
-        
         for (var i = 0; i < videos.length; i++) {
             var v = videos[i];
             if (v.label == label) {
@@ -206,7 +202,7 @@ function Workspace() {
         }
 
 		// answer broadcast
-		this.answerBroadcast(id);
+		self.answerBroadcast(id);
 	}
 
 	this.onGotCorners = function (nw, ne, se, sw, label) {

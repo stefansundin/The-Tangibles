@@ -24,7 +24,7 @@ Utilities.mergeImages = function(images) {
         return tmpImage;    
     } else if (images.length < 1) {
         // No pictures to merge.
-        console.log("No argument given to Utilities.mergeImages; returns null.");
+        //console.log("No argument given to Utilities.mergeImages; returns null.");
         return null;
     } else {
         // Only one picture supplied, so nothing to merge.
@@ -54,6 +54,6 @@ Utilities.downloadCanvasAsPng = function(filename, canvas) {
         }
         link.click();
     } else {
-        console.log("No canvas passed Utilities.downloadCanvasAsPng.");
+        //console.log("No canvas passed Utilities.downloadCanvasAsPng.");
     }
 }
