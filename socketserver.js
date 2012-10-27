@@ -529,7 +529,7 @@ var PORT_NUMBER = 12345;
 			videoLabel: label
 		});
 		
-		sendMessage(API_CORNERS, recipient.socket, data);
+		sendMessage(recipient.socket, API_CORNERS, data);
 	}
 	
 	/**
