@@ -245,7 +245,13 @@ function writeMessageToChat(message) {
 	var room = window.location.hash.slice(1);
 	var color = "#"+((1<<24)*Math.random()|0).toString(16);
 
-	parent.socket.send(JSON.stringify({
+	parent.socket.send(
+				parent.API_MESSAGE_BROADCAST, 
+				JSON.stringify({
+					"msg" : msg
+			}));
+	addToChat(msg);
+/*	parent.socket.send(JSON.stringify({
 		"eventName": "chat_msg",
 		"data": {
 		"messages": message,
@@ -256,8 +262,8 @@ function writeMessageToChat(message) {
 			if (error) {
 				console.log(error);
 			}
-	});
-	addToChat(message);
+	}); 
+	addToChat(message); */
 }
 
 function initChat() {
