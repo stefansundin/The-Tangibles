@@ -219,6 +219,7 @@ Lobby.prototype.loadSplash = function() {
 
 	$('#roomFrame').attr('src', 'about:blank');
 
+	$('#header').stop();
 	$('#header').show();
 
 	$('#main').hide();
@@ -239,6 +240,7 @@ Lobby.prototype.loadMain = function() {
 
 	$('#roomFrame').attr('src', 'about:blank');
 
+	$('#header').stop();
 	$('#header').show();
 
 	$('#main').show();
