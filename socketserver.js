@@ -711,7 +711,8 @@ var PORT_NUMBER = 12345;
 		createNewRoom("Paris", ROOM_PUBLIC, "", "");
 		createNewRoom("Berlin", ROOM_PUBLIC, "", "");
 		createNewRoom("Rome", ROOM_PUBLIC, "", "");
-		createNewRoom("Stockholm", ROOM_PUBLIC, "", "");	
+		createNewRoom("Stockholm", ROOM_PUBLIC, "", "");
+		createNewRoom("Delft", ROOM_PUBLIC, "", "");	
 	}
 	
 	
