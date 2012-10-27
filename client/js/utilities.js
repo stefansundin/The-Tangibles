@@ -28,7 +28,7 @@ Utilities.mergeImages = function(images) {
         return null;
     } else {
         // Only one picture supplied, so nothing to merge.
-        console.log("Only one image given to Utilities.mergeItems; returns image.")
+        // console.log("Only one image given to Utilities.mergeItems; returns image.")
         return images[0];
     }	
 }

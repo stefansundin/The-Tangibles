@@ -166,6 +166,10 @@ body {
 	cursor: pointer;
 }
 
+.remote_user_list :last-child :last-child {
+	display: none;
+}
+
 #create_room {
 	position: absolute;
 	top: 0;

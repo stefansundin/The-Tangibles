@@ -15,7 +15,7 @@ VideoBucket = function(video, label) {
     this.videoCanvas = MediaExt.createCanvas(640, 480);
     this.videoContext = this.videoCanvas.getContext("2d");
     
-    this.tranform = null; // new Geometry.PolyToCanvasTransform(poly, this.transCanvas);
+    this.transform = null; // new Geometry.PolyToCanvasTransform(poly, this.transCanvas);
 }
 
 /**
@@ -24,22 +24,27 @@ VideoBucket = function(video, label) {
  @param rect The local shared rectangle
  */
 VideoBucket.prototype.setTransform = function(poly, rect) {
+    
+    console.log('creating transform');
+    console.log(poly);
+    console.log(rect);
+    
     this.coordinates = poly;
     this.transCanvas = MediaExt.createCanvas(rect.width, rect.height);
     this.transContext = this.transCanvas.getContext("2d");
-    this.tranform = new Geometry.PolyToCanvasTransform(poly, this.transCanvas);
+    this.transform = new Geometry.PolyToCanvasTransform(poly, this.transCanvas);
 }
 
 VideoBucket.prototype.transformVideo = function() {
     
-    if (this.tranform == null) {
+    if (this.transform == null) {
         return null;
     }
     
-    var w = this.transCanvas.width,
-        h = this.transCanvas.height;
+    var w = this.videoCanvas.width,
+        h = this.videoCanvas.height;
     
-    this.videoContext.drawImage(this.video, w, h);
+    this.videoContext.drawImage(this.video, 0, 0, w, h);
     var imageData = this.videoContext.getImageData(0, 0, w, h);
     
     this.transform.transformImage(imageData, this.transCanvas);
@@ -52,7 +57,7 @@ VideoBucket.transformList = function(bucketList) {
     for (var i = 0; i < bucketList.length; i++) {
         var tv = bucketList[i].transformVideo();
         if (tv != null) {
-            transformedVideos.push();
+            transformedVideos.push(tv);
         }
     }
     return transformedVideos;

@@ -705,7 +705,7 @@ var PORT_NUMBER = 12345;
 	
 	function startup(){
 		// Create looby (gets ID 0)
-		createNewRoom("Lobby", ROOM_PUBLIC, "Da LOBBY!!!!!", "");
+		createNewRoom("Lobby", ROOM_PUBLIC, "", "");
 	
 		// Create some public test rooms
 		createNewRoom("Paris", ROOM_PUBLIC, "", "");
