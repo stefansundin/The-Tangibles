@@ -2,6 +2,22 @@ $(function() {
 	// Function that starts all the things we need
 	init();
 	
+	var showHeader = false;
+	setTimeout(function() {
+		$(document).mousemove(function(event){
+			if (event.pageY <= 90) {
+				if (!showHeader) {
+					parent.lobby.showHeader();
+					showHeader = true;
+				}
+			} else {
+				if (showHeader) {
+					parent.lobby.hideHeader();
+					showHeader = false;
+				}
+			}
+	}); }, 500);
+	
 	// Dialogs
 	
     $('#invite_dialog').dialog({
@@ -20,7 +36,7 @@ $(function() {
 							}
 						}
 					}
-				})
+				});
 				document.getElementById('formContainer').innerHTML = "";
 				$( this ).dialog( 'close' );
 			},
@@ -200,7 +216,7 @@ function onUserInvited(invited_user) {
 	
 	// See if the user exists
 	var uid = -1;
-	var list = parent.lobby.users
+	var list = parent.lobby.users;
 	for (i in list) {
 		if (list[i][1] == invited_user) {
 			uid = list[i][0];
@@ -229,7 +245,13 @@ function writeMessageToChat(message) {
 	var room = window.location.hash.slice(1);
 	var color = "#"+((1<<24)*Math.random()|0).toString(16);
 
-	rtc._socket.send(JSON.stringify({
+	parent.socket.send(
+				parent.API_MESSAGE_BROADCAST, 
+				JSON.stringify({
+					"msg" : message
+			}));
+	addToChat(message);
+/*	parent.socket.send(JSON.stringify({
 		"eventName": "chat_msg",
 		"data": {
 		"messages": message,
@@ -240,8 +262,8 @@ function writeMessageToChat(message) {
 			if (error) {
 				console.log(error);
 			}
-	});
-	addToChat(message);
+	}); 
+	addToChat(message); */
 }
 
 function initChat() {

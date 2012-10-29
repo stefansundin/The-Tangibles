@@ -1,3 +1,10 @@
+@font-face {
+  font-family: 'Ubuntu';
+  font-style: normal;
+  font-weight: 400;
+  src: url(http://themes.googleusercontent.com/static/fonts/ubuntu/v4/_xyN3apAT_yRRDeqB3sPRg.woff) format('woff');
+}
+
 html {
 	margin: 0;
 	padding: 0;
@@ -32,7 +39,7 @@ body {
 }
 
 #header {
-	position: absolute;
+	position: relative;
 	height: 90px;
 	width: 100%;
 	background-color: #F5F5F5;
@@ -49,7 +56,7 @@ body {
 	position: absolute;
 	margin: 0;
 	padding: 0;
-	top: 33px;
+	top: 35px;
 	left: 290px;
 	font-family: Ubuntu, sans-serif;
 	font-weight: normal;
@@ -93,6 +100,9 @@ body {
 }
 
 #roomFrame {
+	position: absolute;
+	top: 0;
+	left: 0;
 	height: 100%;
 	width: 100%;
 }
@@ -154,6 +164,10 @@ body {
 	background: #F5F5F5;
 	-webkit-transition: all 0.1s ease-in-out;
 	cursor: pointer;
+}
+
+.remote_user_list :last-child :last-child {
+	display: none;
 }
 
 #create_room {

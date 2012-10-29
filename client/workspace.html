@@ -13,6 +13,11 @@
 <script type="text/javascript" src="js/imageproc.js"></script>
 <script type="text/javascript" src="js/buttons.js"></script>
 <script type="text/javascript" src="js/calibration.js"></script>
+<script type="text/javascript" src="js/lib/pixastic.core.js"></script>
+<script type="text/javascript" src="js/lib/blend.js"></script>
+<script type="text/javascript" src="js/utilities.js"></script>    
+<script type="text/javascript" src="js/videoBucket.js"></script>
+    
 <script src="/webrtc.io.js"></script>
 </head>
 <body style="font-family: monospace; background-color: white;">
@@ -47,40 +52,52 @@ $('#you').hide();
 function Workspace() {
 	var video, screenCanvas, screenContext;
 	var calibrator;
+	var sharedRect, sharedPoly, transform;
 	var videos = [];
-	var videoStreams = [];
+	var videoObj;
 	var PeerConnection = window.PeerConnection || window.webkitPeerConnection00;
 
-	this.cloneVideo = function (socketId) {
-		var video = document.createElement('video');
-    	video.width = CANVAS_WIDTH;
-    	video.height = CANVAS_HEIGHT;
-    	video.autoplay = true;
+    var self = this;
+    
+	this.createVideo = function (stream, socketId) {
+        
+		var v = document.createElement('video');
+    	v.width = CANVAS_WIDTH;
+    	v.height = CANVAS_HEIGHT;
+    	v.autoplay = true;
+		v.class = "";
+		v.src = URL.createObjectURL(stream);
+        
 		if (socketId == 'you') {
-			video.id = 'you';
+            videoObj = new VideoBucket(v, stream.label);
+			v.id = 'you';
+			video = v;
+            
+            // videos.push(videoObj);
+            
 		} else {
-			video.id = "remote" + socketId;
+            v.id = 'remote' + socketId;
+            var bucket = new VideoBucket(v, stream.label);
+			videos.push(bucket);
 		}
-		videos.push(video);
-		return video;
 	}
 
 	this.removeVideo = function (socketId) {
 		var index = -1;
 		for (var i = 0; i < videos.length; i++) {
-			if (videos[i].id == 'remote' + socketId) {
+			if (videos[i].video.id == 'remote' + socketId) {
+                console.log('Removing stream: ' + videos[i].label);
 				index = i;
 				break;
 			}
 		}
 		if (index > -1) {
-			videoStreams.splice(index, 1);
 			videos.splice(index, 1);
 		}
 	}
 
 	this.initFullScreen = function () { 
-		var self = this;
+
 		fullscreen.click(function(event) {
 				// TODO enter full screen 
 				notice.hide();
@@ -91,38 +108,23 @@ function Workspace() {
 
 	this.init = function () {
 		if (PeerConnection) {
-			var self = this;
-
 			rtc.createStream({"video": true, "audio": true}, function(stream) {
-					var v = self.cloneVideo('you');
-					v.src = URL.createObjectURL(stream);
-					videos.push(v);
-					video = v;
+					self.createVideo(stream, 'you');
 					rtc.attachStream(stream, 'you');
-					videoStreams.push(stream);
-					});
+				});
 		} else {
 			alert('Your browser is not supported or you have to turn on flags. In chrome you go to chrome://flags and turn on Enable PeerConnection remember to restart chrome');
 		}
 
-		// setup listener
-		window.opener.parent.socket.on(window.opener.parent.socket.API_CORNERS_BROADCAST, self.onBroadcast);
-		window.opener.parent.socket.on(window.opener.parent.socket.API_CORNERS, self.onGotCorners);
-
 		var room = window.location.hash.slice(1);
-		var self = this;
-
+        
 		//When using localhost
 		console.log('Connecting');
 		rtc.connect("ws://"+ window.location.host +"/", room);
 
 		rtc.on('add remote stream', function(stream, socketId) {
 				console.log("ADDING REMOTE STREAM...");
-				var clone = self.cloneVideo(socketId);
-				clone.class="";
-				var streamUrl = URL.createObjectURL(stream);
-				clone.setAttribute("src", streamUrl);
-				videoStreams.push(stream);
+				self.createVideo(stream, socketId);
 			});
 		rtc.on('disconnect stream', function(data) {
 				console.log('remove ' + data);
@@ -146,7 +148,7 @@ function Workspace() {
 		};
 
 		calibrator = new Calibrator(video, screenCanvas);
-		calibrator.startCalibration(this.onGotTransform, this.onFinishedCalibration);
+		calibrator.startCalibration(this.onGotTransform, this.onFinishedCalibration, self);
 	}
 
 
@@ -155,7 +157,6 @@ function Workspace() {
 		transform = trans;
 
 		// enable calibration buttons
-		var self = this;
 		doneCalibration.click(function(event) {
 			calibrator.confirmSharedRectangle();
 		});
@@ -171,60 +172,92 @@ function Workspace() {
 		};
 		doneCalibration.show();
 	}
-
-	this.onFinishedCalibration = function (sharedRect, sharedPoly) {
+    
+    this.onFinishedCalibration = function (sRect, sPoly) {
 		console.log('finished calibration');
-		// TODO broadcast corners
+		sharedRect = sRect;
+		sharedPoly = sPoly;
+
+        videoObj.setTransform(sPoly, sRect);
+        
+		// setup listener and broadcast your coordinates
+        
+		window.opener.parent.socket.on(window.opener.parent.API_CORNERS, self.onGotCorners);
+		self.sendBroadcast();
+		window.opener.parent.socket.on(window.opener.parent.API_CORNERS_BROADCAST, self.onBroadcast);
+
 		// start merging incoming videos in workspace
+		self.mergeVideos();
 	}
 
 	this.onBroadcast = function (id, nw, ne, se, sw, label) {
-		console.log('got broadcast');
+        
+		console.log('got broadcast, ' + label);
 
-		// TODO add corners to a list or something
+        for (var i = 0; i < videos.length; i++) {
+            var v = videos[i];
+            if (v.label == label) {
+                v.setTransform([nw, ne, se, sw], sharedRect);
+            }
+        }
 
-		// TODO add label to a list for answering
-
+		// answer broadcast
+		self.answerBroadcast(id);
 	}
 
-	this.onGotCorners = function (id, nw, ne, se, sw, label) {
-		console.log('got corners');
+	this.onGotCorners = function (nw, ne, se, sw, label) {
+		console.log('got corners, ' + label);
 
-		// TODO add corners to a list or something
+		for (var i = 0; i < videos.length; i++) {
+            var v = videos[i];
+            if (v.label == label) {
+                v.setTransform([nw, ne, se, sw], sharedRect);
+            }
+        }
 	}
 
-	this.sendBroadcast = function (nw, ne, se, sw) {
-
-		var label = videoStreams[0].label;
+	this.sendBroadcast = function () {
 		// data to broadcast
 		var data = JSON.stringify({
-			nw: nw,
-			ne: ne,
-			se: se,
-			sw: sw,
-			videoLabel: label
+			nw: sharedPoly[0],
+			ne: sharedPoly[1],
+			se: sharedPoly[2],
+			sw: sharedPoly[3],
+			videoLabel: videoObj.label
 		});
-		window.opener.parent.Socket.send(window.opener.parent.socket.API_CORNERS_BROADCAST, data);
+        
+        console.log('Sending broadcast, ' + videoObj.label);
+		window.opener.parent.socket.send(window.opener.parent.API_CORNERS_BROADCAST, data);
 	}
 
-	this.answerBroadcast = function (id, nw, ne, se, sw) {
-		var label = videoStreams[0].label;
- 
+	this.answerBroadcast = function (id) {
 		var data = JSON.stringify({
 			id: id, // to who we are going to send
-			nw: nw,
-			ne: ne,
-			se: se,
-			sw: sw,
-			videoLabel: label
+			nw: sharedPoly[0],
+			ne: sharedPoly[1],
+			se: sharedPoly[2],
+			sw: sharedPoly[3],
+			videoLabel: videoObj.label
 		});
 
-		window.opener.parent.Socket.send(window.opener.parent.socket.API_CORNERS, data);
+        console.log('Sending broadcast reply');
+		window.opener.parent.socket.send(window.opener.parent.API_CORNERS, data);
 	}
 
 	this.mergeVideos = function () {
-		// TODO merge videos
-		self = this;
+		
+        var transformedVideos = VideoBucket.transformList(videos);
+        var mergedImage = Utilities.mergeImages(transformedVideos);
+        
+        if (mergedImage != null) {
+            // console.log('drawing merged videos, ' + sharedRect.x + ' ' + sharedRect.width);
+            screenContext.drawImage(mergedImage,
+                                    sharedRect.x,
+                                    sharedRect.y,
+                                    sharedRect.width,
+                                    sharedRect.height);
+        }
+        
 		setTimeout(function() {self.mergeVideos();}, 50);
 	}
 }

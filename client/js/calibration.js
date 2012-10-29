@@ -4,8 +4,8 @@
 
 const DEFAULT_RATIO = 3.0 / 4.0;
 
-const MINI_CANVAS_WIDTH = 320,
-	  MINI_CANVAS_HEIGHT = 240;
+const MINI_CANVAS_WIDTH = 640,
+	  MINI_CANVAS_HEIGHT = 480;
 
 const SCREEN_MARKER_ID = 1012,
 	  FINAL_MARKER_ID = 1012,
@@ -53,15 +53,23 @@ Calibrator = function(video, canvas) {
 
 	this.firstStageCallback = null;
 	this.onFinishedCallback = null;
+    this.target = null;
 }
 
 /**
   @param callback function that takes one argument, receives the transform polygon
  */
-Calibrator.prototype.startCalibration = function(firstStageCallback, onFinishedCallback) {
+Calibrator.prototype.startCalibration = function(firstStageCallback, onFinishedCallback, target) {
 	this.firstStageCallback = firstStageCallback;
 	this.onFinishedCallback = onFinishedCallback;
-	this.tick();
+    
+    if (target) {
+        this.target = target;
+    } else {
+        this.target = this;
+    }
+	
+    this.tick();
 }
 
 Calibrator.prototype.tick = function() {
@@ -79,7 +87,9 @@ Calibrator.prototype.tick = function() {
 	// If done, do the callback and stop
 	if (this.isDone()) {
 		if (this.onFinishedCallback != null) {
-			this.onFinishedCallback(this.sharedRect, this.sharedPoly);
+            // var callback = this.onFinishedCallback;
+            this.onFinishedCallback.call(this.target, this.sharedRect, this.sharedPoly);
+			// this.target.callback(this.sharedRect, this.sharedPoly);
 		}
 	} else {
 		setTimeout(function(_this) {
@@ -182,7 +192,9 @@ Calibrator.prototype.firstCalibration = function(markers) {
 			this.screenTransform = new Geometry.Transform(canvasRectangle, this.screenPoly); // new Geometry.PolyToRectTransform(this.screenPoly, new Geometry.Rectangle(5, 5, this.canvas.width - 10, this.canvas.height - 10));
 
 			if (this.firstStageCallback != null) {
-				this.firstStageCallback(this.screenTransform);
+                // var callback = this.firstStageCallback;
+				// this.target.callback(this.screenTransform);
+                this.firstStageCallback.call(this.target, this.screenTransform);
 			}
 
 			this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);

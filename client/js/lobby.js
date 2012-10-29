@@ -139,7 +139,7 @@ Lobby.prototype.init = function() {
 	$('#create_room_advanced_content').hide();
 	$('#create_room_advanced_button').button().click(function() {
 		$('#create_room_advanced_content').toggle();
-	});
+	}).button('disable'); // TODO Enable advanced button
 
 	$('#splash_name').keypress(function(e) {
 		if (e.which == 13) {
@@ -170,11 +170,13 @@ Lobby.prototype.init = function() {
 
 	// Set up socket handlers
 	socket.on('open', function() {
+		console.log("########################OPEN IS HERE");
 		self.onSocketOpen();
 	});
 	socket.on('close', function() {
 		self.onSocketClose();
 	});
+
 	socket.on(API_NAME_SET, function(userName) {
 		$('#display_user_name').text(userName);
 	});
@@ -217,6 +219,9 @@ Lobby.prototype.loadSplash = function() {
 
 	$('#roomFrame').attr('src', 'about:blank');
 
+	$('#header').stop();
+	$('#header').show();
+
 	$('#main').hide();
 	$('#top').hide();
 	$('#call_list').hide();
@@ -234,6 +239,9 @@ Lobby.prototype.loadMain = function() {
 	$('#title').text('Lobby');
 
 	$('#roomFrame').attr('src', 'about:blank');
+
+	$('#header').stop();
+	$('#header').show();
 
 	$('#main').show();
 	$('#top').show();
@@ -279,7 +287,6 @@ Lobby.prototype.onSocketClose = function() {
 	$('#roomFrame').hide();
 	$('#splash').hide();
 
-	// TODO Fix better error handling?
 	$('#room_table tbody').empty();
 	$('#room_table tfoot').show();
 };
@@ -294,7 +301,7 @@ Lobby.prototype.onSocketClose = function() {
 Lobby.prototype.findRoomIndex = function(roomId) {
 	// Find room with given id
 	for ( var i = 0; i < this.rooms.length; i++) {
-		if (this.rooms[i][0] === roomId) {
+		if (this.rooms[i][0] == roomId) {
 			return i;
 		}
 	}
@@ -311,7 +318,7 @@ Lobby.prototype.findRoomIndex = function(roomId) {
 Lobby.prototype.findUserIndex = function(userId) {
 	// Find remote_user with given id
 	for ( var i = 0; i < this.users.length; i++) {
-		if (this.users[i][0] === userId) {
+		if (this.users[i][0] == userId) {
 			return i;
 		}
 	}
@@ -446,9 +453,27 @@ Lobby.prototype.enterRoom = function(roomId) {
 	$('#title').html(
 			'<span class="room_' + roomId + '">' + roomName + '</span>');
 
+	$('#header').delay(5000).hide(0);
 	$('#main').hide();
 	$('#roomFrame').show();
 	$('#roomFrame').attr('src', 'room/#' + roomId);
+};
+
+/**
+ * Function to show the header.
+ */
+Lobby.prototype.showHeader = function() {
+	$('#header').stop();
+	$('#header').show(0
+	/* { effect : 'slide', direction : 'up' } */);
+};
+
+/**
+ * Function to hide the header.
+ */
+Lobby.prototype.hideHeader = function() {
+	$('#header').hide(0
+	/* { effect : 'slide', direction : 'up' } */);
 };
 
 /**
@@ -460,6 +485,9 @@ Lobby.prototype.leaveRoom = function() {
 	}));
 
 	$('#title').text('Lobby');
+
+	$('#header').stop();
+	$('#header').show();
 
 	$('#roomFrame').attr('src', 'about:blank');
 	$('#main').show();
@@ -525,7 +553,8 @@ Lobby.prototype.onRoomAdd = function(roomId, roomName, roomDesc, roomType) {
 	}).append($('<td/>').append($('<h3/>', {
 		text : roomName
 	})).append(roomDesc)).append($('<td/>', {
-		id : 'room_user_list_' + roomId
+		id : 'room_user_list_' + roomId,
+		class : 'remote_user_list'
 	})).append($('<td/>').css({
 		width : '26px',
 		'font-size' : '0px'
@@ -602,10 +631,16 @@ Lobby.prototype.onUserEnterRoom = function(userId, roomId) {
 			// Make sure each user only exist in one room in the list
 			$('.remote_user_' + this.users[user_index][0]).remove();
 
-			$('#room_user_list_' + roomId).append($('<span/>', {
+			$('#room_user_list_' + roomId).append($('<div/>', {
+				class : 'remote_user_' + this.users[user_index][0]
+			}).css({
+				display : 'inline'
+			}).append($('<span/>', {
 				class : 'remote_user_' + this.users[user_index][0],
-				text : this.users[user_index][1] + ' '
-			}));
+				text : this.users[user_index][1]
+			})).append($('<span/>', {
+				text : ', '
+			})));
 		}
 	}
 };
@@ -642,7 +677,7 @@ Lobby.prototype.onUserChangeName = function(userId, userName) {
 	var index = this.findUserIndex(userId);
 	if (index != -1) {
 		this.users[index][1] = userName;
-		$('span.remote_user_' + userId).text(userName + ' ');
+		$('span.remote_user_' + userId).text(userName);
 	}
 };
 
