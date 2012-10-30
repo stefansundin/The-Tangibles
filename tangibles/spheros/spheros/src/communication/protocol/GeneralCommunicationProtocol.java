@@ -316,7 +316,7 @@ public class GeneralCommunicationProtocol extends JsonTcpCommunication
 							events.add(utils.Event.GYROATTITUDE);
 							//events.add(utils.Event.ACCELEROMETER);
 							
-							//sphero.activateEvents(events);														
+							sphero.activateEvents(events);														
 						}
 					}
 				}

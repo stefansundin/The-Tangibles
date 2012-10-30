@@ -157,7 +157,30 @@ function Tangibles(webRTCSocket) {
 	this.incommingCall = function(call_id, caller, room, onAccept, onDeny) {
 		if (!self.registered) return;
 		var enabled = true;
-		
+
+		if (this.sphero.length >= 1) {
+			var sphero = this.sphero[0];
+			this.setColor(sphero, 'FFFF00'); // Yellow
+			this.setLeftSpin(sphero, 150);
+
+			// Accept
+			sphero.gyroListeners.push(function(msg) {
+				if (enabled) {
+					var x = msg.params.x * 1;
+					var y = msg.params.y * 1;
+					console.log(msg.event+" x: "+x+" y: "+y);
+					if ( Math.abs(x) + Math.abs(y) >= 50) { // When emulate a event pushing
+						self.setColor(sphero,'00FF00');
+						self.sphero[0].gyroListeners = [];
+						enabled = false;
+						onAccept(call_id);
+					};
+				}
+			});
+			// Deny
+			// How?
+		};
+
 		if (this.sifteos.length >= 1) {
 			this.showTextPic(this.sifteos[0], 'http://'+ window.location.host +'/img/accept.png', 'Accept', '000000', 'FFFFFF');
 			this.sifteos[0].pressListeners.push(function(msg) {
@@ -218,6 +241,7 @@ function Tangibles(webRTCSocket) {
 						var device = {id:r.msg, subscribed:false, gyroListeners:[], accListeners:[]};
 						self.listenToEvents(device);
 						self.sphero.push(device);
+						self.setColor(device, 'FFFFFF');
 					}, self.err);
 				}
 			}
@@ -282,21 +306,33 @@ function Tangibles(webRTCSocket) {
 	$.getScript("js/tangibleLib.js", function(){
 		self.register();
 		
+		/*
+		// Debug
 		testSpheroEvents = function(){
 			if(self.sphero.length < 1){return;}
+			
 			self.sphero[0].gyroListeners.push(function(msg) {
-				var params = msg.params;
-				game(params.x*10, params.y*10,"myCanvas");
-				console.log(msg.event+" x: "+params.x*10+" y: "+params.y*10);
+				var x = msg.params.x * 1;
+				var y = msg.params.y * 1;
+				var z = msg.params.z * 1;
+				game(x, y, "myCanvas");
+				console.log(msg.event+" x: "+x+" y: "+y +" z: " +z);
+			});
+
+			self.sphero[0].accListeners.push(function(msg) {
+				var x = msg.params.x * 50;
+				var y = msg.params.y * 50;
+				var z = msg.params.z * 50;
+				x = Math.round(x*10)/10;
+				y = Math.round(x*10)/10;
+				z = Math.round(z*10)/10;
+				game(x, z, "myCanvas");
+				console.log(msg.event+" x: "+x+" y: "+y +" z: " +z);
 			});
 			
-			self.sphero[0].accListeners.push(function(msg) {
-				var params = msg.params;
-				game(params.x*50, params.y*50,"myCanvas");
-				console.log(msg.event+" x: "+ params.x*50 +" y: "+params.y*50);
-			});
 		};
-		setTimeout(testSpheroEvents,1000); // TODO make in a cleaner way
+		setTimeout(testSpheroEvents, 1000); // TODO make in a cleaner way
+		*/
 		
 		// Release reserved devices
 		$(window).on('beforeunload', function() { // TODO: Make global if needed
