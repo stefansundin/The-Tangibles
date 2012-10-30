@@ -1,3 +1,4 @@
+
 var API_USER_ENTER = "userenter";
 var API_USER_LEAVE = "userleave";
 var API_ROOM_ENTER = "roomenter";
@@ -7,7 +8,7 @@ var API_LIST_ROOMS = "listrooms";
 var API_LIST_USERS = "listusers";
 var API_LIST = "listall";
 
-var API_USER_CHANGE = "userchange";
+var API_USER_CHANGE = "userchange" 
 var API_USER_NEW = "useradd";
 var API_USER_REMOVE = "userremove";
 var API_ROOM_NEW = "roomadd";
@@ -31,13 +32,15 @@ var API_NAME_CHANGE = "changename";
 
 var API_ECHO = "echo";
 
-var ROOM_PUBLIC = "public";
-var ROOM_PRIVATE = "private";
-var ROOM_PASSWORD = "password";
 
 var Socket = function(url) {
+	
+
+	
 
 	this.conn = new WebSocket(url, 'tangibles');
+
+	this.opened = false;
 
 	var callbacks = {};
 
@@ -77,12 +80,14 @@ var Socket = function(url) {
 
 	this.conn.onclose = function() {
 		fire('close', null);
+		self.opened = false;
 		setTimeout(function() {
 			self.reconnect();
 		}, 1000); // Try to reconnect after 1 second
 	};
 	this.conn.onopen = function() {
 		fire('open', null);
+		self.opened = true;
 	};
 
 	var fire = function(event_name, message) {

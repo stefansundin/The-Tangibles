@@ -1,0 +1,13 @@
+{
+  "name": "TheTangibles",
+  "description": "A package using naive versioning",
+	"version": "0.0.2-1",
+  "dependencies": {
+		"node-gyp": "latest",
+		"ws": "0.4.22",
+		"websocket": "1.0.7",
+		"webrtc.io": "0.0.2-3",
+    "express": "2.5.1"
+  },
+  "engine": ">= 0.6.0"
+}

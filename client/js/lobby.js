@@ -2,7 +2,7 @@ var lobby; // Global object for the lobby
 
 $(function() {
 	lobby = new Lobby();
-	lobby.load();
+	lobby.init();
 });
 
 function assert(exp, message) {
@@ -14,11 +14,15 @@ function assert(exp, message) {
 function Lobby() {
 	this.AUTO_DECLINE_TIME = 60;
 	this.lobbyId = 0; // Special room id for the lobby
-	this.room_type_public = "public"; // TODO Fix types
-	this.room_type_private = "private";
+	this.room_type_public = 'public'; // TODO Fix types
+	this.room_type_private = 'private';
 	this.rooms = []; // [id, name, desc, type]
 	this.users = []; // [id, name, room_id]
-	this.ownName = 'User#' + Math.floor((Math.random() * 999) + 1);
+	if (sessionStorage.ownName) { // TODO Change all session to localStorage?
+		this.ownName = sessionStorage.ownName;
+	} else {
+		this.ownName = 'User#' + Math.floor((Math.random() * 999) + 1);
+	}
 }
 
 /**
@@ -33,50 +37,19 @@ Lobby.prototype.showError = function(text) {
 };
 
 /**
- * Called when the page is loaded.
+ * Initializes all the dialogs, DIVs etc.
  */
-Lobby.prototype.load = function() {
+Lobby.prototype.init = function() {
 	var self = this;
 
-	// Set up socket handlers
-	socket.on('open', function() {
-		self.onSocketOpen();
-	});
-	socket.on('close', function() {
-		self.onSocketClose();
-	});
-	socket.on(API_NAME_SET, function(userName) {
-		$('#display_user_name').text(userName);
-	});
-	socket.on(API_LIST, function(rooms, users) {
-		self.onLobbyLoad(rooms, users);
-	});
-	socket.on(API_USER_ENTER, function(userId, userName, roomId) {
-		self.onUserEnter(userId, userName, roomId);
-	});
-	socket.on(API_USER_LEAVE, function(userId) {
-		self.onUserLeave(userId);
-	});
-	socket.on(API_NAME_CHANGE, function(userId, userName) {
-		self.onUserChangeName(userId, userName);
-	});
-	socket.on(API_INVITE_SEND, function(userName, roomName, callId) {
-		self.onIncomingCall(userName, roomName, callId);
-	});
-	socket.on(API_INVITE_ACCEPTED, function(roomId) {
-		self.onCallAccepted(roomId);
-	});
-	socket.on(API_INVITE_DECLINED, function(callId) {
-		self.onCallDeclined(callId);
-	});
-	socket.on(API_ROOM_NEW, function(roomId, roomName, roomDesc, roomType) {
-		self.onRoomAdd(roomId, roomName, roomDesc, roomType);
-	});
-	socket.on(API_ROOM_REMOVE, function(roomId) {
-		self.onRoomDelete(roomId);
-	});
+	$('#main').hide();
+	$('#top').hide();
+	$('#call_list').hide();
+	$('#tangible_status').hide();
+	$('#roomFrame').hide();
+	$('#splash').hide();
 
-	// TODO this.onRoomCreated('random_text');
+	$('#roomFrame').hide();
 
 	$('#room_table tfoot').hide();
 
@@ -162,12 +135,120 @@ Lobby.prototype.load = function() {
 				}
 			});
 
-	$("#room_type").buttonset();
-	$("#create_room_advanced_content").hide();
-	$("#create_room_advanced_button").button().click(function() {
-		$("#create_room_advanced_content").toggle();
-	}).button("disable");
+	$('#room_type').buttonset();
+	$('#create_room_advanced_content').hide();
+	$('#create_room_advanced_button').button().click(function() {
+		$('#create_room_advanced_content').toggle();
+	}).button('disable'); // TODO Enable advanced button
 
+	$('#splash_name').keypress(function(e) {
+		if (e.which == 13) {
+			$('#splash_continue').click();
+		} else {
+			$('#splash_name').removeClass('ui-state-error');
+		}
+	});
+
+	$('#splash_continue').button().click(function() {
+		var name = $('#splash_name').val();
+		if (name != '') {
+			self.changeOwnName(name);
+			self.loadMain();
+		} else {
+			// TODO Better error handling in the input boxes
+			$('#splash_name').addClass('ui-state-error');
+		}
+	});
+
+	/*
+	 * Initialize socket stuff
+	 */
+	if (socket.opened) {
+		// See if the socket was already open
+		this.onSocketOpen();
+	}
+
+	// Set up socket handlers
+	socket.on('open', function() {
+		console.log("########################OPEN IS HERE");
+		self.onSocketOpen();
+	});
+	socket.on('close', function() {
+		self.onSocketClose();
+	});
+
+	socket.on(API_NAME_SET, function(userName) {
+		$('#display_user_name').text(userName);
+	});
+	socket.on(API_LIST, function(rooms, users) {
+		self.onLobbyLoad(rooms, users);
+	});
+	socket.on(API_USER_ENTER, function(userId, userName, roomId) {
+		self.onUserEnter(userId, userName, roomId);
+	});
+	socket.on(API_USER_LEAVE, function(userId) {
+		self.onUserLeave(userId);
+	});
+	socket.on(API_NAME_CHANGE, function(userId, userName) {
+		self.onUserChangeName(userId, userName);
+	});
+	socket.on(API_INVITE_SEND, function(userName, roomName, callId) {
+		self.onIncomingCall(userName, roomName, callId);
+	});
+	socket.on(API_INVITE_ACCEPTED, function(roomId) {
+		self.onCallAccepted(roomId);
+	});
+	socket.on(API_INVITE_DECLINED, function(callId) {
+		self.onCallDeclined(callId);
+	});
+	socket.on(API_ROOM_NEW, function(roomId, roomName, roomDesc, roomType) {
+		self.onRoomAdd(roomId, roomName, roomDesc, roomType);
+	});
+	socket.on(API_ROOM_REMOVE, function(roomId) {
+		self.onRoomDelete(roomId);
+	});
+
+	// TODO this.onRoomCreated('random_text');
+};
+
+/**
+ * Called when the user name doesn't exist in the storage.
+ */
+Lobby.prototype.loadSplash = function() {
+	$('#title').text('Welcome');
+
+	$('#roomFrame').attr('src', 'about:blank');
+
+	$('#header').stop();
+	$('#header').show();
+
+	$('#main').hide();
+	$('#top').hide();
+	$('#call_list').hide();
+	$('#tangible_status').hide();
+	$('#roomFrame').hide();
+	$('#splash').show();
+
+	$('#splash_name').focus();
+};
+
+/**
+ * Called when the main page should be loaded.
+ */
+Lobby.prototype.loadMain = function() {
+	$('#title').text('Lobby');
+
+	$('#roomFrame').attr('src', 'about:blank');
+
+	$('#header').stop();
+	$('#header').show();
+
+	$('#main').show();
+	$('#top').show();
+	$('#call_list').show();
+	$('#tangible_status').show();
+	$('#roomFrame').hide();
+	$('#splash').hide();
 };
 
 /**
@@ -176,10 +257,18 @@ Lobby.prototype.load = function() {
 Lobby.prototype.onSocketOpen = function() {
 	console.log('onOpen');
 
+	$('#server_loading').hide();
+
+	if (sessionStorage.ownName) {
+		this.changeOwnName(this.ownName);
+		lobby.loadMain();
+	} else {
+		lobby.loadSplash();
+	}
+
 	$('#dialog_error').dialog('close');
 
 	// request stuff
-	this.changeOwnName(this.ownName);
 	socket.send(API_LIST, '');
 };
 
@@ -189,7 +278,15 @@ Lobby.prototype.onSocketOpen = function() {
 Lobby.prototype.onSocketClose = function() {
 	console.warn('onClose');
 
-	// TODO Fix better error handling?
+	$('#server_loading').show();
+
+	$('#main').hide();
+	$('#top').hide();
+	$('#call_list').hide();
+	$('#tangible_status').hide();
+	$('#roomFrame').hide();
+	$('#splash').hide();
+
 	$('#room_table tbody').empty();
 	$('#room_table tfoot').show();
 };
@@ -204,7 +301,7 @@ Lobby.prototype.onSocketClose = function() {
 Lobby.prototype.findRoomIndex = function(roomId) {
 	// Find room with given id
 	for ( var i = 0; i < this.rooms.length; i++) {
-		if (this.rooms[i][0] === roomId) {
+		if (this.rooms[i][0] == roomId) {
 			return i;
 		}
 	}
@@ -221,7 +318,7 @@ Lobby.prototype.findRoomIndex = function(roomId) {
 Lobby.prototype.findUserIndex = function(userId) {
 	// Find remote_user with given id
 	for ( var i = 0; i < this.users.length; i++) {
-		if (this.users[i][0] === userId) {
+		if (this.users[i][0] == userId) {
 			return i;
 		}
 	}
@@ -240,6 +337,7 @@ Lobby.prototype.changeOwnName = function(newName) {
 
 	if (newName != '') {
 		this.ownName = newName;
+		sessionStorage.ownName = newName;
 		$('#display_user_name').text(this.ownName);
 
 		socket.send(API_NAME_SET, JSON.stringify({
@@ -288,14 +386,14 @@ Lobby.prototype.createRoom = function(roomName) {
 	console.log('createRoom: ' + roomName);
 
 	var roomType;
-	if ($("#room_type_private").attr('checked')) {
+	if ($('#room_type_private').attr('checked')) {
 		roomType = this.room_type_private;
 	} else {
 		roomType = this.room_type_public;
 	}
 
-	var roomDesc = $("#room_desc").val();
-	var roomPassword = $("#room_password").val();
+	var roomDesc = $('#room_desc').val();
+	var roomPassword = $('#room_password').val();
 
 	if (roomName != '') {
 		socket.send(API_ROOM_NEW, JSON.stringify({
@@ -339,13 +437,43 @@ Lobby.prototype.onRoomCreated = function(roomId) {
  *            ID of the room
  */
 Lobby.prototype.enterRoom = function(roomId) {
+	if (roomId == this.lobbyId) {
+		return;
+	}
+
 	socket.send(API_USER_CHANGE, JSON.stringify({
 		id : roomId
 	}));
 
+	var roomName = 'Room';
+	var index = this.findRoomIndex(roomId);
+	if (index != -1) {
+		roomName = this.rooms[index][1];
+	}
+	$('#title').html(
+			'<span class="room_' + roomId + '">' + roomName + '</span>');
+
+	$('#header').delay(5000).hide(0);
 	$('#main').hide();
-	$('#roomMain').show();
+	$('#roomFrame').show();
 	$('#roomFrame').attr('src', 'room/#' + roomId);
+};
+
+/**
+ * Function to show the header.
+ */
+Lobby.prototype.showHeader = function() {
+	$('#header').stop();
+	$('#header').show(0
+	/* { effect : 'slide', direction : 'up' } */);
+};
+
+/**
+ * Function to hide the header.
+ */
+Lobby.prototype.hideHeader = function() {
+	$('#header').hide(0
+	/* { effect : 'slide', direction : 'up' } */);
 };
 
 /**
@@ -356,9 +484,14 @@ Lobby.prototype.leaveRoom = function() {
 		id : this.lobbyId
 	}));
 
+	$('#title').text('Lobby');
+
+	$('#header').stop();
+	$('#header').show();
+
 	$('#roomFrame').attr('src', 'about:blank');
 	$('#main').show();
-	$('#roomMain').hide();
+	$('#roomFrame').hide();
 };
 
 /**
@@ -371,6 +504,8 @@ Lobby.prototype.leaveRoom = function() {
  */
 Lobby.prototype.onRoomChangeName = function(roomId, roomName) {
 	console.log('onRoomChangeName: ' + roomId + ' ' + roomName);
+
+	$('.room_' + roomId).text(roomName);
 
 	var index = this.findRoomIndex(roomId);
 	if (index != -1) {
@@ -418,7 +553,8 @@ Lobby.prototype.onRoomAdd = function(roomId, roomName, roomDesc, roomType) {
 	}).append($('<td/>').append($('<h3/>', {
 		text : roomName
 	})).append(roomDesc)).append($('<td/>', {
-		id : 'room_user_list_' + roomId
+		id : 'room_user_list_' + roomId,
+		class : 'remote_user_list'
 	})).append($('<td/>').css({
 		width : '26px',
 		'font-size' : '0px'
@@ -495,10 +631,16 @@ Lobby.prototype.onUserEnterRoom = function(userId, roomId) {
 			// Make sure each user only exist in one room in the list
 			$('.remote_user_' + this.users[user_index][0]).remove();
 
-			$('#room_user_list_' + roomId).append($('<span/>', {
+			$('#room_user_list_' + roomId).append($('<div/>', {
+				class : 'remote_user_' + this.users[user_index][0]
+			}).css({
+				display : 'inline'
+			}).append($('<span/>', {
 				class : 'remote_user_' + this.users[user_index][0],
-				text : this.users[user_index][1] + ' '
-			}));
+				text : this.users[user_index][1]
+			})).append($('<span/>', {
+				text : ', '
+			})));
 		}
 	}
 };
@@ -535,7 +677,7 @@ Lobby.prototype.onUserChangeName = function(userId, userName) {
 	var index = this.findUserIndex(userId);
 	if (index != -1) {
 		this.users[index][1] = userName;
-		$('span.remote_user_' + userId).text(userName + ' ');
+		$('span.remote_user_' + userId).text(userName);
 	}
 };
 
@@ -604,6 +746,8 @@ Lobby.prototype.onIncomingCall = function(userName, roomName, callId) {
 	$('<div/>', {
 		id : 'call_' + callId,
 		text : userName + ' invited you to ' + roomName + '.'
+	}).css({
+		padding : '5px'
 	}).append($('<button/>', {
 		text : 'Accept',
 		click : function() {
@@ -644,7 +788,7 @@ Lobby.prototype.accept = function(callId) {
 		// send answer
 		socket.send(API_INVITE_ANSWER, JSON.stringify({
 			callId : callId,
-			answer : "yes"
+			answer : 'yes'
 		}));
 
 		$('#call_' + callId).removeAttr('id').hide({
@@ -699,7 +843,7 @@ Lobby.prototype.decline = function(callId) {
 		// send answer
 		socket.send(API_INVITE_ANSWER, JSON.stringify({
 			callId : callId,
-			answer : "no"
+			answer : 'no'
 		}));
 
 		$('#call_' + callId).removeAttr('id').hide({

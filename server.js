@@ -12,8 +12,20 @@ app.get('/', function(req, res) {
   res.sendfile(__dirname + '/client/index.html');
 });
 
+app.get('/workspace/img/doneButton.png', function(req, res) {
+  res.sendfile(__dirname + '/client/img/doneButton.png');
+});
+
+app.get('/workspace/img/qr1012.png', function(req, res) {
+  res.sendfile(__dirname + '/client/img/qr1012.png');
+});
+
 app.get('/favicon.ico', function(req, res) {
   res.sendfile(__dirname + '/client/img/favicon.ico');
+});
+
+app.get('/img/logo.png', function(req, res) {
+	  res.sendfile(__dirname + '/client/img/logo.png');
 });
 
 app.get('/room', function(req, res) {
@@ -46,6 +58,10 @@ app.get('/js/lobby.js', function(req, res) {
   res.sendfile(__dirname + '/client/js/lobby.js');
 });
 
+app.get('/room/js/room.js', function(req, res) {
+  res.sendfile(__dirname + '/client/js/room.js');
+});
+
 app.get('/js/tangibles.js', function(req, res) {
   res.sendfile(__dirname + '/client/js/tangibles.js');
 });
@@ -64,6 +80,52 @@ app.get('/img/mute.png', function(req, res) {
 
 app.get('/js/tangibleLib.js', function(req, res) {
   res.sendfile(__dirname + '/client/js/tangibleLib.js');
+});
+
+app.get('/workspace/js/videoBucket.js', function(req, res) {
+  res.sendfile(__dirname + '/client/js/videoBucket.js');
+});
+
+app.get('/workspace/js/mediaext.js', function(req, res) {
+  res.sendfile(__dirname + '/client/js/mediaext.js');
+});
+
+app.get('/workspace/js/geometry.js', function(req, res) {
+  res.sendfile(__dirname + '/client/js/geometry.js');
+});
+
+app.get('/workspace/js/lib/cv.js', function(req, res) {
+  res.sendfile(__dirname + '/client/js/lib/cv.js');
+});
+
+app.get('/workspace/js/lib/aruco.js', function(req, res) {
+  res.sendfile(__dirname + '/client/js/lib/aruco.js');
+});
+
+app.get('/workspace/js/imageproc.js', function(req, res) {
+  res.sendfile(__dirname + '/client/js/imageproc.js');
+});
+
+app.get('/workspace/js/buttons.js', function(req, res) {
+  res.sendfile(__dirname + '/client/js/buttons.js');
+});
+
+app.get('/workspace/js/calibration.js', function(req, res) {
+  res.sendfile(__dirname + '/client/js/calibration.js');
+});
+
+app.get('/workspace/js/lib/blend.js', function(req, res) {
+  res.sendfile(__dirname + '/client/js/lib/blend.js');
+});
+app.get('/workspace/js/lib/pixastic.core.js', function(req, res) {
+  res.sendfile(__dirname + '/client/js/lib/pixastic.core.js');
+});
+app.get('/workspace/js/utilities.js', function(req, res) {
+  res.sendfile(__dirname + '/client/js/utilities.js');
+});
+
+app.get('/workspace/js/lib/sylvester.js', function(req, res) {
+  res.sendfile(__dirname + '/client/js/lib/sylvester.js');
 });
 
 app.get('/webrtc.io.js', function(req, res) {

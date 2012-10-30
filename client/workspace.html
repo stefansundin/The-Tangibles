@@ -1,142 +1,269 @@
-
 <html>
 <head>
 <title>Workspace view</title>
 <link type="text/css" href="css/workspacestyle.css" rel="stylesheet"></link>
-<body>
+<link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel="stylesheet" type="text/css" />
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8/jquery.min.js"></script>
+<script	src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
+<script src="js/lib/sylvester.js"></script>
+<script type="text/javascript" src="js/mediaext.js"></script>
+<script type="text/javascript" src="js/geometry.js"></script>
+<script type="text/javascript" src="js/lib/cv.js"></script>
+<script type="text/javascript" src="js/lib/aruco.js"></script>
+<script type="text/javascript" src="js/imageproc.js"></script>
+<script type="text/javascript" src="js/buttons.js"></script>
+<script type="text/javascript" src="js/calibration.js"></script>
+<script type="text/javascript" src="js/lib/pixastic.core.js"></script>
+<script type="text/javascript" src="js/lib/blend.js"></script>
+<script type="text/javascript" src="js/utilities.js"></script>    
+<script type="text/javascript" src="js/videoBucket.js"></script>
+    
 <script src="/webrtc.io.js"></script>
 </head>
-<body>
+<body style="font-family: monospace; background-color: white;">
 <div id="notice">This is the workspace view. Choose the appropriate camera and move this window to where you want it.</div>
-<div id="videos">
-<video id="you" autoplay height="100%"></video>
-</div>
-<div id="chatbox">
+<div>
 <button id="fullscreen">Enter Full Screen</button>
 </div>
-<br>
+<center>
+<canvas id ="myCanvas" style="width: 100%; height: 100%"></canvas>
+<div>
+<button id="button">Done Calibrating</button>
 </div>
+<video id="you" autoplay></video> 
+</center>
 <script>
 
+const CANVAS_WIDTH = 640, CANVAS_HEIGHT = 480;
+
+// hide and show correct html elements
+var c = $('#myCanvas');
+c.hide();
+
+var fullscreen = $('#fullscreen');
+
+var doneCalibration = $('#button');
+doneCalibration.hide();
+
+var notice = $('#notice');
+
+$('#you').hide();
 
 function Workspace() {
+	var video, screenCanvas, screenContext;
+	var calibrator;
+	var sharedRect, sharedPoly, transform;
 	var videos = [];
-	var videoStreams = [];
+	var videoObj;
 	var PeerConnection = window.PeerConnection || window.webkitPeerConnection00;
 
-	this.cloneVideo = function (domId, socketId) {
-		var video = document.getElementById(domId);
-		var clone = video.cloneNode(false);
-		clone.id = "remote" + socketId;
-		videos.push(clone);
-		return clone;
+    var self = this;
+    
+	this.createVideo = function (stream, socketId) {
+        
+		var v = document.createElement('video');
+    	v.width = CANVAS_WIDTH;
+    	v.height = CANVAS_HEIGHT;
+    	v.autoplay = true;
+		v.class = "";
+		v.src = URL.createObjectURL(stream);
+        
+		if (socketId == 'you') {
+            videoObj = new VideoBucket(v, stream.label);
+			v.id = 'you';
+			video = v;
+            
+            // videos.push(videoObj);
+            
+		} else {
+            v.id = 'remote' + socketId;
+            var bucket = new VideoBucket(v, stream.label);
+			videos.push(bucket);
+		}
 	}
 
 	this.removeVideo = function (socketId) {
 		var index = -1;
 		for (var i = 0; i < videos.length; i++) {
-			if (videos[i].id == 'remote' + socketId) {
+			if (videos[i].video.id == 'remote' + socketId) {
+                console.log('Removing stream: ' + videos[i].label);
 				index = i;
 				break;
 			}
 		}
 		if (index > -1) {
-			videoStreams.splice(index, 1);
 			videos.splice(index, 1);
 		}
 	}
 
 	this.initFullScreen = function () { 
-		var button = document.getElementById("fullscreen");
-		button.addEventListener('click', function(event) {
-				var elem = document.getElementById("videos"); 
-				//show full screen 
-				elem.webkitRequestFullScreen();
-				// TODO start calibration
-				// TODO start merging video and display it
-				});
+
+		fullscreen.click(function(event) {
+				// TODO enter full screen 
+				notice.hide();
+				fullscreen.hide();
+				self.startCalibration();
+			});
 	} 
 
 	this.init = function () {
 		if (PeerConnection) {
-
 			rtc.createStream({"video": true, "audio": true}, function(stream) {
-					document.getElementById('you').src = URL.createObjectURL(stream);
-					videos.push(document.getElementById('you'));
+					self.createVideo(stream, 'you');
 					rtc.attachStream(stream, 'you');
-					videoStreams.push(stream);
-					document.getElementById("notice").innerHTML = "";
-					});
+				});
 		} else {
 			alert('Your browser is not supported or you have to turn on flags. In chrome you go to chrome://flags and turn on Enable PeerConnection remember to restart chrome');
 		}
 
 		var room = window.location.hash.slice(1);
-		var self = this;
-
+        
 		//When using localhost
 		console.log('Connecting');
 		rtc.connect("ws://"+ window.location.host +"/", room);
 
 		rtc.on('add remote stream', function(stream, socketId) {
 				console.log("ADDING REMOTE STREAM...");
-				// TODO replace cloneVideo
-				var clone = self.cloneVideo('you', socketId);
-				clone.class="";
-				var streamUrl = URL.createObjectURL(stream);
-				clone.setAttribute("src", streamUrl);
-				videoStreams.push(stream);
-				});
+				self.createVideo(stream, socketId);
+			});
 		rtc.on('disconnect stream', function(data) {
 				console.log('remove ' + data);
 				self.removeVideo(data);
-				});
+			});
 		this.initFullScreen();
 	}
-	
-	this.getVideos = function() {
-		return videos;
+
+	this.startCalibration = function () {
+		// start showing fullscreen canvas
+		c.show();
+		screenCanvas = document.getElementById("myCanvas");
+		screenContext = screenCanvas.getContext("2d");
+
+		screenCanvas.width = window.innerWidth;
+		screenCanvas.height = window.innerHeight;
+
+		window.onresize = function() {
+			screenCanvas.width = window.innerWidth;
+			screenCanvas.height = window.innerHeight;
+		};
+
+		calibrator = new Calibrator(video, screenCanvas);
+		calibrator.startCalibration(this.onGotTransform, this.onFinishedCalibration, self);
 	}
-	
-	this.getVideoStreams = function() {
-		return videoStreams;
+
+
+	this.onGotTransform = function (trans) {
+		console.log('got transform');
+		transform = trans;
+
+		// enable calibration buttons
+		doneCalibration.click(function(event) {
+			calibrator.confirmSharedRectangle();
+		});
+		$(document).keypress(function(event) {
+			var keycode = (event.keyCode ? event.keyCode : event.which);
+			if (keycode == 13) {
+				calibrator.confirmSharedRectangle();
+			}
+			// TODO remove keypress
+		});
+		screenCanvas.onclick = function() {
+			calibrator.confirmSharedRectangle();
+		};
+		doneCalibration.show();
 	}
-	
-	this.getPeerConnection = function() {
-		return PeerConnection;
+    
+    this.onFinishedCalibration = function (sRect, sPoly) {
+		console.log('finished calibration');
+		sharedRect = sRect;
+		sharedPoly = sPoly;
+
+        videoObj.setTransform(sPoly, sRect);
+        
+		// setup listener and broadcast your coordinates
+        
+		window.opener.parent.socket.on(window.opener.parent.API_CORNERS, self.onGotCorners);
+		self.sendBroadcast();
+		window.opener.parent.socket.on(window.opener.parent.API_CORNERS_BROADCAST, self.onBroadcast);
+
+		// start merging incoming videos in workspace
+		self.mergeVideos();
 	}
-	
+
+	this.onBroadcast = function (id, nw, ne, se, sw, label) {
+        
+		console.log('got broadcast, ' + label);
+
+        for (var i = 0; i < videos.length; i++) {
+            var v = videos[i];
+            if (v.label == label) {
+                v.setTransform([nw, ne, se, sw], sharedRect);
+            }
+        }
+
+		// answer broadcast
+		self.answerBroadcast(id);
+	}
+
+	this.onGotCorners = function (nw, ne, se, sw, label) {
+		console.log('got corners, ' + label);
+
+		for (var i = 0; i < videos.length; i++) {
+            var v = videos[i];
+            if (v.label == label) {
+                v.setTransform([nw, ne, se, sw], sharedRect);
+            }
+        }
+	}
+
+	this.sendBroadcast = function () {
+		// data to broadcast
+		var data = JSON.stringify({
+			nw: sharedPoly[0],
+			ne: sharedPoly[1],
+			se: sharedPoly[2],
+			sw: sharedPoly[3],
+			videoLabel: videoObj.label
+		});
+        
+        console.log('Sending broadcast, ' + videoObj.label);
+		window.opener.parent.socket.send(window.opener.parent.API_CORNERS_BROADCAST, data);
+	}
+
+	this.answerBroadcast = function (id) {
+		var data = JSON.stringify({
+			id: id, // to who we are going to send
+			nw: sharedPoly[0],
+			ne: sharedPoly[1],
+			se: sharedPoly[2],
+			sw: sharedPoly[3],
+			videoLabel: videoObj.label
+		});
+
+        console.log('Sending broadcast reply');
+		window.opener.parent.socket.send(window.opener.parent.API_CORNERS, data);
+	}
+
+	this.mergeVideos = function () {
+		
+        var transformedVideos = VideoBucket.transformList(videos);
+        var mergedImage = Utilities.mergeImages(transformedVideos);
+        
+        if (mergedImage != null) {
+            // console.log('drawing merged videos, ' + sharedRect.x + ' ' + sharedRect.width);
+            screenContext.drawImage(mergedImage,
+                                    sharedRect.x,
+                                    sharedRect.y,
+                                    sharedRect.width,
+                                    sharedRect.height);
+        }
+        
+		setTimeout(function() {self.mergeVideos();}, 50);
+	}
 }
 
 workspace = new Workspace();
 workspace.init();
-
-
-window.opener.parent.socket.on(window.opener.parent.socket.API_CORNERS_BROADCAST, function(msg, videoLabel) {
-	// func to projectors here...
-	console.log("");
-	
-	
-	var label = workspace.getVideoStreams()[0].label;
-	
-	var message = "My corners";
-	
-	var data = JSON.stringify({
-		id: id,
-		msg: message,
-		videoLabel: label
-	});
-	
-	// This should be run inside the function that calculates the corners.
-	//window.opener.parent.Socket.send(window.opener.parent.socket.API_CORNERS, data);
-	
-});
-
-window.opener.parent.socket.on(window.opener.parent.socket.API_CORNERS, function(id, msg, videoLabel) {
-	// func to projectors here...
-	console.log(videoLabel);
-	
-});
 
 </script>
 </body>
