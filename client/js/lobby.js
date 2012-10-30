@@ -99,7 +99,6 @@ Lobby.prototype.init = function() {
 						var divId = $(this).attr('id');
 						var index = divId.indexOf('check_invite_');
 						if (index == 0) {
-							console.log(index);
 							var userId = divId.substring(index + 13);
 							// 13 = 'check_invite_'.length
 
@@ -320,7 +319,6 @@ Lobby.prototype.init = function() {
 
 	// Set up socket handlers
 	socket.on('open', function() {
-		console.log("########################OPEN IS HERE");
 		self.onSocketOpen();
 	});
 	socket.on('close', function() {
