@@ -2,25 +2,9 @@ $(function() {
 	// Function that starts all the things we need
 	init();
 	
-	var showHeader = false;
-	setTimeout(function() {
-		$(document).mousemove(function(event){
-			if (event.pageY <= 90) {
-				if (!showHeader) {
-					parent.lobby.showHeader();
-					showHeader = true;
-				}
-			} else {
-				if (showHeader) {
-					parent.lobby.hideHeader();
-					showHeader = false;
-				}
-			}
-	}); }, 500);
-	
 	// Dialogs
 	
-    $('#invite_dialog').dialog({
+    /*$('#invite_dialog').dialog({
         autoOpen : false,
         modal : true,
 		buttons: {
@@ -45,22 +29,11 @@ $(function() {
 				$( this ).dialog( 'close' );
 			}
         }
-    });
-	
-	$('#userlist_dialog').dialog({
-        autoOpen : false,
-        modal : true,
-		buttons: {
-			Ok: function() {
-				$( this ).dialog( 'close' );
-				document.getElementById('userlistContainer').innerHTML = "";
-			}
-		}
-	});
+    });*/
 	
 	// Buttons that open dialogs
 	
-	$('#openInviteDialog').button().click(function() {
+	/*$('#openInviteDialog').button().click(function() {
 		var userlist = [];
 		var list = parent.lobby.users;
 		for (i in list) {
@@ -75,35 +48,16 @@ $(function() {
 			document.getElementById('formContainer').appendChild(node);
 		}
 		$('#invite_dialog').dialog('open');
-	});
-	
-	$('#openUserlistDialog').button().click(function() {
-		var userlist = [];
-		var room = window.location.hash.slice(1);
-		var list = parent.lobby.users;
-		for (i in list) {
-			if (list[i][2] == room) {
-				userlist.push(list[i]);	
-			}
-				
-		}
-		
-		for (i in userlist) {
-			var node = document.createElement('div');        
-			node.innerHTML = '<p>' + userlist[i][1] + '</p>';       
-			document.getElementById('userlistContainer').appendChild(node);
-		}
-		$('#userlist_dialog').dialog('open');
-	});
+	});*/
 	
 	// Other buttons
 	
-	$('#leaveRoom').button().click(function() {
+	/*$('#leaveRoom').button().click(function() {
 		writeMessageToChat(parent.lobby.ownName + " left the room.");
 		console.log('Left the room');
 	//	parent.window.parent.document.title = 'The-Tangibles';
 		parent.lobby.leaveRoom();
-	});
+	});*/
 	
 /*	$('#fullscreen').button().click(function() {
 		var elem = document.getElementById("videos");
@@ -112,7 +66,7 @@ $(function() {
 		elem.webkitRequestFullScreen();
 	});
 	*/
-	var isOpen = false;
+	/*var isOpen = false;
 	var workspaceWindow = "";
 	
 	$('#openWorkspace').button().click(function() {
@@ -126,7 +80,7 @@ $(function() {
 			writeMessageToChat(parent.lobby.ownName + " opened the workspace.");
 			isOpen = true;
 		}
-	});
+	});*/
 	
 });
 	
@@ -207,7 +161,7 @@ function sanitize(msg) {
 	return msg.replace(/</g, '&lt;');
 }
     
-function onUserInvited(invited_user) {
+/*function onUserInvited(invited_user) {
 	var inviting_user = parent.lobby.ownName;
 	var room = window.location.hash.slice(1);
 	
@@ -239,7 +193,7 @@ function onUserInvited(invited_user) {
 	} else {
 		addToChat("User " + invited_user + " does not exist.");
 	}
-}
+}*/
 	  
 function writeMessageToChat(message) {
 	var room = window.location.hash.slice(1);
