@@ -49,7 +49,6 @@ Lobby.prototype.init = function() {
 	$('#main').hide();
 	$('#top').hide();
 	$('#call_list').hide();
-	$('#tangible_status').hide();
 	$('#roomFrame').hide();
 	$('#splash').hide();
 	$('#room_toolbar').hide();
@@ -374,7 +373,6 @@ Lobby.prototype.loadSplash = function() {
 	$('#main').hide();
 	$('#top').hide();
 	$('#call_list').hide();
-	$('#tangible_status').hide();
 	$('#roomFrame').hide();
 	$('#splash').show();
 
@@ -396,7 +394,6 @@ Lobby.prototype.loadMain = function() {
 	$('#main').show();
 	$('#top').show();
 	$('#call_list').show();
-	$('#tangible_status').show();
 	$('#roomFrame').hide();
 	$('#splash').hide();
 };
@@ -435,7 +432,6 @@ Lobby.prototype.onSocketClose = function() {
 	$('#main').hide();
 	$('#top').hide();
 	$('#call_list').hide();
-	$('#tangible_status').hide();
 	$('#roomFrame').hide();
 	$('#splash').hide();
 
