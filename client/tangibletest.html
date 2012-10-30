@@ -8,12 +8,40 @@
 <script	src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
 	<script type="text/javascript" src="js/socket.js"></script>
 	<script type="text/javascript" src="js/lobby.js"></script>
+	<script type="text/javascript" src="js/tangibleLib.js"></script>
 	<script type="text/javascript" src="js/Tangibles.js"></script>
 	<style type="text/css">
 		#status {
 			width: 250px;
 		}
 	</style>
+	<script type="text/javascript">
+		// Debug
+		testSpheroEvents = function(){
+			if(self.sphero.length < 1){return;}
+			
+			self.sphero[0].gyroListeners.push(function(msg) {
+				var x = msg.params.x * 1;
+				var y = msg.params.y * 1;
+				var z = msg.params.z * 1;
+				game(x, y, "myCanvas");
+				console.log(msg.event+" x: "+x+" y: "+y +" z: " +z);
+			});
+
+			self.sphero[0].accListeners.push(function(msg) {
+				var x = msg.params.x * 50;
+				var y = msg.params.y * 50;
+				var z = msg.params.z * 50;
+				x = Math.round(x*10)/10;
+				y = Math.round(x*10)/10;
+				z = Math.round(z*10)/10;
+				game(x, z, "myCanvas");
+				console.log(msg.event+" x: "+x+" y: "+y +" z: " +z);
+			});
+			
+		};
+		setTimeout(testSpheroEvents, 1000); // TODO make in a cleaner way
+	</script>
 </head>
 <body>
 	<p>Test page For tangibles</p>
