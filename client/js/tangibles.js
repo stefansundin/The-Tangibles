@@ -13,38 +13,45 @@ function Tangibles(webRTCSocket) {
 	}
 	
 	this.setColor = function(dev, color) {
+		if (!self.registered) return;
 		// color = "RRGGBB"
 		console.log('setColor('+dev.id+','+color+')');
 		self.api.showColor(dev.id, color, self.err, self.err);
 	}
 
 	this.setRightSpin = function(dev, velocity) {
+		if (!self.registered) return;
 		console.log('setRightSpin('+dev.id+','+velocity+')');
 		self.api.spinRight(dev.id, velocity, self.err, self.err);
 	}
 
 	this.setLeftSpin = function(dev, velocity) {
+		if (!self.registered) return;
 		console.log('setLeftSpin('+dev.id+','+velocity+')');
 		self.api.spinLeft(dev.id, velocity, self.err, self.err);
 	}
 
 	this.showTextPic = function(dev, url, text, color, bg) {
+		if (!self.registered) return;
 		this.showText(dev, text, color, bg);
 		setTimeout(function() {self.showPicture(dev, url);}, 100);
 	}
 
 	this.showPicture = function(dev, url) {
+		if (!self.registered) return;
 		console.log('showPicture('+dev.id+','+url+')');
 		this.api.showPicture(dev.id, url, this.err, this.err);
 	}
 
 	this.showText = function(dev, text, color, bg) {
+		if (!self.registered) return;
 		this.setColor(dev, bg);
 		console.log('showText('+dev.id+','+text+','+color+')');
 		setTimeout(function() {self.api.showText(dev.id, text, color, self.err, self.err);},100);
 	}
 	
 	this.showTime = function(dev) {
+		if (!self.registered) return;
 		setInterval(function() {
 			var d = new Date();
 			var h = d.getHours();
@@ -64,12 +71,14 @@ function Tangibles(webRTCSocket) {
 	
 	// Run on pageunload or when current state is no longer valid to stop displaying and listening.
 	this.disableSifteos = function() {
+		if (!self.registered) return;
 		for (d = 0; d < self.sifteos.length; d=d+1) {
 			self.api.showColor(self.sifteos[d].id, 'FFFFFF', self.err, self.err, false);
 			self.sifteos[d].pressListeners = [];
 		}
 	}
 	this.disableSpheros = function() {
+		if (!self.registered) return;
 		for (d = 0; d < self.sphero.length; d=d+1) {
 			self.api.showColor(self.sphero[d].id, 'FFFFFF', self.err, self.err, false);
 			self.sphero[d].gyroListeners = [];
@@ -77,36 +86,37 @@ function Tangibles(webRTCSocket) {
 		}
 	}
 	
-	
-	// Server API
-	if(this.webRTCSocket){ 
-		this.webRTCSocket.on(API_INVITE_SEND, function(name, room, call_id) {
-			console.log(name +' '+ room +' '+ call_id);
-			self.incommingCall(call_id, name, room, function() {
-				lobby.accept(call_id);
-			}, function() {
-				lobby.decline(call_id);
+	this.openServerAPI = function() {
+		// Server API
+		if(this.webRTCSocket){ 
+			this.webRTCSocket.on(API_INVITE_SEND, function(name, room, call_id) {
+				console.log(name +' '+ room +' '+ call_id);
+				self.incommingCall(call_id, name, room, function() {
+					lobby.accept(call_id);
+				}, function() {
+					lobby.decline(call_id);
+				});
 			});
-		});
-		
-		this.webRTCSocket.on(API_INVITE_ACCEPTED, function(room_id) {
-			self.acceptedCall(room_id, []);
-		});
-		
-		this.webRTCSocket.on(API_INVITE_DECLINED, function() {
-			self.disableSifteos();
-		});
-		
-		this.webRTCSocket.on(API_USER_ENTER, function(old_r, user, new_r) {
-			if (user != lobby.ownName) return;
-			if (!new_r) self.disableSifteos();
-			if (new_r) self.acceptedCall(new_r, []);
-		});
+			
+			this.webRTCSocket.on(API_INVITE_ACCEPTED, function(room_id) {
+				self.acceptedCall(room_id, []);
+			});
+			
+			this.webRTCSocket.on(API_INVITE_DECLINED, function() {
+				self.disableSifteos();
+			});
+			
+			this.webRTCSocket.on(API_USER_ENTER, function(old_r, user, new_r) {
+				if (user != lobby.ownName) return;
+				if (!new_r) self.disableSifteos();
+				if (new_r) self.acceptedCall(new_r, []);
+			});
+		}
 	}
-	
 	
 	// Call control
 	this.acceptedCall = function(call_id, users) {
+		if (!self.registered) return;
 		var enabled = true;
 		
 		for (i = 0; i < users.length; i = i + 1) {
@@ -145,8 +155,32 @@ function Tangibles(webRTCSocket) {
 	}
 	
 	this.incommingCall = function(call_id, caller, room, onAccept, onDeny) {
+		if (!self.registered) return;
 		var enabled = true;
-		
+
+		if (this.sphero.length >= 1) {
+			var sphero = this.sphero[0];
+			this.setColor(sphero, 'FFFF00'); // Yellow
+			this.setLeftSpin(sphero, 150);
+
+			// Accept
+			sphero.gyroListeners.push(function(msg) {
+				if (enabled) {
+					var x = msg.params.x * 1;
+					var y = msg.params.y * 1;
+					console.log(msg.event+" x: "+x+" y: "+y);
+					if ( Math.abs(x) + Math.abs(y) >= 50) { // When emulate a event pushing
+						self.setColor(sphero,'00FF00');
+						self.sphero[0].gyroListeners = [];
+						enabled = false;
+						onAccept(call_id);
+					};
+				}
+			});
+			// Deny
+			// How?
+		};
+
 		if (this.sifteos.length >= 1) {
 			this.showTextPic(this.sifteos[0], 'http://'+ window.location.host +'/img/accept.png', 'Accept', '000000', 'FFFFFF');
 			this.sifteos[0].pressListeners.push(function(msg) {
@@ -181,11 +215,15 @@ function Tangibles(webRTCSocket) {
 			$('#status').val('Connected!');
 			if(typeof callback != "undefined"){callback();}
 			self.registerDevices();
-		}, self.err);
+			self.openServerAPI();
+		}, function(e) {
+			$('#status').parent().css('display','none');
+		});
 	}
 	
 	// Reserve all devices from 
 	this.registerDevices = function(){
+		if (!self.registered) return;
 		this.api.listDevices(function(d) {
 			var num = d.msg.length;
 			for (var i=0; i < num; i++) {
@@ -203,6 +241,7 @@ function Tangibles(webRTCSocket) {
 						var device = {id:r.msg, subscribed:false, gyroListeners:[], accListeners:[]};
 						self.listenToEvents(device);
 						self.sphero.push(device);
+						self.setColor(device, 'FFFFFF');
 					}, self.err);
 				}
 			}
@@ -267,21 +306,33 @@ function Tangibles(webRTCSocket) {
 	$.getScript("js/tangibleLib.js", function(){
 		self.register();
 		
+		/*
+		// Debug
 		testSpheroEvents = function(){
 			if(self.sphero.length < 1){return;}
+			
 			self.sphero[0].gyroListeners.push(function(msg) {
-				var params = msg.params;
-				game(params.x*10, params.y*10,"myCanvas");
-				console.log(msg.event+" x: "+params.x*10+" y: "+params.y*10);
+				var x = msg.params.x * 1;
+				var y = msg.params.y * 1;
+				var z = msg.params.z * 1;
+				game(x, y, "myCanvas");
+				console.log(msg.event+" x: "+x+" y: "+y +" z: " +z);
+			});
+
+			self.sphero[0].accListeners.push(function(msg) {
+				var x = msg.params.x * 50;
+				var y = msg.params.y * 50;
+				var z = msg.params.z * 50;
+				x = Math.round(x*10)/10;
+				y = Math.round(x*10)/10;
+				z = Math.round(z*10)/10;
+				game(x, z, "myCanvas");
+				console.log(msg.event+" x: "+x+" y: "+y +" z: " +z);
 			});
 			
-			self.sphero[0].accListeners.push(function(msg) {
-				var params = msg.params;
-				game(params.x*50, params.y*50,"myCanvas");
-				console.log(msg.event+" x: "+ params.x*50 +" y: "+params.y*50);
-			});
 		};
-		setTimeout(testSpheroEvents,1000); // TODO make in a cleaner way
+		setTimeout(testSpheroEvents, 1000); // TODO make in a cleaner way
+		*/
 		
 		// Release reserved devices
 		$(window).on('beforeunload', function() { // TODO: Make global if needed

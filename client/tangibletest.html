@@ -34,7 +34,11 @@
 	  <button onclick="tangibles.setRightSpin(tangibles.sphero[0],150);">Make sphero spin right</button>
 	  <button onclick="tangibles.setLeftSpin(tangibles.sphero[0],150);">Make sphero spin left</button>
 	</p>
-	<p><button onclick="tangibles.incommingCall(1, 'John', 'Workroom', console.log, console.log);">Simulate incomming call</button></p>
+	<script type="text/javascript">
+		var onAccept = function(call_id){console.log('accept');console.log(call_id);};
+		var onDeny = function(call_id){console.log('deny');console.log(call_id);};
+	</script>
+	<p><button onclick="tangibles.incommingCall(1, 'John', 'Workroom', onAccept, onDeny);">Simulate incomming call</button></p>
 
 	<canvas id="myCanvas" width="400" height="400" style="background-color:#FAFAD2;" title="gyro">    
 		Your Browser does not support the HTML5 CANVAS Property. //displays on a non-HTML5 supporting browser.
