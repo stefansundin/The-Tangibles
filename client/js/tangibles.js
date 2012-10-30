@@ -20,9 +20,7 @@ function Tangibles(webRTCSocket) {
 	 *            Color RRGGBB (hex)
 	 */
 	this.setColor = function(dev, color) {
-		if (!self.registered) return;
-		console.log('setColor('+dev.id+','+color+')');
-		self.api.showColor(dev.id, color, self.err, self.err);
+		self.api.showColor(dev.id, color, undefined, self.err);
 	}
 
 	/**
@@ -35,8 +33,7 @@ function Tangibles(webRTCSocket) {
 	 */
 	this.setRightSpin = function(dev, velocity) {
 		if (!self.registered) return;
-		console.log('setRightSpin('+dev.id+','+velocity+')');
-		self.api.spinRight(dev.id, velocity, self.err, self.err);
+		self.api.spinRight(dev.id, velocity, undefined, self.err);
 	}
 
 	/**
@@ -49,8 +46,7 @@ function Tangibles(webRTCSocket) {
 	 */
 	this.setLeftSpin = function(dev, velocity) {
 		if (!self.registered) return;
-		console.log('setLeftSpin('+dev.id+','+velocity+')');
-		self.api.spinLeft(dev.id, velocity, self.err, self.err);
+		self.api.spinLeft(dev.id, velocity, undefined, self.err);
 	}
 
 	/**
@@ -84,8 +80,7 @@ function Tangibles(webRTCSocket) {
 	 */
 	this.showPicture = function(dev, url) {
 		if (!self.registered) return;
-		console.log('showPicture('+dev.id+','+url+')');
-		this.api.showPicture(dev.id, url, this.err, this.err);
+		this.api.showPicture(dev.id, url, undefined, this.err);
 	}
 
 	/**
@@ -103,8 +98,7 @@ function Tangibles(webRTCSocket) {
 	this.showText = function(dev, text, color, bg) {
 		if (!self.registered) return;
 		this.setColor(dev, bg);
-		console.log('showText('+dev.id+','+text+','+color+')');
-		setTimeout(function() {self.api.showText(dev.id, text, color, self.err, self.err);},100);
+		setTimeout(function() {self.api.showText(dev.id, text, color, undefined, self.err);},100);
 	}
 	
 	/**
@@ -120,7 +114,7 @@ function Tangibles(webRTCSocket) {
 			var h = d.getHours();
 			var m = d.getMinutes();
 			var s = d.getSeconds();
-			self.api.showText(dev.id, (h<10?'0':'')+h+':'+(m<10?'0':'')+m+':'+(s<10?'0':'')+s, '000000', self.err, self.err);
+			self.api.showText(dev.id, (h<10?'0':'')+h+':'+(m<10?'0':'')+m+':'+(s<10?'0':'')+s, '000000', undefined, self.err);
 		}, 1000);
 	}
 	
@@ -153,7 +147,7 @@ function Tangibles(webRTCSocket) {
 	this.disableSifteos = function() {
 		if (!self.registered) return;
 		for (d = 0; d < self.sifteos.length; d=d+1) {
-			self.api.showColor(self.sifteos[d].id, 'FFFFFF', self.err, self.err, false);
+			self.api.showColor(self.sifteos[d].id, 'FFFFFF', undefined, self.err, false);
 			self.sifteos[d].pressListeners = [];
 		}
 	}
@@ -165,7 +159,7 @@ function Tangibles(webRTCSocket) {
 	this.disableSpheros = function() {
 		if (!self.registered) return;
 		for (d = 0; d < self.sphero.length; d=d+1) {
-			self.api.showColor(self.sphero[d].id, 'FFFFFF', self.err, self.err, false);
+			self.api.showColor(self.sphero[d].id, 'FFFFFF', undefined, self.err, false);
 			self.sphero[d].gyroListeners = [];
 			self.sphero[d].accListeners = [];
 		}
@@ -178,7 +172,6 @@ function Tangibles(webRTCSocket) {
 	this.openServerAPI = function() {
 		if(this.webRTCSocket){
 			this.webRTCSocket.on(API_INVITE_SEND, function(name, room, call_id) {
-				console.log(name +' '+ room +' '+ call_id);
 				self.incommingCall(call_id, name, room, function() {
 					lobby.accept(call_id);
 				}, function() {
@@ -316,17 +309,13 @@ function Tangibles(webRTCSocket) {
 	 *            Run on sucessful registration
 	 */
 	this.register = function(callback){
-		$('#status').val('Connecting to TangibleAPI...');
 		this.api = new TangibleAPI('127.0.0.1');
 		this.api.register('Local tangible API', '', function(d) {
 			self.registered = true;
-			$('#status').val('Connected!');
 			if(typeof callback != "undefined"){callback();}
 			self.registerDevices();
 			self.openServerAPI();
-		}, function(e) {
-			$('#status').parent().css('display','none');
-		});
+		}, self.err );
 	}
 	
 	/**
@@ -341,14 +330,12 @@ function Tangibles(webRTCSocket) {
 				var devid = d.msg[i].id;
 				if (self.isSifteo(devid)) { 
 					self.api.reserveDevice(devid, function(r) {
-						console.log('Got sifteo device: '+r.msg);
 						var device = {id:r.msg, subscribed:false, pressListeners:[]};
 						self.listenToEvents(device);
 						self.sifteos.push(device);
 					}, self.err);
 				} else if (self.isSphero(devid)) { 
 					self.api.reserveDevice(devid, function(r) {
-						console.log('Got sphero device: '+r.msg);
 						var device = {id:r.msg, subscribed:false, gyroListeners:[], accListeners:[]};
 						self.listenToEvents(device);
 						self.sphero.push(device);
@@ -356,8 +343,6 @@ function Tangibles(webRTCSocket) {
 					}, self.err);
 				}
 			}
-			$('#status').val('Registered '+num+' devices!');
-			$('#sifteo_stuff').removeAttr('disabled');
 		}, this.err);
 	}
 	
@@ -375,14 +360,11 @@ function Tangibles(webRTCSocket) {
 			
 			self.APIsocket = new WebSocket('ws://127.0.0.1:' + d.msg.port + '/streaming');
 			self.APIsocket.onopen = function(e) {
-				console.log('Opened websocket: '+e.target.URL);
 				self.APIsocket.send(JSON.stringify({'flow': 'ctrl', 'msg' : self.api.getAppUUID()}));
 			};
 			self.APIsocket.onerror = function(e) {
-				console.log('Error: ' + e.data);
 			};
 			self.APIsocket.onclose = function(e) {
-				console.log('Close: ' + e.data);
 			};
 			self.APIsocket.onmessage = function(e) {
 				self.eventHandler($.parseJSON(e.data).msg);
