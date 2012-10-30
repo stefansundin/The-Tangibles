@@ -61,6 +61,8 @@ $(function() {
 			<input type="password" id="room_password" class="text ui-widget-content ui-corner-all" />
 		</div>
 	</div>
+	<div id="dialog_userlist_room" title="Users in this room"></div>
+	<div id="dialog_user_invite" title="Select users to invite"></div>
 	
 	<!-- Room frame -->
 	<iframe id="roomFrame" src="about:blank" seamless></iframe>
@@ -79,7 +81,7 @@ $(function() {
 			</div>
 		</div>
 		<div id="room_toolbar">
-			<input type="checkbox" id="toggle_workspace" /><label for="toggle_workspace">Toggle workspace</label>
+			<input type="checkbox" id="toggle_workspace" /><label for="toggle_workspace">Open workspace</label>
 			<button id="view_users">View participants</button>
 			<button id="show_chat">Show chat</button>
 			<button id="room_invite">Invite users</button>
