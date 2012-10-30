@@ -13,38 +13,45 @@ function Tangibles(webRTCSocket) {
 	}
 	
 	this.setColor = function(dev, color) {
+		if (!self.registered) return;
 		// color = "RRGGBB"
 		console.log('setColor('+dev.id+','+color+')');
 		self.api.showColor(dev.id, color, self.err, self.err);
 	}
 
 	this.setRightSpin = function(dev, velocity) {
+		if (!self.registered) return;
 		console.log('setRightSpin('+dev.id+','+velocity+')');
 		self.api.spinRight(dev.id, velocity, self.err, self.err);
 	}
 
 	this.setLeftSpin = function(dev, velocity) {
+		if (!self.registered) return;
 		console.log('setLeftSpin('+dev.id+','+velocity+')');
 		self.api.spinLeft(dev.id, velocity, self.err, self.err);
 	}
 
 	this.showTextPic = function(dev, url, text, color, bg) {
+		if (!self.registered) return;
 		this.showText(dev, text, color, bg);
 		setTimeout(function() {self.showPicture(dev, url);}, 100);
 	}
 
 	this.showPicture = function(dev, url) {
+		if (!self.registered) return;
 		console.log('showPicture('+dev.id+','+url+')');
 		this.api.showPicture(dev.id, url, this.err, this.err);
 	}
 
 	this.showText = function(dev, text, color, bg) {
+		if (!self.registered) return;
 		this.setColor(dev, bg);
 		console.log('showText('+dev.id+','+text+','+color+')');
 		setTimeout(function() {self.api.showText(dev.id, text, color, self.err, self.err);},100);
 	}
 	
 	this.showTime = function(dev) {
+		if (!self.registered) return;
 		setInterval(function() {
 			var d = new Date();
 			var h = d.getHours();
@@ -64,12 +71,14 @@ function Tangibles(webRTCSocket) {
 	
 	// Run on pageunload or when current state is no longer valid to stop displaying and listening.
 	this.disableSifteos = function() {
+		if (!self.registered) return;
 		for (d = 0; d < self.sifteos.length; d=d+1) {
 			self.api.showColor(self.sifteos[d].id, 'FFFFFF', self.err, self.err, false);
 			self.sifteos[d].pressListeners = [];
 		}
 	}
 	this.disableSpheros = function() {
+		if (!self.registered) return;
 		for (d = 0; d < self.sphero.length; d=d+1) {
 			self.api.showColor(self.sphero[d].id, 'FFFFFF', self.err, self.err, false);
 			self.sphero[d].gyroListeners = [];
@@ -77,36 +86,37 @@ function Tangibles(webRTCSocket) {
 		}
 	}
 	
-	
-	// Server API
-	if(this.webRTCSocket){ 
-		this.webRTCSocket.on(API_INVITE_SEND, function(name, room, call_id) {
-			console.log(name +' '+ room +' '+ call_id);
-			self.incommingCall(call_id, name, room, function() {
-				lobby.accept(call_id);
-			}, function() {
-				lobby.decline(call_id);
+	this.openServerAPI = function() {
+		// Server API
+		if(this.webRTCSocket){ 
+			this.webRTCSocket.on(API_INVITE_SEND, function(name, room, call_id) {
+				console.log(name +' '+ room +' '+ call_id);
+				self.incommingCall(call_id, name, room, function() {
+					lobby.accept(call_id);
+				}, function() {
+					lobby.decline(call_id);
+				});
 			});
-		});
-		
-		this.webRTCSocket.on(API_INVITE_ACCEPTED, function(room_id) {
-			self.acceptedCall(room_id, []);
-		});
-		
-		this.webRTCSocket.on(API_INVITE_DECLINED, function() {
-			self.disableSifteos();
-		});
-		
-		this.webRTCSocket.on(API_USER_ENTER, function(old_r, user, new_r) {
-			if (user != lobby.ownName) return;
-			if (!new_r) self.disableSifteos();
-			if (new_r) self.acceptedCall(new_r, []);
-		});
+			
+			this.webRTCSocket.on(API_INVITE_ACCEPTED, function(room_id) {
+				self.acceptedCall(room_id, []);
+			});
+			
+			this.webRTCSocket.on(API_INVITE_DECLINED, function() {
+				self.disableSifteos();
+			});
+			
+			this.webRTCSocket.on(API_USER_ENTER, function(old_r, user, new_r) {
+				if (user != lobby.ownName) return;
+				if (!new_r) self.disableSifteos();
+				if (new_r) self.acceptedCall(new_r, []);
+			});
+		}
 	}
-	
 	
 	// Call control
 	this.acceptedCall = function(call_id, users) {
+		if (!self.registered) return;
 		var enabled = true;
 		
 		for (i = 0; i < users.length; i = i + 1) {
@@ -145,6 +155,7 @@ function Tangibles(webRTCSocket) {
 	}
 	
 	this.incommingCall = function(call_id, caller, room, onAccept, onDeny) {
+		if (!self.registered) return;
 		var enabled = true;
 		
 		if (this.sifteos.length >= 1) {
@@ -181,11 +192,15 @@ function Tangibles(webRTCSocket) {
 			$('#status').val('Connected!');
 			if(typeof callback != "undefined"){callback();}
 			self.registerDevices();
-		}, self.err);
+			self.openServerAPI();
+		}, function(e) {
+			$('#status').parent().css('display','none');
+		});
 	}
 	
 	// Reserve all devices from 
 	this.registerDevices = function(){
+		if (!self.registered) return;
 		this.api.listDevices(function(d) {
 			var num = d.msg.length;
 			for (var i=0; i < num; i++) {
