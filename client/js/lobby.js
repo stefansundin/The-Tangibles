@@ -48,6 +48,7 @@ Lobby.prototype.init = function() {
 	$('#tangible_status').hide();
 	$('#roomFrame').hide();
 	$('#splash').hide();
+	$('#room_toolbar').hide();
 
 	$('#roomFrame').hide();
 
@@ -160,6 +161,43 @@ Lobby.prototype.init = function() {
 		}
 	});
 
+	$('#toggle_workspace').button({
+		icons : {
+			primary : 'ui-icon-newwin'
+		},
+		text : false
+	});
+	$('#view_users').button({
+		icons : {
+			primary : 'ui-icon-person'
+		},
+		text : false
+	});
+	$('#show_chat').button({
+		icons : {
+			primary : 'ui-icon-comment'
+		},
+		text : false
+	});
+	$('#room_invite').button({
+		icons : {
+			primary : 'ui-icon-plus'
+		},
+		text : false
+	});
+	$('#room_leave').button({
+		icons : {
+			primary : 'ui-icon-home'
+		},
+		text : false
+	});
+	$('#toggle_header').button({
+		icons : {
+			primary : 'ui-icon-arrowthick-1-n'
+		},
+		text : false
+	});
+
 	/*
 	 * Initialize socket stuff
 	 */
@@ -219,7 +257,8 @@ Lobby.prototype.loadSplash = function() {
 
 	$('#roomFrame').attr('src', 'about:blank');
 
-	$('#header').stop();
+	$('#room_toolbar').hide();
+
 	$('#header').show();
 
 	$('#main').hide();
@@ -240,7 +279,8 @@ Lobby.prototype.loadMain = function() {
 
 	$('#roomFrame').attr('src', 'about:blank');
 
-	$('#header').stop();
+	$('#room_toolbar').hide();
+
 	$('#header').show();
 
 	$('#main').show();
@@ -453,27 +493,11 @@ Lobby.prototype.enterRoom = function(roomId) {
 	$('#title').html(
 			'<span class="room_' + roomId + '">' + roomName + '</span>');
 
-	$('#header').delay(5000).hide(0);
+	$('#room_toolbar').show();
+	$('#header').hide();
 	$('#main').hide();
 	$('#roomFrame').show();
 	$('#roomFrame').attr('src', 'room/#' + roomId);
-};
-
-/**
- * Function to show the header.
- */
-Lobby.prototype.showHeader = function() {
-	$('#header').stop();
-	$('#header').show(0
-	/* { effect : 'slide', direction : 'up' } */);
-};
-
-/**
- * Function to hide the header.
- */
-Lobby.prototype.hideHeader = function() {
-	$('#header').hide(0
-	/* { effect : 'slide', direction : 'up' } */);
 };
 
 /**
@@ -486,8 +510,9 @@ Lobby.prototype.leaveRoom = function() {
 
 	$('#title').text('Lobby');
 
-	$('#header').stop();
 	$('#header').show();
+
+	$('#room_toolbar').hide();
 
 	$('#roomFrame').attr('src', 'about:blank');
 	$('#main').show();

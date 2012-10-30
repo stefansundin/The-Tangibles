@@ -2,22 +2,6 @@ $(function() {
 	// Function that starts all the things we need
 	init();
 	
-	var showHeader = false;
-	setTimeout(function() {
-		$(document).mousemove(function(event){
-			if (event.pageY <= 90) {
-				if (!showHeader) {
-					parent.lobby.showHeader();
-					showHeader = true;
-				}
-			} else {
-				if (showHeader) {
-					parent.lobby.hideHeader();
-					showHeader = false;
-				}
-			}
-	}); }, 500);
-	
 	// Dialogs
 	
     $('#invite_dialog').dialog({

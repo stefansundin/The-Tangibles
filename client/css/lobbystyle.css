@@ -38,12 +38,20 @@ body {
 	padding: 10px;
 }
 
-#header {
+#header_wrapper {
 	position: relative;
-	height: 90px;
-	width: 100%;
 	background-color: #F5F5F5;
 	border-bottom: 1px solid #E5E5E5;
+}
+
+#header {
+	height: 90px;
+	width: 100%;
+}
+
+#room_toolbar {
+	padding-right: 10px;
+	text-align: right;
 }
 
 #logo {
