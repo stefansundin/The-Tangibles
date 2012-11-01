@@ -449,10 +449,13 @@ var PORT_NUMBER = 12345;
 			sendMessageToAll(API_USER_LEAVE, data);
 			
 			if (user.inCall){
+				// TODO: Should this call really be made? Does it have a purpose? 
 				sendMessageToRoom(user.id, user.roomId, API_INVITE_LEAVE, data);
 				
-				user
-				//TODO: change user to not in call anymore?	
+				user.call.removeUser(user);
+				// TODO: What should the remaning users do in the call?
+				// 1. They should be able to continiue the call
+				// 2. They should also end the call? (maybe if the first caller leaves the call)	
 			}
 		}
 		user.roomId = newRoomId;
@@ -690,6 +693,7 @@ var PORT_NUMBER = 12345;
 		createNewRoom("Lobby", ROOM_PUBLIC, "", "");
 	
 		// Create some public test rooms
+		// TODO: Should there be more rooms that are non-deletable?
 		createNewRoom("Paris", ROOM_PUBLIC, "", "");
 		createNewRoom("Berlin", ROOM_PUBLIC, "", "");
 		createNewRoom("Rome", ROOM_PUBLIC, "", "");
