@@ -282,6 +282,14 @@ var PORT_NUMBER = 12345;
 		connection.send(payload); // <= send JSON data
 	}
 	
+	/**
+	 * Send a message to every person in a room.
+	 * @method sendMessageToRoom
+	 * @param userId {Int} the user sending the message
+	 * @param roomId {Int} the room the user is sending the message to
+	 * @param event_name {String} Event name of the message
+	 * @param event_data {JSONData} Message payload
+	 */
 	function sendMessageToRoom(userId, roomId, event_name, event_data){
 		for(var i=0,j=lUsers.length; i<j; i++){
 			if (lUsers[i].roomId == roomId) {
@@ -292,7 +300,14 @@ var PORT_NUMBER = 12345;
 		};
 	}
 	
-	function sendMessageToAllButSelf(id,event_name, event_data){
+	/**
+	 * Send a message to every person exluding the sender.
+	 * @method sendMessageToAllButSelf
+	 * @param id {Int} the user sending the message
+	 * @param event_name {String} Event name of the message
+	 * @param event_data {JSONData} Message payload
+	 */
+	function sendMessageToAllButSelf(id ,event_name, event_data){
 		for(var i=0,j=lUsers.length; i<j; i++){
 			if (lUsers[i].id != id){
 				sendMessage(lUsers[i].socket, event_name, event_data);	
@@ -300,6 +315,12 @@ var PORT_NUMBER = 12345;
 		};
 	}
 	
+	/**
+	 * Send a message to every person including the sender (for loopback functionality).
+	 * @method sendMessageToAll
+	 * @param event_name {String} Event name of the message
+	 * @param event_data {JSONData} Message payload
+	 */
 	function sendMessageToAll(event_name, event_data){
 		for(var i=0,j=lUsers.length; i<j; i++){
 			sendMessage(lUsers[i].socket, event_name, event_data);	
