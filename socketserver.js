@@ -585,14 +585,18 @@ var PORT_NUMBER = 12345;
 			id: call.called.id,
 			answer: answer
 		});
-		
-		sendMessage(call.caller.socket, API_INVITE_ANSWER, data);
-		
+
 		console.log("Answer: " + answer);
 		
+		for(var i=0,j=call.users.length; i<j; i++){
+			if (!call.users[i].inCall) {
+				sendMessage(call.users[i].socket, API_INVITE_ANSWER, data);		
+			}
+		};
+		
+		// Loopback for the called user to get event reactions
 		if (answer == "yes") {
-			call.caller.inCall = true;
-			call.called.inCall = true;
+			call.setCall(true);
 			
 			var data = JSON.stringify({
 				roomId: call.roomId 
@@ -604,6 +608,8 @@ var PORT_NUMBER = 12345;
 			sendMessage(con, API_INVITE_DECLINED, JSON.stringify({
 				id : callId
 			}));
+			
+			call.removeUser(getUserBySocket(con));
 		}
 	}
 	
@@ -729,11 +735,31 @@ var PORT_NUMBER = 12345;
 	
 	function obj_call(caller, called, roomId){
 		this.id = getNextCallId();
-		this.caller = caller;
-		this.called = called;
+		this.users = [];
+		this.users.add(caller);
+		this.users.add(called);
 		this.roomId = roomId;
-		this.caller.call = this;
-		this.called.call = this;
+		
+		caller.call = this;
+		called.call = this;
+		
+		this.addUser = function(called) {
+			this.users.add(called);
+			called.call = this;
+		}
+		
+		this.removeUser = function(called) {
+			this.users.remove(called);
+			called.call = null;
+			called.inCall = false;
+		}
+		
+		this.setCall = function(inCall) {
+			for(var i=0,j=users.length; i<j; i++){
+			  users[i].inCall = inCall;
+			};
+		}
+		
 	}
 	
 	
@@ -821,8 +847,14 @@ var PORT_NUMBER = 12345;
 		if (lCalls.length > LIMIT_CALLS){
 			return;
 		}
-		var call = new obj_call(caller, called, roomId);
-		lCalls.push(call);
+		var call;
+		if (caller.inCall) {
+			call = caller.call.addUser(called);
+		} else {
+			call = new obj_call(caller, called, roomId);
+			lCalls.push(call);	
+		}
+		
 		return call;
 	}
 	
