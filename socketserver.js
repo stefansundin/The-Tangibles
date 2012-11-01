@@ -1,9 +1,11 @@
 //#!/usr/bin/env node
 
-/**
-*	@class socketserver
-*
-*
+/*
+*	TODO: Password protected rooms
+* 	TODO: Private rooms
+* 	TODO: openID
+* 	TODO: Making names on users unique
+* 	TODO: Making names on rooms unique 
 */
 function socketserver(){
 	
@@ -507,7 +509,11 @@ var PORT_NUMBER = 12345;
 	 * @method corners
 	 * @param con {websocket} connection
 	 * @param recipientId {Int} The id of the recipient
-	 * @param message {JSONData} Message to deliver to the recipient
+	 * @param nw North West corner of projector screen
+	 * @param ne North East corner of projector screen
+	 * @param se South East corner of projector screen
+	 * @param sw South West corner of projector screen
+	 * @param label {String} Label of video stream to identify which stream to use 
 	 */
 	function corners(con, recipientId, nw, ne, se, sw, label){
 		var recipient = getUserById(recipientId);
@@ -527,7 +533,11 @@ var PORT_NUMBER = 12345;
 	 * Send a API_CORNERS_BROADCAST to all users in the current room, notifying the users of the new corners for use by the projector. 
 	 * @method cornersBroadcast
 	 * @param con {websocket} connection
-	 * @param message {JSONData} Message to deliver to the recipients
+	 * @param nw North West corner of projector screen
+	 * @param ne North East corner of projector screen
+	 * @param se South East corner of projector screen
+	 * @param sw South West corner of projector screen
+	 * @param label {String} Label of video stream to identify which stream to use 
 	 */
 	function cornersBroadcast(con, nw, ne, se, sw, label){
 	 	var recipients = getUserBySocket(con);
@@ -543,6 +553,14 @@ var PORT_NUMBER = 12345;
 		sendMessageToRoom(recipients.id, recipients.roomId, API_CORNERS_BROADCAST, data);
 	}
 	
+	/**
+	 * Send a API_INVITE_SEND to the another user to initiate a call (inviting to a existing room).
+	 * @method inviteSend
+	 * @param con {websocket} connection
+	 * @param recipientId {Int} id of the recipient of the call 
+	 * @param roomId {Int} id of the room inviting to
+	 * 
+	 */
 	function inviteSend(con, recipientId, roomId){
 		if (roomId < 1) {
 			return null;
@@ -570,6 +588,14 @@ var PORT_NUMBER = 12345;
 		sendMessage(recipient.socket, API_INVITE_SEND, data);
 	}
 	
+	/**
+	 * Send a API_INVITE_ANSWER to the caller and send API_INVITE_ACCEPTED / API_INVITE_DECLINED to the invited user as loopback
+	 * @method inviteAnswer
+	 * @param con {websocket} connection
+	 * @param callId {Int} id of the recipient of the call 
+	 * @param answer {String} id of the room inviting to
+	 * 
+	 */
 	function inviteAnswer(con, callId, answer){
 		var call = getCallById(callId);
 		
@@ -610,6 +636,16 @@ var PORT_NUMBER = 12345;
 		}
 	}
 	
+	/**
+	 * Send a API_ROOM_NEW to all users signaling that a new room has been created. 
+	 * @method newRoom
+	 * @param con {websocket} connection
+	 * @param name {String} Name of the new room 
+	 * @param typeS {String} Type of the new room
+	 * @param desc {String} (optional) Description of the new room, shown in the lobby
+	 * @param pass {String} (optional) Password for the new room
+	 * 
+	 */
 	function newRoom(con, name, typeS, desc, pass){
 		
 		if (desc == null) {
@@ -637,6 +673,13 @@ var PORT_NUMBER = 12345;
 	}
 
 	
+	/**
+	 * Remove the room and send a API_ROOM_REMOVE message to all users. 
+	 * @method removeRoom
+	 * @param con {websocket} connection
+	 * @param id {Int} id of room to remove 
+	 * 
+	 */
 	function removeRoom(con, id){
 		
 		if (id == 0){
@@ -661,10 +704,15 @@ var PORT_NUMBER = 12345;
 		sendMessageToAll(API_ROOM_REMOVE, data);
 	}
 	
-	addCallbacks(API_ROOM_REMOVE, function(con, id){
-		removeRoom(con, id);
-	});
 	
+	
+	/**
+	 * Echos the message back to the client to test that the websocket is working as inteaded. 
+	 * @method echo
+	 * @param con {websocket} connection
+	 * @param message {String} message to echo back 
+	 * 
+	 */
 	function echo(con, message){
 		
 		var data = JSON.stringify({
@@ -688,6 +736,13 @@ var PORT_NUMBER = 12345;
 	// Startup
 	// # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 	
+	
+	/**
+	 * Create the lobby and some other rooms at startup of the server. 
+	 * @addon Load from disk/database an existing list of rooms. 
+	 * @method startup
+	 * 
+	 */
 	function startup(){
 		// Create looby (gets ID 0)
 		createNewRoom("Lobby", ROOM_PUBLIC, "", "");
