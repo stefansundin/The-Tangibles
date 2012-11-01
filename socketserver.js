@@ -9,16 +9,6 @@ function socketserver(){
 	
 	var WebSocketServer = require('websocket').server;
 	var http = require('http')
-	/*
-	 * TODO: 
-	 * 		calls: timer for timeout 
-	 * 
-	 * 		enter rooms: when a user enters lobbyn at a later time, the list is incomplete. < Needs test
-	 * 
-	 * 
-	 * 
-	 */
-	
 	
 	// # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 	// Constants
@@ -322,7 +312,7 @@ var PORT_NUMBER = 12345;
 	
 	
 	// # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-	// Handle message
+	// Callbacks
 	// # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 	
 	addCallbacks(API_NAME_SET, function(con, name){
@@ -372,6 +362,11 @@ var PORT_NUMBER = 12345;
 	addCallbacks(API_ECHO, function(con, message){
 		echo(con, message);
 	});
+
+	// # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+	// Handle messages
+	// # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+	
 	
 	/**
 	 * Change the name of a user based on the connection, i.e. only the owner of the socket can change it's name. 
@@ -451,9 +446,6 @@ var PORT_NUMBER = 12345;
 		var user = getUserBySocket(con);
 		var room = getRoomById(user.roomId);
 		
-		console.log("%%%%");
-		console.log(user.id);
-		
 		var data = JSON.stringify({
 			id: user.id
 		}); 
@@ -464,6 +456,8 @@ var PORT_NUMBER = 12345;
 			
 			if (user.inCall){
 				sendMessageToRoom(user.id, user.roomId, API_INVITE_LEAVE, data);
+				
+				user
 				//TODO: change user to not in call anymore?	
 			}
 		}
@@ -496,11 +490,11 @@ var PORT_NUMBER = 12345;
 	 
 	/**
 	 * Send a message to all users in the current room. 
-	 * (do we want to differentiate between broadcast or not?) 
 	 * @method messageBroadcast
 	 * @param con {websocket} connection
 	 * @param message {String} Message to deliver to the recipients
 	 */
+	// (do we want to differentiate between broadcast or not?)
 	function messageBroadcast(con, message){
 		var recipients = getUserBySocket(con);
 		
@@ -564,14 +558,8 @@ var PORT_NUMBER = 12345;
 			
 		var call = createNewCall(caller, recipient, roomId);
 		
-		console.log("########");
-		
-		
-		console.log("# Room:");
 		console.log(room);
 		
-		console.log("########");
-	
 		if (caller == null || recipient == null || room == null){
 			return;
 		}
@@ -610,15 +598,9 @@ var PORT_NUMBER = 12345;
 				roomId: call.roomId 
 			}); 
 			
-			if (call.called.socket == con) {
-				console.log("same");
-			} else {
-				console.log("not same");
-			}
-			
 			sendMessage(con, API_INVITE_ACCEPTED, data);
 			
-		} else { // answer = no
+		} else { // answer = no TODO: check this
 			sendMessage(con, API_INVITE_DECLINED, JSON.stringify({
 				id : callId
 			}));
@@ -726,6 +708,7 @@ var PORT_NUMBER = 12345;
 		this.roomId = -1;
 		this.socket = socket;
 		this.inCall = false;
+		this.call = "";
 		
 		this.setName = function(name){
 			this.name = name;
@@ -749,6 +732,8 @@ var PORT_NUMBER = 12345;
 		this.caller = caller;
 		this.called = called;
 		this.roomId = roomId;
+		this.caller.call = this;
+		this.called.call = this;
 	}
 	
 	
@@ -843,7 +828,8 @@ var PORT_NUMBER = 12345;
 	
 	function getCallById(id) {
 		for(var i=0,j=lCalls.length; i<j; i++){
-			if (lCalls[i].id == id) {
+			if (
+				lCalls[i].id == id) {
 				return lCalls[i];	
 			}
 		};
