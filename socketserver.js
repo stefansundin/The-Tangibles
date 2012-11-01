@@ -584,7 +584,7 @@ var PORT_NUMBER = 12345;
 		}
 		
 		var data = JSON.stringify({
-			id: call.called.id,
+			id: getUserBySocket(con).id,
 			answer: answer
 		});
 
