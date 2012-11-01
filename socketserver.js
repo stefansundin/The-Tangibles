@@ -47,6 +47,8 @@ var PORT_NUMBER = 12345;
 	
 	var API_NAME_SET = "setname";
 	var API_NAME_CHANGE = "changename";
+	//var API_USERID = "userID"; TODO: Add functionality for sending two connecting clients their id
+	
 	
 	var API_ECHO = "echo";
 		
@@ -736,15 +738,15 @@ var PORT_NUMBER = 12345;
 	function obj_call(caller, called, roomId){
 		this.id = getNextCallId();
 		this.users = [];
-		this.users.add(caller);
-		this.users.add(called);
+		this.users.push(caller);
+		this.users.push(called);
 		this.roomId = roomId;
 		
 		caller.call = this;
 		called.call = this;
 		
 		this.addUser = function(called) {
-			this.users.add(called);
+			this.users.push(called);
 			called.call = this;
 		}
 		
