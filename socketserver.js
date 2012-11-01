@@ -757,8 +757,8 @@ var PORT_NUMBER = 12345;
 		}
 		
 		this.setCall = function(inCall) {
-			for(var i=0,j=users.length; i<j; i++){
-			  users[i].inCall = inCall;
+			for(var i=0,j=this.users.length; i<j; i++){
+			  this.users[i].inCall = inCall;
 			};
 		}
 		
