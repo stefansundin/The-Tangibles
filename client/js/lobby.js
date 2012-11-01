@@ -244,22 +244,15 @@ Lobby.prototype.init = function() {
 				if (self.workspaceOpen) {
 					self.workspaceWindow = window.open('/workspace/#'
 							+ self.ownRoomId + '_desk');
+					self.workspaceWindow.onbeforeunload = function() {
+						self.workspaceOpen = false;
+						self.updateWorkspaceButton();
+					};
 				} else {
 					self.workspaceWindow.close();
 				}
 
-				$(this).button(
-						'option',
-						{
-							text : !self.hideRoomHeader,
-							label : (self.workspaceOpen ? 'Close workspace'
-									: 'Open workspace')
-						});
-				// Special fix for label bug
-				$('label[for=toggle_workspace]').attr(
-						'title',
-						self.workspaceOpen ? 'Close workspace'
-								: 'Open workspace');
+				self.updateWorkspaceButton();
 			});
 	$('#view_users').button({
 		icons : {
@@ -1074,12 +1067,10 @@ Lobby.prototype.closeWorkspace = function() {
  * Updates the icons of the room toolbar.
  */
 Lobby.prototype.updateRoomToolbar = function() {
-	$('#toggle_workspace').attr('checked', this.workspaceOpen)
-			.button('refresh');
-	$('#toggle_workspace').button('option', {
-		text : !this.hideRoomHeader,
-		label : (this.workspaceOpen ? 'Close workspace' : 'Open workspace')
+	$('#room_toolbar').css({
+		'margin-top' : (this.hideRoomHeader ? '0' : '-29px')
 	});
+	this.updateWorkspaceButton();
 	$('#view_users').button('option', {
 		text : !this.hideRoomHeader
 	});
@@ -1102,6 +1093,19 @@ Lobby.prototype.updateRoomToolbar = function() {
 				label : (this.hideRoomHeader ? 'Show the header'
 						: 'Hide the header')
 			});
+};
+
+Lobby.prototype.updateWorkspaceButton = function() {
+	$('#toggle_workspace').attr('checked', this.workspaceOpen)
+			.button('refresh');
+	$('#toggle_workspace').button('option', {
+		text : !this.hideRoomHeader,
+		label : (this.workspaceOpen ? 'Close workspace' : 'Open workspace')
+	});
+
+	// Special fix for label bug
+	$('label[for=toggle_workspace]').attr('title',
+			this.workspaceOpen ? 'Close workspace' : 'Open workspace');
 };
 
 /**

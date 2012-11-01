@@ -24,16 +24,9 @@ body {
 	font-size: 0.7em;
 }
 
-#tangible_status {
-	position: absolute;
-	top: 0;
-	right: 0;
-	padding: 10px;
-}
-
 #top {
 	position: absolute;
-	top: 40px;
+	top: 0;
 	right: 0;
 	padding: 10px;
 }
@@ -50,6 +43,7 @@ body {
 }
 
 #room_toolbar {
+	height: 29px;
 	padding-right: 10px;
 	text-align: right;
 }
