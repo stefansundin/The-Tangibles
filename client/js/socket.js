@@ -29,6 +29,7 @@ var API_CORNERS_BROADCAST = "cornersbroadcast";
 
 var API_NAME_SET = "setname";
 var API_NAME_CHANGE = "changename";
+var API_USERID = "userID"; 
 
 var API_ECHO = "echo";
 

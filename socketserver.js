@@ -47,7 +47,7 @@ var PORT_NUMBER = 12345;
 	
 	var API_NAME_SET = "setname";
 	var API_NAME_CHANGE = "changename";
-	//var API_USERID = "userID"; TODO: Add functionality for sending two connecting clients their id
+	var API_USERID = "userID"; 
 	
 	
 	var API_ECHO = "echo";
@@ -200,23 +200,15 @@ var PORT_NUMBER = 12345;
 	 * @param connection Socket
 	 */
 	function handleNewConnection(connection){
-		//var room = getRoomById(0);
-		//room.addUser(new _user(connection));
+		var user = addNewUser(connection);
 		
-
-		// TODO: Jonas dethär händer ofta
-		// TODO: Jonas dethär händer ofta
-		// TODO: Det händer då man accepter/declinar ett call som inte finns
-		//node.js:201
-		//        throw e; // process.nextTick error, or 'error' event on first tick
-		//              ^
-		//Error: listen EACCES
-		//    at errnoException (net.js:646:11)
-		//    at Array.0 (net.js:732:28)
-		//    at EventEmitter._tickCallback (node.js:192:41)
-
-		
-		addNewUser(connection);
+		if (user != null) {
+			var data = JSON.stringify({
+				id: user.id
+			});
+			
+			sendMessage(connection, API_USERID, data);
+		}
 	}
 	
 	/**
@@ -810,7 +802,9 @@ var PORT_NUMBER = 12345;
 		if (lUsers.length > LIMIT_USERS){
 			return;
 		}
-		lUsers.push(new obj_user(socket));
+		var user = new obj_user(socket);
+		lUsers.push(user);
+		return user;
 	}
 	
 	function removeUserById(id){
