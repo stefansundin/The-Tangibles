@@ -14,7 +14,8 @@ function assert(exp, message) {
 function Lobby() {
 	this.AUTO_DECLINE_TIME = 60;
 	this.lobbyId = 0; // Special room id for the lobby
-	this.ownRoomId = 0;
+	this.ownRoomId = 0; // Own users current room Id
+	this.ownId = -1; // Own users Id
 	this.room_type_public = 'public'; // TODO Fix types
 	this.room_type_private = 'private';
 	this.rooms = []; // [id, name, desc, type]
@@ -74,20 +75,27 @@ Lobby.prototype.init = function() {
 		open : function(event, ui) {
 			$(this).empty();
 			// TODO Append with new users??
-			// TODO Remove own user?
+
+			var empty = true;
 
 			for ( var i = 0; i < self.users.length; i++) {
-				$(this).append($('<div/>', {
-					class : 'remote_user_' + self.users[i][0]
-				}).append($('<input/>', {
-					type : 'checkbox',
-					id : 'check_invite_' + self.users[i][0]
-				})).append($('<label/>', {
-					'for' : 'check_invite_' + self.users[i][0]
-				}).append($('<span/>', {
-					class : 'remote_user_' + self.users[i][0],
-					text : self.users[i][1]
-				}))));
+				if (self.users[i][0] != self.ownId) {
+					empty = false;
+					$(this).append($('<div/>', {
+						class : 'remote_user_' + self.users[i][0]
+					}).append($('<input/>', {
+						type : 'checkbox',
+						id : 'check_invite_' + self.users[i][0]
+					})).append($('<label/>', {
+						'for' : 'check_invite_' + self.users[i][0]
+					}).append($('<span/>', {
+						class : 'remote_user_' + self.users[i][0],
+						text : self.users[i][1]
+					}))));
+				}
+			}
+			if (empty) {
+				$(this).append('No users available.');
 			}
 		},
 		buttons : {
@@ -211,7 +219,7 @@ Lobby.prototype.init = function() {
 	$('#create_room_advanced_content').hide();
 	$('#create_room_advanced_button').button().click(function() {
 		$('#create_room_advanced_content').toggle();
-	}).button('disable'); // TODO Enable advanced button
+	}).button('disable'); // TODO Enable advanced button or remove
 
 	$('#splash_name').keypress(function(e) {
 		if (e.which == 13) {
@@ -267,7 +275,7 @@ Lobby.prototype.init = function() {
 			primary : 'ui-icon-comment'
 		},
 		text : false
-	}).button('disable'); // TODO
+	}).button('disable'); // TODO Toggle chat function
 	$('#room_invite').button({
 		icons : {
 			primary : 'ui-icon-plus'
@@ -317,6 +325,9 @@ Lobby.prototype.init = function() {
 		self.onSocketClose();
 	});
 
+	socket.on(API_USERID, function(userId) {
+		self.ownId = userId;
+	});
 	socket.on(API_NAME_SET, function(userName) {
 		$('#display_user_name').text(userName);
 	});
@@ -347,8 +358,6 @@ Lobby.prototype.init = function() {
 	socket.on(API_ROOM_REMOVE, function(roomId) {
 		self.onRoomDelete(roomId);
 	});
-
-	// TODO this.onRoomCreated('random_text');
 };
 
 /**
