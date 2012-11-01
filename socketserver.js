@@ -81,20 +81,34 @@ var PORT_NUMBER = 12345;
 	var lRooms = [];
 	var lUsers = [];
 	var lCalls = [];
-	
-	
+
+	var callbacks = {}; // Contains functions
 	
 	var counterRoom = 0;
+	var counterUser = 0;
+	var counterCall = 0;
+	
+	
+	/**
+	 * Return the next id number for room
+	 * @method getNextRoomId
+	 */	
 	function getNextRoomId(){
 		return counterRoom++;
 	}
 	
-	var counterUser = 0;
+	/**
+	 * Return the next id number for user
+	 * @method getNextRoomId
+	 */	
 	function getNextUserId(){
 		return counterUser++;
 	}
 	
-	var counterCall = 0;
+	/**
+	 * Return the next id number for call
+	 * @method getNextCallId
+	 */		
 	function getNextCallId(){
 		return counterCall++;
 	}
@@ -104,13 +118,24 @@ var PORT_NUMBER = 12345;
 	// Message callback
 	// # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 	
-	var callbacks = {};
-	
+	/**
+	 * Add functions to call when a specific event is triggerd
+	 * @method addCallbacks
+	 * @param event_name {String} Name of the event to react to
+	 * @param callback {function} Function to call when reacting
+	 */
 	function addCallbacks(event_name, callback) {
 		callbacks[event_name] = callbacks[event_name] || [];
 		callbacks[event_name].push(callback);
 	}
 	
+	/**
+	 * Call specific function(s) that contains the specific event name 
+	 * @method fire
+	 * @param event_name {String} Name of the event to react to
+	 * @param client {WebSocket} Socket from client sending event
+	 * @param message {JSON} JSON encoded string containing the parameters for the function TODO: change object to correct one
+	 */
 	function fire(event_name, client, message) {
 		console.log((new Date()) + " Firing: " + event_name);
 		console.log((new Date()) + " Message: " + message);
@@ -248,20 +273,6 @@ var PORT_NUMBER = 12345;
 				sendMessageToRoom(user.id, user.roomId, API_INVITE_LEAVE, data);	
 			}
 		}
-		
-		// var roomOld = getRoomByUserSocket(connection);
-		// var user = roomOld.getUserBySocket(connection);
-	// 	
-		// roomOld.removeUser(user);
-	// 	
-		// var name = user.name;
-	// 	
-		// for ( var i = 0; i < roomOld.users.length; i++) {
-			// if (roomOld.users[i] != null) {
-				// sendMessage(roomOld.users[i].socket, API_USER_LEAVE, name);	
-			// }
-		// }
-	
 	}
 	
 	/**
@@ -567,7 +578,6 @@ var PORT_NUMBER = 12345;
 		var recipient = getUserById(recipientId);
 		var room = getRoomById(roomId);
 			
-			
 		var call = createNewCall(caller, recipient, roomId);
 		
 		console.log(room);
@@ -757,7 +767,12 @@ var PORT_NUMBER = 12345;
 	// # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 	// Objects
 	// # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-	
+
+	/**
+	 * An object containing functionality for user handling  
+	 * @class obj_user
+ 	 * @param socket {WebSocket} Socket to user for sending messages 
+	 */	
 	function obj_user(socket) {
 		this.id = getNextUserId();
 		this.name = "";
@@ -774,6 +789,14 @@ var PORT_NUMBER = 12345;
 		}
 	}
 	
+	/**
+	 * An object containing functionality for room handling  
+	 * @class obj_room
+ 	 * @param name {String} Name of the room 
+	 * @param typeS {String} Type of the room
+	 * @param desc {String} Description of room, may be empty
+	 * @param pass {String} Password for room, may be empty
+	 */
 	function obj_room(name, typeS, desc, pass) {
 		this.id = getNextRoomId();
 		this.name = name;
@@ -782,7 +805,13 @@ var PORT_NUMBER = 12345;
 		this.desc = desc; // not necissary
 	}
 	
-	
+	/**
+	 * An object containing functionality for call/invite handling  
+	 * @class obj_room
+ 	 * @param caller {obj_user} User that initiates the call 
+	 * @param called {obj_user} User that recives the invite
+	 * @param roomId {Int} Description of room, may be empty
+	 */
 	function obj_call(caller, called, roomId){
 		this.id = getNextCallId();
 		this.users = [];
@@ -811,7 +840,7 @@ var PORT_NUMBER = 12345;
 		}
 		
 	}
-	
+
 	
 	// # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 	// Room logic
