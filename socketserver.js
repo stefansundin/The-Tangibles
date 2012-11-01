@@ -332,53 +332,29 @@ var PORT_NUMBER = 12345;
 	// Callbacks
 	// # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 	
-	addCallbacks(API_NAME_SET, function(con, name){
-		setName(con, name);
-	});
+	addCallbacks(API_NAME_SET, setName);
 	
-	addCallbacks(API_LIST, function(con){
-		list(con);
-	});
+	addCallbacks(API_LIST, list);
 	
-	addCallbacks(API_USER_CHANGE, function(con, newRoomId){
-		userChange(con, newRoomId);
-	});
+	addCallbacks(API_USER_CHANGE, userChange);
 	
-	addCallbacks(API_MESSAGE, function(con, recipientId, message){
-		message(con, recipientId, message);
-	});
+	addCallbacks(API_MESSAGE, message);
 	
-	addCallbacks(API_MESSAGE_BROADCAST, function(con, message){
-		messageBroadcast(con, message);
-	});
+	addCallbacks(API_MESSAGE_BROADCAST, messageBroadcast);
 	
-	addCallbacks(API_CORNERS, function(con, recipientId, nw, ne, se, sw, label){
-		corners(con, recipientId, nw, ne, se, sw, label);
-	});
+	addCallbacks(API_CORNERS, corners);
 	
-	addCallbacks(API_CORNERS_BROADCAST, function(con, nw, ne, se, sw, label){
-		cornersBroadcast(con, nw, ne, se, sw, label);
-	});
+	addCallbacks(API_CORNERS_BROADCAST, cornersBroadcast);
 	
-	addCallbacks(API_INVITE_SEND, function(con, recipientId, roomId){
-		inviteSend(con, recipientId, roomId);
-	});
+	addCallbacks(API_INVITE_SEND, inviteSend);
 	
-	addCallbacks(API_INVITE_ANSWER, function(con, callId, answer){
-		inviteAnswer(con, callId, answer);
-	});
+	addCallbacks(API_INVITE_ANSWER, inviteAnswer);
 	
-	addCallbacks(API_ROOM_NEW, function(con, name, typeS, desc, pass){
-		newRoom(con, name, typeS, desc, pass);
-	});
+	addCallbacks(API_ROOM_NEW, newRoom);
 	
-	addCallbacks(API_ROOM_REMOVE, function(con, id){
-		removeRoom(con, id);
-	});
+	addCallbacks(API_ROOM_REMOVE, removeRoom);
 	
-	addCallbacks(API_ECHO, function(con, message){
-		echo(con, message);
-	});
+	addCallbacks(API_ECHO, echo);
 
 	// # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 	// Handle messages
