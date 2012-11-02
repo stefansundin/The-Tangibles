@@ -28,8 +28,8 @@ app.get('/img/logo.png', function(req, res) {
 	  res.sendfile(__dirname + '/client/img/logo.png');
 });
 
-app.get('/img/logo_small.png', function(req, res) {
-	  res.sendfile(__dirname + '/client/img/logo_small.png');
+app.get('/img/logo-small.png', function(req, res) {
+	  res.sendfile(__dirname + '/client/img/logo-small.png');
 });
 
 app.get('/img/status.png', function(req, res) {
