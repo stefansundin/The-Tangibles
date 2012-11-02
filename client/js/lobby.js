@@ -1051,10 +1051,12 @@ Lobby.prototype.closeWorkspace = function() {
  */
 Lobby.prototype.updateRoomToolbar = function() {
 	if (this.hideRoomHeader) {
+		$('#title').addClass('small');
 		$('#header .expanded').hide();
 		$('#header .small').show();
 		$('#header').css('height', '30px');
 	} else {
+		$('#title').removeClass('small');
 		$('#header .expanded').show();
 		$('#header .small').hide();
 		$('#header').css('height', '');

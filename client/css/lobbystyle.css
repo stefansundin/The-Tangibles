@@ -32,7 +32,8 @@ body {
 	width: 100%;
 }
 #header img {
-	margin: 5px;
+	margin: 3px 5px;
+	float: left;
 }
 #header .small {
 	display: none;
@@ -50,14 +51,20 @@ body {
 
 
 #title {
-	position: absolute;
-	margin: 0;
-	padding: 0;
-	top: 35px;
-	left: 290px;
+	margin: 33px 20px;
+	float: left;
 	font-family: Ubuntu, sans-serif;
 	font-weight: normal;
 	font-size: 36px;
+	color: #909090;
+}
+#title.small {
+	margin-top: 2px;
+	font-size: 24px;
+}
+
+#title_small_room {
+	padding-left: 7px;
 	color: #909090;
 }
 
