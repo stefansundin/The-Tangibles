@@ -617,7 +617,6 @@ Lobby.prototype.enterRoom = function(roomId) {
 					+ '">' + roomName + '</span>');
 
 	$('#room_toolbar').show();
-	$('#title_small').show();
 	this.hideRoomHeader = true;
 	this.updateRoomToolbar();
 	$('#header').hide();
