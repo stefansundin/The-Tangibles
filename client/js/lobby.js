@@ -202,11 +202,27 @@ Lobby.prototype.init = function() {
 		}
 	});
 
+
+	$('#dialog_tangible_status').dialog({
+		autoOpen : false,
+		modal : true,
+		resizable : false,
+		open : function(event, ui) {
+			$('.status',this).text($('#tangible_status').attr('title'));
+		},
+		buttons : {
+			OK : function() {
+				$(this).dialog('close');
+			}
+		}
+	});
 	$('#tangible_status').button({
 		icons : { primary : 'ui-icon-tangiblestatus-ok' }
 	}).click(function() {
-		alert('hello');
+		$('#dialog_tangible_status').dialog('open');
 	});
+
+
 	$('#toggle_workspace').button({
 		icons : { primary : 'ui-icon-newwin' },
 		text : false

@@ -20,6 +20,10 @@ body {
 	height: 100%;
 }
 
+ol {
+	margin-top: 3px;
+}
+
 .ui-widget {
 	font-size: 0.7em;
 }
