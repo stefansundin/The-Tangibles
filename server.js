@@ -28,6 +28,14 @@ app.get('/img/logo.png', function(req, res) {
 	  res.sendfile(__dirname + '/client/img/logo.png');
 });
 
+app.get('/img/logo_small.png', function(req, res) {
+	  res.sendfile(__dirname + '/client/img/logo_small.png');
+});
+
+app.get('/img/status.png', function(req, res) {
+	  res.sendfile(__dirname + '/client/img/status.png');
+});
+
 app.get('/room', function(req, res) {
 //  console.log('Opening room');
   res.sendfile(__dirname + '/client/room.html');
