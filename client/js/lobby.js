@@ -342,6 +342,7 @@ Lobby.prototype.init = function() {
  */
 Lobby.prototype.loadSplash = function() {
 	$('#title').text('Welcome');
+	$('#title_small').hide();
 
 	$('#roomFrame').attr('src', 'about:blank');
 
@@ -363,6 +364,7 @@ Lobby.prototype.loadSplash = function() {
  */
 Lobby.prototype.loadMain = function() {
 	$('#title').text('Lobby');
+	$('#title_small').hide();
 
 	$('#roomFrame').attr('src', 'about:blank');
 
@@ -610,8 +612,12 @@ Lobby.prototype.enterRoom = function(roomId) {
 	}
 	$('#title').html(
 			'<span class="room_' + roomId + '">' + roomName + '</span>');
+	$('#title_small').html(
+			'The Tangibles <span id="title_small_room" class="room_' + roomId
+					+ '">' + roomName + '</span>');
 
 	$('#room_toolbar').show();
+	$('#title_small').show();
 	this.hideRoomHeader = true;
 	this.updateRoomToolbar();
 	$('#header').hide();
@@ -631,6 +637,7 @@ Lobby.prototype.leaveRoom = function() {
 	$('#title').text('Lobby');
 
 	$('#header').show();
+	$('#title_small').hide();
 
 	$('#room_toolbar').hide();
 
@@ -1092,6 +1099,11 @@ Lobby.prototype.closeWorkspace = function() {
  * Updates the icons of the room toolbar.
  */
 Lobby.prototype.updateRoomToolbar = function() {
+	if (this.hideRoomHeader) {
+		$('#title_small').show();
+	} else {
+		$('#title_small').hide();
+	}
 	$('#room_toolbar').css({
 		'margin-top' : (this.hideRoomHeader ? '0' : '-29px')
 	});

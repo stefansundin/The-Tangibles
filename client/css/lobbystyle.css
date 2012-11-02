@@ -66,6 +66,24 @@ body {
 	color: #909090;
 }
 
+#title_small {
+	position: absolute;
+	margin: 0;
+	padding: 0;
+	padding-left: 10px;
+	top: 0px;
+	left: 0px;
+	font-family: Ubuntu, sans-serif;
+	font-weight: normal;
+	font-size: 24px;
+	color: #000000;
+}
+
+#title_small_room {
+	padding-left: 7px;
+	color: #909090;
+}
+
 #display_user_name {
 	display: inline;
 	vertical-align: middle;
