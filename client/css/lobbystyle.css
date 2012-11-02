@@ -24,35 +24,30 @@ body {
 	font-size: 0.7em;
 }
 
-#top {
-	position: absolute;
-	top: 0;
-	right: 0;
-	padding: 10px;
-}
-
-#header_wrapper {
+#header {
 	position: relative;
 	background-color: #F5F5F5;
 	border-bottom: 1px solid #E5E5E5;
-}
-
-#header {
 	height: 90px;
 	width: 100%;
 }
-
-#room_toolbar {
+#header img {
+	margin: 5px;
+}
+#header .small {
+	display: none;
+}
+#top {
+	float: right;
+	padding: 10px;
+}
+#toolbar {
 	height: 29px;
 	padding-right: 10px;
-	text-align: right;
+	clear: right;
+	float: right;
 }
 
-#logo {
-	position: absolute;
-	top: 5px;
-	left: 5px;
-}
 
 #title {
 	position: absolute;
@@ -177,4 +172,16 @@ body {
 	top: 0;
 	right: 0;
 	margin: 10px;
+}
+
+.ui-icon-tangiblestatus-ok {
+	background-image: url(../img/status.png) !important;
+}
+.ui-icon-tangiblestatus-error {
+	background-image: url(../img/status.png) !important;
+	background-position: -16px 0;
+}
+.ui-icon-tangiblestatus-warning {
+	background-image: url(../img/status.png) !important;
+	background-position: -32px 0;
 }

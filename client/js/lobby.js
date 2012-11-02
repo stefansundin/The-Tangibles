@@ -31,16 +31,7 @@ function Lobby() {
 Lobby.prototype.init = function() {
 	var self = this;
 
-	$('#main').hide();
-	$('#top').hide();
-	$('#call_list').hide();
-	$('#roomFrame').hide();
-	$('#splash').hide();
-	$('#room_toolbar').hide();
-
-	$('#roomFrame').hide();
-
-	$('#room_table tfoot').hide();
+	$('#main, #top, #call_list, #roomFrame, #splash, #room_toolbar, #roomFrame, #room_table tfoot').hide();
 
 	$('#display_user_name').text(this.ownName);
 
@@ -150,13 +141,12 @@ Lobby.prototype.init = function() {
 				$(this).dialog('close');
 			}
 		}
-	}).keypress(
-			function(e) {
-				if (e.which == 13) {
-					$(this).parents('.ui-dialog').first().find('.ui-button')
-							.first().click();
-				}
-			});
+	}).keypress(function(e) {
+		if (e.which == 13) {
+			$(this).parents('.ui-dialog').first().find('.ui-button')
+				.first().click();
+		}
+	});
 
 	$('#dialog_create_room').dialog({
 		autoOpen : false,
@@ -180,13 +170,12 @@ Lobby.prototype.init = function() {
 				$(this).dialog('close');
 			}
 		}
-	}).keypress(
-			function(e) {
-				if (e.which == 13) {
-					$(this).parents('.ui-dialog').first().find(
-							'.ui-button:contains(OK)').first().click();
-				}
-			});
+	}).keypress(function(e) {
+		if (e.which == 13) {
+			$(this).parents('.ui-dialog').first().find(
+				'.ui-button:contains(OK)').first().click();
+		}
+	});
 
 	$('#room_type').buttonset();
 	$('#create_room_advanced_content').hide();
@@ -213,76 +202,61 @@ Lobby.prototype.init = function() {
 		}
 	});
 
+	$('#tangible_status').button({
+		icons : { primary : 'ui-icon-tangiblestatus-ok' }
+	}).click(function() {
+		alert('hello');
+	});
 	$('#toggle_workspace').button({
-		icons : {
-			primary : 'ui-icon-newwin'
-		},
+		icons : { primary : 'ui-icon-newwin' },
 		text : false
-	}).click(
-			function() {
-				self.workspaceOpen = !self.workspaceOpen;
-
+	}).click(function() {
+		self.workspaceOpen = !self.workspaceOpen;
+		if (self.workspaceOpen) {
+			self.workspaceWindow = window.open('/workspace/#'
+					+ self.ownRoomId + '_desk');
+			self.workspaceWindow.onbeforeunload = function() {
 				if (self.workspaceOpen) {
-					self.workspaceWindow = window.open('/workspace/#'
-							+ self.ownRoomId + '_desk');
-					self.workspaceWindow.onbeforeunload = function() {
-						if (self.workspaceOpen) {
-							$('label[for=toggle_workspace]').removeClass(
-									'ui-state-hover');
-							self.workspaceOpen = false;
-							self.updateWorkspaceButton();
-						}
-					};
-				} else {
-					self.workspaceWindow.close();
+					$('label[for=toggle_workspace]').removeClass(
+							'ui-state-hover');
+					self.workspaceOpen = false;
+					self.updateWorkspaceButton();
 				}
-
-				self.updateWorkspaceButton();
-			});
+			};
+		} else {
+			self.workspaceWindow.close();
+		}
+		self.updateWorkspaceButton();
+	});
 	$('#view_users').button({
-		icons : {
-			primary : 'ui-icon-person'
-		},
+		icons : { primary : 'ui-icon-person' },
 		text : false
 	}).click(function() {
 		$('#dialog_userlist_room').dialog('open');
 	});
 	$('#show_chat').button({
-		icons : {
-			primary : 'ui-icon-comment'
-		},
+		icons : { primary : 'ui-icon-comment' },
 		text : false
 	}).button('disable'); // TODO Toggle chat function
 	$('#room_invite').button({
-		icons : {
-			primary : 'ui-icon-plus'
-		},
+		icons : { primary : 'ui-icon-plus' },
 		text : false
 	}).click(function() {
 		$('#dialog_user_invite').dialog('open');
 	});
 	$('#room_leave').button({
-		icons : {
-			primary : 'ui-icon-home'
-		},
+		icons : { primary : 'ui-icon-home' },
 		text : false
 	}).click(function() {
 		self.leaveRoom();
 	});
 
 	$('#toggle_header').button({
-		icons : {
-			primary : 'ui-icon-arrowthick-1-s'
-		},
+		icons : { primary : 'ui-icon-arrowthick-1-s' },
 		text : false
 	}).click(function() {
 		self.hideRoomHeader = !self.hideRoomHeader;
 		self.updateRoomToolbar();
-		if (self.hideRoomHeader) {
-			$('#header').hide();
-		} else {
-			$('#header').show();
-		}
 		$(this).removeClass('ui-state-hover');
 	});
 
@@ -345,15 +319,8 @@ Lobby.prototype.loadSplash = function() {
 
 	$('#roomFrame').attr('src', 'about:blank');
 
-	$('#room_toolbar').hide();
-
-	$('#header').show();
-
-	$('#main').hide();
-	$('#top').hide();
-	$('#call_list').hide();
-	$('#roomFrame').hide();
-	$('#splash').show();
+	$('#main, #top, #room_toolbar, #call_list, #roomFrame').hide();
+	$('#header, #splash').show();
 
 	$('#splash_name').focus();
 };
@@ -366,15 +333,8 @@ Lobby.prototype.loadMain = function() {
 
 	$('#roomFrame').attr('src', 'about:blank');
 
-	$('#room_toolbar').hide();
-
-	$('#header').show();
-
-	$('#main').show();
-	$('#top').show();
-	$('#call_list').show();
-	$('#roomFrame').hide();
-	$('#splash').hide();
+	$('#header, #main, #top, #call_list').show();
+	$('#room_toolbar, #roomFrame, #splash').hide();
 };
 
 /**
@@ -410,11 +370,7 @@ Lobby.prototype.onSocketClose = function() {
 
 	// TODO Fix so it stays in the room?
 
-	$('#main').hide();
-	$('#top').hide();
-	$('#call_list').hide();
-	$('#roomFrame').hide();
-	$('#splash').hide();
+	$('#main, #top, #call_list, #roomFrame, #splash').hide();
 
 	$('#room_table tbody').empty();
 	$('#room_table tfoot').show();
@@ -614,7 +570,6 @@ Lobby.prototype.enterRoom = function(roomId) {
 	$('#room_toolbar').show();
 	this.hideRoomHeader = true;
 	this.updateRoomToolbar();
-	$('#header').hide();
 	$('#main').hide();
 	$('#roomFrame').show();
 	$('#roomFrame').attr('src', 'room/#' + roomId);
@@ -624,13 +579,16 @@ Lobby.prototype.enterRoom = function(roomId) {
  * Is called by the room frame content when it wants to close the room.
  */
 Lobby.prototype.leaveRoom = function() {
+	this.ownRoomId = 0;
+
 	socket.send(API_USER_CHANGE, JSON.stringify({
 		id : this.lobbyId
 	}));
 
 	$('#title').text('Lobby');
 
-	$('#header').show();
+	this.hideRoomHeader = false;
+	this.updateRoomToolbar();
 
 	$('#room_toolbar').hide();
 
@@ -1092,32 +1050,26 @@ Lobby.prototype.closeWorkspace = function() {
  * Updates the icons of the room toolbar.
  */
 Lobby.prototype.updateRoomToolbar = function() {
-	$('#room_toolbar').css({
-		'margin-top' : (this.hideRoomHeader ? '0' : '-29px')
-	});
+	if (this.hideRoomHeader) {
+		$('#header .expanded').hide();
+		$('#header .small').show();
+		$('#header').css('height', '30px');
+	} else {
+		$('#header .expanded').show();
+		$('#header .small').hide();
+		$('#header').css('height', '');
+	}
+
 	this.updateWorkspaceButton();
-	$('#view_users').button('option', {
-		text : !this.hideRoomHeader
+	$('#header #toolbar button:not(:last)').button('option',
+		{ text : !this.hideRoomHeader });
+
+	$('#toggle_header').button('option', {
+		icons : {
+			primary : 'ui-icon-arrowthick-1-'+(this.hideRoomHeader ? 's' : 'n')
+		},
+		label : (this.hideRoomHeader ? 'Show the header' : 'Hide the header')
 	});
-	$('#show_chat').button('option', {
-		text : !this.hideRoomHeader
-	});
-	$('#room_invite').button('option', {
-		text : !this.hideRoomHeader
-	});
-	$('#room_leave').button('option', {
-		text : !this.hideRoomHeader
-	});
-	$('#toggle_header').button(
-			'option',
-			{
-				icons : {
-					primary : 'ui-icon-arrowthick-1-'
-							+ (this.hideRoomHeader ? 's' : 'n')
-				},
-				label : (this.hideRoomHeader ? 'Show the header'
-						: 'Hide the header')
-			});
 };
 
 /**
@@ -1125,7 +1077,7 @@ Lobby.prototype.updateRoomToolbar = function() {
  */
 Lobby.prototype.updateWorkspaceButton = function() {
 	$('#toggle_workspace').attr('checked', this.workspaceOpen)
-			.button('refresh');
+		.button('refresh');
 	$('#toggle_workspace').button('option', {
 		text : !this.hideRoomHeader,
 		label : (this.workspaceOpen ? 'Close workspace' : 'Open workspace')
@@ -1133,7 +1085,7 @@ Lobby.prototype.updateWorkspaceButton = function() {
 
 	// Special fix for label bug
 	$('label[for=toggle_workspace]').attr('title',
-			this.workspaceOpen ? 'Close workspace' : 'Open workspace');
+		this.workspaceOpen ? 'Close workspace' : 'Open workspace');
 };
 
 /**

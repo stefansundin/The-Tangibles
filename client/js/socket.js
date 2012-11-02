@@ -35,16 +35,9 @@ var API_ECHO = "echo";
 
 
 var Socket = function(url) {
-	
-
-	
-
 	this.conn = new WebSocket(url, 'tangibles');
-
 	this.opened = false;
-
 	var callbacks = {};
-
 	var self = this;
 
 	this.on = function(event_name, callback) {
@@ -114,4 +107,4 @@ var Socket = function(url) {
 	};
 };
 
-var socket = new Socket("ws://" + window.location.hostname + ":12345");
+var socket = new Socket("ws://" + (window.location.hostname || 'dev.tangible.se') + ":12345");

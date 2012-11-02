@@ -7,8 +7,19 @@ function Tangibles(webRTCSocket) {
 	this.webRTCSocket = webRTCSocket;
 	
 	// Utility functions
-	this.err = function(e) {
-		console.log(e);
+	this.err = function(xhr,status,error) {
+		console.log('err');
+		console.log(xhr);
+		console.log(status);
+		console.log(error);
+	}
+	this.err2 = function(context) {
+		return function(xhr,status,error) {
+			console.log('tangible error: '+context);
+			$('#tangible_status').button({
+				icons : { primary : 'ui-icon-tangiblestatus-error' },
+			}).attr('title', 'Error: Could not '+context+' to TangibleAPI!');
+		}
 	}
 	
 	/**
@@ -305,17 +316,14 @@ function Tangibles(webRTCSocket) {
 	/**
 	 * Register to the tangible API and get devices.
 	 * 
-	 * @param callback
-	 *            Run on sucessful registration
 	 */
-	this.register = function(callback){
+	this.register = function() {
 		this.api = new TangibleAPI('127.0.0.1');
 		this.api.register('Local tangible API', '', function(d) {
 			self.registered = true;
-			if(typeof callback != "undefined"){callback();}
 			self.registerDevices();
 			self.openServerAPI();
-		}, self.err );
+		}, self.err2('connect'));
 	}
 	
 	/**
