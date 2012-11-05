@@ -13,12 +13,13 @@ function Tangibles(webRTCSocket) {
 		console.log(status);
 		console.log(error);
 	}
-	this.err2 = function(context) {
+	this.err2 = function(error_message) {
 		return function(xhr,status,error) {
-			console.log('tangible error: '+context);
+			console.log('tangible error: '+error_message);
 			$('#tangible_status').button({
 				icons : { primary : 'ui-icon-tangiblestatus-error' },
-			}).attr('title', 'Error: Could not '+context+' to TangibleAPI!');
+			}).attr('title', error_message);
+			self.registered = false;
 		}
 	}
 	
@@ -31,7 +32,7 @@ function Tangibles(webRTCSocket) {
 	 *            Color RRGGBB (hex)
 	 */
 	this.setColor = function(dev, color) {
-		self.api.showColor(dev.id, color, undefined, self.err);
+		self.api.showColor(dev.id, color, undefined, self.err2('Unable to show color.'));
 	}
 
 	/**
@@ -91,7 +92,7 @@ function Tangibles(webRTCSocket) {
 	 */
 	this.showPicture = function(dev, url) {
 		if (!self.registered) return;
-		this.api.showPicture(dev.id, url, undefined, this.err);
+		this.api.showPicture(dev.id, url, undefined, this.err2('Unable to show picture.'));
 	}
 
 	/**
@@ -109,7 +110,7 @@ function Tangibles(webRTCSocket) {
 	this.showText = function(dev, text, color, bg) {
 		if (!self.registered) return;
 		this.setColor(dev, bg);
-		setTimeout(function() {self.api.showText(dev.id, text, color, undefined, self.err);},100);
+		setTimeout(function() {self.api.showText(dev.id, text, color, undefined, self.err2('Unable to show text.')); }, 100);
 	}
 	
 	/**
@@ -158,8 +159,8 @@ function Tangibles(webRTCSocket) {
 	this.disableSifteos = function() {
 		if (!self.registered) return;
 		for (d = 0; d < self.sifteos.length; d=d+1) {
-			self.api.showColor(self.sifteos[d].id, 'FFFFFF', undefined, self.err, false);
 			self.sifteos[d].pressListeners = [];
+			self.api.showColor(self.sifteos[d].id, 'FFFFFF', undefined, self.err2('Unable to disable sifteo: '+self.sifteos[d].id), false);
 		}
 	}
 
@@ -170,9 +171,9 @@ function Tangibles(webRTCSocket) {
 	this.disableSpheros = function() {
 		if (!self.registered) return;
 		for (d = 0; d < self.sphero.length; d=d+1) {
-			self.api.showColor(self.sphero[d].id, 'FFFFFF', undefined, self.err, false);
 			self.sphero[d].gyroListeners = [];
 			self.sphero[d].accListeners = [];
+			self.api.showColor(self.sphero[d].id, 'FFFFFF', undefined, self.err2('Unable to disable sphero: '+self.sphero[d].id), false);
 		}
 	}
 	
@@ -323,7 +324,7 @@ function Tangibles(webRTCSocket) {
 			self.registered = true;
 			self.registerDevices();
 			self.openServerAPI();
-		}, self.err2('connect'));
+		}, self.err2('Could not connect to TangibleAPI'));
 	}
 	
 	/**
@@ -419,7 +420,7 @@ function Tangibles(webRTCSocket) {
 		self.disableSpheros();
 		self.disableSifteos();
 		self.webRTCSocket.send(API_USER_CHANGE, JSON.stringify({
-			'id' : 0  // Goto Lobby
+			'id' : 0 // Goto Lobby
 		}));
 	});
 
