@@ -737,7 +737,6 @@ function socketserver() {
 	 * Create the lobby and some other rooms at startup of the server.
 	 * @addon Load from disk/database an existing list of rooms.
 	 * @method startup
-	 *
 	 */
 	function startup() {
 		// Create looby (gets ID 0)
@@ -837,6 +836,7 @@ function socketserver() {
 
 	/**
 	 * Create a new room and add it to the room list.
+	 * @method
 	 * @param name {String} Name of the new room
 	 * @param typeS {String} Type of the new room
 	 * @param desc {String} (optional) Description of the new room
@@ -853,6 +853,7 @@ function socketserver() {
 
 	/**
 	 * Remove room by searching through the list to find the correct id.
+	 * @method
 	 * @param id {Int} Room to remove by it's id
 	 */
 	function removeRoomById(id) {
@@ -864,6 +865,7 @@ function socketserver() {
 
 	/**
 	 * Get room by searching through the list to find the correct name.
+	 * @method
 	 * @param name {String} Room to get by it's name
 	 */
 	function getRoomByName(name) {
@@ -876,6 +878,7 @@ function socketserver() {
 
 	/**
 	 * Get room by searching through the list to find the correct id.
+	 * @method
 	 * @param id {Int} Room to get by it's id
 	 */
 	function getRoomById(id) {
@@ -892,6 +895,7 @@ function socketserver() {
 
 	/**
 	 * Create a new user and add it to the user list.
+	 * @method
 	 * @param socket {WebSocket} The connectiong to the new user
 	 */
 	function addNewUser(socket) {
@@ -905,6 +909,7 @@ function socketserver() {
 
 	/**
 	 * Remove a user by it's id.
+	 * @method
 	 * @param id {Int} User to remove by it's id
 	 */
 	function removeUserById(id) {
@@ -917,6 +922,7 @@ function socketserver() {
 
 	/**
 	 * Remove a user from the users list. (Used if additional operations becomes necicary at a later stage)
+	 * @method
 	 * @param user {obj_user} User to remove
 	 */
 	function removeUser(user) {
@@ -925,6 +931,7 @@ function socketserver() {
 
 	/**
 	 * Get user by searching through the list to find the correct websocket connection.
+	 * @method
 	 * @param socket {WebSocket} Socket to search for
 	 */
 	function getUserBySocket(socket) {
@@ -937,6 +944,7 @@ function socketserver() {
 
 	/**
 	 * Get user by searching through the list to find the correct id.
+	 * @method
 	 * @param id {Int} Id to search for
 	 */
 	function getUserById(id) {
@@ -953,6 +961,7 @@ function socketserver() {
 
 	/**
 	 * Create a new call signifing that a user has invited another user.
+	 * @method
 	 * @param caller {obj_user} User that is inviting
 	 * @param called {obj_user} User that recives the invite
 	 * @param roomId {Int} Room id that the inviter invites to
