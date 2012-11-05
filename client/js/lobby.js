@@ -6,7 +6,7 @@ $(function() {
 });
 
 function Lobby() {
-	this.DEBUG = true;
+	this.DEBUG = false;
 	this.AUTO_DECLINE_TIME = 60; // Time until a call is auto declined
 	this.lobbyId = 0; // Special room id for the lobby
 	this.ownRoomId = 0; // Own users current room Id
