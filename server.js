@@ -137,7 +137,7 @@ app.get('/workspace/js/lib/sylvester.js', function(req, res) {
 });
 
 app.get('/webrtc.io.js', function(req, res) {
-	var path = __dirname + '/node_modules/webrtc.io/node_modules/webrtc.io-client/lib/webrtc.io.js';
+	var path = __dirname + '/webrtc.io.js';
   res.sendfile(path);
 });
 
