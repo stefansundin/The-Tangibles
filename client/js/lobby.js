@@ -94,29 +94,6 @@ Lobby.prototype.init = function() {
 			}
 		}
 	});
-	$('#dialog_userlist_room').dialog({
-		autoOpen : false,
-		modal : true,
-		resizable : false,
-		open : function(event, ui) {
-			$(this).empty();
-			// TODO Append with new users??
-			var users = self.getUsersInRoom(self.ownRoomId);
-			for ( var i = 0; i < users.length; i++) {
-				$(this).append($('<div/>', {
-					class : 'remote_user_' + users[i][0]
-				}).append($('<span/>', {
-					class : 'remote_user_' + users[i][0],
-					text : users[i][1]
-				})));
-			}
-		},
-		buttons : {
-			OK : function() {
-				$(this).dialog('close');
-			}
-		}
-	});
 
 	$('#dialog_select_user_name').dialog({
 		autoOpen : false,
@@ -243,12 +220,6 @@ Lobby.prototype.init = function() {
 			self.workspaceWindow.close();
 		}
 		self.updateWorkspaceButton();
-	});
-	$('#view_users').button({
-		icons : { primary : 'ui-icon-person' },
-		text : false
-	}).click(function() {
-		$('#dialog_userlist_room').dialog('open');
 	});
 	$('#show_chat').button({
 		icons : { primary : 'ui-icon-comment' },
@@ -658,7 +629,7 @@ Lobby.prototype.onRoomAdd = function(roomId, roomName, roomDesc, roomType) {
 
 	// Ignore lobby
 	if (roomId == this.lobbyId) {
-		// return; TODO Uncomment again...
+		return;
 	}
 	// Unique ids
 	if ($('#room_list_' + roomId).length != 0) {
