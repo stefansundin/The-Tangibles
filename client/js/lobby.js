@@ -6,7 +6,7 @@ $(function() {
 });
 
 function Lobby() {
-	this.DEBUG = false;
+	this.DEBUG = true;
 	this.AUTO_DECLINE_TIME = 60; // Time until a call is auto declined
 	this.lobbyId = 0; // Special room id for the lobby
 	this.ownRoomId = 0; // Own users current room Id
@@ -727,7 +727,7 @@ Lobby.prototype.onUserEnterRoom = function(userId, roomId) {
 	}
 
 	var index = this.findRoomIndex(roomId);
-	if (index != -1) {
+	if (index != -1 || roomId == 0) { // Special case for the lobby
 		var user_index = this.findUserIndex(userId);
 		if (user_index != -1) {
 			this.users[user_index][2] = roomId;
