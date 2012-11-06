@@ -338,6 +338,11 @@ Lobby.prototype.loadMain = function() {
 
 	$('#header, #main, #top, #call_list, #tangible_status').show();
 	$('#room_toolbar, #roomFrame, #splash').hide();
+	
+	this.hideRoomHeader = false;
+	this.updateRoomToolbar();
+
+	this.closeWorkspace();
 };
 
 /**
