@@ -450,10 +450,13 @@ function socketserver() {
 			id : user.id
 		});
 		
+		console.log("Password room");
+		console.log(room.pass);
+		console.log(passKey);
+			
+		
 		if (room.pass != "") {
-			console.log("Password room");
-			console.log(room.pass);
-			console.log(passKey);
+			console.log("password is not empty");
 			
 			if (room.pass == passKey) {
 				// Check if password is correct
