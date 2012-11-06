@@ -445,27 +445,32 @@ function socketserver() {
 	function userChange(con, newRoomId, passKey) {
 		var user = getUserBySocket(con);
 		var room = getRoomById(user.roomId);
+		var roomNew = getRoomById(newRoomId);
 
 		var data = JSON.stringify({
 			id : user.id
 		});
 		
-		if (room.pass != "") {
-			console.log("Password room");
-			console.log(room.pass);
-			console.log(passKey);
+		console.log("Password room");
+		console.log(roomNew);
+		//console.log(room.pass);
+		console.log(passKey);
 			
-			if (room.pass == passKey) {
+		
+		if (roomNew.pass != "") {
+			console.log("password is not empty");
+			
+			if (roomNew.pass == passKey) {
 				// Check if password is correct
 					
-			} else if (room.pass == "AHP") {
+			} else if (roomNew.pass == "AHP") {
 				// Check if passkey is correct
 				
 			} else {
 				console.log("Wrong pass");
 				// Wrong pass notify user and abort.
 				sendMessage(con, API_ROOM_REFUSED, JSON.stringify({
-					roomId: user.roomId
+					roomId: newRoomId
 				}));
 				
 				return;
