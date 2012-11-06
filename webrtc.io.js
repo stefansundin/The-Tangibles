@@ -9,7 +9,6 @@ var pc;
 
 
 (function() {
-	console.log("CHECK!");
 	var rtc;
 	if ('undefined' === typeof module) {
 		rtc = this.rtc = {};
@@ -24,13 +23,11 @@ var pc;
 	rtc._events = {};
 
 	rtc.on = function(eventName, callback) {
-		console.log("CHECK 111 !");
 		rtc._events[eventName] = rtc._events[eventName] || [];
 		rtc._events[eventName].push(callback);
 	};
 
 	rtc.fire = function(eventName, _) {
-		console.log("CHECK 222 !");
 		var events = rtc._events[eventName];
 		var args = Array.prototype.slice.call(arguments, 1);
 
