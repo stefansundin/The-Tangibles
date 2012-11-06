@@ -150,9 +150,9 @@ function addToChat(msg, color) {
 	var messages = document.getElementById('messages');
 	msg = sanitize(msg);
 	if (color) {
-		msg = '<span style="color: ' + color + '; padding-left: 15px">' + msg + '</span>';
+		msg = '<span style="color: ' + color + '; padding-left: 5px">' + msg + '</span>';
 	} else {
-		msg = '<strong style="padding-left: 15px">' + msg + '</strong>';
+		msg = '<span style="padding-left: 5px">' + msg + '</span>';
 	}
 	messages.innerHTML = messages.innerHTML + msg + '<br>';
 	messages.scrollTop = 10000;
