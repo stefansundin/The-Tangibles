@@ -12,7 +12,7 @@ import utils.Event;
 
 public class Sphero extends Robot {
 	public boolean active = false;
-	private ArrayList<Event> events;
+	public ArrayList<Event> events;
 
 	public Sphero(BluetoothDevice bt) throws InvalidRobotAddressException,
 			RobotBluetoothException {

@@ -1,3 +1,5 @@
+package main;
+
 
 import java.io.IOException;
 import java.net.UnknownHostException;
@@ -7,6 +9,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import listener.AliveListener;
 import se.nicklasgavelin.bluetooth.Bluetooth;
 import se.nicklasgavelin.bluetooth.Bluetooth.EVENT;
 import se.nicklasgavelin.bluetooth.BluetoothDevice;
@@ -27,8 +30,29 @@ public class SpheroDriver extends Thread implements BluetoothDiscoveryListener
 	{
 		SpheroDriver sd = new SpheroDriver();
 		sd.start();
+		/*
+		pause(10000);
+		while (true) {
+			try{
+				sd.join();
+				System.out.println("Starting new sd");
+				sd = new SpheroDriver();
+				sd.start();
+			} catch (Exception e) {
+			}
+		}*/
+		
 	}
-	
+
+
+//	try {
+//		pause(2000);
+//		if(!sd.isAlive()){
+//			System.out.println("Starting new one");
+//			sd = new SpheroDriver();
+//			sd.start();
+//		}
+
 	public SpheroDriver()
 	{
 	}
@@ -43,7 +67,7 @@ public class SpheroDriver extends Thread implements BluetoothDiscoveryListener
 		try {
 			String devID = config.load();
 			directConnect(devID);
-		} catch (IOException e) {
+		} catch (Exception e) {
 			deviceSearch();
 		}
 		
@@ -73,6 +97,7 @@ public class SpheroDriver extends Thread implements BluetoothDiscoveryListener
 
 		addShutdownHook();
 		*/
+		
 	}
 	
 	private void deviceSearch(){
@@ -80,32 +105,26 @@ public class SpheroDriver extends Thread implements BluetoothDiscoveryListener
 		bt.discover(); // # COMMENT THIS IF UNCOMMENTING THE BELOW AREA #		
 	}
 
-	private void addShutdownHook()
-	{
-		Runtime.getRuntime().addShutdownHook( new Thread( new Runnable() {
+	private void addShutdownHook() {
+		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
 
 			@Override
-			public void run()
-			{
-				Thread k = new Thread( new Runnable() {
+			public void run() {
+				Thread k = new Thread(new Runnable() {
 
 					@Override
-					public void run()
-					{
-						for( Sphero s : _availableSpheroDevices )
+					public void run() {
+						for (Sphero s : _availableSpheroDevices)
 							s.disconnect();
 					}
-				} );
+				});
 
-				try
-				{
+				try {
 					k.join();
-				}
-				catch( InterruptedException e )
-				{
+				} catch (InterruptedException e) {
 				}
 			}
-		} ) );
+		}));
 	}
 
 	private void registerApplication()
@@ -130,7 +149,13 @@ public class SpheroDriver extends Thread implements BluetoothDiscoveryListener
 						Logger.getLogger( this.getClass().getCanonicalName() ).log( Level.INFO, "Connected to Sphero device " + s.getId() + "(" + s.getAddress() + ")" );
 						_availableSpheroDevices.add( s );
 						config.save(s.getId());
+						
+						AliveListener aliveListener = new AliveListener(this);
+						s.addListener(aliveListener);
+						
 						System.out.println( btd.getConnectionURL() );
+					} else {
+						throw new Exception("Sphero not connected");
 					}
 				}
 				catch( Exception e )
@@ -162,7 +187,7 @@ public class SpheroDriver extends Thread implements BluetoothDiscoveryListener
 		Logger.getLogger( this.getClass().getCanonicalName() ).log( Level.INFO, "Starting device search" );
 	}
 	
-	public void directConnect(String id){
+	public void directConnect(String id) throws Exception{
 		//String id = "000666440DB8";    //WBG     "<BluetoothIdForSphero>";
 		//String id = "0006664438B8";  //BBR     "<BluetoothIdForSphero>";
 		//String id = "000666441796";  //RBR     "<BluetoothIdForSphero>";
@@ -173,11 +198,12 @@ public class SpheroDriver extends Thread implements BluetoothDiscoveryListener
 		if( btd.getAddress().startsWith( Robot.ROBOT_ADDRESS_PREFIX ) )
 		{
 			 //Create robot
-			try
-			{
+			/*try
+			{*/
 				Sphero s = new Sphero( btd );
 				if( s.connect() )
 				{
+					
 					// Connected
 					Logger.getLogger( this.getClass().getCanonicalName() ).log( Level.INFO, "Connected to Sphero device " + s.getId() + "(" + s.getAddress() + ")" );
 
@@ -192,15 +218,19 @@ public class SpheroDriver extends Thread implements BluetoothDiscoveryListener
 					events.add(Event.ACCELEROMETER);
 					s.activateEvents(events);
 					*/
+					AliveListener aliveListener = new AliveListener(this);
+					s.addListener(aliveListener);
 					
 					addShutdownHook();
 					//System.out.println( btd.getConnectionURL() );
+				} else {
+					throw new Exception("Sphero not connected");
 				}
-			}
+			/*}
 			catch( Exception e )
 			{
 				e.printStackTrace();
-			}
+			}*/
 		}
 		
 		
@@ -289,7 +319,34 @@ public class SpheroDriver extends Thread implements BluetoothDiscoveryListener
 //		
 	}
 	
-	private void pause(int ms){
+	public void restartConnection(Sphero oldSphero){
+		String devID = oldSphero.getId();
+		String msg = "Connection to sphero "+devID+" is lost and trying to restart.";
+		Logger.getLogger( this.getClass().getName() ).log( Level.WARNING, msg );
+		
+		boolean connectedSphero = false;
+		while(!connectedSphero){
+			try {
+				directConnect(devID);
+				connectedSphero = true;
+				_availableSpheroDevices.remove(oldSphero); // Prevent registerapp to run again in directconnect
+				
+				if(oldSphero.active){ // If it got eventreporting activated
+					System.out.println("Was activated before");
+					for (Sphero sphero : _availableSpheroDevices) {
+						if(devID.equals(sphero.getId())){
+							sphero.activateEvents(oldSphero.events); // Reactivate old events
+							break;
+						}
+					}
+				}				
+			} catch (Exception e){			
+			}
+		}
+		
+	}
+	
+	private static void pause(int ms){
 		try
 		{
 			Thread.sleep( ms );
