@@ -727,7 +727,7 @@ Lobby.prototype.onUserEnterRoom = function(userId, roomId) {
 	}
 
 	var index = this.findRoomIndex(roomId);
-	if (index != -1 || roomId == 0) { // Special case for the lobby
+	if (index != -1 || roomId == this.lobbyId) { // Special case for the lobby
 		var user_index = this.findUserIndex(userId);
 		if (user_index != -1) {
 			this.users[user_index][2] = roomId;
