@@ -6,10 +6,10 @@ var URL = window.URL || window.webkitURL || window.msURL || window.oURL;
 var getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
 var pc;
 
-console.log("CHECK!");
+
 
 (function() {
-
+	console.log("CHECK!");
 	var rtc;
 	if ('undefined' === typeof module) {
 		rtc = this.rtc = {};
