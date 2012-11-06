@@ -27,11 +27,13 @@ var Buttons = function (transform) {
 	}
 
 	this.start = function (video, contextSource, contextBlended) {
+		for (i in listOfButtons) {
+			setTimeout(function () { listOfButtons[i].pressed = false; }, 3000);
+		}
 		this.video = video;
 		this.contextSource = contextSource;
 		this.contextBlended = contextBlended;
 		this.update();
-
 	}
 
 	this.update = function () {
@@ -71,7 +73,7 @@ var Buttons = function (transform) {
 
 	this.threshold = function (value) {
 		// TODO change accordingly
-		return (value > 0x1F) ? 0xFF : 0;
+		return (value > 0x07) ? 0xFF : 0;
 	}
 
 	this.differenceAccuracy = function (target, data1, data2) {
@@ -109,26 +111,29 @@ var Button = function (x, y, sizeX, sizeY, image, ctx) {
 	this.image = image; // image to draw
 	this.ctx = ctx;
 
-	this.pressed = false;
+	this.pressed = true;
 	this.enabled = true;
 }
+
 Button.prototype.checkPressed = function (contextBlended, transform) {
 	var p1 = transform.transformPoint(this.p1);
 	var p4 = transform.transformPoint(this.p4);
 
 	var blendedData = contextBlended.getImageData(p1.x, p1.y, p4.x-p1.x, p4.y-p1.y);
+	//var blendedData = contextBlended.getImageData(500, 100, 100, 100);
 	var i = 0;
 	var average = 0;
 	// loop over the pixels
 	while (i < (blendedData.data.length * 0.25)) {
 		// make an average between the color channel
-		average += (blendedData.data[i*4] + blendedData.data[i*4+1] + blendedData.data[i*4+2]) / 3;
+		average += blendedData.data[i*4];
 		++i;
 	}
 	// calculate an average between of the color values of the note area
 	average = Math.round(average / (blendedData.data.length * 0.25));
+	console.log(average);
 	// TODO decide open a value
-	if (average > 10 && !this.pressed) {
+	if (average > 20 && !this.pressed) {
 		this.pressed = true;
 		if (this.enabled) {
 			this.enabled = false;
@@ -136,13 +141,13 @@ Button.prototype.checkPressed = function (contextBlended, transform) {
 			this.enabled = true;
 		}
 		this.draw()
-		if (!!(this.method && this.method.constructor && this.method.call && this.method.apply))
+		if (!!(this.method && this.method.constructor && this.method.call && this.method.apply)) {
 			this.method();
-	} else {
-		this.pressed = false;
+		}
+		var self = this;
+		setTimeout(function () { self.pressed = false; }, 1000);
 	}
 }
-
 
 Button.prototype.draw = function () {
 	if (this.enabled) {
@@ -158,6 +163,13 @@ Button.prototype.draw = function () {
 	Video button class, extends Button
 */
 var VideoButton = function (x, y, sizeX, sizeY, image, ctx) {
+	this.p1 = new Object();
+	this.p1.x = x;
+	this.p1.y = y;
+	this.p4 = new Object();
+	this.p4.x = x + sizeX;
+	this.p4.y = y + sizeY;
+
 	this.x = x;
 	this.y = y;
 	this.sizeX = sizeX;
@@ -168,9 +180,10 @@ var VideoButton = function (x, y, sizeX, sizeY, image, ctx) {
 
 	this.i;
 
-	this.pressed = false;
+	this.pressed = true;
 	this.enabled = true;
 }
+
 VideoButton.prototype = new Button;
 
 VideoButton.prototype.draw = function () {

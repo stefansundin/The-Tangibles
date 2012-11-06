@@ -7,6 +7,8 @@ VideoBucket = function(video, label) {
     
     this.video = video;
     this.label = label;
+
+	this.enabled = true;
     
     this.transCanvas = null;
     this.transContext = null;
@@ -37,7 +39,7 @@ VideoBucket.prototype.setTransform = function(poly, rect) {
 
 VideoBucket.prototype.transformVideo = function() {
     
-    if (this.transform == null) {
+    if (this.transform == null || !this.enabled) {
         return null;
     }
     
@@ -62,4 +64,3 @@ VideoBucket.transformList = function(bucketList) {
     }
     return transformedVideos;
 }
-
