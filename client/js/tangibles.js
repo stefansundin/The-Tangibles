@@ -228,7 +228,7 @@ function Tangibles(webRTCSocket) {
 		}
 		
 		if (this.sifteos.length >= 2) {
-			this.showTextPic(this.sifteos[1], 'http://'+ window.location.host +'/img/deny.png', 'Deny', '000000', 'FFFFFF');
+			this.showTextPic(this.sifteos[1], 'http://'+ window.location.host +'/img/deny.png', 'Hangup', '000000', 'FFFFFF');
 			this.sifteos[1].pressListeners.push(function(msg) {
 				if (enabled) {
 					enabled = false;
@@ -260,7 +260,7 @@ function Tangibles(webRTCSocket) {
 	 *            Name of the room invited to
 	 * @param onAccept
 	 *            Callback on accepted call
-	 * @param onAccept
+	 * @param onDeny
 	 *            Callback on denied call
 	 */
 	this.incommingCall = function(call_id, caller, room, onAccept, onDeny) {
@@ -352,6 +352,7 @@ function Tangibles(webRTCSocket) {
 					}, self.err);
 				}
 			}
+			self.sifteos.sort(function(a,b) { return parseInt(a.id,16) < parseInt(b.id,16) });
 		}, this.err);
 	}
 	
