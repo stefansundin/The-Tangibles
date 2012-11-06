@@ -230,7 +230,7 @@ Lobby.prototype.init = function() {
 		self.updateWorkspaceButton();
 	});
 	$('#toggle_chat').button({
-		icons : { primary : 'ui-icon-newwin' },
+		icons : { primary : 'ui-icon-comment' },
 		text : false
 	}).click(function() {
 		self.chatOpen = !self.chatOpen;
