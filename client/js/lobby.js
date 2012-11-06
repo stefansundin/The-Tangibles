@@ -236,6 +236,7 @@ Lobby.prototype.init = function() {
 		self.chatOpen = !self.chatOpen;
 		if (self.chatOpen) {
 			$('#roomFrame').contents().find('#chatbox').show();
+			$('#roomFrame').contents().find('#chatinput').focus();
 		} else {
 			$('#roomFrame').contents().find('#chatbox').hide();
 		}
