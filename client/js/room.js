@@ -45,7 +45,7 @@ function setWH(video, i) {
 	var perRow = getNumPerRow();
 	var perColumn = Math.ceil(videos.length / perRow);
 	var width = Math.floor((window.innerWidth) / perRow);
-	var height = Math.floor((window.innerHeight) / perColumn);
+	var height = Math.floor((window.innerHeight - 31) / perColumn);
 	video.width = width;
 	video.height = height;
 	video.style.position = "absolute";
