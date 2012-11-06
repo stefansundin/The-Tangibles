@@ -18,9 +18,9 @@
 	<script type="text/javascript">
 		// Debug
 		testSpheroEvents = function(){
-			if(self.sphero.length < 1){return;}
-			
-			self.sphero[0].gyroListeners.push(function(msg) {
+			if(tangibles.sphero.length < 1){return;}
+
+			tangibles.sphero[0].gyroListeners.push(function(msg) {
 				var x = msg.params.x * 1;
 				var y = msg.params.y * 1;
 				var z = msg.params.z * 1;
@@ -28,7 +28,7 @@
 				console.log(msg.event+" x: "+x+" y: "+y +" z: " +z);
 			});
 
-			self.sphero[0].accListeners.push(function(msg) {
+			tangibles.sphero[0].accListeners.push(function(msg) {
 				var x = msg.params.x * 50;
 				var y = msg.params.y * 50;
 				var z = msg.params.z * 50;
@@ -38,9 +38,10 @@
 				game(x, z, "myCanvas");
 				console.log(msg.event+" x: "+x+" y: "+y +" z: " +z);
 			});
-			
+
 		};
-		setTimeout(testSpheroEvents, 1000); // TODO make in a cleaner way
+		setTimeout(testSpheroEvents, 2000); // TODO make in a cleaner way
+											// Only for debug
 	</script>
 </head>
 <body>
@@ -68,15 +69,15 @@
 	</script>
 	<p><button onclick="tangibles.incommingCall(1, 'John', 'Workroom', onAccept, onDeny);">Simulate incomming call</button></p>
 
-	<canvas id="myCanvas" width="400" height="400" style="background-color:#FAFAD2;" title="gyro">    
+	<canvas id="myCanvas" width="400" height="400" style="background-color:#FAFAD2;" title="gyro">
 		Your Browser does not support the HTML5 CANVAS Property. //displays on a non-HTML5 supporting browser.
-	</canvas> 
+	</canvas>
 
 	<script type="text/javascript">
 		function game(x,y,name){
-			var myCanvas  = document.getElementById(name); 
-			var myContext = myCanvas.getContext("2d");     
-			var middlex = myCanvas.width  / 2; 
+			var myCanvas  = document.getElementById(name);
+			var myContext = myCanvas.getContext("2d");
+			var middlex = myCanvas.width  / 2;
 			var middley = myCanvas.height / 2;
 
 			// Clean
@@ -88,7 +89,7 @@
 
 			// Big circle
 			var r = 50;
-			myContext.fillStyle="#FF8C00";     
+			myContext.fillStyle="#FF8C00";
 			myContext.beginPath();
 			myContext.arc(middlex, middley, r, 0, 6 * Math.PI, false);
 			myContext.fill();
@@ -96,7 +97,7 @@
 			myContext.stroke();
 
 			// Small circle(controlled by sphero)
-			myContext.fillStyle="#000000";     
+			myContext.fillStyle="#000000";
 			myContext.beginPath();
 			myContext.arc(middlex+x, middley+y, r/3, 0, 6 * Math.PI, false);
 			myContext.fill();
@@ -104,12 +105,12 @@
 			myContext.stroke();
 		}
 	</script>
-	
+
 	<div id="top">
 		<div id="display_user_name"></div>
 		<button id="change_user_name">Change user name</button>
 	</div>
-	
+
 		<div id="dialog_error" title="Error">
 		<div class="ui-state-error ui-corner-all" style="padding: 0 .7em;">
 			<p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>
@@ -150,6 +151,6 @@
 		<div id="call_list"></div>
 	</div>
 	-->
-	 
+
 </body>
 </html>
