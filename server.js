@@ -141,10 +141,10 @@ app.get('/webrtc.io.js', function(req, res) {
 
 webRTC.rtc.on('connect', function(rtc) {
 	//Client connected
-	console.log("WEBRTC: connect");
-	console.log(rtc.rooms.length);
-	console.log(rtc.rooms);
-	//console.log(rtc);
+	//console.log("WEBRTC: connect");
+	//console.log(rtc.rooms);
+	
+	console.log(rtc);
 });
 
 webRTC.rtc.on('send answer', function(rtc) {
