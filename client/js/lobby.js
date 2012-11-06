@@ -30,6 +30,13 @@ function Lobby() {
  */
 Lobby.prototype.init = function() {
 	var self = this;
+	
+	// Automatically close the workspace
+	window.onbeforeunload = function() {
+		if(self.workspaceOpen) {
+			self.workspaceWindow.close();
+		}
+	};
 
 	$('#main, #top, #call_list, #roomFrame, #splash, #room_toolbar, #roomFrame, #room_table tfoot, #tangible_status').hide();
 
