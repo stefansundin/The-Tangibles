@@ -6,8 +6,10 @@ var URL = window.URL || window.webkitURL || window.msURL || window.oURL;
 var getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
 var pc;
 
-(function() {
 
+
+(function() {
+	console.log("CHECK!");
 	var rtc;
 	if ('undefined' === typeof module) {
 		rtc = this.rtc = {};
@@ -60,6 +62,7 @@ var pc;
 	 * Connects to the websocket server.
 	 */
 	rtc.connect = function(server, room) {
+		console.log("rtc.connect")
 		room = room || "";
 		// by default, join a room called the blank string
 		rtc._socket = new WebSocket(server);

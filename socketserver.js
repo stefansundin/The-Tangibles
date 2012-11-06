@@ -283,7 +283,7 @@ function socketserver() {
 			data : event_data
 		});
 
-		console.log((new Date()) + " send message: " + payload);
+		console.log((new Date()) + " send message: " + event_name);
 
 		connection.send(payload);
 		// <= send JSON data
@@ -416,7 +416,6 @@ function socketserver() {
 
 		for (var i = 0, j = lRooms.length; i < j; i++) {
 			var r = lRooms[i];
-			console.log(r)
 			listRooms.push([r.id, r.name, r.desc, r.type]);
 		};
 
@@ -450,12 +449,6 @@ function socketserver() {
 		var data = JSON.stringify({
 			id : user.id
 		});
-		
-		console.log("Password room");
-		console.log(roomNew);
-		//console.log(room.pass);
-		console.log(passKey);
-			
 		
 		if (roomNew.pass != "") {
 			console.log("password is not empty");
@@ -607,8 +600,6 @@ function socketserver() {
 
 		var call = createNewCall(caller, recipient, roomId);
 
-		console.log(room);
-
 		if (caller == null || recipient == null || room == null) {
 			return;
 		}
@@ -641,8 +632,6 @@ function socketserver() {
 			id : getUserBySocket(con).id,
 			answer : answer
 		});
-
-		console.log("Answer: " + answer);
 
 		for (var i = 0, j = call.users.length; i < j; i++) {
 			if (!call.users[i].inCall) {
@@ -691,8 +680,6 @@ function socketserver() {
 
 		var roomId = createNewRoom(name, typeS, desc, pass);
 
-		console.log(lRooms)
-
 		var data = JSON.stringify({
 			id : roomId,
 			name : name,
@@ -712,6 +699,7 @@ function socketserver() {
 	 * @param id {Int} id of room to remove
 	 */
 	function removeRoom(con, id) {
+		// TODO: add password!
 
 		if (id == 0) {
 			console.log((new Date()) + " trying to remove lobby...");
@@ -1030,6 +1018,8 @@ function socketserver() {
 	 * Run startup script.
 	 */
 	startup();
+
+
 
 }
 
