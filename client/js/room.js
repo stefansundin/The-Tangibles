@@ -1,87 +1,6 @@
 $(function() {
 	// Function that starts all the things we need
-	init();
-	
-	// Dialogs
-	
-    /*$('#invite_dialog').dialog({
-        autoOpen : false,
-        modal : true,
-		buttons: {
-			Ok: function() {		
-				$(this).find('input[type="checkbox"]').each(function(){
-					if($(this).is(':checked')){
-						uid = $(this).attr('id');
-						ulist = parent.lobby.users;
-						for (i in ulist) {
-							if(ulist[i][0] == uid) {
-								onUserInvited(ulist[i][1]);
-								break;
-							}
-						}
-					}
-				});
-				document.getElementById('formContainer').innerHTML = "";
-				$( this ).dialog( 'close' );
-			},
-			Cancel: function() {
-				document.getElementById('formContainer').innerHTML = "";
-				$( this ).dialog( 'close' );
-			}
-        }
-    });*/
-	
-	// Buttons that open dialogs
-	
-	/*$('#openInviteDialog').button().click(function() {
-		var userlist = [];
-		var list = parent.lobby.users;
-		for (i in list) {
-			if (list[i][1] != parent.lobby.ownName) {
-				userlist.push(list[i]);
-			}
-		}
-		
-		for (i in userlist) {
-			var node = document.createElement('div');        
-			node.innerHTML = '<input type="checkbox" id="' + userlist[i][0] + '" name="' + userlist[i][0] + '"><label for="check' + userlist[i][0] + '">'+ userlist[i][1] +'</label>';       
-			document.getElementById('formContainer').appendChild(node);
-		}
-		$('#invite_dialog').dialog('open');
-	});*/
-	
-	// Other buttons
-	
-	/*$('#leaveRoom').button().click(function() {
-		writeMessageToChat(parent.lobby.ownName + " left the room.");
-		console.log('Left the room');
-	//	parent.window.parent.document.title = 'The-Tangibles';
-		parent.lobby.leaveRoom();
-	});*/
-	
-/*	$('#fullscreen').button().click(function() {
-		var elem = document.getElementById("videos");
-		console.log('Fullscreen. elem: ' + elem);
-		//show full screen 
-		elem.webkitRequestFullScreen();
-	});
-	*/
-	/*var isOpen = false;
-	var workspaceWindow = "";
-	
-	$('#openWorkspace').button().click(function() {
-		if(isOpen) {
-			workspaceWindow.close();
-			writeMessageToChat(parent.lobby.ownName + " closed the workspace.");
-			isOpen = false;
-		} else {
-			var room = window.location.hash.slice(1);
-			workspaceWindow=window.open('/workspace/#' + room + '_desk');
-			writeMessageToChat(parent.lobby.ownName + " opened the workspace.");
-			isOpen = true;
-		}
-	});*/
-	
+	init();	
 });
 	
 var videos = [];
@@ -93,6 +12,11 @@ var PeerConnection = window.webkitRTCPeerConnection;
         
 function getNumPerRow() {
 	var len = videos.length;
+	
+	if (len == 1) {
+		return 1;
+	}
+	
 	var biggest;
 
 	// Ensure length is even for better division.
@@ -121,7 +45,7 @@ function setWH(video, i) {
 	var perRow = getNumPerRow();
 	var perColumn = Math.ceil(videos.length / perRow);
 	var width = Math.floor((window.innerWidth) / perRow);
-	var height = Math.floor((window.innerHeight - 190) / perColumn);
+	var height = Math.floor((window.innerHeight) / perColumn);
 	video.width = width;
 	video.height = height;
 	video.style.position = "absolute";
@@ -161,41 +85,7 @@ function addToChat(msg, color) {
 function sanitize(msg) {
 	return msg.replace(/</g, '&lt;');
 }
-    
-/*function onUserInvited(invited_user) {
-	var inviting_user = parent.lobby.ownName;
-	var room = window.location.hash.slice(1);
-	
-	// NOTE: These checks should not be needed as long as one only invites
-	// through the invite dialog.
-	
-	// See if the user exists
-	var uid = -1;
-	var list = parent.lobby.users;
-	for (i in list) {
-		if (list[i][1] == invited_user) {
-			uid = list[i][0];
-			break;
-		}
-	}
-	// Check to see if the user invited himself
-	if (invited_user == inviting_user) {
-		addToChat("Stop inviting yourself " + inviting_user + "...");
-		return;
-	}
-	// If the user exists:
-	if (uid > -1) {
-		parent.socket.send(parent.API_INVITE_SEND, JSON.stringify({
-			id:uid,
-			roomId:room
-		}));
-		writeMessageToChat(inviting_user + ' invited ' + invited_user);
-		console.log('The user ' + invited_user + '(id:'+uid+') was invited by ' + inviting_user + ' to this room (' + room + ')');
-	} else {
-		addToChat("User " + invited_user + " does not exist.");
-	}
-}*/
-	  
+
 function writeMessageToChat(message) {
 	var room = window.location.hash.slice(1);
 	var color = "#"+((1<<24)*Math.random()|0).toString(16);
@@ -256,7 +146,7 @@ function init() {
 }
 	  
 function initRoom() {
-    $('#chatbox').hide(); //TODO: Flytta på den här.
+    $('#chatbox').hide(); //TODO: Flytta pï¿½ den hï¿½r.
 	
 	if(PeerConnection){
 
