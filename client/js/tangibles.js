@@ -5,7 +5,7 @@ function Tangibles(webRTCSocket) {
 	this.sphero = [];
 	this.APIsocket = null;
 	this.webRTCSocket = webRTCSocket;
-	
+
 	// Utility functions
 	this.err = function(xhr,status,error) {
 		console.log('err');
@@ -22,10 +22,10 @@ function Tangibles(webRTCSocket) {
 			self.registered = false;
 		}
 	}
-	
+
 	/**
 	 * Show color on sifteo or sphero.
-	 * 
+	 *
 	 * @param dev
 	 *            The device object
 	 * @param color
@@ -37,7 +37,7 @@ function Tangibles(webRTCSocket) {
 
 	/**
 	 * Spin sphero in right direction.
-	 * 
+	 *
 	 * @param dev
 	 *            The device object
 	 * @param velocity
@@ -50,7 +50,7 @@ function Tangibles(webRTCSocket) {
 
 	/**
 	 * Spin sphero in left direction.
-	 * 
+	 *
 	 * @param dev
 	 *            The device object
 	 * @param velocity
@@ -64,7 +64,7 @@ function Tangibles(webRTCSocket) {
 	/**
 	 * Set backgound and text, then show a image.
 	 * Used since long loading time on images
-	 * 
+	 *
 	 * @param dev
 	 *            The device object
 	 * @param url
@@ -84,7 +84,7 @@ function Tangibles(webRTCSocket) {
 
 	/**
 	 * Show a picture on a sifteo
-	 * 
+	 *
 	 * @param dev
 	 *            The device object
 	 * @param url
@@ -97,7 +97,7 @@ function Tangibles(webRTCSocket) {
 
 	/**
 	 * Set backgound and text.
-	 * 
+	 *
 	 * @param dev
 	 *            The device object
 	 * @param text
@@ -112,10 +112,10 @@ function Tangibles(webRTCSocket) {
 		this.setColor(dev, bg);
 		setTimeout(function() {self.api.showText(dev.id, text, color, undefined, self.err2('Unable to show text.')); }, 100);
 	}
-	
+
 	/**
 	 * Show the current time on a sifteo.
-	 * 
+	 *
 	 * @param dev
 	 *            The device object
 	 */
@@ -129,10 +129,10 @@ function Tangibles(webRTCSocket) {
 			self.api.showText(dev.id, (h<10?'0':'')+h+':'+(m<10?'0':'')+m+':'+(s<10?'0':'')+s, '000000', undefined, self.err);
 		}, 1000);
 	}
-	
+
 	/**
 	 * Check if a device is a sifteo from device id.
-	 * 
+	 *
 	 * @param devId
 	 *            The device ID
 	 */
@@ -142,7 +142,7 @@ function Tangibles(webRTCSocket) {
 
 	/**
 	 * Check if a device is a sphero from device id.
-	 * 
+	 *
 	 * @param devId
 	 *            The device ID
 	 */
@@ -150,11 +150,11 @@ function Tangibles(webRTCSocket) {
 		// Check if device is a sphero
 		return devId.length == 12;
 	}
-	
-	
+
+
 	/**
 	 * Clear all about the sifteos
-	 * 
+	 *
 	 */
 	this.disableSifteos = function() {
 		if (!self.registered) return;
@@ -166,7 +166,7 @@ function Tangibles(webRTCSocket) {
 
 	/**
 	 * Clear all about the spheros
-	 * 
+	 *
 	 */
 	this.disableSpheros = function() {
 		if (!self.registered) return;
@@ -176,10 +176,10 @@ function Tangibles(webRTCSocket) {
 			self.api.showColor(self.sphero[d].id, 'FFFFFF', undefined, self.err2('Unable to disable sphero: '+self.sphero[d].id), false);
 		}
 	}
-	
+
 	/**
 	 * Server API - Register listeners.
-	 * 
+	 *
 	 */
 	this.openServerAPI = function() {
 		if(this.webRTCSocket){
@@ -190,15 +190,15 @@ function Tangibles(webRTCSocket) {
 					lobby.decline(call_id);
 				});
 			});
-			
+
 			this.webRTCSocket.on(API_INVITE_ACCEPTED, function(room_id) {
 				self.acceptedCall(room_id, []);
 			});
-			
+
 			this.webRTCSocket.on(API_INVITE_DECLINED, function() {
 				self.disableSifteos();
 			});
-			
+
 			this.webRTCSocket.on(API_USER_ENTER, function(userId, userName, roomId) {
 				if (userId != lobby.ownId) return;
 				if (!roomId) self.disableSifteos();
@@ -206,18 +206,18 @@ function Tangibles(webRTCSocket) {
 			});
 		}
 	}
-	
+
 	// Call control
 	/**
 	 * Run when the user is in a call. Will provide call controls and similar.
-	 * 
+	 *
 	 * @param call_id
 	 *            The ID of the call
 	 */
 	this.acceptedCall = function(call_id) {
 		if (!self.registered) return;
 		var enabled = true;
-		
+
 		if (this.sifteos.length >= 1) {
 			this.showText(this.sifteos[0], 'Blank Workspace', '000000', 'FFFFFF');
 			this.sifteos[0].pressListeners.push(function(msg) {
@@ -226,7 +226,7 @@ function Tangibles(webRTCSocket) {
 				}
 			});
 		}
-		
+
 		if (this.sifteos.length >= 2) {
 			this.showTextPic(this.sifteos[1], 'http://'+ window.location.host +'/img/deny.png', 'Hangup', '000000', 'FFFFFF');
 			this.sifteos[1].pressListeners.push(function(msg) {
@@ -238,7 +238,7 @@ function Tangibles(webRTCSocket) {
 				}
 			});
 		}
-		
+
 		if (this.sifteos.length >= 3) {
 			this.showTextPic(this.sifteos[2], 'http://'+ window.location.host +'/img/mute.png', 'Mute', '000000', 'FFFFFF');
 			this.sifteos[2].pressListeners.push(function(msg) {
@@ -248,10 +248,10 @@ function Tangibles(webRTCSocket) {
 			});
 		}
 	}
-	
+
 	/**
 	 * Run on a incoming call for user to be able to answer / decline call
-	 * 
+	 *
 	 * @param call_id
 	 *            The ID of the call
 	 * @param caller
@@ -270,6 +270,10 @@ function Tangibles(webRTCSocket) {
 		if (this.sphero.length >= 1) {
 			var sphero = this.sphero[0];
 			this.setColor(sphero, 'FFFF00'); // Yellow
+			// Multiple times as a workaround for the bug when restoring
+			this.setColor(sphero, 'FFFF00'); // Yellow
+			this.setColor(sphero, 'FFFF00'); // Yellow
+			this.setColor(sphero, 'FFFF00'); // Yellow
 			this.setLeftSpin(sphero, 150);
 
 			// Accept
@@ -277,7 +281,6 @@ function Tangibles(webRTCSocket) {
 				if (enabled) {
 					var x = msg.params.x * 1;
 					var y = msg.params.y * 1;
-					console.log(msg.event+" x: "+x+" y: "+y);
 					if ( Math.abs(x) + Math.abs(y) >= 50) { // When emulate a event pushing
 						self.setColor(sphero,'00FF00');
 						self.sphero[0].gyroListeners = [];
@@ -313,10 +316,10 @@ function Tangibles(webRTCSocket) {
 		}
 		if (this.sifteos.length >= 3) this.showText(this.sifteos[2], caller+' invited you to '+room+'.', '000000', 'FFFFFF');
 	}
-	
+
 	/**
 	 * Register to the tangible API and get devices.
-	 * 
+	 *
 	 */
 	this.register = function() {
 		this.api = new TangibleAPI('127.0.0.1');
@@ -326,10 +329,10 @@ function Tangibles(webRTCSocket) {
 			self.openServerAPI();
 		}, self.err2('Could not connect to TangibleAPI'));
 	}
-	
+
 	/**
 	 * Reserve all devices from the tangible api and make them available.
-	 * 
+	 *
 	 */
 	this.registerDevices = function(){
 		if (!self.registered) return;
@@ -337,13 +340,13 @@ function Tangibles(webRTCSocket) {
 			var num = d.msg.length;
 			for (var i=0; i < num; i++) {
 				var devid = d.msg[i].id;
-				if (self.isSifteo(devid)) { 
+				if (self.isSifteo(devid)) {
 					self.api.reserveDevice(devid, function(r) {
 						var device = {id:r.msg, subscribed:false, pressListeners:[]};
 						self.listenToEvents(device);
 						self.sifteos.push(device);
 					}, self.err);
-				} else if (self.isSphero(devid)) { 
+				} else if (self.isSphero(devid)) {
 					self.api.reserveDevice(devid, function(r) {
 						var device = {id:r.msg, subscribed:false, gyroListeners:[], accListeners:[]};
 						self.listenToEvents(device);
@@ -355,10 +358,10 @@ function Tangibles(webRTCSocket) {
 			self.sifteos.sort(function(a,b) { return parseInt(a.id,16) < parseInt(b.id,16) });
 		}, this.err);
 	}
-	
+
 	/**
 	 * Listen to all events from specified device
-	 * 
+	 *
 	 * @param dev
 	 *            The device object
 	 */
@@ -367,7 +370,7 @@ function Tangibles(webRTCSocket) {
 		this.api.subscribeToEvents(dev.id, function(d) {
 			dev.subscribed = true;
 			if (self.APIsocket != null) return;
-			
+
 			self.APIsocket = new WebSocket('ws://127.0.0.1:' + d.msg.port + '/streaming');
 			self.APIsocket.onopen = function(e) {
 				self.APIsocket.send(JSON.stringify({'flow': 'ctrl', 'msg' : self.api.getAppUUID()}));
@@ -381,10 +384,10 @@ function Tangibles(webRTCSocket) {
 			};
 		}, self.err);
 	}
-	
+
 	/**
 	 * Handle single event and run appropriate event handlers
-	 * 
+	 *
 	 * @param msg
 	 *            The event message
 	 */
@@ -415,7 +418,7 @@ function Tangibles(webRTCSocket) {
 			}
 		}
 	}
-	
+
 	// Release reserved devices
 	$(window).on('beforeunload', function() { // NOTE: Make global if needed
 		self.disableSpheros();
