@@ -88,8 +88,9 @@ var videos = [];
 //var rooms = [1,2,3,4,5]; IF SOMETHING ISN'T WORKING, TRY ENABLING THIS ONE.
 
 // These ones aren't used except for checking if the browser know what they are.
-var PeerConnection = window.PeerConnection || window.webkitPeerConnection00 || window.webkitRTCPeerConnection;
-      
+//var PeerConnection = window.PeerConnection || window.webkitPeerConnection00 || window.webkitRTCPeerConnection;
+var PeerConnection = window.webkitRTCPeerConnection;
+        
 function getNumPerRow() {
 	var len = videos.length;
 	var biggest;
@@ -255,7 +256,8 @@ function init() {
 }
 	  
 function initRoom() {
-      
+    $('#chatbox').hide(); //TODO: Flytta på den här.
+	
 	if(PeerConnection){
 
 		rtc.createStream({"video": true, "audio": true}, function(stream) {
@@ -265,7 +267,7 @@ function initRoom() {
 			subdivideVideos();
 		});
 	}else {
-		alert('Your browser is not supported or you have to turn on flags. In chrome you go to chrome://flags and turn on Enable PeerConnection remember to restart chrome');
+		alert('You are not using a browser with webkitRTCPeerConnection support. Either use Canary or wait for Chrome to be updated.');
 	}
 	var room = window.location.hash.slice(1);
 //	parent.window.parent.document.title = 'Room: ' + room;
