@@ -451,6 +451,9 @@ function socketserver() {
 		});
 		
 		if (room.pass != "") {
+			console.log("Password room");
+			console.log(room.pass);
+			console.log(passKey);
 			
 			if (room.pass == passKey) {
 				// Check if password is correct
@@ -459,6 +462,7 @@ function socketserver() {
 				// Check if passkey is correct
 				
 			} else {
+				console.log("Wrong pass");
 				// Wrong pass notify user and abort.
 				sendMessage(con, API_ROOM_REFUSED, JSON.stringify({
 					roomId: user.roomId
