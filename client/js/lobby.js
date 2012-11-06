@@ -17,6 +17,7 @@ function Lobby() {
 	this.users = []; // [id, name, room_id]
 	this.hideRoomHeader = true;
 	this.workspaceOpen = false;
+	this.chatOpen = false;
 	this.workspaceWindow = undefined;
 	if (sessionStorage.ownName) { // TODO Change all session to localStorage?
 		this.ownName = sessionStorage.ownName;
@@ -30,6 +31,13 @@ function Lobby() {
  */
 Lobby.prototype.init = function() {
 	var self = this;
+	
+	// Automatically close the workspace
+	window.onbeforeunload = function() {
+		if(self.workspaceOpen) {
+			self.workspaceWindow.close();
+		}
+	};
 
 	$('#main, #top, #call_list, #roomFrame, #splash, #room_toolbar, #roomFrame, #room_table tfoot, #tangible_status').hide();
 
@@ -221,10 +229,18 @@ Lobby.prototype.init = function() {
 		}
 		self.updateWorkspaceButton();
 	});
-	$('#show_chat').button({
-		icons : { primary : 'ui-icon-comment' },
+	$('#toggle_chat').button({
+		icons : { primary : 'ui-icon-newwin' },
 		text : false
-	}).button('disable'); // TODO Toggle chat function
+	}).click(function() {
+		self.chatOpen = !self.chatOpen;
+		if (self.chatOpen) {
+			$('#roomFrame').contents().find('#chatbox').show();
+		} else {
+			$('#roomFrame').contents().find('#chatbox').hide();
+		}
+		self.updateChatButton();
+	});
 	$('#room_invite').button({
 		icons : { primary : 'ui-icon-plus' },
 		text : false
@@ -1076,6 +1092,24 @@ Lobby.prototype.updateWorkspaceButton = function() {
 	$('label[for=toggle_workspace]').attr('title',
 		this.workspaceOpen ? 'Close workspace' : 'Open workspace');
 };
+
+
+/**
+ * Updates the apperance of the chat button.
+ */
+Lobby.prototype.updateChatButton = function() {
+	$('#toggle_chat').attr('checked', this.chatOpen)
+		.button('refresh');
+	$('#toggle_chat').button('option', {
+		text : !this.hideRoomHeader,
+		label : (this.chatOpen ? 'Close chat' : 'Open chat')
+	});
+
+	// Special fix for label bug
+	$('label[for=toggle_chat]').attr('title',
+		this.chatOpen ? 'Close chat' : 'Open chat');
+};
+
 
 /**
  * A test function which runs various functions in the lobby.
