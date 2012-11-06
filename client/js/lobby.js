@@ -31,7 +31,7 @@ function Lobby() {
 Lobby.prototype.init = function() {
 	var self = this;
 
-	$('#main, #top, #call_list, #roomFrame, #splash, #room_toolbar, #roomFrame, #room_table tfoot').hide();
+	$('#main, #top, #call_list, #roomFrame, #splash, #room_toolbar, #roomFrame, #room_table tfoot, #tangible_status').hide();
 
 	$('#display_user_name').text(this.ownName);
 
@@ -306,7 +306,7 @@ Lobby.prototype.loadSplash = function() {
 
 	$('#roomFrame').attr('src', 'about:blank');
 
-	$('#main, #top, #room_toolbar, #call_list, #roomFrame').hide();
+	$('#main, #top, #room_toolbar, #call_list, #roomFrame, #tangible_status').hide();
 	$('#header, #splash').show();
 
 	$('#splash_name').focus();
@@ -320,7 +320,7 @@ Lobby.prototype.loadMain = function() {
 
 	$('#roomFrame').attr('src', 'about:blank');
 
-	$('#header, #main, #top, #call_list').show();
+	$('#header, #main, #top, #call_list, #tangible_status').show();
 	$('#room_toolbar, #roomFrame, #splash').hide();
 };
 
