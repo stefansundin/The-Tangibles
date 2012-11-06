@@ -767,6 +767,7 @@ function socketserver() {
 		createNewRoom("Rome", ROOM_PUBLIC, "", "");
 		createNewRoom("Stockholm", ROOM_PUBLIC, "", "");
 		createNewRoom("Delft", ROOM_PUBLIC, "", "");
+		createNewRoom("Password room", ROOM_PUBLIC, "testing passwords", "pppp");
 	}
 
 	// # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
