@@ -1,5 +1,5 @@
 var app = require('express').createServer();
-app.listen(8080);
+app.listen(80);
 var webRTC = require('webrtc.io').listen(app);
 
 var socketserver = require('./socketserver.js').socketserver();
