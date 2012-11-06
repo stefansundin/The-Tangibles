@@ -1,14 +1,16 @@
 
+var PORT_NUMBER = 12345;
+
 var API_USER_ENTER = "userenter";
 var API_USER_LEAVE = "userleave";
 var API_ROOM_ENTER = "roomenter";
-var API_ROOM_LEAVE = "roomleave";
+var API_ROOM_REFUSED = "roomrefused";
 
 var API_LIST_ROOMS = "listrooms";
 var API_LIST_USERS = "listusers";
 var API_LIST = "listall";
 
-var API_USER_CHANGE = "userchange" 
+var API_USER_CHANGE = "userchange"
 var API_USER_NEW = "useradd";
 var API_USER_REMOVE = "userremove";
 var API_ROOM_NEW = "roomadd";
@@ -29,10 +31,9 @@ var API_CORNERS_BROADCAST = "cornersbroadcast";
 
 var API_NAME_SET = "setname";
 var API_NAME_CHANGE = "changename";
-var API_USERID = "userID"; 
+var API_USERID = "userID";
 
 var API_ECHO = "echo";
-
 
 var Socket = function(url) {
 	this.conn = new WebSocket(url, 'tangibles');

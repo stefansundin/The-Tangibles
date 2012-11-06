@@ -23,7 +23,7 @@ function socketserver() {
 	var API_USER_ENTER = "userenter";
 	var API_USER_LEAVE = "userleave";
 	var API_ROOM_ENTER = "roomenter";
-	var API_ROOM_LEAVE = "roomleave";
+	var API_ROOM_REFUSED = "roomrefused";
 
 	var API_LIST_ROOMS = "listrooms";
 	var API_LIST_USERS = "listusers";
@@ -217,7 +217,6 @@ function socketserver() {
 	});
 
 	/**
-	 *
 	 * Handling a new connection, adding it to the lobby. NOT notifying those
 	 * already in the lobby (wait until the name has been chosen).
 	 * @method handleNewConnection
@@ -238,7 +237,6 @@ function socketserver() {
 	/**
 	 * Handling when a connection is reset (closed). Notify all users in the room
 	 * the leaving user was last seen in.
-	 *
 	 * @method connectionClosed
 	 * @addon TODO Should lobbyn also be notified? (if the users always should be
 	 *        seen there but with a status symbol)
@@ -442,14 +440,34 @@ function socketserver() {
 	 * @method userChange
 	 * @param con {websocket} connection
 	 * @param newRoomId {Int} The if of the room to move to
+	 * @param passKey {String} (optional) Passkey for private rooms.
 	 */
-	function userChange(con, newRoomId) {
+	function userChange(con, newRoomId, passKey) {
 		var user = getUserBySocket(con);
 		var room = getRoomById(user.roomId);
 
 		var data = JSON.stringify({
 			id : user.id
 		});
+		
+		if (room.pass != "") {
+			
+			if (room.pass == passKey) {
+				// Check if password is correct
+					
+			} else if (room.pass == "AHP") {
+				// Check if passkey is correct
+				
+			} else {
+				// Wrong pass notify user and abort.
+				sendMessage(con, API_ROOM_REFUSED, JSON.stringify({
+					roomId: user.roomId
+				}));
+				
+				return;
+			}
+			
+		}
 
 		if (user.name != "" && user.roomId != -1) {
 			//sendMessageToRoom(user.id, user.roomId, API_USER_LEAVE, data);
@@ -475,6 +493,10 @@ function socketserver() {
 
 		//sendMessageToRoom(user.id, newRoomId, API_USER_ENTER, data);
 		sendMessageToAll(API_USER_ENTER, data);
+		
+		sendMessage(con, API_ROOM_ENTER, JSON.stringify({
+			roomId: user.roomId
+		}));
 	}
 
 	/**
@@ -564,7 +586,6 @@ function socketserver() {
 	 * @param con {websocket} connection
 	 * @param recipientId {Int} id of the recipient of the call
 	 * @param roomId {Int} id of the room inviting to
-	 *
 	 */
 	function inviteSend(con, recipientId, roomId) {
 		if (roomId < 1) {
@@ -598,7 +619,6 @@ function socketserver() {
 	 * @param con {websocket} connection
 	 * @param callId {Int} id of the recipient of the call
 	 * @param answer {String} id of the room inviting to
-	 *
 	 */
 	function inviteAnswer(con, callId, answer) {
 		var call = getCallById(callId);
@@ -626,14 +646,15 @@ function socketserver() {
 			call.setCall(true);
 
 			var data = JSON.stringify({
-				roomId : call.roomId
+				roomId : call.roomId,
+				passKey: "abc" //Passkey for private room
 			});
 
 			sendMessage(con, API_INVITE_ACCEPTED, data);
 
 		} else {// answer = no TODO: check this
 			sendMessage(con, API_INVITE_DECLINED, JSON.stringify({
-				id : callId
+				callId : callId
 			}));
 
 			call.removeUser(getUserBySocket(con));
@@ -648,7 +669,6 @@ function socketserver() {
 	 * @param typeS {String} Type of the new room
 	 * @param desc {String} (optional) Description of the new room, shown in the lobby
 	 * @param pass {String} (optional) Password for the new room
-	 *
 	 */
 	function newRoom(con, name, typeS, desc, pass) {
 
@@ -681,7 +701,6 @@ function socketserver() {
 	 * @method removeRoom
 	 * @param con {websocket} connection
 	 * @param id {Int} id of room to remove
-	 *
 	 */
 	function removeRoom(con, id) {
 
@@ -711,7 +730,6 @@ function socketserver() {
 	 * @method echo
 	 * @param con {websocket} connection
 	 * @param message {String} message to echo back
-	 *
 	 */
 	function echo(con, message) {
 
