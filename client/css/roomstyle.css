@@ -5,6 +5,7 @@
 	left: 0px;
 	right: 0px;
 	bottom: 0px;
+	z-index: -1;
 }
 
 #chatbox {
@@ -14,7 +15,7 @@
 	right: 0;
 	bottom: 0;
 	background-color: white;
-	border-left: 1px solid #E5E5E5;
+	border-left: 1px solid #A5A5A5;
 }
 
 #messages {
@@ -33,7 +34,7 @@
 	right: 0;
 	padding: 5px;
 	width: 240px;
-	background-color: #F5F5F5;
+	background-color: #E5E5E5;
 }
 
 #chatinput {

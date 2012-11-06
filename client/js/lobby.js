@@ -565,6 +565,9 @@ Lobby.prototype.enterRoom = function(roomId) {
 			'<span class="room_' + roomId + '">' + roomName + '</span>');
 
 	$('#room_toolbar').show();
+	
+	$('#room_leave').removeClass('ui-state-hover');
+	
 	this.hideRoomHeader = true;
 	this.updateRoomToolbar();
 	$('#main').hide();
