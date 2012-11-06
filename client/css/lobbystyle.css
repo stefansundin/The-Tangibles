@@ -5,6 +5,10 @@
   src: url(http://themes.googleusercontent.com/static/fonts/ubuntu/v4/_xyN3apAT_yRRDeqB3sPRg.woff) format('woff');
 }
 
+.bold {
+	font-weight: bold;
+}
+
 html {
 	margin: 0;
 	padding: 0;
@@ -20,55 +24,55 @@ body {
 	height: 100%;
 }
 
+ol {
+	margin-top: 3px;
+}
+
 .ui-widget {
 	font-size: 0.7em;
 }
 
-#tangible_status {
-	position: absolute;
-	top: 0;
-	right: 0;
-	padding: 10px;
-}
-
-#top {
-	position: absolute;
-	top: 40px;
-	right: 0;
-	padding: 10px;
-}
-
-#header_wrapper {
+#header {
 	position: relative;
 	background-color: #F5F5F5;
 	border-bottom: 1px solid #E5E5E5;
-}
-
-#header {
 	height: 90px;
 	width: 100%;
 }
-
-#room_toolbar {
+#header img {
+	margin: 3px 5px;
+	float: left;
+}
+#header .small {
+	display: none;
+}
+#top {
+	float: right;
+	padding: 10px;
+}
+#toolbar {
+	height: 29px;
 	padding-right: 10px;
-	text-align: right;
+	clear: right;
+	float: right;
 }
 
-#logo {
-	position: absolute;
-	top: 5px;
-	left: 5px;
-}
 
 #title {
-	position: absolute;
-	margin: 0;
-	padding: 0;
-	top: 35px;
-	left: 290px;
+	margin: 33px 20px;
+	float: left;
 	font-family: Ubuntu, sans-serif;
 	font-weight: normal;
 	font-size: 36px;
+	color: #909090;
+}
+#title.small {
+	margin-top: 2px;
+	font-size: 24px;
+}
+
+#title_small_room {
+	padding-left: 7px;
 	color: #909090;
 }
 
@@ -178,9 +182,26 @@ body {
 	display: none;
 }
 
+#lobby_list {
+	padding: 10px;
+	word-wrap: break-word;
+}
+
 #create_room {
 	position: absolute;
 	top: 0;
 	right: 0;
 	margin: 10px;
+}
+
+.ui-icon-tangiblestatus-ok {
+	background-image: url(../img/status.png) !important;
+}
+.ui-icon-tangiblestatus-error {
+	background-image: url(../img/status.png) !important;
+	background-position: -16px 0;
+}
+.ui-icon-tangiblestatus-warning {
+	background-image: url(../img/status.png) !important;
+	background-position: -32px 0;
 }

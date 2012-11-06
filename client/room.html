@@ -1,53 +1,27 @@
 <html>
-  <head>
-    <title>Room view</title>
-    
-    <link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel="stylesheet" type="text/css" />
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8/jquery.min.js"></script>
-    <script	src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
+<head>
+	<title>Room view</title>
+	
+	<link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel="stylesheet" type="text/css" />
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8/jquery.min.js"></script>
+	<script	src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
 
 	<link type="text/css" href="css/roomstyle.css" rel="stylesheet"></link>
 	
-    <script src="/webrtc.io.js"></script>
+	<script src="/webrtc.io.js"></script>
 	<script src="/room/js/room.js"></script>
-  </head>
-  <body>
-    <!-- Main content -->
-    <div id ="content">
+</head>
+<body>
+	<!-- Videos -->
+	<div id="videos">   
+		<video id="you" class="flip" autoplay></video> 
+	</div> 
 	
-      <!-- Videos go here -->
-      <div id="videos">   
-        <video id="you" class="flip" autoplay></video> 
-      </div> 
-      <!-- Message box and buttons -->
-      <div id="chatbox">  
-<!--        <button id="fullscreen">Enter Full Screen</button>   -->  
-        <button id="openWorkspace">Toggle workspace</button>
-        <button id="openUserlistDialog">View users in this room</button>
-        <button id="openInviteDialog">Invite</button>
-        <button id="leaveRoom">Leave the room</button>
-        <div id="messages"></div>
-		<br>
-	<input id="chatinput" type="text"/>
-      </div>
-	  
-    </div>
-	
-	<!-- Invite user dialog -->
-	<div id="invite_dialog" title="Invite user">
-		<form>
-			<div id="formContainer">
-			</div>
-		</form>
+	<!-- Message box and buttons -->
+	<div id="chatbox">  
+		<div id="messages"></div>
+		<br />
+		<input id="chatinput" type="text"/>
 	</div>
-	
-	<!-- List users dialog -->
-	<div id="userlist_dialog" title="Users in this room">
-		
-		<div id="userlistContainer">
-		</div>
-		
-	</div>
-    
-  </body>
+</body>
 </html>

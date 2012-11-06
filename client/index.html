@@ -23,17 +23,12 @@ $(function() {
 
 <script src="js/socket.js"></script>
 <script src="js/lobby.js"></script>
+<script type="text/javascript" src="js/tangibleLib.js"></script>
 <script src="js/tangibles.js"></script>
 
 </head>
 <body>
 	<!-- Popup dialogs-->
-	<div id="dialog_error" title="Error">
-		<div class="ui-state-error ui-corner-all" style="padding: 0 .7em;">
-			<p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>
-			<span id="dialog_error_text">Some error occurred.</span></p>
-		</div>
-	</div>
 	<div id="dialog_select_user_name" title="Select user name">
 		<label for="user_name">User name</label><br />
 		<input type="text" name="user_name" id="user_name" class="text ui-widget-content ui-corner-all" />
@@ -47,44 +42,41 @@ $(function() {
 		<input type="text" id="room_desc" class="text ui-widget-content ui-corner-all" />
 		<br />
 		<br />
-		<input type="checkbox" id="create_room_advanced_button" />
-		<label for="create_room_advanced_button">Advanced</label><br />
-		<div id="create_room_advanced_content">
-			<br />
-			<label for="room_type">Room type</label><br />
-			<div id="room_type">
-				<input type="radio" id="room_type_public" name="radio" checked="checked" /><label for="room_type_public">Public</label>
-				<input type="radio" id="room_type_private" name="radio" /><label for="room_type_private">Private</label>
-			</div>
-			<br />
-			<label for="room_password">Password (optional)</label><br />
-			<input type="password" id="room_password" class="text ui-widget-content ui-corner-all" />
-		</div>
+		<label for="room_password">Password (optional)</label><br />
+		<input type="password" id="room_password" class="text ui-widget-content ui-corner-all" />
+	</div>
+	<div id="dialog_userlist_room" title="Users in this room"></div>
+	<div id="dialog_user_invite" title="Select users to invite"></div>
+	<div id="dialog_tangible_status" title="Tangible status">
+		<p><b class="status"></b></p>
+		Make sure that:
+		<ol>
+			<li>TangibleAPI is running.</li>
+			<li>SiftDriver is running.</li>
+			<li>App is running in Siftdev.</li>
+		</ol>
 	</div>
 	
 	<!-- Room frame -->
 	<iframe id="roomFrame" src="about:blank" seamless></iframe>
 	
-	<div id="header_wrapper">
-		<div id="header">
-			<img id="logo" src="img/logo.png" />
-			<div id="title"></div>
-			
-			<div id="tangible_status">
-				Status: <input type="text" id="status" class="text ui-widget-content ui-corner-all" readonly />
-			</div>
-			<div id="top">
-				<div id="display_user_name"></div>
-				<button id="change_user_name">Change name</button>
-			</div>
+	<div id="header">
+		<img src="img/logo.png" class="expanded" />
+		<img src="img/logo-small.png" class="small" />
+		<div id="title" class="expanded"></div>
+		<div id="top" class="expanded">
+			<div id="display_user_name"></div>
+			<button id="change_user_name">Change name</button>
 		</div>
-		<div id="room_toolbar">
-			<input type="checkbox" id="toggle_workspace" /><label for="toggle_workspace">Toggle workspace</label>
-			<button id="view_users">View participants</button>
-			<button id="show_chat">Show chat</button>
-			<button id="room_invite">Invite users</button>
-			<button id="room_leave">Leave room</button>
-			<button id="toggle_header">Show the header</button>
+		<div id="toolbar">
+			<button id="tangible_status" title="The tangible devices are responding Ok!">Tangible status</button>
+			<span id="room_toolbar">
+				<input type="checkbox" id="toggle_workspace" /><label for="toggle_workspace">Open workspace</label>
+				<input type="checkbox" id="toggle_chat" /><label for="toggle_chat">Open chat</label>
+				<button id="room_invite">Invite users</button>
+				<button id="room_leave">Leave room</button>
+				<button id="toggle_header">Show the header</button>
+			</span>
 		</div>
 	</div>
 	
@@ -104,6 +96,9 @@ $(function() {
   
 	<!-- Lobby div -->
 	<div id="main">
+		<div id="lobby_list">
+			<span class="bold">Users in the lobby: </span><span id="room_user_list_0" class="remote_user_list"></span>
+		</div>
 		<table id="room_table">
 			<thead>
 				<tr>

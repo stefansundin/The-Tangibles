@@ -14,16 +14,10 @@ function tangibleREST(method, svr_ip, uri, params, onSuccess, onError, async) {
 		data : params
 	};
 	if (onSuccess !== undefined && onSuccess !== null) {
-		ajaxParams.success =
-			function (data, textStatus, jqXHR) {
-				onSuccess(data);
-			};
+		ajaxParams.success = onSuccess;
 	}
 	if (onError !== undefined && onError !== null) {
-		ajaxParams.error =
-			function (jqXHR, textStatus, errorThrown) {
-				onError(errorThrown);
-			};
+		ajaxParams.error = onError;
 	}
 	if (async !== undefined && async !== null) {
 		ajaxParams.async = async;

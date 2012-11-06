@@ -6,3 +6,10 @@ Debug
 /.project
 /.settings
 node_modules
+build
+dist
+nbproject
+sphero.properties
+SiftDriver.userprefs
+build.xml
+manifest.mf

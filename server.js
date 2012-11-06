@@ -28,6 +28,14 @@ app.get('/img/logo.png', function(req, res) {
 	  res.sendfile(__dirname + '/client/img/logo.png');
 });
 
+app.get('/img/logo-small.png', function(req, res) {
+	  res.sendfile(__dirname + '/client/img/logo-small.png');
+});
+
+app.get('/img/status.png', function(req, res) {
+	  res.sendfile(__dirname + '/client/img/status.png');
+});
+
 app.get('/room', function(req, res) {
 //  console.log('Opening room');
   res.sendfile(__dirname + '/client/room.html');
@@ -129,7 +137,7 @@ app.get('/workspace/js/lib/sylvester.js', function(req, res) {
 });
 
 app.get('/webrtc.io.js', function(req, res) {
-	var path = __dirname + '/node_modules/webrtc.io/node_modules/webrtc.io-client/lib/webrtc.io.js';
+	var path = __dirname + '/webrtc.io.js';
   res.sendfile(path);
 });
 

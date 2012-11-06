@@ -5,19 +5,18 @@ $(function() {
 	lobby.init();
 });
 
-function assert(exp, message) {
-	if (!exp) {
-		console.error(message);
-	}
-}
-
 function Lobby() {
-	this.AUTO_DECLINE_TIME = 60;
+	this.DEBUG = false;
+	this.AUTO_DECLINE_TIME = 60; // Time until a call is auto declined
 	this.lobbyId = 0; // Special room id for the lobby
-	this.room_type_public = 'public'; // TODO Fix types
-	this.room_type_private = 'private';
+	this.ownRoomId = 0; // Own users current room Id
+	this.ownId = -1; // Own users Id
 	this.rooms = []; // [id, name, desc, type]
 	this.users = []; // [id, name, room_id]
+	this.hideRoomHeader = true;
+	this.workspaceOpen = false;
+	this.chatOpen = false;
+	this.workspaceWindow = undefined;
 	if (sessionStorage.ownName) { // TODO Change all session to localStorage?
 		this.ownName = sessionStorage.ownName;
 	} else {
@@ -26,33 +25,19 @@ function Lobby() {
 }
 
 /**
- * Shows a dialog with the text.
- * 
- * @param text
- *            The text to display.
- */
-Lobby.prototype.showError = function(text) {
-	$('#dialog_error_text').text(text);
-	$('#dialog_error').dialog('open');
-};
-
-/**
  * Initializes all the dialogs, DIVs etc.
  */
 Lobby.prototype.init = function() {
 	var self = this;
+	
+	// Automatically close the workspace
+	window.onbeforeunload = function() {
+		if(self.workspaceOpen) {
+			self.workspaceWindow.close();
+		}
+	};
 
-	$('#main').hide();
-	$('#top').hide();
-	$('#call_list').hide();
-	$('#tangible_status').hide();
-	$('#roomFrame').hide();
-	$('#splash').hide();
-	$('#room_toolbar').hide();
-
-	$('#roomFrame').hide();
-
-	$('#room_table tfoot').hide();
+	$('#main, #top, #call_list, #roomFrame, #splash, #room_toolbar, #roomFrame, #room_table tfoot, #tangible_status').hide();
 
 	$('#display_user_name').text(this.ownName);
 
@@ -64,12 +49,53 @@ Lobby.prototype.init = function() {
 		$('#dialog_select_user_name').dialog('open');
 	});
 
-	$('#dialog_error').dialog({
+	$('#dialog_user_invite').dialog({
 		autoOpen : false,
 		modal : true,
 		resizable : false,
+		open : function(event, ui) {
+			$(this).empty();
+			// TODO Append with new users??
+
+			var empty = true;
+
+			for ( var i = 0; i < self.users.length; i++) {
+				if (self.users[i][0] != self.ownId) {
+					empty = false;
+					$(this).append($('<div/>', {
+						class : 'remote_user_' + self.users[i][0]
+					}).append($('<input/>', {
+						type : 'checkbox',
+						id : 'check_invite_' + self.users[i][0]
+					})).append($('<label/>', {
+						'for' : 'check_invite_' + self.users[i][0]
+					}).append($('<span/>', {
+						class : 'remote_user_' + self.users[i][0],
+						text : self.users[i][1]
+					}))));
+				}
+			}
+			if (empty) {
+				$(this).append('No users available.');
+			}
+		},
 		buttons : {
 			OK : function() {
+				$(this).dialog('close');
+				$(this).find('input[type="checkbox"]').each(function() {
+					if ($(this).is(':checked')) {
+						var divId = $(this).attr('id');
+						var index = divId.indexOf('check_invite_');
+						if (index == 0) {
+							var userId = divId.substring(index + 13);
+							// 13 = 'check_invite_'.length
+
+							self.inviteUser(userId);
+						}
+					}
+				});
+			},
+			Cancel : function() {
 				$(this).dialog('close');
 			}
 		}
@@ -98,13 +124,12 @@ Lobby.prototype.init = function() {
 				$(this).dialog('close');
 			}
 		}
-	}).keypress(
-			function(e) {
-				if (e.which == 13) {
-					$(this).parents('.ui-dialog').first().find('.ui-button')
-							.first().click();
-				}
-			});
+	}).keypress(function(e) {
+		if (e.which == 13) {
+			$(this).parents('.ui-dialog').first().find('.ui-button')
+				.first().click();
+		}
+	});
 
 	$('#dialog_create_room').dialog({
 		autoOpen : false,
@@ -128,19 +153,12 @@ Lobby.prototype.init = function() {
 				$(this).dialog('close');
 			}
 		}
-	}).keypress(
-			function(e) {
-				if (e.which == 13) {
-					$(this).parents('.ui-dialog').first().find(
-							'.ui-button:contains(OK)').first().click();
-				}
-			});
-
-	$('#room_type').buttonset();
-	$('#create_room_advanced_content').hide();
-	$('#create_room_advanced_button').button().click(function() {
-		$('#create_room_advanced_content').toggle();
-	}).button('disable'); // TODO Enable advanced button
+	}).keypress(function(e) {
+		if (e.which == 13) {
+			$(this).parents('.ui-dialog').first().find(
+				'.ui-button:contains(OK)').first().click();
+		}
+	});
 
 	$('#splash_name').keypress(function(e) {
 		if (e.which == 13) {
@@ -161,41 +179,81 @@ Lobby.prototype.init = function() {
 		}
 	});
 
+
+	$('#dialog_tangible_status').dialog({
+		autoOpen : false,
+		modal : true,
+		resizable : false,
+		open : function(event, ui) {
+			$('.status',this).text($('#tangible_status').attr('title'));
+		},
+		buttons : {
+			OK : function() {
+				$(this).dialog('close');
+			}
+		}
+	});
+	$('#tangible_status').button({
+		icons : { primary : 'ui-icon-tangiblestatus-ok' }
+	}).click(function() {
+		$('#dialog_tangible_status').dialog('open');
+	});
+
+
 	$('#toggle_workspace').button({
-		icons : {
-			primary : 'ui-icon-newwin'
-		},
+		icons : { primary : 'ui-icon-newwin' },
 		text : false
+	}).click(function() {
+		self.workspaceOpen = !self.workspaceOpen;
+		if (self.workspaceOpen) {
+			self.workspaceWindow = window.open('/workspace/#'
+					+ self.ownRoomId + '_desk');
+			self.workspaceWindow.onbeforeunload = function() {
+				if (self.workspaceOpen) {
+					$('label[for=toggle_workspace]').removeClass(
+							'ui-state-hover');
+					self.workspaceOpen = false;
+					self.updateWorkspaceButton();
+				}
+			};
+		} else {
+			self.workspaceWindow.close();
+		}
+		self.updateWorkspaceButton();
 	});
-	$('#view_users').button({
-		icons : {
-			primary : 'ui-icon-person'
-		},
+	$('#toggle_chat').button({
+		icons : { primary : 'ui-icon-comment' },
 		text : false
-	});
-	$('#show_chat').button({
-		icons : {
-			primary : 'ui-icon-comment'
-		},
-		text : false
+	}).click(function() {
+		self.chatOpen = !self.chatOpen;
+		if (self.chatOpen) {
+			$('#roomFrame').contents().find('#chatbox').show();
+			$('#roomFrame').contents().find('#chatinput').focus();
+		} else {
+			$('#roomFrame').contents().find('#chatbox').hide();
+		}
+		self.updateChatButton();
 	});
 	$('#room_invite').button({
-		icons : {
-			primary : 'ui-icon-plus'
-		},
+		icons : { primary : 'ui-icon-plus' },
 		text : false
+	}).click(function() {
+		$('#dialog_user_invite').dialog('open');
 	});
 	$('#room_leave').button({
-		icons : {
-			primary : 'ui-icon-home'
-		},
+		icons : { primary : 'ui-icon-home' },
 		text : false
+	}).click(function() {
+		self.leaveRoom();
 	});
+
 	$('#toggle_header').button({
-		icons : {
-			primary : 'ui-icon-arrowthick-1-n'
-		},
+		icons : { primary : 'ui-icon-arrowthick-1-s' },
 		text : false
+	}).click(function() {
+		self.hideRoomHeader = !self.hideRoomHeader;
+		self.updateRoomToolbar();
+		$(this).removeClass('ui-state-hover');
 	});
 
 	/*
@@ -208,13 +266,15 @@ Lobby.prototype.init = function() {
 
 	// Set up socket handlers
 	socket.on('open', function() {
-		console.log("########################OPEN IS HERE");
 		self.onSocketOpen();
 	});
 	socket.on('close', function() {
 		self.onSocketClose();
 	});
 
+	socket.on(API_USERID, function(userId) {
+		self.ownId = userId;
+	});
 	socket.on(API_NAME_SET, function(userName) {
 		$('#display_user_name').text(userName);
 	});
@@ -245,8 +305,8 @@ Lobby.prototype.init = function() {
 	socket.on(API_ROOM_REMOVE, function(roomId) {
 		self.onRoomDelete(roomId);
 	});
-
-	// TODO this.onRoomCreated('random_text');
+	
+	// TODO Handle passwords when entering rooms
 };
 
 /**
@@ -257,16 +317,8 @@ Lobby.prototype.loadSplash = function() {
 
 	$('#roomFrame').attr('src', 'about:blank');
 
-	$('#room_toolbar').hide();
-
-	$('#header').show();
-
-	$('#main').hide();
-	$('#top').hide();
-	$('#call_list').hide();
-	$('#tangible_status').hide();
-	$('#roomFrame').hide();
-	$('#splash').show();
+	$('#main, #top, #room_toolbar, #call_list, #roomFrame, #tangible_status').hide();
+	$('#header, #splash').show();
 
 	$('#splash_name').focus();
 };
@@ -279,23 +331,22 @@ Lobby.prototype.loadMain = function() {
 
 	$('#roomFrame').attr('src', 'about:blank');
 
-	$('#room_toolbar').hide();
+	$('#header, #main, #top, #call_list, #tangible_status').show();
+	$('#room_toolbar, #roomFrame, #splash').hide();
+	
+	this.hideRoomHeader = false;
+	this.updateRoomToolbar();
 
-	$('#header').show();
-
-	$('#main').show();
-	$('#top').show();
-	$('#call_list').show();
-	$('#tangible_status').show();
-	$('#roomFrame').hide();
-	$('#splash').hide();
+	this.closeWorkspace();
 };
 
 /**
  * Called when the socket connection is opened.
  */
 Lobby.prototype.onSocketOpen = function() {
-	console.log('onOpen');
+	if (this.DEBUG) {
+		console.debug('onOpen');
+	}
 
 	$('#server_loading').hide();
 
@@ -306,8 +357,6 @@ Lobby.prototype.onSocketOpen = function() {
 		lobby.loadSplash();
 	}
 
-	$('#dialog_error').dialog('close');
-
 	// request stuff
 	socket.send(API_LIST, '');
 };
@@ -316,16 +365,15 @@ Lobby.prototype.onSocketOpen = function() {
  * Called when the socket connection is closed.
  */
 Lobby.prototype.onSocketClose = function() {
-	console.warn('onClose');
+	if (this.DEBUG) {
+		console.debug('onClose');
+	}
 
 	$('#server_loading').show();
 
-	$('#main').hide();
-	$('#top').hide();
-	$('#call_list').hide();
-	$('#tangible_status').hide();
-	$('#roomFrame').hide();
-	$('#splash').hide();
+	// TODO Fix so it stays in the room?
+
+	$('#main, #top, #call_list, #roomFrame, #splash').hide();
 
 	$('#room_table tbody').empty();
 	$('#room_table tfoot').show();
@@ -366,6 +414,23 @@ Lobby.prototype.findUserIndex = function(userId) {
 };
 
 /**
+ * Gets a list of all users in a room.
+ * 
+ * @param roomId
+ *            Room to look for
+ * @returns {Array}
+ */
+Lobby.prototype.getUsersInRoom = function(roomId) {
+	var users = [];
+	for ( var i = 0; i < this.users.length; i++) {
+		if (this.users[i][2] == roomId) {
+			users.push(this.users[i]);
+		}
+	}
+	return users;
+};
+
+/**
  * Changes the user name to a new name if it isn't the empty string. Called when
  * the user clicks OK in the select user name dialog.
  * 
@@ -373,7 +438,9 @@ Lobby.prototype.findUserIndex = function(userId) {
  *            The new user name
  */
 Lobby.prototype.changeOwnName = function(newName) {
-	console.log('onchangeOwnName: ' + newName);
+	if (this.DEBUG) {
+		console.debug('onchangeOwnName: ' + newName);
+	}
 
 	if (newName != '') {
 		this.ownName = newName;
@@ -396,7 +463,9 @@ Lobby.prototype.changeOwnName = function(newName) {
  *            A list of users
  */
 Lobby.prototype.onLobbyLoad = function(rooms, users) {
-	console.log('onLobbyLoad: ' + rooms + ' ' + users);
+	if (this.DEBUG) {
+		console.debug('onLobbyLoad: ' + rooms + ' ' + users);
+	}
 
 	this.rooms = [];
 	this.users = [];
@@ -423,13 +492,8 @@ Lobby.prototype.onLobbyLoad = function(rooms, users) {
  *            Name of the new room
  */
 Lobby.prototype.createRoom = function(roomName) {
-	console.log('createRoom: ' + roomName);
-
-	var roomType;
-	if ($('#room_type_private').attr('checked')) {
-		roomType = this.room_type_private;
-	} else {
-		roomType = this.room_type_public;
+	if (this.DEBUG) {
+		console.debug('createRoom: ' + roomName);
 	}
 
 	var roomDesc = $('#room_desc').val();
@@ -438,7 +502,7 @@ Lobby.prototype.createRoom = function(roomName) {
 	if (roomName != '') {
 		socket.send(API_ROOM_NEW, JSON.stringify({
 			name : roomName,
-			type : roomType,
+			type : '',
 			desc : roomDesc,
 			password : roomPassword
 		}));
@@ -452,7 +516,9 @@ Lobby.prototype.createRoom = function(roomName) {
  *            ID to delete
  */
 Lobby.prototype.deleteRoom = function(roomId) {
-	console.log('deleteRoom: ' + roomId);
+	if (this.DEBUG) {
+		console.debug('deleteRoom: ' + roomId);
+	}
 
 	socket.send(API_ROOM_REMOVE, JSON.stringify({
 		id : roomId
@@ -477,9 +543,14 @@ Lobby.prototype.onRoomCreated = function(roomId) {
  *            ID of the room
  */
 Lobby.prototype.enterRoom = function(roomId) {
+	this.ownRoomId = roomId;
+
 	if (roomId == this.lobbyId) {
 		return;
 	}
+
+	this.closeWorkspace();
+	this.chatOpen = false;
 
 	socket.send(API_USER_CHANGE, JSON.stringify({
 		id : roomId
@@ -494,7 +565,8 @@ Lobby.prototype.enterRoom = function(roomId) {
 			'<span class="room_' + roomId + '">' + roomName + '</span>');
 
 	$('#room_toolbar').show();
-	$('#header').hide();
+	this.hideRoomHeader = true;
+	this.updateRoomToolbar();
 	$('#main').hide();
 	$('#roomFrame').show();
 	$('#roomFrame').attr('src', 'room/#' + roomId);
@@ -504,15 +576,20 @@ Lobby.prototype.enterRoom = function(roomId) {
  * Is called by the room frame content when it wants to close the room.
  */
 Lobby.prototype.leaveRoom = function() {
+	this.ownRoomId = 0;
+
 	socket.send(API_USER_CHANGE, JSON.stringify({
 		id : this.lobbyId
 	}));
 
 	$('#title').text('Lobby');
 
-	$('#header').show();
+	this.hideRoomHeader = false;
+	this.updateRoomToolbar();
 
 	$('#room_toolbar').hide();
+
+	this.closeWorkspace();
 
 	$('#roomFrame').attr('src', 'about:blank');
 	$('#main').show();
@@ -528,7 +605,9 @@ Lobby.prototype.leaveRoom = function() {
  *            The new name
  */
 Lobby.prototype.onRoomChangeName = function(roomId, roomName) {
-	console.log('onRoomChangeName: ' + roomId + ' ' + roomName);
+	if (this.DEBUG) {
+		console.debug('onRoomChangeName: ' + roomId + ' ' + roomName);
+	}
 
 	$('.room_' + roomId).text(roomName);
 
@@ -553,12 +632,14 @@ Lobby.prototype.onRoomChangeName = function(roomId, roomName) {
  *            Type of the room
  */
 Lobby.prototype.onRoomAdd = function(roomId, roomName, roomDesc, roomType) {
-	console.log('onRoomAdd: ' + roomId + ' ' + roomName + ' ' + roomDesc + ' '
-			+ roomType);
+	if (this.DEBUG) {
+		console.debug('onRoomAdd: ' + roomId + ' ' + roomName + ' ' + roomDesc
+				+ ' ' + roomType);
+	}
 
 	// Ignore lobby
 	if (roomId == this.lobbyId) {
-		// return; TODO Uncomment again...
+		return;
 	}
 	// Unique ids
 	if ($('#room_list_' + roomId).length != 0) {
@@ -605,7 +686,9 @@ Lobby.prototype.onRoomAdd = function(roomId, roomName, roomDesc, roomType) {
  *            ID of the deleted room
  */
 Lobby.prototype.onRoomDelete = function(roomId) {
-	console.log('onRoomDelete: ' + roomId);
+	if (this.DEBUG) {
+		console.debug('onRoomDelete: ' + roomId);
+	}
 
 	// Find room with given id
 	var index = this.findRoomIndex(roomId);
@@ -627,11 +710,15 @@ Lobby.prototype.onRoomDelete = function(roomId) {
  *            ID of the room
  */
 Lobby.prototype.onRoomClick = function(roomId) {
-	console.log('onRoomClick: ' + roomId);
+	if (this.DEBUG) {
+		console.debug('onRoomClick: ' + roomId);
+	}
 
 	var index = this.findRoomIndex(roomId);
 	if (index != -1) {
-		console.log('RoomClick found: ' + this.rooms[index][0]);
+		if (this.DEBUG) {
+			console.debug('RoomClick found: ' + this.rooms[index][0]);
+		}
 		this.enterRoom(roomId);
 	}
 };
@@ -645,10 +732,12 @@ Lobby.prototype.onRoomClick = function(roomId) {
  *            ID of the room
  */
 Lobby.prototype.onUserEnterRoom = function(userId, roomId) {
-	console.log('onUserEnterRoom: ' + userId + ' ' + roomId);
+	if (this.DEBUG) {
+		console.debug('onUserEnterRoom: ' + userId + ' ' + roomId);
+	}
 
 	var index = this.findRoomIndex(roomId);
-	if (index != -1) {
+	if (index != -1 || roomId == this.lobbyId) { // Special case for the lobby
 		var user_index = this.findUserIndex(userId);
 		if (user_index != -1) {
 			this.users[user_index][2] = roomId;
@@ -677,7 +766,9 @@ Lobby.prototype.onUserEnterRoom = function(userId, roomId) {
  *            ID of the user
  */
 Lobby.prototype.onUserLeaveRoom = function(userId) {
-	console.log('onUserLeaveRoom: ' + userId);
+	if (this.DEBUG) {
+		console.debug('onUserLeaveRoom: ' + userId);
+	}
 
 	var user_index = this.findUserIndex(userId);
 	if (user_index != -1) {
@@ -697,7 +788,9 @@ Lobby.prototype.onUserLeaveRoom = function(userId) {
  *            The new name
  */
 Lobby.prototype.onUserChangeName = function(userId, userName) {
-	console.log('onUserChangeName: ' + userId + ' ' + userName);
+	if (this.DEBUG) {
+		console.debug('onUserChangeName: ' + userId + ' ' + userName);
+	}
 
 	var index = this.findUserIndex(userId);
 	if (index != -1) {
@@ -718,7 +811,9 @@ Lobby.prototype.onUserChangeName = function(userId, userName) {
  *            ID of the room which contains the user
  */
 Lobby.prototype.onUserEnter = function(userId, userName, roomId) {
-	console.log('onUserEnter: ' + userId + ' ' + userName + ' ' + roomId);
+	if (this.DEBUG) {
+		console.debug('onUserEnter: ' + userId + ' ' + userName + ' ' + roomId);
+	}
 
 	// Add to list
 	this.users.push([ userId, userName, roomId ]);
@@ -734,7 +829,9 @@ Lobby.prototype.onUserEnter = function(userId, userName, roomId) {
  *            ID of the remote user that left
  */
 Lobby.prototype.onUserLeave = function(userId) {
-	console.log('onUserLeave: ' + userId);
+	if (this.DEBUG) {
+		console.debug('onUserLeave: ' + userId);
+	}
 
 	// Find remote_user with given id
 	var index = this.findUserIndex(userId);
@@ -742,6 +839,27 @@ Lobby.prototype.onUserLeave = function(userId) {
 		// Remove from list
 		this.users.splice(index, 1);
 		$('.remote_user_' + userId).remove();
+	}
+};
+
+/**
+ * Invites a user to the current room if it exists.
+ * 
+ * @param userId
+ *            The user to be invited
+ */
+Lobby.prototype.inviteUser = function(userId) {
+	if (this.DEBUG) {
+		console.debug('inviteUser: ' + userId);
+	}
+
+	var index = this.findUserIndex(userId);
+
+	if (index != -1) {
+		socket.send(API_INVITE_SEND, JSON.stringify({
+			id : this.users[index][0],
+			roomId : this.ownRoomId
+		}));
 	}
 };
 
@@ -758,7 +876,10 @@ Lobby.prototype.onUserLeave = function(userId) {
  *            ID of the call
  */
 Lobby.prototype.onIncomingCall = function(userName, roomName, callId) {
-	console.log('IncomingCall: ' + userName + ' ' + roomName + ' ' + callId);
+	if (this.DEBUG) {
+		console.debug('IncomingCall: ' + userName + ' ' + roomName + ' '
+				+ callId);
+	}
 
 	// Unique ids
 	if ($('#call_' + callId).length != 0) {
@@ -805,7 +926,9 @@ Lobby.prototype.onIncomingCall = function(userName, roomName, callId) {
  *            ID of the call that was accepted
  */
 Lobby.prototype.accept = function(callId) {
-	console.log('Accept: ' + callId);
+	if (this.DEBUG) {
+		console.debug('Accept: ' + callId);
+	}
 
 	if ($('#call_' + callId).length != 0) { // Extra check
 		$('#call_timer_' + callId).text('');
@@ -860,7 +983,9 @@ Lobby.prototype.onCallDeclined = function(callId) {
  *            ID of the call that was declined
  */
 Lobby.prototype.decline = function(callId) {
-	console.log('Decline: ' + callId);
+	if (this.DEBUG) {
+		console.debug('Decline: ' + callId);
+	}
 
 	if ($('#call_' + callId).length != 0) { // Extra check
 		$('#call_timer_' + callId).text('');
@@ -909,10 +1034,86 @@ Lobby.prototype.onAutoDeclineTimer = function(callId, timeLeft) {
 };
 
 /**
+ * Closes the workspace if its open.
+ */
+Lobby.prototype.closeWorkspace = function() {
+	if (this.workspaceOpen) {
+		this.workspaceWindow.close();
+		this.workspaceOpen = false;
+	}
+};
+
+/**
+ * Updates the icons of the room toolbar.
+ */
+Lobby.prototype.updateRoomToolbar = function() {
+	if (this.hideRoomHeader) {
+		$('#title').addClass('small');
+		$('#header .expanded').hide();
+		$('#header .small').show();
+		$('#header').css('height', '30px');
+	} else {
+		$('#title').removeClass('small');
+		$('#header .expanded').show();
+		$('#header .small').hide();
+		$('#header').css('height', '');
+	}
+	
+	this.updateChatButton();
+
+	this.updateWorkspaceButton();
+	$('#header #toolbar button:not(:last)').button('option',
+		{ text : !this.hideRoomHeader });
+
+	$('#toggle_header').button('option', {
+		icons : {
+			primary : 'ui-icon-arrowthick-1-'+(this.hideRoomHeader ? 's' : 'n')
+		},
+		label : (this.hideRoomHeader ? 'Show the header' : 'Hide the header')
+	});
+};
+
+/**
+ * Updates the apperance of the workspace button.
+ */
+Lobby.prototype.updateWorkspaceButton = function() {
+	$('#toggle_workspace').attr('checked', this.workspaceOpen)
+		.button('refresh');
+	$('#toggle_workspace').button('option', {
+		text : !this.hideRoomHeader,
+		label : (this.workspaceOpen ? 'Close workspace' : 'Open workspace')
+	});
+
+	// Special fix for label bug
+	$('label[for=toggle_workspace]').attr('title',
+		this.workspaceOpen ? 'Close workspace' : 'Open workspace');
+};
+
+
+/**
+ * Updates the apperance of the chat button.
+ */
+Lobby.prototype.updateChatButton = function() {
+	$('#toggle_chat').attr('checked', this.chatOpen)
+		.button('refresh');
+	$('#toggle_chat').button('option', {
+		text : !this.hideRoomHeader,
+		label : (this.chatOpen ? 'Close chat' : 'Open chat')
+	});
+
+	// Special fix for label bug
+	$('label[for=toggle_chat]').attr('title',
+		this.chatOpen ? 'Close chat' : 'Open chat');
+};
+
+
+/**
  * A test function which runs various functions in the lobby.
  */
 Lobby.prototype.test = function() {
-	console.log('Running test...');
+	if (this.DEBUG) {
+		console.debug('Running test...');
+	}
 
 	this.onLobbyLoad([ [ 1, 'Test Room', '', 0 ],
 			[ 2, 'Room 2', 'Some desc', 0 ] ], [ [ 1, 'Karl', 1 ],
@@ -923,29 +1124,31 @@ Lobby.prototype.test = function() {
 	this.onIncomingCall('Kalle', 'Room test', 1);
 
 	// Test rooms
-	assert(this.findRoomIndex(1) == 0, 'Room index of 1 is wrong');
-	assert(this.rooms[0][1] == 'Test Room', 'Room has wrong name');
-	assert(this.rooms[1][2] == 'Some desc', 'Room has wrong desc');
-	assert(this.rooms[0][3] == 0, 'Room has wrong type');
+	console.assert(this.findRoomIndex(1) == 0, 'Room index of 1 is wrong');
+	console.assert(this.rooms[0][1] == 'Test Room', 'Room has wrong name');
+	console.assert(this.rooms[1][2] == 'Some desc', 'Room has wrong desc');
+	console.assert(this.rooms[0][3] == 0, 'Room has wrong type');
 	this.onRoomAdd(3, 'Room 3', 'Desc', 1);
 	this.onRoomChangeName(1, 'New name');
-	assert(this.rooms[0][1] == 'New name', 'Room has wrong name after change');
+	console.assert(this.rooms[0][1] == 'New name',
+			'Room has wrong name after change');
 	this.onRoomAdd(4, 'Delete me', 'Desc', 1);
 	this.onRoomDelete(4);
-	assert(this.rooms.length == 3, 'Room wasnt removed');
+	console.assert(this.rooms.length == 3, 'Room wasnt removed');
 
 	// Test users
-	assert(this.findUserIndex(1) == 0, 'User index of 1 is wrong');
-	assert(this.users[0][1] == 'Karl', 'User has wrong name');
-	assert(this.users[0][2] == 1, 'User has wrong room_id');
+	console.assert(this.findUserIndex(1) == 0, 'User index of 1 is wrong');
+	console.assert(this.users[0][1] == 'Karl', 'User has wrong name');
+	console.assert(this.users[0][2] == 1, 'User has wrong room_id');
 	this.onUserEnter(3, 'User 3', 2);
 	this.onUserLeave(3);
-	assert(this.users.length == 2, 'User wasnt removed');
+	console.assert(this.users.length == 2, 'User wasnt removed');
 	this.onUserEnter(4, 'User 4', 3);
 	this.onUserChangeName(4, 'New user 4');
-	assert(this.users[this.findUserIndex(4)][1] == 'New user 4',
+	console.assert(this.users[this.findUserIndex(4)][1] == 'New user 4',
 			'User has wrong name after change');
 	this.onUserEnterRoom(4, 1);
 	this.onUserLeaveRoom(4);
-	assert(this.users[this.findUserIndex(4)][2] == 0, 'User didnt leave room');
+	console.assert(this.users[this.findUserIndex(4)][2] == 0,
+			'User didnt leave room');
 };
