@@ -11,8 +11,6 @@ function Lobby() {
 	this.lobbyId = 0; // Special room id for the lobby
 	this.ownRoomId = 0; // Own users current room Id
 	this.ownId = -1; // Own users Id
-	this.room_type_public = 'public'; // TODO Fix types
-	this.room_type_private = 'private';
 	this.rooms = []; // [id, name, desc, type]
 	this.users = []; // [id, name, room_id]
 	this.hideRoomHeader = true;
@@ -162,12 +160,6 @@ Lobby.prototype.init = function() {
 		}
 	});
 
-	$('#room_type').buttonset();
-	$('#create_room_advanced_content').hide();
-	$('#create_room_advanced_button').button().click(function() {
-		$('#create_room_advanced_content').toggle();
-	}).button('disable'); // TODO Enable advanced button or remove
-
 	$('#splash_name').keypress(function(e) {
 		if (e.which == 13) {
 			$('#splash_continue').click();
@@ -313,6 +305,8 @@ Lobby.prototype.init = function() {
 	socket.on(API_ROOM_REMOVE, function(roomId) {
 		self.onRoomDelete(roomId);
 	});
+	
+	// TODO Handle passwords when entering rooms
 };
 
 /**
@@ -502,20 +496,13 @@ Lobby.prototype.createRoom = function(roomName) {
 		console.debug('createRoom: ' + roomName);
 	}
 
-	var roomType;
-	if ($('#room_type_private').attr('checked')) {
-		roomType = this.room_type_private;
-	} else {
-		roomType = this.room_type_public;
-	}
-
 	var roomDesc = $('#room_desc').val();
 	var roomPassword = $('#room_password').val();
 
 	if (roomName != '') {
 		socket.send(API_ROOM_NEW, JSON.stringify({
 			name : roomName,
-			type : roomType,
+			type : '',
 			desc : roomDesc,
 			password : roomPassword
 		}));
