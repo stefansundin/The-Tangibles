@@ -451,7 +451,8 @@ function socketserver() {
 		});
 		
 		console.log("Password room");
-		console.log(room.pass);
+		console.log(room);
+		//console.log(room.pass);
 		console.log(passKey);
 			
 		
