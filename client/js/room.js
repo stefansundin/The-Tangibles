@@ -175,6 +175,7 @@ function initRoom() {
 	rtc.on('disconnect stream', function(data) {
 		console.log('remove ' + data);
 		removeVideo(data);
+		subdivideVideos();
 	});
 	  
 	initChat();
