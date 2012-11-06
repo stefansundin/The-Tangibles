@@ -550,6 +550,7 @@ Lobby.prototype.enterRoom = function(roomId) {
 	}
 
 	this.closeWorkspace();
+	this.chatOpen = false;
 
 	socket.send(API_USER_CHANGE, JSON.stringify({
 		id : roomId
@@ -1057,6 +1058,8 @@ Lobby.prototype.updateRoomToolbar = function() {
 		$('#header .small').hide();
 		$('#header').css('height', '');
 	}
+	
+	this.updateChatButton();
 
 	this.updateWorkspaceButton();
 	$('#header #toolbar button:not(:last)').button('option',

@@ -1,19 +1,10 @@
 
-#content {
-	position: absolute;
-	top: 0px;
-	left: 0px;
-	right: 0px;
-	bottom: 0px;
-}
-
 #videos {
 	position: absolute; 
 	top: 30px;
 	left: 0px;
 	right: 0px;
 	bottom: 0px;
-	height: 100%;
 }
 
 #chatbox {
@@ -65,49 +56,6 @@ video {
 	margin: 0;
 	padding: 0;
 }
-
-#main {
-	margin: 0;
-	padding: 10px;
-}
-
-#local_video {
-	-webkit-transform: scale(-1, 1);
-}
-
-#video_container {
-	display: -webkit-box;
-	-webkit-box-orient: horizontal;
-	margin: 0;
-	padding: 0;
-}
-
-#video_container>div {
-	-webkit-box-flex: 1;
-	text-align: center;
-}
-
-#video_container>div>p {
-	margin: 0;
-	padding: 0;
-	font-weight: bold;
-}
-
-#bottom {
-	position: absolute;
-	bottom: 0;
-	left: 0;
-	padding: 10px;
-}
-
-#hangup {
-	font-size: 13px;
-	font-weight: bold;
-	width: 128px;
-	height: 24px;
-	margin: 2px;
-}
-
 
 .flip {
 	-webkit-transform: rotateY(180deg);

@@ -1,32 +1,27 @@
 <html>
-  <head>
-    <title>Room view</title>
-    
-    <link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel="stylesheet" type="text/css" />
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8/jquery.min.js"></script>
-    <script	src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
+<head>
+	<title>Room view</title>
+	
+	<link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel="stylesheet" type="text/css" />
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8/jquery.min.js"></script>
+	<script	src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
 
 	<link type="text/css" href="css/roomstyle.css" rel="stylesheet"></link>
 	
-    <script src="/webrtc.io.js"></script>
+	<script src="/webrtc.io.js"></script>
 	<script src="/room/js/room.js"></script>
-  </head>
-  <body>
-    <!-- Main content -->
-    <div id ="content">
+</head>
+<body>
+	<!-- Videos -->
+	<div id="videos">   
+		<video id="you" class="flip" autoplay></video> 
+	</div> 
 	
-      <!-- Videos go here -->
-      <div id="videos">   
-        <video id="you" class="flip" autoplay></video> 
-      </div> 
-      <!-- Message box and buttons -->
-      <div id="chatbox">  
-        <div id="messages"></div>
-		<br>
-	<input id="chatinput" type="text"/>
-      </div>
-	  
-    </div>
-    
-  </body>
+	<!-- Message box and buttons -->
+	<div id="chatbox">  
+		<div id="messages"></div>
+		<br />
+		<input id="chatinput" type="text"/>
+	</div>
+</body>
 </html>
