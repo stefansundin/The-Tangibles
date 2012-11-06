@@ -24,11 +24,13 @@ var pc;
 	rtc._events = {};
 
 	rtc.on = function(eventName, callback) {
+		console.log("CHECK 111 !");
 		rtc._events[eventName] = rtc._events[eventName] || [];
 		rtc._events[eventName].push(callback);
 	};
 
 	rtc.fire = function(eventName, _) {
+		console.log("CHECK 222 !");
 		var events = rtc._events[eventName];
 		var args = Array.prototype.slice.call(arguments, 1);
 
@@ -81,6 +83,7 @@ var pc;
 			});
 
 			rtc._socket.onmessage = function(msg) {
+				console.log("CHECK 333 !");
 				var json = JSON.parse(msg.data);
 				rtc.fire(json.eventName, json.data);
 			};
@@ -91,6 +94,7 @@ var pc;
 			};
 
 			rtc._socket.onclose = function(data) {
+				console.log("CHECK 444 !");
 				rtc.fire('disconnect stream', rtc._socket.id);
 				delete rtc.peerConnections[rtc._socket.id];
 			};
