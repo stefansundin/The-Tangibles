@@ -186,6 +186,7 @@ var pc;
 	};
 
 	rtc.sendOffer = function(socketId) {
+		console.log("sendOffer")
 		var pc = rtc.peerConnections[socketId];
 		// TODO: Abstract away video: true, audio: true for offers
 		pc.createOffer(function(session_description) {
@@ -235,13 +236,10 @@ var pc;
 	};
 
 	rtc.createStream = function(opt, onSuccess, onFail) {
+		console.log("createStream")
 		var options;
-		onSuccess = onSuccess ||
-		function() {
-		};
-		onFail = onFail ||
-		function() {
-		};
+		onSuccess = onSuccess || function() {};
+		onFail = onFail || function() {};
 
 		if (opt.audio && opt.video) {
 			options = {
