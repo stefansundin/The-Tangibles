@@ -154,6 +154,10 @@ Geometry.Transform = function(fromPoly, toPoly) {
     this._imageDataOut = null;
 };
 
+Geometry.Transform.prototype.inverse = function() {
+	return new Geometry.Transform(this._toPoly, this._fromPoly);
+}
+
 Geometry.PolyToRectTransform = function(fromPoly, toRect) {
 
 	toPoly = [new Geometry.Point(toRect.x, toRect.y),

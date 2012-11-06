@@ -565,6 +565,9 @@ Lobby.prototype.enterRoom = function(roomId) {
 			'<span class="room_' + roomId + '">' + roomName + '</span>');
 
 	$('#room_toolbar').show();
+	
+	$('#room_leave').removeClass('ui-state-hover');
+	
 	this.hideRoomHeader = true;
 	this.updateRoomToolbar();
 	$('#main').hide();
@@ -1094,6 +1097,9 @@ Lobby.prototype.updateWorkspaceButton = function() {
  * Updates the apperance of the chat button.
  */
 Lobby.prototype.updateChatButton = function() {
+	$('#roomFrame').contents().find('#chatbox').css({
+		top: (this.hideRoomHeader ? '31px' : '91px')
+	});
 	$('#toggle_chat').attr('checked', this.chatOpen)
 		.button('refresh');
 	$('#toggle_chat').button('option', {
