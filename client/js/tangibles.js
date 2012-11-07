@@ -4,6 +4,7 @@ function Tangibles(webRTCSocket) {
 	this.sifteos = [];
 	this.sphero = [];
 	this.APIsocket = null;
+	this.callTimeout = null;
 	this.webRTCSocket = webRTCSocket;
 
 	// Utility functions
@@ -276,12 +277,22 @@ function Tangibles(webRTCSocket) {
 			this.setColor(sphero, 'FFFF00'); // Yellow
 			this.setLeftSpin(sphero, 150);
 
+			// Deny
+			// Just ignore the sphero and the timeout will handle it
+			clearTimeout(this.callTimeout);
+
+			this.callTimeout = setTimeout(function(){
+					self.sphero[0].gyroListeners = [];
+					onDeny(call_id);
+				}, 30000); // sec to answar
+
 			// Accept
 			sphero.gyroListeners.push(function(msg) {
 				if (enabled) {
-					var x = msg.params.x * 1;
-					var y = msg.params.y * 1;
-					if ( Math.abs(x) + Math.abs(y) >= 50) { // When emulate a event pushing
+					var x = msg.params.x;
+					var y = msg.params.y;
+					if ( Math.abs(x) + Math.abs(y) >= 50) { // Emulate an event pushing
+						clearTimeout(self.callTimeout);
 						self.setColor(sphero,'00FF00');
 						self.sphero[0].gyroListeners = [];
 						enabled = false;
@@ -289,7 +300,6 @@ function Tangibles(webRTCSocket) {
 					};
 				}
 			});
-			// TODO: Deny the call with sphero.
 		};
 
 		if (this.sifteos.length >= 1) {
