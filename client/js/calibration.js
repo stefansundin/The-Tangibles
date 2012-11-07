@@ -4,8 +4,8 @@
 
 const DEFAULT_RATIO = 3.0 / 4.0;
 
-const MINI_CANVAS_WIDTH = 640,
-	  MINI_CANVAS_HEIGHT = 480;
+/*const MINI_CANVAS_WIDTH = 640,
+	    MINI_CANVAS_HEIGHT = 480;*/
 
 const SCREEN_MARKER_ID = 1012,
 	  FINAL_MARKER_ID = 1012,
@@ -15,7 +15,7 @@ const SCREEN_MARKER_ID = 1012,
 /**
   Creates a Calibrator object
  */
-Calibrator = function(video, canvas) {
+Calibrator = function(video, canvas, videoWidth, videoHeight) {
 
 	this.video = video;
 	this.detector = new AR.Detector();
@@ -35,13 +35,16 @@ Calibrator = function(video, canvas) {
 	this.canvas = canvas;
 	this.context = canvas.getContext("2d");
 
-	this.miniCanvas = MediaExt.createCanvas(MINI_CANVAS_WIDTH, MINI_CANVAS_HEIGHT);
-	this.miniContext = this.miniCanvas.getContext("2d");
-
+	
+	this.videoCanvas = MediaExt.createCanvas(videoWidth, videoHeight);
+	this.videoContext = this.videoCanvas.getContext("2d");
+	this.videoWidth = videoWidth;
+	this.videoHeight = videoHeight;
+	
 	this.calibrationStage = 1;
 
-	this.buttonImage = new Image();
-	this.buttonImage.src = 'img/doneButton.png';
+	// this.buttonImage = new Image();
+	// this.buttonImage.src = 'img/doneButton.png';
 
 	this.qrImg = new Image();
 	/*qrImg.onload = function() {
@@ -77,8 +80,8 @@ Calibrator.prototype.tick = function() {
 	this.draw();
 
 	// Draw video to an offscreen canvas and detect markers
-	this.miniContext.drawImage(this.video, 0, 0, MINI_CANVAS_WIDTH, MINI_CANVAS_HEIGHT);
-	var imageData = this.miniContext.getImageData(0, 0, MINI_CANVAS_WIDTH, MINI_CANVAS_HEIGHT);
+	this.videoContext.drawImage(this.video, 0, 0, this.videoWidth, this.videoHeight);
+	var imageData = this.videoContext.getImageData(0, 0, this.videoWidth, this.videoHeight);
 	var markers = this.detector.detect(imageData);
 
 	// Use detected marker to calibrate
@@ -183,38 +186,20 @@ Calibrator.prototype.firstCalibration = function(markers) {
 				marker.corners[(topLeft + 2) % 4],
 				marker.corners[(topLeft + 3) % 4]];
 
-			var canvasRectangle = [{x:0, y:0},
-				{x:this.canvas.width, y:0},
-				{x:this.canvas.width, y:this.canvas.height},
-				{x:0, y:this.canvas.height}];
+			var canvasRectangle = [{x:5, y:5},
+				{x:this.canvas.width - 5, y:5},
+				{x:this.canvas.width - 5, y:this.canvas.height - 5},
+				{x:5, y:this.canvas.height - 5}];
 
 			// Transforms points from camera to screen
 			this.screenTransform = new Geometry.Transform(canvasRectangle, this.screenPoly); // new Geometry.PolyToRectTransform(this.screenPoly, new Geometry.Rectangle(5, 5, this.canvas.width - 10, this.canvas.height - 10));
 
 			if (this.firstStageCallback != null) {
-                // var callback = this.firstStageCallback;
-				// this.target.callback(this.screenTransform);
                 this.firstStageCallback.call(this.target, this.screenTransform);
 			}
 
-			this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
-			/*
-			// Add a button for confirming the shared rectangle
-			var button = new Button(5, 5, 100, 100, this.buttonImage, this.context);
-			button.method = this.confirmSharedRectangle;
-			button.target = this;
-
-			var cs = MediaExt.createCanvas(320, 240);
-			var cb = MediaExt.createCanvas(320, 240);
-
-			this.buttons = new Buttons(this.screenTransform);
-			this.buttons.AddButton(button);
-			this.buttons.Draw();
-			this.buttons.Start(this.video, cs.getContext("2d"), cb.getContext("2d"));
-			 */
-
 			// Clear the canvas and go to the next calibration stage
+			this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
 			this.calibrationStage = 2;
 		}
 	}
