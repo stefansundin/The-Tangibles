@@ -40,8 +40,8 @@
 			});
 
 		};
-		setTimeout(testSpheroEvents, 2000); // TODO make in a cleaner way
-											// Only for debug
+		//setTimeout(testSpheroEvents, 2000); // TODO make in a cleaner way
+											  // Only for debug
 	</script>
 </head>
 <body>
@@ -64,10 +64,12 @@
 	  <button onclick="tangibles.setLeftSpin(tangibles.sphero[0],150);">Make sphero spin left</button>
 	</p>
 	<script type="text/javascript">
-		var onAccept = function(call_id){console.log('accept');console.log(call_id);};
-		var onDeny = function(call_id){console.log('deny');console.log(call_id);};
+		var onAccept = function(call_id){console.log('Accept call');console.log(call_id);};
+		var onDeny = function(call_id){console.log('Deny call');console.log(call_id);};
 	</script>
-	<p><button onclick="tangibles.incommingCall(1, 'John', 'Workroom', onAccept, onDeny);">Simulate incomming call</button></p>
+	<p>
+		<button onclick="tangibles.incommingCall(1, 'John', 'Workroom', onAccept, onDeny);">Simulate incomming call</button>
+	</p>
 
 	<canvas id="myCanvas" width="400" height="400" style="background-color:#FAFAD2;" title="gyro">
 		Your Browser does not support the HTML5 CANVAS Property. //displays on a non-HTML5 supporting browser.
@@ -125,32 +127,5 @@
 		<label for="room_name">Room name</label>
 		<input type="text" name="room_name" id="room_name" class="text ui-widget-content ui-corner-all" />
 	</div>
-	<!--
-	<div id="main">
-		<h1>Lobby</h1>
-		<table id="room_table">
-			<thead>
-				<tr>
-					<th>
-						<h2>Room</h2>
-					</th>
-					<th>
-						<h2>Participants</h2>
-						<button id="create_room">Create room</button>
-					</th>
-				</tr>
-			</thead>
-			<tbody>
-			</tbody>
-			<tfoot>
-				<tr>
-					<td colspan="2">No rooms, click on "Create room" to create one.</td>
-				</tr>
-			</tfoot>
-		</table>
-		<div id="call_list"></div>
-	</div>
-	-->
-
 </body>
 </html>
