@@ -182,10 +182,7 @@ public class GeneralCommunicationProtocol extends JsonTcpCommunication
 		private void handleEventMessage( JsonElement msg )
 		{
 			List<Sphero> devices = AppManagerImpl.getInstance().availableSpheros();
-			System.out.println("Avaliable spheros: "+devices);
 			
-			
-			info( "The following message was received << " + msg + " >>..?" );
 			CommandMessage cmdMsg = _gson.fromJson( msg, CommandMessage.class );
 			info("Command: "+cmdMsg.msg.command);
 			ColorCommandParameters params = _gson.fromJson( cmdMsg.msg.params, ColorCommandParameters.class );
@@ -197,7 +194,7 @@ public class GeneralCommunicationProtocol extends JsonTcpCommunication
 				for (String devID : params.devices) {
 					for(Sphero device : devices ){
 						if(device.getId().equals(devID) ){
-						    System.out.println("Color changed on "+devID+" color"+to);
+						    info("Color changed on "+devID+" color"+to);
 							device.setRGBLedColor( to );
 						}
 					}

@@ -9,7 +9,7 @@ public class DriverInformation
 	public String id;
 	public String[] devices;
 	public String protocolVersion;
-	public String[] capacities = {"show_color","show_fade", "report_events", "spin_right", "spin_left"};
+	public String[] capacities = {"show_color", "report_events", "spin_right", "spin_left"};
 	
 	public DriverInformation( List<Sphero> set, String appId )
 	{

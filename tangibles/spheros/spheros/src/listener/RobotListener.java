@@ -33,7 +33,6 @@ public class RobotListener implements se.nicklasgavelin.sphero.RobotListener {
 
 	@Override
 	public void event(Robot r, EVENT_CODE code) {
-		System.out.println("EVENT CODE " + code);
 	}
 
 	@Override
@@ -55,7 +54,7 @@ public class RobotListener implements se.nicklasgavelin.sphero.RobotListener {
 					.sendEventMessage(event.toString(), devId, p);
 		}
 
-		counter+=1;
+		counter += 1;
 		if(counter >= 200){
 			Sphero s = (Sphero) r;
 			s.active = false;
