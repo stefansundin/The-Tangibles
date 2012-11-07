@@ -12,6 +12,8 @@ const SCREEN_MARKER_ID = 1012,
 	  LEFT_MARKER_ID = 188,
 	  RIGHT_MARKER_ID = 956;
 
+const QR_FRAME = 15;
+
 /**
   Creates a Calibrator object
  */
@@ -21,9 +23,10 @@ Calibrator = function(video, canvas, videoWidth, videoHeight) {
 	this.detector = new AR.Detector();
 
 	// The default shared rectangle is 400x300px centered in the canvas
-	this.sharedRect = new Geometry.Rectangle(canvas.width / 2 - 200,
-			canvas.height / 2 - 150,
-			400, 300);
+	var w = canvas.width / 2,
+		h = w * DEFAULT_RATIO;
+	this.sharedRect = new Geometry.Rectangle(canvas.width / 2 - w / 2,
+			canvas.height / 2 - h / 2, w, h);
 	this.sharedRectPrev = this.sharedRect.copy();
 
 	this.sharedPoly = [];
@@ -34,7 +37,6 @@ Calibrator = function(video, canvas, videoWidth, videoHeight) {
 
 	this.canvas = canvas;
 	this.context = canvas.getContext("2d");
-
 	
 	this.videoCanvas = MediaExt.createCanvas(videoWidth, videoHeight);
 	this.videoContext = this.videoCanvas.getContext("2d");
@@ -110,9 +112,9 @@ Calibrator.prototype.draw = function() {
 	switch (this.calibrationStage) {
 		case 1:
 			// Draw a fullscreen QR marker
-			this.context.drawImage(this.qrImg, 5, 5,
-					this.canvas.width - 10,
-					this.canvas.height - 10);
+			this.context.drawImage(this.qrImg, QR_FRAME, QR_FRAME,
+					this.canvas.width - QR_FRAME * 2,
+					this.canvas.height - QR_FRAME * 2);
 			break;
 		case 2:
 			// Draw the frame of the rectangle to be shared
@@ -186,10 +188,10 @@ Calibrator.prototype.firstCalibration = function(markers) {
 				marker.corners[(topLeft + 2) % 4],
 				marker.corners[(topLeft + 3) % 4]];
 
-			var canvasRectangle = [{x:5, y:5},
-				{x:this.canvas.width - 5, y:5},
-				{x:this.canvas.width - 5, y:this.canvas.height - 5},
-				{x:5, y:this.canvas.height - 5}];
+			var canvasRectangle = [{x:QR_FRAME, y:QR_FRAME},
+				{x:this.canvas.width - QR_FRAME, y:QR_FRAME},
+				{x:this.canvas.width - QR_FRAME, y:this.canvas.height - QR_FRAME},
+				{x:QR_FRAME, y:this.canvas.height - QR_FRAME}];
 
 			// Transforms points from camera to screen
 			this.screenTransform = new Geometry.Transform(canvasRectangle, this.screenPoly); // new Geometry.PolyToRectTransform(this.screenPoly, new Geometry.Rectangle(5, 5, this.canvas.width - 10, this.canvas.height - 10));
