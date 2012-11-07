@@ -30,28 +30,9 @@ public class SpheroDriver extends Thread implements BluetoothDiscoveryListener
 	{
 		SpheroDriver sd = new SpheroDriver();
 		sd.start();
-		/*
-		pause(10000);
-		while (true) {
-			try{
-				sd.join();
-				System.out.println("Starting new sd");
-				sd = new SpheroDriver();
-				sd.start();
-			} catch (Exception e) {
-			}
-		}*/
+
 		
 	}
-
-
-//	try {
-//		pause(2000);
-//		if(!sd.isAlive()){
-//			System.out.println("Starting new one");
-//			sd = new SpheroDriver();
-//			sd.start();
-//		}
 
 	public SpheroDriver()
 	{
@@ -69,35 +50,7 @@ public class SpheroDriver extends Thread implements BluetoothDiscoveryListener
 			directConnect(devID);
 		} catch (Exception e) {
 			deviceSearch();
-		}
-		
-		/*
-		bt = new Bluetooth( this, Bluetooth.SERIAL_COM );    //RBR:000666441796 //WBG:000666440DB8
-		BluetoothDevice btd = new BluetoothDevice( bt, "btspp://000666440DB8:1;authenticate=true;encrypt=true;master=false" );
-		
-		try
-		{
-			Sphero s = new Sphero( btd );
-			if( s.connect() )
-			{
-				_availableSpheroDevices.add( s );
-			}
-		}
-		catch( InvalidRobotAddressException e )
-		{
-			e.printStackTrace();
-		}
-		catch( RobotBluetoothException e )
-		{
-			e.printStackTrace();
-		}
-
-		if( _availableSpheroDevices.size() > 0 )
-			registerApplication();
-
-		addShutdownHook();
-		*/
-		
+		}		
 	}
 	
 	private void deviceSearch(){
@@ -188,11 +141,10 @@ public class SpheroDriver extends Thread implements BluetoothDiscoveryListener
 	}
 	
 	public void directConnect(String id) throws Exception{
-		//String id = "000666440DB8";    //WBG     "<BluetoothIdForSphero>";
+		//String id = "000666440DB8";   //WBG     "<BluetoothIdForSphero>";
 		//String id = "0006664438B8";  //BBR     "<BluetoothIdForSphero>";
 		//String id = "000666441796";  //RBR     "<BluetoothIdForSphero>";
 		Bluetooth bt = new Bluetooth( this, Bluetooth.SERIAL_COM );
-		Logger.getLogger( SpheroDriver.class.getName() ).log( Level.INFO, "comes here!" );
 		BluetoothDevice btd = new BluetoothDevice( bt, "btspp://" + id + ":1;authenticate=true;encrypt=false;master=false" );
 					
 		if( btd.getAddress().startsWith( Robot.ROBOT_ADDRESS_PREFIX ) )
@@ -218,11 +170,11 @@ public class SpheroDriver extends Thread implements BluetoothDiscoveryListener
 					events.add(Event.ACCELEROMETER);
 					s.activateEvents(events);
 					*/
+					
 					AliveListener aliveListener = new AliveListener(this);
 					s.addListener(aliveListener);
 					
 					addShutdownHook();
-					//System.out.println( btd.getConnectionURL() );
 				} else {
 					throw new Exception("Sphero not connected");
 				}
@@ -332,7 +284,6 @@ public class SpheroDriver extends Thread implements BluetoothDiscoveryListener
 				_availableSpheroDevices.remove(oldSphero); // Prevent registerapp to run again in directconnect
 				
 				if(oldSphero.active){ // If it got eventreporting activated
-					System.out.println("Was activated before");
 					for (Sphero sphero : _availableSpheroDevices) {
 						if(devID.equals(sphero.getId())){
 							sphero.activateEvents(oldSphero.events); // Reactivate old events
