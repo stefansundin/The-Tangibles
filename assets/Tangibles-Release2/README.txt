@@ -24,10 +24,13 @@ This should now be working but you may have to adjust the distance of your proje
 
 
 To use the Sphero:
-1. Pair sphero. 
-In windows 7, right click on the bluetooth trayicon(found near the clock) and choose add a device. Select sphero and choose to enter a code. The code is 1234.
-2. If run_TangibleAPI is not already running, then start it now.
-3. Start run_Sphero.bat
-4. Shake the sphero until it shows different colors. If it turns pink constant, then the bluetooth connection to the sphero is working.
+1. Connect the usb-bluetooth-dongle to the computer.
+1. Connect the sphero charger to the wall outlet.
+3. Shake the sphero to turn it on/wake it until it blinks in two or three different colors.
+4. Place the sphero in the charger, it is placed right when the sphero blinks in many different colors. This will reset the sphero and may be needed before you use it.
+5. At this stage you will pair the Sphero. This only needs to be done once or when you change Sphero.
+   In windows 7, right click on the bluetooth trayicon(found near the clock) and choose add a device. Select sphero and choose to enter a code. The code is 1234.
+6. If run_TangibleAPI is not already running, then start it now.
+7. Start run_Sphero.bat.
+8. If the Sphero turns pink constant, then the bluetooth connection to the sphero is working.
 
-Step 1 need only to be repeated if you change sphero.
