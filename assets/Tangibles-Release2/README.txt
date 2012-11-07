@@ -23,10 +23,11 @@ Make sure to select the proper webcam when opening the workspace view.
 This should now be working but you may have to adjust the distance of your projector and camera to get the optimal settings. We will show you how to do this at a later time.
 
 
-To use sphero:
+To use the Sphero:
 1. Pair sphero. 
 In windows 7, right click on the bluetooth trayicon(found near the clock) and choose add a device. Select sphero and choose to enter a code. The code is 1234.
 2. If run_TangibleAPI is not already running, then start it now.
 3. Start run_Sphero.bat
+4. Shake the sphero until it shows different colors. If it turns pink constant, then the bluetooth connection to the sphero is working.
 
 Step 1 need only to be repeated if you change sphero.
