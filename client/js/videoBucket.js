@@ -3,7 +3,7 @@
 /**
  Constructor...
  */
-VideoBucket = function(video, label) {
+VideoBucket = function(video, label, videoWidth, videoHeight) {
     
     this.video = video;
     this.label = label;
@@ -14,7 +14,7 @@ VideoBucket = function(video, label) {
     this.transContext = null;
     this.coordinates = [];
     
-    this.videoCanvas = MediaExt.createCanvas(640, 480);
+    this.videoCanvas = MediaExt.createCanvas(videoWidth, videoHeight);
     this.videoContext = this.videoCanvas.getContext("2d");
     
     this.transform = null; // new Geometry.PolyToCanvasTransform(poly, this.transCanvas);

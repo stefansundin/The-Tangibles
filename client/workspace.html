@@ -72,7 +72,7 @@ function Workspace() {
 		v.src = URL.createObjectURL(stream);
         
 		if (socketId == 'you') {
-            videoObj = new VideoBucket(v, stream.label);
+            videoObj = new VideoBucket(v, stream.label, CANVAS_WIDTH, CANVAS_HEIGHT);
 			v.id = 'you';
 			video = v;
             
@@ -80,7 +80,7 @@ function Workspace() {
             
 		} else {
             v.id = 'remote' + socketId;
-            var bucket = new VideoBucket(v, stream.label);
+            var bucket = new VideoBucket(v, stream.label, CANVAS_WIDTH, CANVAS_HEIGHT);
 			videos.push(bucket);
 		}
 	}
@@ -258,8 +258,8 @@ function Workspace() {
                 v.setTransform([nw, ne, se, sw], sharedRect);
 				// TODO show button and set to enabled
 				// add trigger to switch between enabled and disabled
-				b = new VideoButton(1, 1, 100, 100, v.video, screenContext);
-				b.method = function () { v.enabled = v.enabled ? false : true; }
+				// b = new VideoButton(1, 1, 100, 100, v.video, screenContext);
+				// b.method = function () { v.enabled = v.enabled ? false : true; }
             }
         }
 	}
