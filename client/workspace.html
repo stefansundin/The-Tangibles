@@ -155,7 +155,7 @@ function Workspace() {
 			screenCanvas.height = window.innerHeight;
 		};
 
-		calibrator = new Calibrator(video, screenCanvas);
+		calibrator = new Calibrator(video, screenCanvas, CANVAS_WIDTH, CANVAS_HEIGHT);
 		calibrator.startCalibration(this.onGotTransform, this.onFinishedCalibration, self);
 	}
 
