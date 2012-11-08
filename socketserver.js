@@ -8,6 +8,7 @@
  * 	TODO: Making names on rooms unique
  * 	TODO: Merge calls when a user invites multiple users at the same time 
  *  (the client sends one call message for each invite)
+ *  TODO: Abort calls, timeout
  */
 function socketserver() {
 
