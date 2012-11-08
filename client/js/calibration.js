@@ -7,7 +7,7 @@ const DEFAULT_RATIO = 3.0 / 4.0;
 /*const MINI_CANVAS_WIDTH = 640,
  MINI_CANVAS_HEIGHT = 480;*/
 
-const BUTTON_RATIO = 0.05;
+const BUTTON_RATIO = 0.1;
 const SHARED_RECT_MIN_RATIO = 0.2;
 
 const SCREEN_MARKER_ID = 1012,
@@ -224,7 +224,7 @@ Calibrator.prototype.secondCalibration = function(markers) {
     var buttonWidth = BUTTON_RATIO * this.canvas.width;
     
     var sharedMinWidth = SHARED_RECT_MIN_RATIO * this.canvas.width;
-    var sharedMinHeight = SHARED_RECT_MIN_RATIO * this.canvas.height;
+    var sharedMinHeight = DEFAULT_RATIO * sharedMinWidth;
     
 	this.sharedRectPrev = this.sharedRect.copy();
     
@@ -248,34 +248,39 @@ Calibrator.prototype.secondCalibration = function(markers) {
             
             /* Set the y-position of sharedRect, making sure it's not too far
              up or down */
-			this.sharedRect.y = Math.max(leftMarkerCorner.y, 0);
-            this.sharedRect.y = Math.min(this.sharedRect.y,
-                                         this.canvas.height - sharedMinHeight
-                                         );
+            this.sharedRect.y = Math.max(leftMarkerCorner.y - this.sharedRect.y, 0);
+            this.sharedRect.y = Math.min(this.sharedRect.y, this.canvas.height - sharedMinHeight);
+            
 		}
 	}
     
-	if (foundLeft) {
-		for (var i = 0; i < markers.length; i++) {
-			marker = markers[i];
-			// If the right marker is also found, resize the shared rectangle
-			if (marker.id == RIGHT_MARKER_ID) {
-				var transformedCorners = this.screenTransform.transformPoly(marker.corners);
-				rightMarkerCorner = transformedCorners[Geometry.findTopLeftCorner(transformedCorners)];
-                
+    for (var i = 0; i < markers.length; i++) {
+        marker = markers[i];
+        // If the right marker is also found, resize the shared rectangle
+        if (marker.id == RIGHT_MARKER_ID) {
+            
+            var transformedCorners = this.screenTransform.transformPoly(marker.corners);
+            rightMarkerCorner = transformedCorners[Geometry.findTopLeftCorner(transformedCorners)];
+            
+            if (rightMarkerCorner.x > this.sharedRect.x) {
                 /* Set the width of sharedRect, making sure it's not too
                  wide or too thin */
-				this.sharedRect.width = Math.max(rightMarkerCorner.x - leftMarkerCorner.x, sharedMinWidth);
-                
-				this.sharedRect.height = this.sharedRect.width * DEFAULT_RATIO;
-                
-                // Finally, make sure the proportions haven't been distorted
-                if (this.sharedRect.height == sharedMinHeight) {
-                    this.sharedRect.width = sharedMinWidth;
-                }
-			}
-		}
-	}
+                this.sharedRect.width = rightMarkerCorner.x - this.sharedRect.x;
+                this.sharedRect.height = this.sharedRect.width * DEFAULT_RATIO;
+            }
+        }
+    }
+    
+    // More, perhaps a bit too complicated, checks....
+    if (this.sharedRect.x + this.sharedRect.width > this.canvas.width) {
+        this.sharedRect.width = this.canvas.width - this.sharedRect.x;
+        this.sharedRect.height = this.sharedRect.width * DEFAULT_RATIO;
+    }
+    
+    if (this.sharedRect.y + this.sharedRect.height > this.canvas.height) {
+        this.sharedRect.height = this.canvas.height - this.sharedRect.y;
+        this.sharedRect.width = this.sharedRect.height / DEFAULT_RATIO;
+    }
 }
 
 
