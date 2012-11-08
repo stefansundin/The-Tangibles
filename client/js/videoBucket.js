@@ -65,8 +65,8 @@ VideoBucket.prototype.transformVideo = function() {
         h = this.videoCropRect.height;
 	
     this.videoContext.drawImage(this.video,
-								x, y, w, h,
-								0, 0, w, h);
+								0, 0, w, h,
+								x, y, w, h);
     var imageData = this.videoContext.getImageData(0, 0, w, h);
     
 	/*
