@@ -1,4 +1,12 @@
 
+#empty_message {
+	position: absolute;
+	bottom: 50%;
+	left: 0;
+	right: 0;
+	text-align: center;
+}
+
 #videos {
 	position: absolute; 
 	top: 31px;
@@ -58,8 +66,4 @@ video {
 	max-width: 100%;
 	margin: 0;
 	padding: 0;
-}
-
-.flip {
-	-webkit-transform: rotateY(180deg);
 }
