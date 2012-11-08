@@ -472,6 +472,7 @@ Lobby.prototype.onLobbyLoad = function(rooms, users) {
 	this.rooms = [];
 	this.users = [];
 
+	$('#room_user_list_0').empty();
 	$('#room_table tbody').empty();
 	$('#room_table tfoot').show();
 
