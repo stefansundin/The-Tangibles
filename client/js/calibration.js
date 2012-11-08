@@ -258,24 +258,27 @@ Calibrator.prototype.secondCalibration = function(markers) {
         marker = markers[i];
         // If the right marker is also found, resize the shared rectangle
         if (marker.id == RIGHT_MARKER_ID) {
+            
             var transformedCorners = this.screenTransform.transformPoly(marker.corners);
             rightMarkerCorner = transformedCorners[Geometry.findTopLeftCorner(transformedCorners)];
             
-            /* Set the width of sharedRect, making sure it's not too
-             wide or too thin */
-            this.sharedRect.width = rightMarkerCorner.x - this.sharedRect.x;
-            this.sharedRect.height = this.sharedRect.width * DEFAULT_RATIO;
+            if (rightMarkerCorner.x > this.sharedRect.x) {
+                /* Set the width of sharedRect, making sure it's not too
+                 wide or too thin */
+                this.sharedRect.width = rightMarkerCorner.x - this.sharedRect.x;
+                this.sharedRect.height = this.sharedRect.width * DEFAULT_RATIO;
+            }
         }
     }
     
     // More, perhaps a bit too complicated, checks....
     if (this.sharedRect.x + this.sharedRect.width > this.canvas.width) {
-        this.sharedRect.width = sharedMinWidth;
+        this.sharedRect.width = this.canvas.width - this.sharedRect.x;
         this.sharedRect.height = this.sharedRect.width * DEFAULT_RATIO;
     }
     
     if (this.sharedRect.y + this.sharedRect.height > this.canvas.height) {
-        this.sharedRect.height = sharedMinHeight;
+        this.sharedRect.height = this.canvas.height - this.sharedRect.y;
         this.sharedRect.width = this.sharedRect.height / DEFAULT_RATIO;
     }
 }
