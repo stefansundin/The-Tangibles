@@ -1,4 +1,7 @@
 //#!/usr/bin/env node
+/**
+ * @module Server
+ */
 
 /*
  *	TODO: Password protected rooms
@@ -9,6 +12,14 @@
  * 	TODO: Merge calls when a user invites multiple users at the same time 
  *  (the client sends one call message for each invite)
  *  TODO: Abort calls, timeout
+ */
+
+ 
+/**
+ * Handles the room logic and chat messages.
+ * @class serversocket
+ *
+ *
  */
 function socketserver() {
 
@@ -767,7 +778,173 @@ function socketserver() {
 		createNewRoom("Delft", ROOM_PUBLIC, "", "");
 	}
 
+
+
 	// # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+	// Room logic
+	// # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+	/**
+	 * Create a new room and add it to the room list.
+	 * @method createNewRoom
+	 * @param name {String} Name of the new room
+	 * @param typeS {String} Type of the new room
+	 * @param desc {String} (optional) Description of the new room
+	 * @param pass {String} (optional) Password for the new room
+	 */
+	function createNewRoom(name, typeS, desc, pass) {
+		if (lRooms.length > LIMIT_ROOMS) {
+			return;
+		}
+		var room = new obj_room(name, typeS, desc, pass);
+		lRooms.push(room);
+		return room.id;
+	}
+
+	/**
+	 * Remove room by searching through the list to find the correct id.
+	 * @method removeRoomById
+	 * @param id {Int} Room to remove by it's id
+	 */
+	function removeRoomById(id) {
+		if (id != 0) {
+			var room = getRoomById(id);
+			lRooms.remove(room);
+		}
+	}
+
+	/**
+	 * Get room by searching through the list to find the correct name.
+	 * @method getRoomByName
+	 * @param name {String} Room to get by it's name
+	 */
+	function getRoomByName(name) {
+		for (var i = 0, j = lRooms.length; i < j; i++) {
+			if (lRooms[i].name == name) {
+				return lRooms[i];
+			}
+		};
+	}
+
+	/**
+	 * Get room by searching through the list to find the correct id.
+	 * @method getRoomById
+	 * @param id {Int} Room to get by it's id
+	 */
+	function getRoomById(id) {
+		for (var i = 0, j = lRooms.length; i < j; i++) {
+			if (lRooms[i].id == id) {
+				return lRooms[i];
+			}
+		};
+	}
+
+	// # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+	// User logic
+	// # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+	/**
+	 * Create a new user and add it to the user list.
+	 * @method addNewUser
+	 * @param socket {WebSocket} The connectiong to the new user
+	 */
+	function addNewUser(socket) {
+		if (lUsers.length > LIMIT_USERS) {
+			return;
+		}
+		var user = new obj_user(socket);
+		lUsers.push(user);
+		return user;
+	}
+
+	/**
+	 * Remove a user by it's id.
+	 * @method removeUserById
+	 * @param id {Int} User to remove by it's id
+	 */
+	function removeUserById(id) {
+		for (var i = 0, j = lUsers.length; i < j; i++) {
+			if (lUsers[i].id == id) {
+				removeUser(lUsers[i]);
+			}
+		};
+	}
+
+	/**
+	 * Remove a user from the users list. (Used if additional operations becomes necicary at a later stage)
+	 * @method removeUser
+	 * @param user {obj_user} User to remove
+	 */
+	function removeUser(user) {
+		lUsers.remove(user);
+	}
+
+	/**
+	 * Get user by searching through the list to find the correct websocket connection.
+	 * @method getUserBySocket
+	 * @param socket {WebSocket} Socket to search for
+	 */
+	function getUserBySocket(socket) {
+		for (var i = 0, j = lUsers.length; i < j; i++) {
+			if (lUsers[i].socket == socket) {
+				return lUsers[i];
+			}
+		};
+	}
+
+	/**
+	 * Get user by searching through the list to find the correct id.
+	 * @method getUserById
+	 * @param id {Int} Id to search for
+	 */
+	function getUserById(id) {
+		for (var i = 0, j = lUsers.length; i < j; i++) {
+			if (lUsers[i].id == id) {
+				return lUsers[i];
+			}
+		};
+	}
+
+	// # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+	// 						Call logic
+	// # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+	/**
+	 * Create a new call signifing that a user has invited another user.
+	 * @method createNewCall
+	 * @param caller {obj_user} User that is inviting
+	 * @param called {obj_user} User that recives the invite
+	 * @param roomId {Int} Room id that the inviter invites to
+	 */
+	function createNewCall(caller, called, roomId) {
+		if (lCalls.length > LIMIT_CALLS) {
+			return;
+		}
+		var call;
+		if (caller.inCall) {
+			call = caller.call.addUser(called);
+		} else {
+			call = new obj_call(caller, called, roomId);
+			lCalls.push(call);
+		}
+
+		return call;
+	}
+
+	/**
+	 * Get call by searching through the list for the correct id.
+	 * @method getCallById
+ 	 * @param id {Int} Id to search for
+	 */
+	function getCallById(id) {
+		for (var i = 0, j = lCalls.length; i < j; i++) {
+			if (lCalls[i].id == id) {
+				return lCalls[i];
+			}
+		};
+	}
+	
+		// # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 	// Objects
 	// # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
@@ -783,7 +960,12 @@ function socketserver() {
 		this.socket = socket;
 		this.inCall = false;
 		this.call = "";
-
+		
+		/**
+		 * Set the name of a user
+		 * @method setName
+		 * @param name {String} The users name
+		 */
 		this.setName = function(name) {
 			this.name = name;
 			if (this.roomId == -1) {
@@ -813,7 +995,7 @@ function socketserver() {
 
 	/**
 	 * An object containing functionality for call/invite handling
-	 * @class obj_room
+	 * @class obj_call
 	 * @param caller {obj_user} User that initiates the call
 	 * @param called {obj_user} User that recives the invite
 	 * @param roomId {Int} Description of room, may be empty
@@ -827,12 +1009,22 @@ function socketserver() {
 
 		caller.call = this;
 		called.call = this;
-
+		
+		/**
+		 * Add user to call
+		 * @method addUser
+		 * @param called {obj_user} The called user
+		 */
 		this.addUser = function(called) {
 			this.users.push(called);
 			called.call = this;
 		}
 
+		/**
+		 * Remove user from call
+		 * @method removeUser
+		 * @param called {obj_user} The removed user
+		 */
 		this.removeUser = function(called) {
 			this.users.remove(called);
 			called.call = null;
@@ -844,169 +1036,6 @@ function socketserver() {
 				this.users[i].inCall = inCall;
 			};
 		}
-	}
-
-	// # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-	// Room logic
-	// # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-
-	/**
-	 * Create a new room and add it to the room list.
-	 * @method
-	 * @param name {String} Name of the new room
-	 * @param typeS {String} Type of the new room
-	 * @param desc {String} (optional) Description of the new room
-	 * @param pass {String} (optional) Password for the new room
-	 */
-	function createNewRoom(name, typeS, desc, pass) {
-		if (lRooms.length > LIMIT_ROOMS) {
-			return;
-		}
-		var room = new obj_room(name, typeS, desc, pass);
-		lRooms.push(room);
-		return room.id;
-	}
-
-	/**
-	 * Remove room by searching through the list to find the correct id.
-	 * @method
-	 * @param id {Int} Room to remove by it's id
-	 */
-	function removeRoomById(id) {
-		if (id != 0) {
-			var room = getRoomById(id);
-			lRooms.remove(room);
-		}
-	}
-
-	/**
-	 * Get room by searching through the list to find the correct name.
-	 * @method
-	 * @param name {String} Room to get by it's name
-	 */
-	function getRoomByName(name) {
-		for (var i = 0, j = lRooms.length; i < j; i++) {
-			if (lRooms[i].name == name) {
-				return lRooms[i];
-			}
-		};
-	}
-
-	/**
-	 * Get room by searching through the list to find the correct id.
-	 * @method
-	 * @param id {Int} Room to get by it's id
-	 */
-	function getRoomById(id) {
-		for (var i = 0, j = lRooms.length; i < j; i++) {
-			if (lRooms[i].id == id) {
-				return lRooms[i];
-			}
-		};
-	}
-
-	// # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-	// User logic
-	// # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-
-	/**
-	 * Create a new user and add it to the user list.
-	 * @method
-	 * @param socket {WebSocket} The connectiong to the new user
-	 */
-	function addNewUser(socket) {
-		if (lUsers.length > LIMIT_USERS) {
-			return;
-		}
-		var user = new obj_user(socket);
-		lUsers.push(user);
-		return user;
-	}
-
-	/**
-	 * Remove a user by it's id.
-	 * @method
-	 * @param id {Int} User to remove by it's id
-	 */
-	function removeUserById(id) {
-		for (var i = 0, j = lUsers.length; i < j; i++) {
-			if (lUsers[i].id == id) {
-				removeUser(lUsers[i]);
-			}
-		};
-	}
-
-	/**
-	 * Remove a user from the users list. (Used if additional operations becomes necicary at a later stage)
-	 * @method
-	 * @param user {obj_user} User to remove
-	 */
-	function removeUser(user) {
-		lUsers.remove(user);
-	}
-
-	/**
-	 * Get user by searching through the list to find the correct websocket connection.
-	 * @method
-	 * @param socket {WebSocket} Socket to search for
-	 */
-	function getUserBySocket(socket) {
-		for (var i = 0, j = lUsers.length; i < j; i++) {
-			if (lUsers[i].socket == socket) {
-				return lUsers[i];
-			}
-		};
-	}
-
-	/**
-	 * Get user by searching through the list to find the correct id.
-	 * @method
-	 * @param id {Int} Id to search for
-	 */
-	function getUserById(id) {
-		for (var i = 0, j = lUsers.length; i < j; i++) {
-			if (lUsers[i].id == id) {
-				return lUsers[i];
-			}
-		};
-	}
-
-	// # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-	// 						Call logic
-	// # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-
-	/**
-	 * Create a new call signifing that a user has invited another user.
-	 * @method
-	 * @param caller {obj_user} User that is inviting
-	 * @param called {obj_user} User that recives the invite
-	 * @param roomId {Int} Room id that the inviter invites to
-	 */
-	function createNewCall(caller, called, roomId) {
-		if (lCalls.length > LIMIT_CALLS) {
-			return;
-		}
-		var call;
-		if (caller.inCall) {
-			call = caller.call.addUser(called);
-		} else {
-			call = new obj_call(caller, called, roomId);
-			lCalls.push(call);
-		}
-
-		return call;
-	}
-
-	/**
-	 * Get call by searching through the list for the correct id.
- 	 * @param id {Int} Id to search for
-	 */
-	function getCallById(id) {
-		for (var i = 0, j = lCalls.length; i < j; i++) {
-			if (lCalls[i].id == id) {
-				return lCalls[i];
-			}
-		};
 	}
 
 	// # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
