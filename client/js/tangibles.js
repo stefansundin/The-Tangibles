@@ -1,5 +1,6 @@
 
 /**
+ * @module Tangibles
  * @class Tangibles
  */
 function Tangibles(webRTCSocket) {
@@ -31,10 +32,8 @@ function Tangibles(webRTCSocket) {
 	/**
 	 * Show color on sifteo or sphero.
 	 * @method setColor
-	 * @param dev
-	 *            The device object
-	 * @param color
-	 *            Color RRGGBB (hex)
+	 * @param dev The device object
+	 * @param color Color RRGGBB (hex)
 	 */
 	this.setColor = function(dev, color) {
 		self.api.showColor(dev.id, color, undefined, self.err2('Unable to show color.'));
@@ -43,10 +42,8 @@ function Tangibles(webRTCSocket) {
 	/**
 	 * Spin sphero in right direction.
 	 * @method setRightSpin
-	 * @param dev
-	 *            The device object
-	 * @param velocity
-	 *            The velocity of the spin
+	 * @param dev The device object
+	 * @param velocity The velocity of the spin
 	 */
 	this.setRightSpin = function(dev, velocity) {
 		if (!self.registered) return;
@@ -56,10 +53,8 @@ function Tangibles(webRTCSocket) {
 	/**
 	 * Spin sphero in left direction.
 	 * @method setLeftSpin
-	 * @param dev
-	 *            The device object
-	 * @param velocity
-	 *            The velocity of the spin
+	 * @param dev The device object
+	 * @param velocity The velocity of the spin
 	 */
 	this.setLeftSpin = function(dev, velocity) {
 		if (!self.registered) return;
@@ -70,16 +65,11 @@ function Tangibles(webRTCSocket) {
 	 * Set backgound and text, then show a image.
 	 * Used since long loading time on images
 	 * @method showTextPic
-	 * @param dev
-	 *            The device object
-	 * @param url
-	 *            The url to the image to show
-	 * @param text
-	 *            The temporary text to show
-	 * @param color
-	 *            The color of the temporary text
-	 * @param bg
-	 *            The background color of the temporary text
+	 * @param dev The device object
+	 * @param url The url to the image to show
+	 * @param text The temporary text to show
+	 * @param color The color of the temporary text
+	 * @param bg The background color of the temporary text
 	 */
 	this.showTextPic = function(dev, url, text, color, bg) {
 		if (!self.registered) return;
@@ -90,10 +80,8 @@ function Tangibles(webRTCSocket) {
 	/**
 	 * Show a picture on a sifteo
 	 * @method showPicture
-	 * @param dev
-	 *            The device object
-	 * @param url
-	 *            The url to the image to show
+	 * @param dev The device object
+	 * @param url The url to the image to show
 	 */
 	this.showPicture = function(dev, url) {
 		if (!self.registered) return;
@@ -103,14 +91,10 @@ function Tangibles(webRTCSocket) {
 	/**
 	 * Set backgound and text.
 	 * @method showText
-	 * @param dev
-	 *            The device object
-	 * @param text
-	 *            The temporary text to show
-	 * @param color
-	 *            The color of the temporary text
-	 * @param bg
-	 *            The background color of the temporary text
+	 * @param dev The device object
+	 * @param text The temporary text to show
+	 * @param color The color of the temporary text
+	 * @param bg The background color of the temporary text
 	 */
 	this.showText = function(dev, text, color, bg) {
 		if (!self.registered) return;
@@ -121,8 +105,7 @@ function Tangibles(webRTCSocket) {
 	/**
 	 * Show the current time on a sifteo.
 	 * @method showTime
-	 * @param dev
-	 *            The device object
+	 * @param dev The device object
 	 */
 	this.showTime = function(dev) {
 		if (!self.registered) return;
@@ -138,8 +121,7 @@ function Tangibles(webRTCSocket) {
 	/**
 	 * Check if a device is a sifteo from device id.
 	 * @method isSifteo
-	 * @param devId
-	 *            The device ID
+	 * @param devId The device ID
 	 */
 	this.isSifteo = function(devId) {
 		return devId.length == 24;
@@ -148,8 +130,7 @@ function Tangibles(webRTCSocket) {
 	/**
 	 * Check if a device is a sphero from device id.
 	 * @method isSphero
-	 * @param devId
-	 *            The device ID
+	 * @param devId The device ID
 	 */
 	this.isSphero = function(devId) {
 		// Check if device is a sphero
@@ -216,8 +197,7 @@ function Tangibles(webRTCSocket) {
 	/**
 	 * Run when the user is in a call. Will provide call controls and similar.
 	 * @method acceptedCall
-	 * @param call_id
-	 *            The ID of the call
+	 * @param call_id The ID of the call
 	 */
 	this.acceptedCall = function(call_id) {
 		if (!self.registered) return;
@@ -257,16 +237,11 @@ function Tangibles(webRTCSocket) {
 	/**
 	 * Run on a incoming call for user to be able to answer / decline call
 	 * @method incommingCall
-	 * @param call_id
-	 *            The ID of the call
-	 * @param caller
-	 *            The name of the caller.
-	 * @param room
-	 *            Name of the room invited to
-	 * @param onAccept
-	 *            Callback on accepted call
-	 * @param onDeny
-	 *            Callback on denied call
+	 * @param call_id The ID of the call
+	 * @param caller The name of the caller.
+	 * @param room Name of the room invited to
+	 * @param onAccept Callback on accepted call
+	 * @param onDeny Callback on denied call
 	 */
 	this.incommingCall = function(call_id, caller, room, onAccept, onDeny) {
 		if (!self.registered) return;
@@ -376,8 +351,7 @@ function Tangibles(webRTCSocket) {
 	/**
 	 * Listen to all events from specified device
 	 * @method listenToEvents
-	 * @param dev
-	 *            The device object
+	 * @param dev The device object
 	 */
 	this.listenToEvents = function(dev) {
 		if (dev.subscribed) return;
@@ -402,8 +376,7 @@ function Tangibles(webRTCSocket) {
 	/**
 	 * Handle single event and run appropriate event handlers
 	 * @method eventHandler
-	 * @param msg
-	 *            The event message
+	 * @param msg The event message
 	 */
 	this.eventHandler = function(msg) {
 		if (msg.event == 'Accelerometer') {
