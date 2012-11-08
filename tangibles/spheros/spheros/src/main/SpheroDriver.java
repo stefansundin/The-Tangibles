@@ -1,6 +1,8 @@
 package main;
 
 
+import driver.AppManagerImpl;
+import driver.Sphero;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.Collection;
@@ -8,7 +10,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import listener.AliveListener;
 import se.nicklasgavelin.bluetooth.Bluetooth;
 import se.nicklasgavelin.bluetooth.Bluetooth.EVENT;
@@ -16,8 +17,6 @@ import se.nicklasgavelin.bluetooth.BluetoothDevice;
 import se.nicklasgavelin.bluetooth.BluetoothDiscoveryListener;
 import se.nicklasgavelin.sphero.Robot;
 import utils.SpheroConfig;
-import driver.AppManagerImpl;
-import driver.Sphero;
 
 public class SpheroDriver extends Thread implements BluetoothDiscoveryListener {
 	private AppManagerImpl _appMgr = AppManagerImpl.getInstance();

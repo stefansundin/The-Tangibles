@@ -284,7 +284,7 @@ function Tangibles(webRTCSocket) {
 			this.callTimeout = setTimeout(function(){
 					self.sphero[0].gyroListeners = [];
 					onDeny(call_id);
-				}, 30000); // sec to answar
+				}, lobby.AUTO_DECLINE_TIME*1000); // sec to answar
 
 			// Accept
 			sphero.gyroListeners.push(function(msg) {
