@@ -36,6 +36,8 @@ Lobby.prototype.init = function() {
 			self.workspaceWindow.close();
 		}
 	};
+	
+	$('#room_password, label[for=room_password]').hide(); // TODO Fix passwords?
 
 	$('#main, #top, #call_list, #roomFrame, #splash, #room_toolbar, #roomFrame, #room_table tfoot, #tangible_status').hide();
 
