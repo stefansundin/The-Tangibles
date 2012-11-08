@@ -1,46 +1,103 @@
 /*
 	Contanier class for handling all the buttons
 */
-var Buttons = function (transform) {
-	var listOfButtons = [];
-	var trans = transform;
+var Buttons = function (c, transform, v, w, h) {
+	this.video = v;
+	this._ctx = c;
+	this.listOfButtons = [];
+	this.trans = transform;
+	this.i = null; // handle to cancel out draw...
+	this.maxHeight = h; // height of canvas
+	this.height = Math.round(this.maxHeight*0.15); // 15% of maxHeight 
+	this.width = this.height; // same as height
 
 	this.addButton = function (button) {
-		listOfButtons.push(button)
+		this.listOfButtons.push(button)
 	}
 
-	//this.deleteButton = deleteButton;
-	//function deleteButton(button) {
-	//  
-	//}
+	this.deleteButtonId = function (id) {
+		var index = -1;
+		for (i in this.listOfButtons) {
+			if (this.listOfButtons[i].id == id) {
+				index = i;
+				break;
+			}
+		}
+		if (index > -1) {
+			this.listOfButtons.splice(index, 1);
+		}
+	}
+
+	this.deleteButton = function(button) {
+		var index = -1;
+		for (i in this.listOfButtons) {
+			if (this.listOfButtons[i] == button) {
+				index = i;
+				break;
+			}
+		}
+		if (index > -1) {
+			this.listOfButtons.splice(index, 1);
+		}
+	}
 
 	this.draw = function () {
-		for (i in listOfButtons) {
-			listOfButtons[i].draw();
+		var x = 10;
+		var y = 10;
+		for (i in this.listOfButtons) {
+			if (y + this.height > this.maxHeight) {
+				break;
+			}
+			y = y + i * (this.height + 10);
+			this.listOfButtons[i].draw(this._ctx, x, y, this.width, this.height);
 		}
+		// clear everything below the last button
+		this._ctx.clearRect(0, y + this.height + 2, this.width + 10, this.maxHeight);
+		var self = this;
+		this.i = window.setInterval(function () {self.draw();},  50);
 	}
 
 	this.checkPressed = function (contextBlended) {
-		for (i in listOfButtons) {
-			listOfButtons[i].checkPressed(contextBlended, trans); // this.transform);
+		var x = 10;
+		var y = 10;
+		for (i in this.listOfButtons) {
+			if (y + this.height > this.maxHeight) {
+				break;
+			}
+			y = y + i * (this.height + 10);
+			var p1 = new Object();
+			p1.x = x;
+			p1.y = y;
+			var p2 = new Object();
+			p2.x = x + this.width;
+			p2.y = y + this.height;
+			p1 = transform.transformPoint(p1);
+			p2 = transform.transformPoint(p2);
+
+			this.listOfButtons[i].checkPressed(this.contextBlended, p1, p2);
 		}
 	}
 
-	this.start = function (video, contextSource, contextBlended) {
-		for (i in listOfButtons) {
-			setTimeout(function () { listOfButtons[i].pressed = false; }, 3000);
+	this.start = function () {
+		// activate buttons after 3 seconds
+		for (i in this.listOfButtons) {
+			var self = this;
+			setTimeout(function () { self.listOfButtons[i].pressed = false; }, 3000);
 		}
-		this.video = video;
-		this.contextSource = contextSource;
-		this.contextBlended = contextBlended;
+		var canvasSource = MediaExt.createCanvas(CANVAS_WIDTH, CANVAS_HEIGHT);
+		var canvasBlended = MediaExt.createCanvas(CANVAS_WIDTH, CANVAS_HEIGHT);
+		this.contextSource = canvasSource.getContext('2d');
+		this.contextBlended = canvasBlended.getContext('2d');
 		this.update();
 	}
 
 	this.update = function () {
-		this.drawVideo();
-		this.blend();
+		if (this.listOfButtons.length > 0) {
+			this.drawVideo();
+			this.blend();
 
-		this.checkPressed(this.contextBlended)
+			this.checkPressed(this.contextBlended)
+		}
 		var self = this;
 		this.timeOut = setTimeout(function () {self.update()}, 200);
 	}
@@ -93,32 +150,18 @@ var Buttons = function (transform) {
 }
 
 /*
-	Class for a simple button with an image
+	Class for a simple button with an image or video
 */
-var Button = function (x, y, sizeX, sizeY, image, ctx) {
-	this.p1 = new Object();
-	this.p1.x = x;
-	this.p1.y = y;
-	this.p4 = new Object();
-	this.p4.x = x + sizeX;
-	this.p4.y = y + sizeY;
-
-	this.sizeX = sizeX;
-	this.sizeY = sizeY;
-	this.x = x;
-	this.y = y;
-	this.method; // method to invoke when pressed
+var Button = function (image, method) {
+	this.method = method; // method to invoke when pressed
 	this.image = image; // image to draw
-	this.ctx = ctx;
+	this.id = null;
 
 	this.pressed = true;
 	this.enabled = true;
 }
 
-Button.prototype.checkPressed = function (contextBlended, transform) {
-	var p1 = transform.transformPoint(this.p1);
-	var p4 = transform.transformPoint(this.p4);
-
+Button.prototype.checkPressed = function (contextBlended, p1, p4) {
 	var blendedData = contextBlended.getImageData(p1.x, p1.y, p4.x-p1.x, p4.y-p1.y);
 	//var blendedData = contextBlended.getImageData(500, 100, 100, 100);
 	var i = 0;
@@ -140,7 +183,6 @@ Button.prototype.checkPressed = function (contextBlended, transform) {
 		} else {
 			this.enabled = true;
 		}
-		this.draw()
 		if (!!(this.method && this.method.constructor && this.method.call && this.method.apply)) {
 			this.method();
 		}
@@ -149,55 +191,13 @@ Button.prototype.checkPressed = function (contextBlended, transform) {
 	}
 }
 
-Button.prototype.draw = function () {
+Button.prototype.draw = function (ctx, x, y, width, height) {
 	if (this.enabled) {
-		this.ctx.strokeStyle = 'red'
+		ctx.strokeStyle = 'red'
 	} else {
-		this.ctx.strokeStyle = 'black'
+		ctx.strokeStyle = 'black'
 	}
-	this.ctx.strokeRect(this.x, this.y, this.sizeX, this.sizeY);
-	this.ctx.drawImage(this.image, this.x, this.y, this.sizeX, this.sizeY);
-}
-
-/*
-	Video button class, extends Button
-*/
-var VideoButton = function (x, y, sizeX, sizeY, image, ctx) {
-	this.p1 = new Object();
-	this.p1.x = x;
-	this.p1.y = y;
-	this.p4 = new Object();
-	this.p4.x = x + sizeX;
-	this.p4.y = y + sizeY;
-
-	this.x = x;
-	this.y = y;
-	this.sizeX = sizeX;
-	this.sizeY = sizeY;
-	this.v = image;
-	this.ctx = ctx;
-	this.method;
-
-	this.i;
-
-	this.pressed = true;
-	this.enabled = true;
-}
-
-VideoButton.prototype = new Button;
-
-VideoButton.prototype.draw = function () {
-	this.ctx.strokeStyle = 'black';
-	this.ctx.strokeRect(this.x, this.y, this.sizeX, this.sizeY);
-	if (this.enabled) {
-		var self = this;
-		this.i = window.setInterval(function () {self.drawMovie();},  40);
-	} else {
-		window.clearInterval(this.i);
-		this.ctx.fillRect(this.x, this.y, this.sizeX, this.sizeY);
-	}
-}
-
-VideoButton.prototype.drawMovie = function () {
-	this.ctx.drawImage(this.v, this.x, this.y, this.sizeX, this.sizeY);
+	
+	ctx.strokeRect(x, y, width, height);
+	ctx.drawImage(this.image, x, y, width, height);
 }

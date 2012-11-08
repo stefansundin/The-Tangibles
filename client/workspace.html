@@ -27,9 +27,6 @@
 </div>
 <center>
 <canvas id ="myCanvas" style="width: 100%; height: 100%"></canvas>
-<div>
-<button id="button">Done Calibrating</button>
-</div>
 <video id="you" autoplay></video> 
 </center>
 <script>
@@ -42,9 +39,6 @@ var c = $('#myCanvas');
 c.hide();
 
 var fullscreen = $('#fullscreen');
-
-var doneCalibration = $('#button');
-doneCalibration.hide();
 
 var notice = $('#notice');
 
@@ -115,6 +109,18 @@ function Workspace() {
 	} 
 
 	this.init = function () {
+		// TODO change to c...
+		screenCanvas = document.getElementById("myCanvas");
+		screenContext = screenCanvas.getContext("2d");
+
+		screenCanvas.width = window.innerWidth;
+		screenCanvas.height = window.innerHeight;
+
+		window.onresize = function() {
+			screenCanvas.width = window.innerWidth;
+			screenCanvas.height = window.innerHeight;
+		};
+
 		if (PeerConnection) {
 			rtc.createStream({"video": true, "audio": true}, function(stream) {
 					self.createVideo(stream, 'you');
@@ -137,6 +143,7 @@ function Workspace() {
 		rtc.on('disconnect stream', function(data) {
 				console.log('remove ' + data);
 				self.removeVideo(data);
+				buttons.deleteButtonId('remote' + socketId);
 			});
 		this.initFullScreen();
 	}
@@ -144,16 +151,6 @@ function Workspace() {
 	this.startCalibration = function () {
 		// start showing fullscreen canvas
 		c.show();
-		screenCanvas = document.getElementById("myCanvas");
-		screenContext = screenCanvas.getContext("2d");
-
-		screenCanvas.width = window.innerWidth;
-		screenCanvas.height = window.innerHeight;
-
-		window.onresize = function() {
-			screenCanvas.width = window.innerWidth;
-			screenCanvas.height = window.innerHeight;
-		};
 
 		calibrator = new Calibrator(video, screenCanvas);
 		calibrator.startCalibration(this.onGotTransform, this.onFinishedCalibration, self);
@@ -163,11 +160,24 @@ function Workspace() {
 	this.onGotTransform = function (trans) {
 		console.log('got transform');
 		transform = trans;
+		var inverse = transform.inverse();
 
 		// enable calibration buttons
-		doneCalibration.click(function(event) {
-			calibrator.confirmSharedRectangle();
-		});
+		var width = window.innerWidth;
+		var height = window.innerHeight;
+		buttons = new Buttons(screenContext, inverse, video, width, height);
+		img = new Image();
+		img.src = "img/doneButton.png";
+		calibratorButton = new Button(img, this.buttonPressed);
+		calibratorButton.id = 'done';
+		buttons.addButton(calibratorButton);
+		var c2 = new Button(img, this.buttonPressed);
+		c2.id = 'done';
+		buttons.addButton(c2);
+		
+		buttons.draw();
+		buttons.start();
+
 		$(document).keypress(function(event) {
 			var keycode = (event.keyCode ? event.keyCode : event.which);
 			if (keycode == 13) {
@@ -178,11 +188,11 @@ function Workspace() {
 		screenCanvas.onclick = function() {
 			calibrator.confirmSharedRectangle();
 		};
-		doneCalibration.show();
 	}
     
     this.onFinishedCalibration = function (sRect, sPoly) {
 		console.log('finished calibration');
+		buttons.deleteButtonId('done');
 		sharedRect = sRect;
 		sharedPoly = sPoly;
 
@@ -197,37 +207,6 @@ function Workspace() {
 		// start merging incoming videos in workspace
 		self.mergeVideos();
 
-		// TODO show buttons
-		/*
-		var inverse = transform.inverse();
-		var b = new Buttons(inverse);
-		b1 = new VideoButton(1000, 600, 100, 100, video, screenContext);
-		b1.method = this.buttonPressed;
-		b.addButton(b1);
-		cs = MediaExt.createCanvas(CANVAS_WIDTH, CANVAS_HEIGHT);
-		cb = MediaExt.createCanvas(CANVAS_WIDTH, CANVAS_HEIGHT);
-		 */
-		
-		/*cb.width = window.innerWidth;
-		cb.height = window.innerHeight;
-
-		window.onresize = function() {
-			cb.width = window.innerWidth;
-			cb.height = window.innerHeight;
-		};
-		cs.width = window.innerWidth;
-		cs.height = window.innerHeight;
-
-		window.onresize = function() {
-			cs.width = window.innerWidth;
-			cs.height = window.innerHeight;
-		};*/
-		
-		/*
-		b.start(video, cs.getContext('2d'), cb.getContext('2d'));
-		b.draw();
-		 */
-		 
 	}
 
 	this.buttonPressed = function () {
@@ -242,6 +221,11 @@ function Workspace() {
             var v = videos[i];
             if (v.label == label) {
                 v.setTransform([nw, ne, se, sw], sharedRect);
+
+				// enable buttons
+				b = new Button(v.video, v.toggleEnabled)
+				b.id = v.video.id;
+				buttons.addButton(b);
             }
         }
 
@@ -257,10 +241,10 @@ function Workspace() {
             if (v.label == label) {
                 v.setTransform([nw, ne, se, sw], sharedRect);
 				
-				// TODO show button and set to enabled
-				// add trigger to switch between enabled and disabled
-				// b = new VideoButton(1, 1, 100, 100, v.video, screenContext);
-				// b.method = function () { v.enabled = v.enabled ? false : true; }
+				// enable buttons
+				b = new Button(v.video, v.toggleEnabled)
+				b.id = v.video.id;
+				buttons.addButton(b);
             }
         }
 	}
