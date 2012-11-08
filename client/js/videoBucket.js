@@ -14,8 +14,8 @@ VideoBucket = function(video, label) {
     this.transformContext = null;
     this.coordinates = [];
     
-    // this.videoCanvas = MediaExt.createCanvas(video.width, video.height);
-    // this.videoContext = this.videoCanvas.getContext("2d");
+    this.videoCanvas = null; //MediaExt.createCanvas(video.width, video.height);
+    this.videoContext = null; // this.videoCanvas.getContext("2d");
     
     this.transform = null;
 }
@@ -44,6 +44,9 @@ VideoBucket.prototype.setTransform = function(poly, rect) {
 	cropRect.width += padding * 2;
 	cropRect.height += padding * 2;
 
+	console.log("Crop rectangle:");
+	console.log(cropRect);
+	
 	this.videoCanvas = MediaExt.createCanvas(cropRect.width, cropRect.height);
     this.videoContext = this.videoCanvas.getContext("2d");
 	this.videoCropRect = cropRect;
@@ -56,6 +59,8 @@ VideoBucket.prototype.toggleEnabled = function() {
 VideoBucket.prototype.transformVideo = function() {
     
     if (this.transform == null || !this.enabled) {
+		console.log("transform: " + transform);
+		console.log("enabled: " + (enabled ? "true" : "false"));
         return null;
     }
     
@@ -65,12 +70,12 @@ VideoBucket.prototype.transformVideo = function() {
         h = this.videoCropRect.height;
 	
     this.videoContext.drawImage(this.video,
-								0, 0, w, h,
-								x, y, w, h);
+								x, y, w, h,
+								0, 0, w, h);
     var imageData = this.videoContext.getImageData(0, 0, w, h);
     
 	/*
-    this.videoContext.drawImage(this.video, 0, 0, video.width, video.height);
+    this.videoContext.drawImage(this.video, 0, 0, this.video.width, this.video.height);
     var imageData = this.videoContext.getImageData(0, 0, w, h);
     */
 	
@@ -87,7 +92,10 @@ VideoBucket.transformList = function(bucketList) {
         var tv = bucketList[i].transformVideo();
         if (tv != null) {
             transformedVideos.push(tv);
-        }
+        } else {
+			console.log("tranformed video is null");
+		}
     }
+	console.log("length of transformedVideos: " + transformedVideos.length);
     return transformedVideos;
 }
