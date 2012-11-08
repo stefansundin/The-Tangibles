@@ -221,19 +221,16 @@ Calibrator.prototype.secondCalibration = function(markers) {
 	var foundLeft = false;
 	var marker;
 	var leftMarkerCorner, rightMarkerCorner;
-    var buttonWidth = BUTTON_PERCENT * canvas.width;
+    var buttonWidth = BUTTON_RATIO * this.canvas.width;
     
-    var sharedMinWidth = SHARED_RECT_MIN_RATIO * canvas.width;
-    var sharedMinHeight = SHARED_RECT_MIN_RATIO * canvas.height;
+    var sharedMinWidth = SHARED_RECT_MIN_RATIO * this.canvas.width;
+    var sharedMinHeight = SHARED_RECT_MIN_RATIO * this.canvas.height;
     
 	this.sharedRectPrev = this.sharedRect.copy();
     
 	for (var i = 0; i < markers.length; i++) {
         
 		marker = markers[i];
-        
-		//console.log(marker.id);
-        
 		// If the left marker is found, move the shared rectangle
 		if (marker.id == LEFT_MARKER_ID) {
             
@@ -244,16 +241,16 @@ Calibrator.prototype.secondCalibration = function(markers) {
             
             /* Set the x-position of sharedRect, making sure it's not too far
              too the left or right */
-			this.sharedRect.x = Math.max(leftMarkerCorner.x, buttonWidth)
+			this.sharedRect.x = Math.max(leftMarkerCorner.x, buttonWidth);
             this.sharedRect.x = Math.min(this.sharedRect.x,
-                                         canvas.width - sharedMinWidth
+                                         this.canvas.width - sharedMinWidth
                                          );
             
             /* Set the y-position of sharedRect, making sure it's not too far
              up or down */
 			this.sharedRect.y = Math.max(leftMarkerCorner.y, 0);
-            this.sharedRect.y = Math.min(this.sharedHeight.y,
-                                         canvas.height - sharedMinHeight
+            this.sharedRect.y = Math.min(this.sharedRect.y,
+                                         this.canvas.height - sharedMinHeight
                                          );
 		}
 	}
@@ -273,8 +270,8 @@ Calibrator.prototype.secondCalibration = function(markers) {
 				this.sharedRect.height = this.sharedRect.width * DEFAULT_RATIO;
                 
                 // Finally, make sure the proportions haven't been distorted
-                if (sharedRect.height == sharedMinHeight) {
-                    sharedRect.width = sharedMinWidth;
+                if (this.sharedRect.height == sharedMinHeight) {
+                    this.sharedRect.width = sharedMinWidth;
                 }
 			}
 		}
