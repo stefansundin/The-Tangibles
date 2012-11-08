@@ -122,6 +122,7 @@ function initChat() {
 	}, false);
 	parent.socket.on(parent.API_MESSAGE, function(clientID, msg) {
 		addToChat(msg);
+		// TODO Blink chat button!
 	});
 }
 
@@ -140,7 +141,7 @@ function initRoom() {
 	
 	if(PeerConnection){
 		rtc.createStream({"video": true, "audio": true}, function(stream){
-			// Do nothing
+			// TODO Maybe show a small video of self
 		});
 	}else {
 		alert('You are not using a browser with webkitRTCPeerConnection support. Either use Canary or wait for Chrome to be updated.');
