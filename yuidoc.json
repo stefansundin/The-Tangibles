@@ -1,0 +1,11 @@
+{
+    "name": "The Tangibles",
+    "description": "API documentation for a WebRTC project called The Tangibles",
+    "version": "0.1",
+    "url": "http://tangible.se/",
+		"logo" : "http://tangible.se/img/logo.png",
+    "options": {
+        "outdir": "assets/APIDOC",
+				"linkNatives": "false"
+    }
+}

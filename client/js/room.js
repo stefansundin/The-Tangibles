@@ -1,10 +1,12 @@
+
+// TODO Convert code to JQuery!
+
 $(function() {
 	// Function that starts all the things we need
 	init();	
 });
 	
 var videos = [];
-//var rooms = [1,2,3,4,5]; IF SOMETHING ISN'T WORKING, TRY ENABLING THIS ONE.
 
 // These ones aren't used except for checking if the browser know what they are.
 //var PeerConnection = window.PeerConnection || window.webkitPeerConnection00 || window.webkitRTCPeerConnection;
@@ -53,13 +55,14 @@ function setWH(video, i) {
 	video.style.top = Math.floor(i / perRow) * height + "px";
 }
 
-function cloneVideo(domId, socketId) {
-	var video = document.getElementById(domId);
-	var clone = video.cloneNode(false);
-	clone.id = "remote" + socketId;
-	document.getElementById('videos').appendChild(clone);
-	videos.push(clone);
-	return clone;
+function createVideo(socketId) {
+	var video = $('<video/>', {
+		id : 'remote' + socketId,
+		autoplay : 'autoplay'
+	});
+	$('#videos').append(video);
+	videos.push(video[0]);
+	return video[0];
 }
 
 function removeVideo(socketId) {
@@ -96,19 +99,6 @@ function writeMessageToChat(message) {
 					"msg" : message
 			}));
 	addToChat(message);
-/*	parent.socket.send(JSON.stringify({
-		"eventName": "chat_msg",
-		"data": {
-		"messages": message,
-		"room": room,
-		"color": color
-		}
-	}), function(error) {
-			if (error) {
-				console.log(error);
-			}
-	}); 
-	addToChat(message); */
 }
 
 function initChat() {
@@ -132,6 +122,7 @@ function initChat() {
 	}, false);
 	parent.socket.on(parent.API_MESSAGE, function(clientID, msg) {
 		addToChat(msg);
+		// TODO Blink chat button!
 	});
 }
 
@@ -146,36 +137,36 @@ function init() {
 }
 	  
 function initRoom() {
-    $('#chatbox').hide(); //TODO: Flytta p� den h�r.
+    $('#chatbox').hide();
 	
 	if(PeerConnection){
-
-		rtc.createStream({"video": true, "audio": true}, function(stream) {
-			document.getElementById('you').src = URL.createObjectURL(stream);
-			videos.push(document.getElementById('you'));
-			rtc.attachStream(stream, 'you');
-			subdivideVideos();
+		rtc.createStream({"video": true, "audio": true}, function(stream){
+			// TODO Maybe show a small video of self
 		});
 	}else {
 		alert('You are not using a browser with webkitRTCPeerConnection support. Either use Canary or wait for Chrome to be updated.');
 	}
 	var room = window.location.hash.slice(1);
-//	parent.window.parent.document.title = 'Room: ' + room;
 
 	console.log('Connecting to websocket');
 	rtc.connect("ws://"+ window.location.host +"/", room);
 
 	rtc.on('add remote stream', function(stream, socketId) {
 		console.log("ADDING REMOTE STREAM...");
-		var clone = cloneVideo('you', socketId);
-		document.getElementById(clone.id).setAttribute("class", "");
-		rtc.attachStream(stream, clone.id);
+		var video = createVideo(socketId);
+		rtc.attachStream(stream, video.id);
 		subdivideVideos();
+		
+		$('#empty_message').hide();
 	});
 	rtc.on('disconnect stream', function(data) {
 		console.log('remove ' + data);
 		removeVideo(data);
 		subdivideVideos();
+		
+		if (videos.length == 0) {
+			$('#empty_message').show();
+		}
 	});
 	  
 	initChat();

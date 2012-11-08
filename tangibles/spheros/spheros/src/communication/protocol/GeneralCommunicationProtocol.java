@@ -243,7 +243,7 @@ public class GeneralCommunicationProtocol extends JsonTcpCommunication
 	//					    device.sendCommand( new RollCommand( 1, 0, true ), 2500); //stop after 2500
 						    
 							
-						    /////try4 - macro - spinner ibland! (och åker framåt ibland...)
+						    /////try4 - macro - spinner ibland! (och Ã¥ker framÃ¥t ibland...)
 						    MacroObject o = new MacroObject();
 						    //o.addCommand(new Roll(speed, heading, delay));
 						    o.addCommand(new RGB(255, 255, 255, 0));
