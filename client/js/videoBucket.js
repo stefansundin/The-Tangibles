@@ -59,9 +59,14 @@ VideoBucket.prototype.toggleEnabled = function() {
 VideoBucket.prototype.transformVideo = function() {
     
     if (this.transform == null || !this.enabled) {
-		console.log("transform: " + transform);
-		console.log("enabled: " + (enabled ? "true" : "false"));
-        return null;
+		console.log("VideoBucket.prototype.transformVideo returning:");
+		if (this.transform == null) {
+			console.log("transform is null");
+		}
+		if (!this.enabled) {
+			console.log("not enabled");
+		}
+		return null;
     }
     
     var	x = this.videoCropRect.x,
