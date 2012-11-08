@@ -44,7 +44,7 @@ VideoBucket.prototype.setTransform = function(poly, rect) {
 	cropRect.width += padding * 2;
 	cropRect.height += padding * 2;
 
-	this.videoCanvas = MediaExt.createCanvas(rect.width, cropRect.height);
+	this.videoCanvas = MediaExt.createCanvas(cropRect.width, cropRect.height);
     this.videoContext = this.videoCanvas.getContext("2d");
 	this.videoCropRect = cropRect;
 }
