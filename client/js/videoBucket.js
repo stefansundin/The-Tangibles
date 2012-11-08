@@ -93,9 +93,9 @@ VideoBucket.transformList = function(bucketList) {
         if (tv != null) {
             transformedVideos.push(tv);
         } else {
-			console.log("tranformed video is null");
+			// console.log("tranformed video is null");
 		}
     }
-	console.log("length of transformedVideos: " + transformedVideos.length);
+	// console.log("length of transformedVideos: " + transformedVideos.length);
     return transformedVideos;
 }
