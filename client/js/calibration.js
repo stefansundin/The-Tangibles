@@ -210,6 +210,7 @@ Calibrator.prototype.firstCalibration = function(markers) {
 	}
 }
 
+
 /**
  --The second calibration step--
  Checks for two markers and draws a rectangle of
@@ -244,14 +245,16 @@ Calibrator.prototype.secondCalibration = function(markers) {
             /* Set the x-position of sharedRect, making sure it's not too far
              too the left or right */
 			this.sharedRect.x = Math.max(leftMarkerCorner.x, buttonWidth)
-            this.sharedRect.x = Math.min(canvas.width - sharedMinWidth,
-                                         this.sharedRect.x);
+            this.sharedRect.x = Math.min(this.sharedRect.x,
+                                         canvas.width - sharedMinWidth
+                                         );
             
             /* Set the y-position of sharedRect, making sure it's not too far
              up or down */
 			this.sharedRect.y = Math.max(leftMarkerCorner.y, 0);
-            this.sharedRect.y = Math.min(canvas.height - sharedMinHeight,
-                                         this.sharedHeight.y);
+            this.sharedRect.y = Math.min(this.sharedHeight.y,
+                                         canvas.height - sharedMinHeight
+                                         );
 		}
 	}
     
@@ -276,9 +279,8 @@ Calibrator.prototype.secondCalibration = function(markers) {
 			}
 		}
 	}
-    
-    if
-        }
+}
+
 
 /**
  -- The third calibration step --
