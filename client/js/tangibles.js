@@ -1,5 +1,7 @@
 
-
+/**
+ * @class Tangibles
+ */
 function Tangibles(webRTCSocket) {
 	var self = this;
 	this.api = null;
@@ -28,7 +30,7 @@ function Tangibles(webRTCSocket) {
 
 	/**
 	 * Show color on sifteo or sphero.
-	 *
+	 * @method setColor
 	 * @param dev
 	 *            The device object
 	 * @param color
@@ -40,7 +42,7 @@ function Tangibles(webRTCSocket) {
 
 	/**
 	 * Spin sphero in right direction.
-	 *
+	 * @method setRightSpin
 	 * @param dev
 	 *            The device object
 	 * @param velocity
@@ -53,7 +55,7 @@ function Tangibles(webRTCSocket) {
 
 	/**
 	 * Spin sphero in left direction.
-	 *
+	 * @method setLeftSpin
 	 * @param dev
 	 *            The device object
 	 * @param velocity
@@ -67,7 +69,7 @@ function Tangibles(webRTCSocket) {
 	/**
 	 * Set backgound and text, then show a image.
 	 * Used since long loading time on images
-	 *
+	 * @method showTextPic
 	 * @param dev
 	 *            The device object
 	 * @param url
@@ -87,7 +89,7 @@ function Tangibles(webRTCSocket) {
 
 	/**
 	 * Show a picture on a sifteo
-	 *
+	 * @method showPicture
 	 * @param dev
 	 *            The device object
 	 * @param url
@@ -100,7 +102,7 @@ function Tangibles(webRTCSocket) {
 
 	/**
 	 * Set backgound and text.
-	 *
+	 * @method showText
 	 * @param dev
 	 *            The device object
 	 * @param text
@@ -118,7 +120,7 @@ function Tangibles(webRTCSocket) {
 
 	/**
 	 * Show the current time on a sifteo.
-	 *
+	 * @method showTime
 	 * @param dev
 	 *            The device object
 	 */
@@ -135,7 +137,7 @@ function Tangibles(webRTCSocket) {
 
 	/**
 	 * Check if a device is a sifteo from device id.
-	 *
+	 * @method isSifteo
 	 * @param devId
 	 *            The device ID
 	 */
@@ -145,7 +147,7 @@ function Tangibles(webRTCSocket) {
 
 	/**
 	 * Check if a device is a sphero from device id.
-	 *
+	 * @method isSphero
 	 * @param devId
 	 *            The device ID
 	 */
@@ -157,7 +159,7 @@ function Tangibles(webRTCSocket) {
 
 	/**
 	 * Clear all about the sifteos
-	 *
+	 * @method disableSifteos
 	 */
 	this.disableSifteos = function() {
 		if (!self.registered) return;
@@ -169,7 +171,7 @@ function Tangibles(webRTCSocket) {
 
 	/**
 	 * Clear all about the spheros
-	 *
+	 * @method disableSpheros
 	 */
 	this.disableSpheros = function() {
 		if (!self.registered) return;
@@ -182,7 +184,7 @@ function Tangibles(webRTCSocket) {
 
 	/**
 	 * Server API - Register listeners.
-	 *
+	 * @method openServerAPI
 	 */
 	this.openServerAPI = function() {
 		if(this.webRTCSocket){
@@ -213,7 +215,7 @@ function Tangibles(webRTCSocket) {
 	// Call control
 	/**
 	 * Run when the user is in a call. Will provide call controls and similar.
-	 *
+	 * @method acceptedCall
 	 * @param call_id
 	 *            The ID of the call
 	 */
@@ -254,7 +256,7 @@ function Tangibles(webRTCSocket) {
 
 	/**
 	 * Run on a incoming call for user to be able to answer / decline call
-	 *
+	 * @method incommingCall
 	 * @param call_id
 	 *            The ID of the call
 	 * @param caller
@@ -331,7 +333,7 @@ function Tangibles(webRTCSocket) {
 
 	/**
 	 * Register to the tangible API and get devices.
-	 *
+	 * @method register
 	 */
 	this.register = function() {
 		this.api = new TangibleAPI('127.0.0.1');
@@ -344,7 +346,7 @@ function Tangibles(webRTCSocket) {
 
 	/**
 	 * Reserve all devices from the tangible api and make them available.
-	 *
+	 * @method registerDevices
 	 */
 	this.registerDevices = function(){
 		if (!self.registered) return;
@@ -373,7 +375,7 @@ function Tangibles(webRTCSocket) {
 
 	/**
 	 * Listen to all events from specified device
-	 *
+	 * @method listenToEvents
 	 * @param dev
 	 *            The device object
 	 */
@@ -399,7 +401,7 @@ function Tangibles(webRTCSocket) {
 
 	/**
 	 * Handle single event and run appropriate event handlers
-	 *
+	 * @method eventHandler
 	 * @param msg
 	 *            The event message
 	 */

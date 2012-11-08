@@ -17,11 +17,11 @@
  
 /**
  * Handles the room logic and chat messages.
- * @class serversocket
+ * @class ServerSocket
  *
  *
  */
-function socketserver() {
+function SocketServer() {
 
 	var WebSocketServer = require('websocket').server;
 	var http = require('http')
