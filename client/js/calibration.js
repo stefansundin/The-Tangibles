@@ -218,7 +218,6 @@ Calibrator.prototype.firstCalibration = function(markers) {
  */
 Calibrator.prototype.secondCalibration = function(markers) {
     
-	var foundLeft = false;
 	var marker;
 	var leftMarkerCorner, rightMarkerCorner;
     var buttonWidth = BUTTON_RATIO * this.canvas.width;
@@ -229,58 +228,64 @@ Calibrator.prototype.secondCalibration = function(markers) {
 	this.sharedRectPrev = this.sharedRect.copy();
     
 	for (var i = 0; i < markers.length; i++) {
-        
 		marker = markers[i];
-		// If the left marker is found, move the shared rectangle
+		/* If the left marker is found, move sharedRect
+         Make sure it is not too far to the left or too far up
+         (right and down is checked later). */
 		if (marker.id == LEFT_MARKER_ID) {
             
-			foundLeft = true;
-            
-			var transformedCorners = this.screenTransform.transformPoly(marker.corners);
+            var transformedCorners = this.screenTransform.transformPoly(marker.corners);
 			leftMarkerCorner = transformedCorners[Geometry.findTopLeftCorner(transformedCorners)];
             
-            /* Set the x-position of sharedRect, making sure it's not too far
-             too the left or right */
-			this.sharedRect.x = Math.max(leftMarkerCorner.x, buttonWidth);
-            this.sharedRect.x = Math.min(this.sharedRect.x,
-                                         this.canvas.width - sharedMinWidth
+            this.sharedRect.x = Math.max(buttonWidth, leftMarkerCorner.x);
+            this.sharedRect.y = Math.max(
+                                         0,
+                                         leftMarkerCorner.y - this.sharedRect.height
                                          );
-            
-            /* Set the y-position of sharedRect, making sure it's not too far
-             up or down */
-            this.sharedRect.y = Math.max(leftMarkerCorner.y - this.sharedRect.y, 0);
-            this.sharedRect.y = Math.min(this.sharedRect.y, this.canvas.height - sharedMinHeight);
-            
-		}
+        }
 	}
     
     for (var i = 0; i < markers.length; i++) {
         marker = markers[i];
-        // If the right marker is also found, resize the shared rectangle
+        /* If the right marker is found, resize sharedRect.
+        Make sure it is neither smaller than a
+        set value, or larger than the canvas. */
         if (marker.id == RIGHT_MARKER_ID) {
             
             var transformedCorners = this.screenTransform.transformPoly(marker.corners);
             rightMarkerCorner = transformedCorners[Geometry.findTopLeftCorner(transformedCorners)];
             
-            if (rightMarkerCorner.x > this.sharedRect.x) {
-                /* Set the width of sharedRect, making sure it's not too
-                 wide or too thin */
-                this.sharedRect.width = rightMarkerCorner.x - this.sharedRect.x;
+            if (this.sharedRect.x < rightMarkerCorner.x) {
+                this.sharedRect.width = Math.max(
+                                                 sharedMinWidth,
+                                                 rightMarkerCorner.x - this.sharedRect.x
+                                                 );
+                this.sharedRect.width = Math.min(
+                                                 this.canvas.height,
+                                                 this.sharedRect.width
+                                                 );
                 this.sharedRect.height = this.sharedRect.width * DEFAULT_RATIO;
             }
         }
     }
     
-    // More, perhaps a bit too complicated, checks....
+    /* If the rectangle is out of bounds, move it to the left
+     and up as needed (this can be done safely, since we know the rectangle is no wider or
+     higher than the canvas). */
     if (this.sharedRect.x + this.sharedRect.width > this.canvas.width) {
-        this.sharedRect.width = this.canvas.width - this.sharedRect.x;
-        this.sharedRect.height = this.sharedRect.width * DEFAULT_RATIO;
+        this.sharedRect.x = this.canvas.width - this.sharedRect.width;
     }
     
     if (this.sharedRect.y + this.sharedRect.height > this.canvas.height) {
-        this.sharedRect.height = this.canvas.height - this.sharedRect.y;
-        this.sharedRect.width = this.sharedRect.height / DEFAULT_RATIO;
+        this.sharedRect.y = this.canvas.height - this.sharedRect.height;
     }
+    
+    /* Coordinates must be round integers so
+     we can clear the rectangle afterwards*/
+    this.sharedRect.x = Math.round(this.sharedRect.x);
+    this.sharedRect.y = Math.round(this.sharedRect.y);
+    this.sharedRect.width = Math.round(this.sharedRect.width);
+    this.sharedRect.height = Math.round(this.sharedRect.height);
 }
 
 
