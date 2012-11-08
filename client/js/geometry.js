@@ -36,7 +36,7 @@ Geometry.Rectangle.prototype.makePositive = function() {
 
 Geometry.Rectangle.prototype.draw = function(ctx) {
 	ctx.lineWidth = 3;
-	ctx.strokeStyle = "blue";
+	ctx.strokeStyle = "red";
 	ctx.strokeRect(this.x, this.y, this.width, this.height);
 }
 
@@ -234,31 +234,32 @@ Geometry.Transform.prototype.transformImage = function(imageDataIn, dstCanvas, o
 	var dataIn = imageDataIn.data,
 		dataOut = imageDataOut.data;
 
-	var wIn = imageDataIn.width * 4,
-		wOut = imageDataOut.width * 4;
+	var rowWidth = imageDataIn.width;
+	var indexOut = 0;
 	
-	for (var i = 0; i < dstCanvas.width; i++) {
-		for (var j = 0; j < dstCanvas.height; j++) {
-
-			var I = Math.round(this._a[0] * i * j +
-							   this._a[1] * i +
-							   this._a[2] * j +
-							   this._a[3] -
-							   offset.x);
+	// Reordered loop for better data locality
+	// (access [1, 2, 3, 4, 5, 6, 7, 8] instead of [1, 3, 5, 7, 2, 4, 6, 8])
+	for (var y = 0; y < dstCanvas.height; y++) {
+		for (var x = 0; x < dstCanvas.width; x++) {
+		
+			var nx = Math.round(this._a[0] * x * y +
+								this._a[1] * x +
+								this._a[2] * y +
+								this._a[3] -
+								offset.x);
 			
-			var J = Math.round(this._b[0] * i * j +
-							   this._b[1] * i +
-							   this._b[2] * j +
-							   this._b[3] -
-							   offset.y);
+			var ny = Math.round(this._b[0] * x * y +
+								this._b[1] * x +
+								this._b[2] * y +
+								this._b[3] -
+								offset.y);
 			
-			var ci = i * 4 + j * wOut,
-				di = I * 4 + J * wIn;
+			var indexIn = (nx + ny * rowWidth) * 4;
 
-			dataOut[ci]     = dataIn[di];
-			dataOut[ci + 1] = dataIn[di + 1];
-			dataOut[ci + 2] = dataIn[di + 2];
-			dataOut[ci + 3] = dataIn[di + 3];
+			dataOut[indexOut++] = dataIn[indexIn];
+			dataOut[indexOut++] = dataIn[indexIn + 1];
+			dataOut[indexOut++] = dataIn[indexIn + 2];
+			dataOut[indexOut++] = dataIn[indexIn + 3];
 		}
 	}
 

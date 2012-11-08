@@ -36,20 +36,20 @@ VideoBucket.prototype.setTransform = function(poly, rect) {
     this.transformContext = this.transformCanvas.getContext("2d");
     this.transform = new Geometry.PolyToCanvasTransform(poly, this.transformCanvas);
 	
-	var cropRect = Geometry.rectFromPoly(poly);
+	this.videoCanvas = MediaExt.createCanvas(rect.width, rect.height);
+    this.videoContext = this.videoCanvas.getContext("2d");
 	
 	var padding = 5;
+	var cropRect = Geometry.rectFromPoly(poly);
 	cropRect.x -= padding;
 	cropRect.y -= padding;
 	cropRect.width += padding * 2;
 	cropRect.height += padding * 2;
-
+	
+	this.videoCropRect = cropRect;
+	
 	console.log("Crop rectangle:");
 	console.log(cropRect);
-	
-	this.videoCanvas = MediaExt.createCanvas(cropRect.width, cropRect.height);
-    this.videoContext = this.videoCanvas.getContext("2d");
-	this.videoCropRect = cropRect;
 }
 
 VideoBucket.prototype.toggleEnabled = function() {
@@ -69,20 +69,22 @@ VideoBucket.prototype.transformVideo = function() {
 		return null;
     }
     
+	
     var	x = this.videoCropRect.x,
 		y = this.videoCropRect.y,
 		w = this.videoCropRect.width,
         h = this.videoCropRect.height;
-	
+	/*
+	 First x, y, w and h need to be relative to the camera's native resolution
+	 in order for this to work..
     this.videoContext.drawImage(this.video,
 								x, y, w, h,
 								0, 0, w, h);
     var imageData = this.videoContext.getImageData(0, 0, w, h);
-    
-	/*
+     */
+
     this.videoContext.drawImage(this.video, 0, 0, this.video.width, this.video.height);
-    var imageData = this.videoContext.getImageData(0, 0, w, h);
-    */
+    var imageData = this.videoContext.getImageData(x, y, w, h);
 	
     this.transform.transformImage(imageData,
 								  this.transformCanvas,
