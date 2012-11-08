@@ -72,7 +72,7 @@ function Workspace() {
 		v.src = URL.createObjectURL(stream);
         
 		if (socketId == 'you') {
-            videoObj = new VideoBucket(v, stream.label, CANVAS_WIDTH, CANVAS_HEIGHT);
+            videoObj = new VideoBucket(v, stream.label);
 			v.id = 'you';
 			video = v;
             
@@ -80,7 +80,7 @@ function Workspace() {
             
 		} else {
             v.id = 'remote' + socketId;
-            var bucket = new VideoBucket(v, stream.label, CANVAS_WIDTH, CANVAS_HEIGHT);
+            var bucket = new VideoBucket(v, stream.label);
 			videos.push(bucket);
 		}
 	}
@@ -155,7 +155,7 @@ function Workspace() {
 			screenCanvas.height = window.innerHeight;
 		};
 
-		calibrator = new Calibrator(video, screenCanvas, CANVAS_WIDTH, CANVAS_HEIGHT);
+		calibrator = new Calibrator(video, screenCanvas);
 		calibrator.startCalibration(this.onGotTransform, this.onFinishedCalibration, self);
 	}
 
@@ -256,6 +256,7 @@ function Workspace() {
             var v = videos[i];
             if (v.label == label) {
                 v.setTransform([nw, ne, se, sw], sharedRect);
+				
 				// TODO show button and set to enabled
 				// add trigger to switch between enabled and disabled
 				// b = new VideoButton(1, 1, 100, 100, v.video, screenContext);
@@ -296,7 +297,6 @@ function Workspace() {
 		
         var transformedVideos = VideoBucket.transformList(videos);
         var mergedImage = Utilities.mergeImages(transformedVideos);
-		//mergedImage = cb;
         
         if (mergedImage != null) {
             // console.log('drawing merged videos, ' + sharedRect.x + ' ' + sharedRect.width);

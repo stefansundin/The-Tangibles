@@ -146,11 +146,13 @@ Geometry.Transform = function(fromPoly, toPoly) {
 			[fromPoly[3].y]
 			]);
 
-	Minv = M.inv();
-
-	this._a = Minv.multiply(A);
-	this._b = Minv.multiply(B);
+	var Minv = M.inv();
+	var a = Minv.multiply(A);
+	var b = Minv.multiply(B);
     
+	this._a = [a.e(1, 1), a.e(2, 1), a.e(3, 1), a.e(4, 1)];
+	this._b = [b.e(1, 1), b.e(2, 1), b.e(3, 1), b.e(4, 1)];
+	
     this._imageDataOut = null;
 };
 
@@ -178,14 +180,14 @@ Geometry.PolyToCanvasTransform = function(poly, canvas) {
 
 Geometry.Transform.prototype.transformPoint = function(p) {
 	var nx, ny;
-	nx = Math.round(this._a.e(1, 1) * p.x * p.y +
-			this._a.e(2, 1) * p.x +
-			this._a.e(3, 1) * p.y +
-			this._a.e(4, 1));
-	ny = Math.round(this._b.e(1, 1) * p.x * p.y +
-			this._b.e(2, 1) * p.x +
-			this._b.e(3, 1) * p.y +
-			this._b.e(4, 1));
+	nx = Math.round(this._a[0] * p.x * p.y +
+					this._a[1] * p.x +
+					this._a[2] * p.y +
+					this._a[3]);
+	ny = Math.round(this._b[0] * p.x * p.y +
+					this._b[1] * p.x +
+					this._b[2] * p.y +
+					this._b[3]);
 	return new Geometry.Point(nx, ny);
 };
 
@@ -204,11 +206,17 @@ Geometry.Transform.prototype.transformPoly = function(poly) {
 	return newPoly;
 };
 
-Geometry.Transform.prototype.transformImage = function(imageDataIn, dstCanvas) {
-
+/**
+ @param imageDataIn source data to transform
+ @param dstCanvas canvas to put the transformed image into
+ @param offset optional offset, if the image data coordinates doesn't match the transform's coordinates
+ */
+Geometry.Transform.prototype.transformImage = function(imageDataIn, dstCanvas, offset) {
+	
 	var ctx = dstCanvas.getContext("2d");
     var imageDataOut;
     
+	// Make sure outdata buffer exists and is of the correct size
     if (this._imageDataOut == null ||
         this._imageDataOut.width != dstCanvas.width ||
         this._imageDataOut.height != dstCanvas.height) {
@@ -216,23 +224,35 @@ Geometry.Transform.prototype.transformImage = function(imageDataIn, dstCanvas) {
     } else {
         imageDataOut = this._imageDataOut;
     }
-    
-	var dataIn = imageDataIn.data;
-	var dataOut = imageDataOut.data;
+	
+	// Set offset to (0, 0) if none is passed
+	if (!offset) {
+		offset = {x:0, y:0};
+	}
+	
+	var dataIn = imageDataIn.data,
+		dataOut = imageDataOut.data;
 
+	var wIn = imageDataIn.width * 4,
+		wOut = imageDataOut.width * 4;
+	
 	for (var i = 0; i < dstCanvas.width; i++) {
 		for (var j = 0; j < dstCanvas.height; j++) {
 
-			var I = Math.round(this._a.e(1, 1) * i * j +
-					this._a.e(2, 1) * i +
-					this._a.e(3, 1) * j +
-					this._a.e(4, 1));
-			var J = Math.round(this._b.e(1, 1) * i * j +
-					this._b.e(2, 1) * i +
-					this._b.e(3, 1) * j +
-					this._b.e(4, 1));
-			var ci = i * 4 + j * imageDataOut.width * 4,
-				di = I * 4 + J * imageDataIn.width * 4;
+			var I = Math.round(this._a[0] * i * j +
+							   this._a[1] * i +
+							   this._a[2] * j +
+							   this._a[3] -
+							   offset.x);
+			
+			var J = Math.round(this._b[0] * i * j +
+							   this._b[1] * i +
+							   this._b[2] * j +
+							   this._b[3] -
+							   offset.y);
+			
+			var ci = i * 4 + j * wOut,
+				di = I * 4 + J * wIn;
 
 			dataOut[ci]     = dataIn[di];
 			dataOut[ci + 1] = dataIn[di + 1];
@@ -244,42 +264,3 @@ Geometry.Transform.prototype.transformImage = function(imageDataIn, dstCanvas) {
 	ctx.putImageData(imageDataOut, 0, 0);
     this._imageDataOut = imageDataOut;
 };
-
-
-Geometry.Transform.prototype.transformImageToRect = function(imageDataIn, dstCanvas, dstRect) {
-
-	var ctx = dstCanvas.getContext("2d");
-	var newData = ctx.createImageData(dstRect.width, dstRect.height);
-	var dataIn = imageDataIn.data;
-	var dataOut = newData.data;
-
-	// console.log(dataIn.length + "," + dataOut.length);
-
-	for (var i = 0; i < dstRect.width; i++) {
-		for (var j = 0; j < dstRect.height; j++) {
-
-			var I = Math.round(this._a.e(1, 1) * i * j +
-					this._a.e(2, 1) * i +
-					this._a.e(3, 1) * j +
-					this._a.e(4, 1));
-			var J = Math.round(this._b.e(1, 1) * i * j +
-					this._b.e(2, 1) * i +
-					this._b.e(3, 1) * j +
-					this._b.e(4, 1));
-
-			var ci = i * 4 + j * newData.width * 4,
-				di = I * 4 + J * imageDataIn.width * 4;
-
-			dataOut[ci]     = dataIn[di];
-			dataOut[ci + 1] = dataIn[di + 1];
-			dataOut[ci + 2] = dataIn[di + 2];
-			dataOut[ci + 3] = dataIn[di + 3];
-		}
-	}
-	// newCtx.putImageData(newData, 0, 0);
-	// ctx.drawImage(newCanvas, dstRect.x, dstRect.y, dstRect.width, dstRect.height);
-
-	ctx.putImageData(newData, dstRect.x, dstRect.y);
-};
-
-
