@@ -196,7 +196,7 @@ function Tangibles(webRTCSocket) {
 	this.onMute = function() {
 		var room = document.getElementById('roomFrame');
 		room = (room.contentWindow) ? room.contentWindow : (room.contentDocument.document) ? room.contentDocument.document : room.contentDocument;
-		str = room.rtc.streams;
+		str = room.rtc.streams[0];
 		str.audioTracks[0].enabled = !str.audioTracks[0].enabled;
 	}
 
