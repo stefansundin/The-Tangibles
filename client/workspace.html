@@ -24,6 +24,7 @@
 <div id="notice">This is the workspace view. Choose the appropriate camera and move this window to where you want it.</div>
 <div>
 <button id="fullscreen">Enter Full Screen</button>
+<button id="write">Write qr codes</button>
 </div>
 <center>
 <canvas id ="myCanvas" style="width: 100%; height: 100%"></canvas>
@@ -39,6 +40,7 @@ var c = $('#myCanvas');
 c.hide();
 
 var fullscreen = $('#fullscreen');
+var qr = $('#write');
 
 var notice = $('#notice');
 
@@ -50,12 +52,12 @@ function Workspace() {
 	var sharedRect, sharedPoly, transform;
 	var videos = [];
 	var videoObj;
-	var PeerConnection = window.PeerConnection || window.webkitPeerConnection00;
+	var PeerConnection = window.webkitRTCPeerConnection;
 	var buttons;
 	var cb, cs;
 
     var self = this;
-    
+
 	this.createVideo = function (stream, socketId) {
         
 		var v = document.createElement('video');
@@ -95,6 +97,10 @@ function Workspace() {
 
 	this.initFullScreen = function () { 
 
+		qr.click(function(event) {
+			// TODO print qr codes
+		});
+
 		fullscreen.click(function(event) {
 				var element = document.body;
 				var requestMethod = element.requestFullScreen || element.webkitRequestFullScreen || element.mozRequestFullScreen || element.msRequestFullScreen; 
@@ -104,6 +110,7 @@ function Workspace() {
 				}
 				notice.hide();
 				fullscreen.hide();
+				qr.hide();
 				self.startCalibration();
 			});
 	} 
@@ -166,14 +173,15 @@ function Workspace() {
 		var width = window.innerWidth;
 		var height = window.innerHeight;
 		buttons = new Buttons(screenContext, inverse, video, width, height);
-		buttons.start();
 		img = new Image();
 		img.src = "img/doneButton.png";
-		var calibratorButton = new Button(img, calibrator.confirmSharedRectangle, calibrator);
-		//var calibratorButton = new Button(img, this.buttonPressed);
+		var calibratorButton = new Button(img, calibrator.confirmSharedRectangle);
 		calibratorButton.id = 'done';
 		buttons.addButton(calibratorButton);
 		
+		buttons.draw();
+		buttons.start();
+
 		$(document).keypress(function(event) {
 			var keycode = (event.keyCode ? event.keyCode : event.which);
 			if (keycode == 13) {
@@ -205,6 +213,10 @@ function Workspace() {
 
 	}
 
+	this.buttonPressed = function () {
+		console.log('pressed button');
+	}
+
 	this.onBroadcast = function (id, nw, ne, se, sw, label) {
         
 		console.log('got broadcast, ' + label);
@@ -215,7 +227,7 @@ function Workspace() {
                 v.setTransform([nw, ne, se, sw], sharedRect);
 
 				// enable buttons
-				b = new Button(v.video, v.toggleEnabled, v)
+				b = new Button(v.video, v.toggleEnabled)
 				b.id = v.video.id;
 				buttons.addButton(b);
             }
@@ -234,7 +246,7 @@ function Workspace() {
                 v.setTransform([nw, ne, se, sw], sharedRect);
 				
 				// enable buttons
-				b = new Button(v.video, v.toggleEnabled, v)
+				b = new Button(v.video, v.toggleEnabled)
 				b.id = v.video.id;
 				buttons.addButton(b);
             }

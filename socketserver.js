@@ -145,22 +145,14 @@ function socketserver() {
 	function fire(event_name, client, message) {
 		console.log((new Date()) + " Firing: " + event_name);
 		console.log((new Date()) + " Message: " + message);
-		
 		var chain = callbacks[event_name];
-		
-		// no callbacks if it's undefined for this event
 		if ( typeof chain == 'undefined')
-			return;	
+			return;
+		// no callbacks for this event
 
 		var obj = [];
 		if (message != "") {
-			try {
-				obj = JSON.parse(message);	
-			} catch (err) {
-				console.log((new Date()) + " JSON parsing error:");
-				console.log((new Date()) + message);
-				return;
-			}
+			obj = JSON.parse(message);
 		}
 
 		for (var i = 0; i < chain.length; i++) {
@@ -173,7 +165,7 @@ function socketserver() {
 				}
 
 				chain[i].apply(null, args);
-				
+				//chain[i] (client, message);
 			} else {
 				console.log((new Date()) + " not a function: ");
 				console.log( typeof (chain[i]));
@@ -620,7 +612,7 @@ function socketserver() {
 
 		var call = createNewCall(caller, recipient, roomId);
 
-		if (caller == null || recipient == null || room == null || call == null) {
+		if (caller == null || recipient == null || room == null) {
 			return;
 		}
 
@@ -1022,12 +1014,10 @@ function socketserver() {
 		 * Add user to call
 		 * @method addUser
 		 * @param called {obj_user} The called user
-		 * @return this
 		 */
 		this.addUser = function(called) {
 			this.users.push(called);
 			called.call = this;
-			return this;
 		}
 
 		/**

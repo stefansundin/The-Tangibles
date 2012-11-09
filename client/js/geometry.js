@@ -227,7 +227,7 @@ Geometry.Transform.prototype.transformImage = function(imageDataIn, dstCanvas, o
 	
 	// Set offset to (0, 0) if none is passed
 	if (!offset) {
-		// console.log("What are you doing here?");
+		console.log("What are you doing here?");
 		offset = {x:0, y:0};
 	}
 	

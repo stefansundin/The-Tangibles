@@ -45,10 +45,8 @@ $(function() {
 		<label for="room_password">Password (optional)</label><br />
 		<input type="password" id="room_password" class="text ui-widget-content ui-corner-all" />
 	</div>
-	<div id="dialog_user_invite" title="Select users to invite">
-		<div id="room_userlist_invite"></div>
-		<div id="room_invite_empty">No users available.</div>
-	</div>
+	<div id="dialog_userlist_room" title="Users in this room"></div>
+	<div id="dialog_user_invite" title="Select users to invite"></div>
 	<div id="dialog_tangible_status" title="Tangible status">
 		<p><b class="status"></b></p>
 		Make sure that:
@@ -58,6 +56,12 @@ $(function() {
 			<li>App is running in Siftdev.</li>
 			<li>SpheroDriver is running.</li>
 		</ol>
+		<b>Connected devices</b><br />
+		<br />
+		Sifteos: <b id="numSifteos">0</b>
+		Spheros: <b id="numSpheros">0</b>
+		<br />
+		<br />
 	</div>
 
 	<!-- Room frame -->
