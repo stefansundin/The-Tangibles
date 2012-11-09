@@ -279,6 +279,7 @@ function Workspace() {
         var transformedVideos = VideoBucket.transformList(videos);
         var mergedImage = Utilities.mergeImages(transformedVideos);
         
+		sharedRect.draw(screenContext);
         if (mergedImage != null) {
             // console.log('drawing merged videos, ' + sharedRect.x + ' ' + sharedRect.width);
             screenContext.drawImage(mergedImage,
@@ -286,7 +287,9 @@ function Workspace() {
                                     sharedRect.y,
                                     sharedRect.width,
                                     sharedRect.height);
-        }
+        } else {
+			screenContext.clearRect(sharedRect.x, sharedRect.y, sharedRect.width, sharedRect.height);
+		}
         
 		setTimeout(function() {self.mergeVideos();}, 1); // 50);
 	}
