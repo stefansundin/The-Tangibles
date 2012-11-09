@@ -169,16 +169,10 @@ function Workspace() {
 		buttons.start();
 		img = new Image();
 		img.src = "img/doneButton.png";
-		//var calibratorButton = new Button(img, calibrator.confirmSharedRectangle);
-		var calibratorButton = new Button(img, this.buttonPressed);
-		var calibratorButton2 = new Button(img, this.buttonPressed2);
-		var calibratorButton3 = new Button(img, this.buttonPressed3);
+		var calibratorButton = new Button(img, calibrator.confirmSharedRectangle);
+		//var calibratorButton = new Button(img, this.buttonPressed);
 		calibratorButton.id = 'done';
-		calibratorButton2.id = 'done2';
-		calibratorButton3.id = 'done3';
 		buttons.addButton(calibratorButton);
-		buttons.addButton(calibratorButton2);
-		buttons.addButton(calibratorButton3);
 		
 		$(document).keypress(function(event) {
 			var keycode = (event.keyCode ? event.keyCode : event.which);
@@ -194,7 +188,7 @@ function Workspace() {
     
     this.onFinishedCalibration = function (sRect, sPoly) {
 		console.log('finished calibration');
-		buttons.deleteButtonId('done2');
+		buttons.deleteButtonId('done');
 		sharedRect = sRect;
 		sharedPoly = sPoly;
 
@@ -209,16 +203,6 @@ function Workspace() {
 		// start merging incoming videos in workspace
 		self.mergeVideos();
 
-	}
-
-	this.buttonPressed3 = function () {
-		console.log('pressed button 3');
-	}
-	this.buttonPressed2 = function () {
-		console.log('pressed button 2');
-	}
-	this.buttonPressed = function () {
-		console.log('pressed button');
 	}
 
 	this.onBroadcast = function (id, nw, ne, se, sw, label) {
