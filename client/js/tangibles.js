@@ -240,10 +240,7 @@ function Tangibles(webRTCSocket) {
 	 * @method onMute
 	 */
 	this.onMute = function() {
-		var room = document.getElementById('roomFrame');
-		room = (room.contentWindow) ? room.contentWindow : (room.contentDocument.document) ? room.contentDocument.document : room.contentDocument;
-		str = room.rtc.streams[0];
-		str.audioTracks[0].enabled = !str.audioTracks[0].enabled;
+		$('#roomFrame').contents().find('video').prop('muted', function(id, old) { return !old; })
 	}
 
 	/**
