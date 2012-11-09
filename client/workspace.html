@@ -173,14 +173,15 @@ function Workspace() {
 		var width = window.innerWidth;
 		var height = window.innerHeight;
 		buttons = new Buttons(screenContext, inverse, video, width, height);
-		buttons.start();
 		img = new Image();
 		img.src = "img/doneButton.png";
-		var calibratorButton = new Button(img, calibrator.confirmSharedRectangle, calibrator);
-		//var calibratorButton = new Button(img, this.buttonPressed);
+		var calibratorButton = new Button(img, calibrator.confirmSharedRectangle);
 		calibratorButton.id = 'done';
 		buttons.addButton(calibratorButton);
 		
+		buttons.draw();
+		buttons.start();
+
 		$(document).keypress(function(event) {
 			var keycode = (event.keyCode ? event.keyCode : event.which);
 			if (keycode == 13) {
@@ -212,6 +213,10 @@ function Workspace() {
 
 	}
 
+	this.buttonPressed = function () {
+		console.log('pressed button');
+	}
+
 	this.onBroadcast = function (id, nw, ne, se, sw, label) {
         
 		console.log('got broadcast, ' + label);
@@ -222,7 +227,7 @@ function Workspace() {
                 v.setTransform([nw, ne, se, sw], sharedRect);
 
 				// enable buttons
-				b = new Button(v.video, v.toggleEnabled, v)
+				b = new Button(v.video, v.toggleEnabled)
 				b.id = v.video.id;
 				buttons.addButton(b);
             }
@@ -241,7 +246,7 @@ function Workspace() {
                 v.setTransform([nw, ne, se, sw], sharedRect);
 				
 				// enable buttons
-				b = new Button(v.video, v.toggleEnabled, v)
+				b = new Button(v.video, v.toggleEnabled)
 				b.id = v.video.id;
 				buttons.addButton(b);
             }
