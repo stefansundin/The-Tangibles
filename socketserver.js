@@ -145,14 +145,22 @@ function socketserver() {
 	function fire(event_name, client, message) {
 		console.log((new Date()) + " Firing: " + event_name);
 		console.log((new Date()) + " Message: " + message);
+		
 		var chain = callbacks[event_name];
+		
+		// no callbacks if it's undefined for this event
 		if ( typeof chain == 'undefined')
-			return;
-		// no callbacks for this event
+			return;	
 
 		var obj = [];
 		if (message != "") {
-			obj = JSON.parse(message);
+			try {
+				obj = JSON.parse(message);	
+			} catch (err) {
+				console.log((new Date()) + " JSON parsing error:");
+				console.log((new Date()) + message);
+				return;
+			}
 		}
 
 		for (var i = 0; i < chain.length; i++) {
@@ -165,7 +173,7 @@ function socketserver() {
 				}
 
 				chain[i].apply(null, args);
-				//chain[i] (client, message);
+				
 			} else {
 				console.log((new Date()) + " not a function: ");
 				console.log( typeof (chain[i]));
@@ -492,9 +500,6 @@ function socketserver() {
 				sendMessageToRoom(user.id, user.roomId, API_INVITE_LEAVE, data);
 
 				user.call.removeUser(user);
-				user.incall = false;
-				console.log(user.call)
-				
 				// TODO: What should the remaning users do in the call?
 				// 1. They should be able to continiue the call
 				// 2. They should also end the call? (maybe if the first caller leaves the call)
@@ -926,14 +931,10 @@ function socketserver() {
 		var call;
 		if (caller.inCall) {
 			call = caller.call.addUser(called);
-			console.log("createNewCall 1");
 		} else {
 			call = new obj_call(caller, called, roomId);
 			lCalls.push(call);
-			console.log("createNewCall 2");
 		}
-
-		console.log(call);
 
 		return call;
 	}
@@ -1021,10 +1022,12 @@ function socketserver() {
 		 * Add user to call
 		 * @method addUser
 		 * @param called {obj_user} The called user
+		 * @return this
 		 */
 		this.addUser = function(called) {
 			this.users.push(called);
 			called.call = this;
+			return this;
 		}
 
 		/**
