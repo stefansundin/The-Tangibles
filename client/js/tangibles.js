@@ -193,12 +193,6 @@ function Tangibles(webRTCSocket) {
 		}
 	}
 
-	this.onMute = function() {
-		var room = document.getElementById('roomFrame');
-		room = (room.contentWindow) ? room.contentWindow : (room.contentDocument.document) ? room.contentDocument.document : room.contentDocument;
-		str = room.rtc.streams[0];
-		str.audioTracks[0].enabled = !str.audioTracks[0].enabled;
-	}
 
 	// Call control
 	/**
@@ -239,6 +233,17 @@ function Tangibles(webRTCSocket) {
 				}
 			});
 		}
+	}
+
+	/**
+	 * Mute the local sound from sending.
+	 * @method onMute
+	 */
+	this.onMute = function() {
+		var room = document.getElementById('roomFrame');
+		room = (room.contentWindow) ? room.contentWindow : (room.contentDocument.document) ? room.contentDocument.document : room.contentDocument;
+		str = room.rtc.streams[0];
+		str.audioTracks[0].enabled = !str.audioTracks[0].enabled;
 	}
 
 	/**
