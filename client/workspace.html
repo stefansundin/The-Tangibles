@@ -150,7 +150,7 @@ function Workspace() {
 		rtc.on('disconnect stream', function(data) {
 				console.log('remove ' + data);
 				self.removeVideo(data);
-				buttons.deleteButtonId('remote' + socketId);
+				buttons.deleteButtonId('remote' + data);
 			});
 		this.initFullScreen();
 	}
