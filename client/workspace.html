@@ -274,6 +274,7 @@ function Workspace() {
         var transformedVideos = VideoBucket.transformList(videos);
         var mergedImage = Utilities.mergeImages(transformedVideos);
         
+		sharedRect.draw(screenContext);
         if (mergedImage != null) {
             // console.log('drawing merged videos, ' + sharedRect.x + ' ' + sharedRect.width);
             screenContext.drawImage(mergedImage,
