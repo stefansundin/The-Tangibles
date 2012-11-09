@@ -492,7 +492,7 @@ function socketserver() {
 				sendMessageToRoom(user.id, user.roomId, API_INVITE_LEAVE, data);
 
 				user.call.removeUser(user);
-				user.incall = false;
+				user.inCall = false;
 				console.log(user.call)
 				
 				// TODO: What should the remaning users do in the call?
