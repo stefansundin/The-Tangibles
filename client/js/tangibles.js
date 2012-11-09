@@ -204,6 +204,7 @@ function Tangibles(webRTCSocket) {
 		if (!self.registered) return;
 		var enabled = true;
 
+		/** Not working do don't show
 		if (this.sifteos.length >= 1) {
 			this.showText(this.sifteos[0], 'Blank Workspace', '000000', 'FFFFFF');
 			this.sifteos[0].pressListeners.push(function(msg) {
@@ -212,6 +213,7 @@ function Tangibles(webRTCSocket) {
 				}
 			});
 		}
+		*/
 
 		if (this.sifteos.length >= 2) {
 			this.showTextPic(this.sifteos[1], 'http://'+ window.location.host +'/img/deny.png', 'Hangup', '000000', 'FFFFFF');
@@ -225,6 +227,7 @@ function Tangibles(webRTCSocket) {
 			});
 		}
 
+		/** Not working so don't show...
 		if (this.sifteos.length >= 3) {
 			this.showTextPic(this.sifteos[2], 'http://'+ window.location.host +'/img/mute.png', 'Mute', '000000', 'FFFFFF');
 			this.sifteos[2].pressListeners.push(function(msg) {
@@ -233,6 +236,7 @@ function Tangibles(webRTCSocket) {
 				}
 			});
 		}
+		*/
 	}
 
 	/**
