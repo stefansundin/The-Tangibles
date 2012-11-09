@@ -24,6 +24,7 @@
 <div id="notice">This is the workspace view. Choose the appropriate camera and move this window to where you want it.</div>
 <div>
 <button id="fullscreen">Enter Full Screen</button>
+<button id="qr">QR-code</button>
 </div>
 <center>
 <canvas id ="myCanvas" style="width: 100%; height: 100%"></canvas>
@@ -39,6 +40,7 @@ var c = $('#myCanvas');
 c.hide();
 
 var fullscreen = $('#fullscreen');
+var qr = $('#qr');
 
 var notice = $('#notice');
 
@@ -50,7 +52,7 @@ function Workspace() {
 	var sharedRect, sharedPoly, transform;
 	var videos = [];
 	var videoObj;
-	var PeerConnection = window.PeerConnection || window.webkitPeerConnection00;
+	var PeerConnection = window.webkitRTCPeerConnection;
 	var buttons;
 	var cb, cs;
 
@@ -95,6 +97,10 @@ function Workspace() {
 
 	this.initFullScreen = function () { 
 
+		qr.click(function(event) {
+			//TODO add qr stuff
+		});
+
 		fullscreen.click(function(event) {
 				var element = document.body;
 				var requestMethod = element.requestFullScreen || element.webkitRequestFullScreen || element.mozRequestFullScreen || element.msRequestFullScreen; 
@@ -104,6 +110,7 @@ function Workspace() {
 				}
 				notice.hide();
 				fullscreen.hide();
+				qr.hide();
 				self.startCalibration();
 			});
 	} 
