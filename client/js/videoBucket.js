@@ -48,7 +48,7 @@ VideoBucket.prototype.setTransform = function(poly, rect) {
 	
 	this.videoCropRect = cropRect;
 	
-	console.log("Crop rectangle:");
+	console.log('Crop rectangle:');
 	console.log(cropRect);
 }
 
@@ -59,6 +59,7 @@ VideoBucket.prototype.toggleEnabled = function() {
 VideoBucket.prototype.transformVideo = function() {
     
     if (this.transform == null || !this.enabled) {
+		/*
 		console.log("VideoBucket.prototype.transformVideo returning:");
 		if (this.transform == null) {
 			console.log("transform is null");
@@ -66,21 +67,23 @@ VideoBucket.prototype.transformVideo = function() {
 		if (!this.enabled) {
 			console.log("not enabled");
 		}
+		 */
 		return null;
     }
     
-	
     var	x = this.videoCropRect.x,
 		y = this.videoCropRect.y,
 		w = this.videoCropRect.width,
         h = this.videoCropRect.height;
+	
 	/*
 	 First x, y, w and h need to be relative to the camera's native resolution
 	 in order for this to work..
-    this.videoContext.drawImage(this.video,
+    
+	 this.videoContext.drawImage(this.video,
 								x, y, w, h,
 								0, 0, w, h);
-    var imageData = this.videoContext.getImageData(0, 0, w, h);
+	 var imageData = this.videoContext.getImageData(0, 0, w, h);
      */
 
     this.videoContext.drawImage(this.video, 0, 0, this.video.width, this.video.height);
