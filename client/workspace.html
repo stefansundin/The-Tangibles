@@ -281,7 +281,9 @@ function Workspace() {
                                     sharedRect.y,
                                     sharedRect.width,
                                     sharedRect.height);
-        }
+        } else {
+			screenContext.clearRect(sharedRect.x, sharedRect.y, sharedRect.width, sharedRect.height);
+		}
         
 		setTimeout(function() {self.mergeVideos();}, 1); // 50);
 	}
