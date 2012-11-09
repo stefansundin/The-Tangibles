@@ -203,7 +203,7 @@ Button.prototype.checkPressed = function (contextBlended, p1, p4) {
 	// calculate an average between of the color values of the note area
 	average = Math.round(average / (blendedData.data.length * 0.25));
 	// TODO decide open a value
-	if (average > 40 && !this.pressed) {
+	if (average > 150 && !this.pressed) {
 		console.log(average);
 		this.pressed = true;
 		this.enabled = !this.enabled;
