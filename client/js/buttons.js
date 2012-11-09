@@ -1,6 +1,6 @@
 /*
-	Contanier class for handling all the buttons
-*/
+   Contanier class for handling all the buttons
+ */
 var Buttons = function (c, transform, v, w, h) {
 	this.video = v;
 	this._ctx = c;
@@ -13,6 +13,7 @@ var Buttons = function (c, transform, v, w, h) {
 
 	this.addButton = function (button) {
 		this.listOfButtons.push(button)
+			setTimeout(function () { button.pressed = false; }, 3000);
 	}
 
 	this.deleteButtonId = function (id) {
@@ -42,29 +43,31 @@ var Buttons = function (c, transform, v, w, h) {
 	}
 
 	this.draw = function () {
+		if (this.listOfButtons.length < 1) {
+			this._ctx.clearRect(0, 0, this.width + 20, this.maxHeight);
+			return;
+		}
 		var x = 10;
-		var y = 10;
+		var y = 20;
 		for (i in this.listOfButtons) {
 			if (y + this.height > this.maxHeight) {
 				break;
 			}
-			y = y + i * (this.height + 10);
+			y = 10 + i * (this.height + 20);
 			this.listOfButtons[i].draw(this._ctx, x, y, this.width, this.height);
 		}
 		// clear everything below the last button
-		this._ctx.clearRect(0, y + this.height + 2, this.width + 10, this.maxHeight);
-		var self = this;
-		this.i = window.setInterval(function () {self.draw();},  50);
+		this._ctx.clearRect(0, y + this.height + 2, this.width + 20, this.maxHeight);
 	}
 
 	this.checkPressed = function (contextBlended) {
 		var x = 10;
-		var y = 10;
+		var y = 20;
 		for (i in this.listOfButtons) {
 			if (y + this.height > this.maxHeight) {
 				break;
 			}
-			y = y + i * (this.height + 10);
+			y = y + i * (this.height + 20);
 			var p1 = new Object();
 			p1.x = x;
 			p1.y = y;
@@ -73,25 +76,47 @@ var Buttons = function (c, transform, v, w, h) {
 			p2.y = y + this.height;
 			p1 = transform.transformPoint(p1);
 			p2 = transform.transformPoint(p2);
+			//console.log(p1);
+			//console.log(p2);
+			// take into account that only a subset of video is used
+			//p1.x = p1.x - this.p1.x;
+			//p1.y = p1.y - this.p1.y;
+			//p2.x = p2.x - this.p1.x;
+			//p2.y = p2.y - this.p1.y;
+			//console.log(p1);
+			//console.log(p2);
 
 			this.listOfButtons[i].checkPressed(this.contextBlended, p1, p2);
 		}
 	}
 
 	this.start = function () {
-		// activate buttons after 3 seconds
-		for (i in this.listOfButtons) {
-			var self = this;
-			setTimeout(function () { self.listOfButtons[i].pressed = false; }, 3000);
-		}
-		var canvasSource = MediaExt.createCanvas(CANVAS_WIDTH, CANVAS_HEIGHT);
-		var canvasBlended = MediaExt.createCanvas(CANVAS_WIDTH, CANVAS_HEIGHT);
+		// only use a subset of video
+		this.p1 = new Object();
+		this.p1.x = 0;
+		this.p1.y = 0;
+		this.p2 = new Object();
+		this.p2.x = this.width*2;
+		this.p2.y = this.maxHeight;
+		this.p1 = transform.transformPoint(this.p1);
+		this.p2 = transform.transformPoint(this.p2);
+		//console.log(this.p1);
+		//console.log(this.p2);
+		this.p1.x = 0;
+		this.p1.y = 0;
+		this.p2.x = this.video.width;
+		this.p2.y = this.video.height;
+
+		var canvasSource = MediaExt.createCanvas(this.p2.x-this.p1.x, this.p2.y-this.p1.y);
+		var canvasBlended = MediaExt.createCanvas(this.p2.x-this.p1.x, this.p2.y-this.p1.y);
 		this.contextSource = canvasSource.getContext('2d');
 		this.contextBlended = canvasBlended.getContext('2d');
 		this.update();
 	}
 
 	this.update = function () {
+		//console.log('checking buttons');
+		this.draw();
 		if (this.listOfButtons.length > 0) {
 			this.drawVideo();
 			this.blend();
@@ -103,7 +128,7 @@ var Buttons = function (c, transform, v, w, h) {
 	}
 
 	this.drawVideo = function () {
-		this.contextSource.drawImage(this.video, 0, 0, this.video.width, this.video.height);
+		this.contextSource.drawImage(this.video, this.p1.x, this.p1.y, this.p2.x-this.p1.x, this.p2.y-this.p1.y);
 	}
 
 	this.blend = function () {
@@ -150,12 +175,13 @@ var Buttons = function (c, transform, v, w, h) {
 }
 
 /*
-	Class for a simple button with an image or video
-*/
-var Button = function (image, method) {
+   Class for a simple button with an image or video
+ */
+var Button = function (image, method, target) {
 	this.method = method; // method to invoke when pressed
 	this.image = image; // image to draw
 	this.id = null;
+	this.target = target;
 
 	this.pressed = true;
 	this.enabled = true;
@@ -163,7 +189,7 @@ var Button = function (image, method) {
 
 Button.prototype.checkPressed = function (contextBlended, p1, p4) {
 	var blendedData = contextBlended.getImageData(p1.x, p1.y, p4.x-p1.x, p4.y-p1.y);
-	//var blendedData = contextBlended.getImageData(500, 100, 100, 100);
+
 	var i = 0;
 	var average = 0;
 	// loop over the pixels
@@ -174,17 +200,13 @@ Button.prototype.checkPressed = function (contextBlended, p1, p4) {
 	}
 	// calculate an average between of the color values of the note area
 	average = Math.round(average / (blendedData.data.length * 0.25));
-	console.log(average);
 	// TODO decide open a value
-	if (average > 20 && !this.pressed) {
+	if (average > 40 && !this.pressed) {
+		console.log(average);
 		this.pressed = true;
-		if (this.enabled) {
-			this.enabled = false;
-		} else {
-			this.enabled = true;
-		}
+		this.enabled = !this.enabled;
 		if (!!(this.method && this.method.constructor && this.method.call && this.method.apply)) {
-			this.method();
+			this.method.call(this.target);
 		}
 		var self = this;
 		setTimeout(function () { self.pressed = false; }, 1000);
@@ -197,7 +219,8 @@ Button.prototype.draw = function (ctx, x, y, width, height) {
 	} else {
 		ctx.strokeStyle = 'black'
 	}
-	
+
 	ctx.strokeRect(x, y, width, height);
 	ctx.drawImage(this.image, x, y, width, height);
 }
+
