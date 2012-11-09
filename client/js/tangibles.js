@@ -316,7 +316,7 @@ function Tangibles(webRTCSocket) {
 			self.registered = true;
 			self.registerDevices();
 			self.openServerAPI();
-		}, self.err2('Could not connect to TangibleAPI'));
+		}, self.err2('Could not connect to TangibleAPI.'));
 	}
 
 	/**
@@ -334,18 +334,18 @@ function Tangibles(webRTCSocket) {
 						var device = {id:r.msg, subscribed:false, pressListeners:[]};
 						self.listenToEvents(device);
 						self.sifteos.push(device);
-					}, self.err);
+					}, self.err2('Could not register sifteos.'));
 				} else if (self.isSphero(devid)) {
 					self.api.reserveDevice(devid, function(r) {
 						var device = {id:r.msg, subscribed:false, gyroListeners:[], accListeners:[]};
 						self.listenToEvents(device);
 						self.sphero.push(device);
 						self.setColor(device, 'FFFFFF');
-					}, self.err);
+					}, self.err2('Could not register sphero.'));
 				}
 			}
 			self.sifteos.sort(function(a,b) { return parseInt(a.id,16) < parseInt(b.id,16) });
-		}, this.err);
+		}, this.err2('Could not get devices, is the driver running?'));
 	}
 
 	/**
