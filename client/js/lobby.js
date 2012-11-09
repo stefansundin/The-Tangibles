@@ -29,14 +29,14 @@ function Lobby() {
  */
 Lobby.prototype.init = function() {
 	var self = this;
-	
+
 	// Automatically close the workspace
 	window.onbeforeunload = function() {
 		if(self.workspaceOpen) {
 			self.workspaceWindow.close();
 		}
 	};
-	
+
 	$('#room_password, label[for=room_password]').hide(); // TODO Fix passwords?
 
 	$('#main, #top, #call_list, #roomFrame, #splash, #room_toolbar, #roomFrame, #room_table tfoot, #tangible_status').hide();
@@ -189,6 +189,8 @@ Lobby.prototype.init = function() {
 		resizable : false,
 		open : function(event, ui) {
 			$('.status',this).text($('#tangible_status').attr('title'));
+			$('#numSifteos').text(tangibles.sifteos.length);
+			$('#numSpheros').text(tangibles.sphero.length);
 		},
 		buttons : {
 			OK : function() {
@@ -334,7 +336,7 @@ Lobby.prototype.loadMain = function() {
 
 	$('#header, #main, #top, #call_list, #tangible_status').show();
 	$('#room_toolbar, #roomFrame, #splash').hide();
-	
+
 	this.hideRoomHeader = false;
 	this.updateRoomToolbar();
 
@@ -371,7 +373,7 @@ Lobby.prototype.onSocketClose = function() {
 	}
 
 	$('#server_loading').show();
-	
+
 	if (this.ownRoomId != this.lobbyId) {
 		this.leaveRoom();
 		// TODO Fix so it stays in the room? (will requre changes in webrtc files...)
@@ -385,7 +387,7 @@ Lobby.prototype.onSocketClose = function() {
 
 /**
  * Searches for and returns the index if found, -1 otherwise.
- * 
+ *
  * @param roomId
  *            The ID to look for
  * @returns {Number}
@@ -402,7 +404,7 @@ Lobby.prototype.findRoomIndex = function(roomId) {
 
 /**
  * Searches for and returns the index if found, -1 otherwise.
- * 
+ *
  * @param userId
  *            The ID to look for
  * @returns {Number}
@@ -419,7 +421,7 @@ Lobby.prototype.findUserIndex = function(userId) {
 
 /**
  * Gets a list of all users in a room.
- * 
+ *
  * @param roomId
  *            Room to look for
  * @returns {Array}
@@ -437,7 +439,7 @@ Lobby.prototype.getUsersInRoom = function(roomId) {
 /**
  * Changes the user name to a new name if it isn't the empty string. Called when
  * the user clicks OK in the select user name dialog.
- * 
+ *
  * @param newName
  *            The new user name
  */
@@ -460,7 +462,7 @@ Lobby.prototype.changeOwnName = function(newName) {
 /**
  * Adds all rooms and remote users to the page. Should be called when the page
  * is loaded.
- * 
+ *
  * @param rooms
  *            A list of rooms
  * @param users
@@ -492,7 +494,7 @@ Lobby.prototype.onLobbyLoad = function(rooms, users) {
 /**
  * Lets the user select a room name. The room is then created. Called when the
  * create room button is clicked.
- * 
+ *
  * @param roomName
  *            Name of the new room
  */
@@ -516,7 +518,7 @@ Lobby.prototype.createRoom = function(roomName) {
 
 /**
  * Deletes a room on the server.
- * 
+ *
  * @param roomId
  *            ID to delete
  */
@@ -533,7 +535,7 @@ Lobby.prototype.deleteRoom = function(roomId) {
 /**
  * Callback function for when the room has been created. The user will be
  * redirected to the new room.
- * 
+ *
  * @param roomId
  *            ID of the room created.
  */
@@ -543,7 +545,7 @@ Lobby.prototype.onRoomCreated = function(roomId) {
 
 /**
  * Redirects the user to a room with a given id.
- * 
+ *
  * @param roomId
  *            ID of the room
  */
@@ -570,9 +572,9 @@ Lobby.prototype.enterRoom = function(roomId) {
 			'<span class="room_' + roomId + '">' + roomName + '</span>');
 
 	$('#room_toolbar').show();
-	
+
 	$('#room_leave').removeClass('ui-state-hover');
-	
+
 	this.hideRoomHeader = true;
 	this.updateRoomToolbar();
 	$('#main').hide();
@@ -606,7 +608,7 @@ Lobby.prototype.leaveRoom = function() {
 
 /**
  * Changes the name of a room.
- * 
+ *
  * @param roomId
  *            ID of the room
  * @param roomName
@@ -629,7 +631,7 @@ Lobby.prototype.onRoomChangeName = function(roomId, roomName) {
 /**
  * Adds a room to the page if the ID doesn't exist. Should be called when a new
  * room is available on the server.
- * 
+ *
  * @param roomId
  *            ID of the added room
  * @param roomName
@@ -689,7 +691,7 @@ Lobby.prototype.onRoomAdd = function(roomId, roomName, roomDesc, roomType) {
 /**
  * Deletes a room from the page. Should be called when a room is deleted on the
  * server.
- * 
+ *
  * @param roomId
  *            ID of the deleted room
  */
@@ -713,7 +715,7 @@ Lobby.prototype.onRoomDelete = function(roomId) {
 
 /**
  * Called when a room is clicked.
- * 
+ *
  * @param roomId
  *            ID of the room
  */
@@ -733,7 +735,7 @@ Lobby.prototype.onRoomClick = function(roomId) {
 
 /**
  * Called when a user enters a room.
- * 
+ *
  * @param userId
  *            ID of the user
  * @param roomId
@@ -763,7 +765,7 @@ Lobby.prototype.onUserEnterRoom = function(userId, roomId) {
 			})).append($('<span/>', {
 				text : ', '
 			})));
-			
+
 			if (roomId == this.lobbyId && this.ownRoomId != this.lobbyId && userId != this.ownId) {
 				$('#room_userlist_invite').append($('<div/>', {
 					class : 'remote_user_' + this.users[user_index][0]
@@ -784,7 +786,7 @@ Lobby.prototype.onUserEnterRoom = function(userId, roomId) {
 
 /**
  * Called when the user leaves a room.
- * 
+ *
  * @param userId
  *            ID of the user
  */
@@ -799,7 +801,7 @@ Lobby.prototype.onUserLeaveRoom = function(userId) {
 
 		// Remove the user from the list
 		$('.remote_user_' + this.users[user_index][0]).remove();
-		
+
 		if ($('#room_userlist_invite').children().length == 0) {
 			$('#room_invite_empty').show();
 		}
@@ -808,7 +810,7 @@ Lobby.prototype.onUserLeaveRoom = function(userId) {
 
 /**
  * Changes the name of a remote user.
- * 
+ *
  * @param userId
  *            Users ID
  * @param userName
@@ -829,7 +831,7 @@ Lobby.prototype.onUserChangeName = function(userId, userName) {
 /**
  * Adds a remote user to the list. Should be called when a user enters the
  * server.
- * 
+ *
  * @param userId
  *            ID of the remote user that entered
  * @param userName
@@ -851,7 +853,7 @@ Lobby.prototype.onUserEnter = function(userId, userName, roomId) {
 /**
  * Removes a remote user from the list. Should be called when a user leaves the
  * server.
- * 
+ *
  * @param userId
  *            ID of the remote user that left
  */
@@ -866,7 +868,7 @@ Lobby.prototype.onUserLeave = function(userId) {
 		// Remove from list
 		this.users.splice(index, 1);
 		$('.remote_user_' + userId).remove();
-		
+
 		if ($('#room_userlist_invite').children().length == 0) {
 			$('#room_invite_empty').show();
 		}
@@ -875,7 +877,7 @@ Lobby.prototype.onUserLeave = function(userId) {
 
 /**
  * Invites a user to the current room if it exists.
- * 
+ *
  * @param userId
  *            The user to be invited
  */
@@ -898,7 +900,7 @@ Lobby.prototype.inviteUser = function(userId) {
  * Notifies the user that there is an incoming call. A call is auto-declined
  * after a specified time. Should be called when the user has been invited to a
  * room.
- * 
+ *
  * @param userName
  *            Name of the inviter
  * @param roomName
@@ -952,7 +954,7 @@ Lobby.prototype.onIncomingCall = function(userName, roomName, callId) {
 /**
  * Removes the notification and accepts the call. Called when the user clicked
  * accept.
- * 
+ *
  * @param callId
  *            ID of the call that was accepted
  */
@@ -982,7 +984,7 @@ Lobby.prototype.accept = function(callId) {
 /**
  * Callback function for when the call has been accepted. The user will be
  * redirected to the room.
- * 
+ *
  * @param roomId
  */
 Lobby.prototype.onCallAccepted = function(roomId) {
@@ -992,7 +994,7 @@ Lobby.prototype.onCallAccepted = function(roomId) {
 /**
  * Callback function for when the call has been declined. This will just remove
  * the call div.
- * 
+ *
  * @param callId
  */
 Lobby.prototype.onCallDeclined = function(callId) {
@@ -1009,7 +1011,7 @@ Lobby.prototype.onCallDeclined = function(callId) {
 /**
  * Removes the notification and declines the call. Called when the user clicked
  * decline or when the timeout expired.
- * 
+ *
  * @param callId
  *            ID of the call that was declined
  */
@@ -1039,7 +1041,7 @@ Lobby.prototype.decline = function(callId) {
 /**
  * Counts down the auto-decline timeout by one second. A counter is displayed
  * when there its less or equal to 10 seconds remaining.
- * 
+ *
  * @param callId
  *            ID of the call
  * @param timeLeft
@@ -1089,7 +1091,7 @@ Lobby.prototype.updateRoomToolbar = function() {
 		$('#header .small').hide();
 		$('#header').css('height', '');
 	}
-	
+
 	this.updateChatButton();
 
 	this.updateWorkspaceButton();
