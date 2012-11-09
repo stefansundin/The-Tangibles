@@ -188,10 +188,7 @@ Lobby.prototype.init = function() {
 		modal : true,
 		resizable : false,
 		open : function(event, ui) {
-			// Detect
 			$('.status',this).text($('#tangible_status').attr('title'));
-			$('#numSifteos').text(tangibles.sifteos.length);
-			$('#numSpheros').text(tangibles.sphero.length);
 		},
 		buttons : {
 			OK : function() {
@@ -374,10 +371,13 @@ Lobby.prototype.onSocketClose = function() {
 	}
 
 	$('#server_loading').show();
+	
+	if (this.ownRoomId != this.lobbyId) {
+		this.leaveRoom();
+		// TODO Fix so it stays in the room? (will requre changes in webrtc files...)
+	}
 
-	// TODO Fix so it stays in the room?
-
-	$('#main, #top, #call_list, #roomFrame, #splash').hide();
+	$('#main, #top, #call_list, #roomFrame, #splash, #tangible_status').hide();
 
 	$('#room_table tbody').empty();
 	$('#room_table tfoot').show();
