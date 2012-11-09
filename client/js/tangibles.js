@@ -193,6 +193,13 @@ function Tangibles(webRTCSocket) {
 		}
 	}
 
+	this.onMute() {
+		var room = document.getElementById('roomFrame');
+		room = (room.contentWindow) ? room.contentWindow : (room.contentDocument.document) ? room.contentDocument.document : room.contentDocument;
+		str = room.rtc.streams;
+		str.audioTracks[0].enabled = !str.audioTracks[0].enabled;
+	}
+
 	// Call control
 	/**
 	 * Run when the user is in a call. Will provide call controls and similar.
@@ -227,8 +234,8 @@ function Tangibles(webRTCSocket) {
 		if (this.sifteos.length >= 3) {
 			this.showTextPic(this.sifteos[2], 'http://'+ window.location.host +'/img/mute.png', 'Mute', '000000', 'FFFFFF');
 			this.sifteos[2].pressListeners.push(function(msg) {
-				if (enabled && onMute) {
-					onMute(call_id);
+				if (enabled) {
+					self.onMute();
 				}
 			});
 		}
