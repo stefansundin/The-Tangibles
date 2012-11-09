@@ -179,10 +179,11 @@ var Buttons = function (c, transform, v, w, h) {
 /*
 	Class for a simple button with an image or video
 */
-var Button = function (image, method) {
+var Button = function (image, method, target) {
 	this.method = method; // method to invoke when pressed
 	this.image = image; // image to draw
 	this.id = null;
+	this.target = target;
 
 	this.pressed = true;
 	this.enabled = true;
@@ -208,7 +209,7 @@ Button.prototype.checkPressed = function (contextBlended, p1, p4) {
 		this.enabled = !this.enabled;
 		console.log('button presseeeed');
 		if (!!(this.method && this.method.constructor && this.method.call && this.method.apply)) {
-			this.method();
+			this.method.call(this.target);
 		}
 		var self = this;
 		setTimeout(function () { self.pressed = false; }, 1000);

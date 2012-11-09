@@ -169,7 +169,7 @@ function Workspace() {
 		buttons.start();
 		img = new Image();
 		img.src = "img/doneButton.png";
-		var calibratorButton = new Button(img, calibrator.confirmSharedRectangle);
+		var calibratorButton = new Button(img, calibrator.confirmSharedRectangle, calibrator);
 		//var calibratorButton = new Button(img, this.buttonPressed);
 		calibratorButton.id = 'done';
 		buttons.addButton(calibratorButton);
@@ -215,7 +215,7 @@ function Workspace() {
                 v.setTransform([nw, ne, se, sw], sharedRect);
 
 				// enable buttons
-				b = new Button(v.video, v.toggleEnabled)
+				b = new Button(v.video, v.toggleEnabled, v)
 				b.id = v.video.id;
 				buttons.addButton(b);
             }
@@ -234,7 +234,7 @@ function Workspace() {
                 v.setTransform([nw, ne, se, sw], sharedRect);
 				
 				// enable buttons
-				b = new Button(v.video, v.toggleEnabled)
+				b = new Button(v.video, v.toggleEnabled, v)
 				b.id = v.video.id;
 				buttons.addButton(b);
             }
