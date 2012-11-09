@@ -36,7 +36,7 @@ VideoBucket.prototype.setTransform = function(poly, rect) {
     this.transformContext = this.transformCanvas.getContext("2d");
     this.transform = new Geometry.PolyToCanvasTransform(poly, this.transformCanvas);
 	
-	this.videoCanvas = MediaExt.createCanvas(rect.width, rect.height);
+	this.videoCanvas = MediaExt.createCanvas(this.video.width, this.video.height);
     this.videoContext = this.videoCanvas.getContext("2d");
 	
 	var padding = 5;
