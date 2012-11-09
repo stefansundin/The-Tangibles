@@ -168,12 +168,9 @@ function Workspace() {
 		buttons = new Buttons(screenContext, inverse, video, width, height);
 		img = new Image();
 		img.src = "img/doneButton.png";
-		calibratorButton = new Button(img, this.buttonPressed);
+		var calibratorButton = new Button(img, calibrator.confirmSharedRectangle);
 		calibratorButton.id = 'done';
 		buttons.addButton(calibratorButton);
-		var c2 = new Button(img, this.buttonPressed);
-		c2.id = 'done';
-		buttons.addButton(c2);
 		
 		buttons.draw();
 		buttons.start();
