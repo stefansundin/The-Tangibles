@@ -53,6 +53,7 @@ VideoBucket.prototype.setTransform = function(poly, rect) {
 }
 
 VideoBucket.prototype.toggleEnabled = function() {
+	console.log('toggle change');
 	this.enabled = !this.enabled;
 }
 
