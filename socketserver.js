@@ -492,9 +492,6 @@ function socketserver() {
 				sendMessageToRoom(user.id, user.roomId, API_INVITE_LEAVE, data);
 
 				user.call.removeUser(user);
-				user.inCall = false;
-				console.log(user.call)
-				
 				// TODO: What should the remaning users do in the call?
 				// 1. They should be able to continiue the call
 				// 2. They should also end the call? (maybe if the first caller leaves the call)
@@ -925,18 +922,11 @@ function socketserver() {
 		}
 		var call;
 		if (caller.inCall) {
-			console.log("¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤4");
-			console.log(caller.call);
-			console.log("¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤4");
 			call = caller.call.addUser(called);
-			console.log("createNewCall 1");
 		} else {
 			call = new obj_call(caller, called, roomId);
 			lCalls.push(call);
-			console.log("createNewCall 2");
 		}
-
-		console.log(call);
 
 		return call;
 	}
@@ -1024,10 +1014,12 @@ function socketserver() {
 		 * Add user to call
 		 * @method addUser
 		 * @param called {obj_user} The called user
+		 * @return this
 		 */
 		this.addUser = function(called) {
 			this.users.push(called);
 			called.call = this;
+			return this;
 		}
 
 		/**
