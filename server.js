@@ -84,6 +84,14 @@ app.get('/img/mute.png', function(req, res) {
 	res.sendfile(__dirname + '/client/img/mute.png');
 });
 
+app.get('/img/sifteo_qr956.png', function(req, res) {
+	res.sendfile(__dirname + '/client/img/sifteo_qr956.png');
+});
+
+app.get('/img/sifteo_qr188.png', function(req, res) {
+	res.sendfile(__dirname + '/client/img/sifteo_qr188.png');
+});
+
 app.get('/js/tangibleLib.js', function(req, res) {
 	res.sendfile(__dirname + '/client/js/tangibleLib.js');
 });
@@ -143,7 +151,7 @@ webRTC.rtc.on('connect', function(rtc) {
 	//Client connected
 	//console.log("WEBRTC: connect");
 	//console.log(rtc.rooms);
-	
+
 	console.log(rtc);
 });
 
