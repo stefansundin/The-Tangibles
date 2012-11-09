@@ -492,6 +492,9 @@ function socketserver() {
 				sendMessageToRoom(user.id, user.roomId, API_INVITE_LEAVE, data);
 
 				user.call.removeUser(user);
+				
+				console.log(user.call)
+				
 				// TODO: What should the remaning users do in the call?
 				// 1. They should be able to continiue the call
 				// 2. They should also end the call? (maybe if the first caller leaves the call)
@@ -612,7 +615,7 @@ function socketserver() {
 
 		var call = createNewCall(caller, recipient, roomId);
 
-		if (caller == null || recipient == null || room == null) {
+		if (caller == null || recipient == null || room == null || call == null) {
 			return;
 		}
 
@@ -923,10 +926,14 @@ function socketserver() {
 		var call;
 		if (caller.inCall) {
 			call = caller.call.addUser(called);
+			console.log("createNewCall 1");
 		} else {
 			call = new obj_call(caller, called, roomId);
 			lCalls.push(call);
+			console.log("createNewCall 2");
 		}
+
+		console.log(call);
 
 		return call;
 	}

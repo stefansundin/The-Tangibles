@@ -26,7 +26,7 @@ function init() {
 	
 	if (PeerConnection) {
 		rtc.createStream({'video': true, 'audio': true}, function(stream){
-			// TODO Maybe show a small video of self
+			rtc.attachStream(stream, 'you');
 		});
 	} else {
 		alert('You are not using a browser with webkitRTCPeerConnection support. Either use Canary or wait for Chrome to be updated.');

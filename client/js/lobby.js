@@ -56,15 +56,14 @@ Lobby.prototype.init = function() {
 		modal : true,
 		resizable : false,
 		open : function(event, ui) {
-			$(this).empty();
-			// TODO Append with new users??
+			$('#room_userlist_invite').empty();
 
 			var empty = true;
 
 			for ( var i = 0; i < self.users.length; i++) {
-				if (self.users[i][0] != self.ownId) {
+				if (self.users[i][0] != self.ownId && self.users[i][2] == self.lobbyId) {
 					empty = false;
-					$(this).append($('<div/>', {
+					$('#room_userlist_invite').append($('<div/>', {
 						class : 'remote_user_' + self.users[i][0]
 					}).append($('<input/>', {
 						type : 'checkbox',
@@ -78,7 +77,9 @@ Lobby.prototype.init = function() {
 				}
 			}
 			if (empty) {
-				$(this).append('No users available.');
+				$('#room_invite_empty').show();
+			} else {
+				$('#room_invite_empty').hide();
 			}
 		},
 		buttons : {
@@ -307,8 +308,6 @@ Lobby.prototype.init = function() {
 	socket.on(API_ROOM_REMOVE, function(roomId) {
 		self.onRoomDelete(roomId);
 	});
-	
-	// TODO Handle passwords when entering rooms
 };
 
 /**
@@ -761,6 +760,21 @@ Lobby.prototype.onUserEnterRoom = function(userId, roomId) {
 			})).append($('<span/>', {
 				text : ', '
 			})));
+			
+			if (roomId == this.lobbyId && this.ownRoomId != this.lobbyId && userId != this.ownId) {
+				$('#room_userlist_invite').append($('<div/>', {
+					class : 'remote_user_' + this.users[user_index][0]
+				}).append($('<input/>', {
+					type : 'checkbox',
+					id : 'check_invite_' + this.users[user_index][0]
+				})).append($('<label/>', {
+					'for' : 'check_invite_' + this.users[user_index][0]
+				}).append($('<span/>', {
+					class : 'remote_user_' + this.users[user_index][0],
+					text : this.users[user_index][1]
+				}))));
+				$('#room_invite_empty').hide();
+			}
 		}
 	}
 };
@@ -782,6 +796,10 @@ Lobby.prototype.onUserLeaveRoom = function(userId) {
 
 		// Remove the user from the list
 		$('.remote_user_' + this.users[user_index][0]).remove();
+		
+		if ($('#room_userlist_invite').children().length == 0) {
+			$('#room_invite_empty').show();
+		}
 	}
 };
 
@@ -845,6 +863,10 @@ Lobby.prototype.onUserLeave = function(userId) {
 		// Remove from list
 		this.users.splice(index, 1);
 		$('.remote_user_' + userId).remove();
+		
+		if ($('#room_userlist_invite').children().length == 0) {
+			$('#room_invite_empty').show();
+		}
 	}
 };
 

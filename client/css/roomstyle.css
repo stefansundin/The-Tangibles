@@ -67,3 +67,12 @@ video {
 	margin: 0;
 	padding: 0;
 }
+
+#you {
+	position: absolute;
+	bottom: 0;
+	right: 0;
+	width: 250px;
+	-webkit-transform: rotateY(180deg);
+	z-index: -1;
+}
