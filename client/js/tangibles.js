@@ -193,7 +193,7 @@ function Tangibles(webRTCSocket) {
 		}
 	}
 
-	this.onMute() {
+	this.onMute = function() {
 		var room = document.getElementById('roomFrame');
 		room = (room.contentWindow) ? room.contentWindow : (room.contentDocument.document) ? room.contentDocument.document : room.contentDocument;
 		str = room.rtc.streams;
