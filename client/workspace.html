@@ -166,15 +166,20 @@ function Workspace() {
 		var width = window.innerWidth;
 		var height = window.innerHeight;
 		buttons = new Buttons(screenContext, inverse, video, width, height);
+		buttons.start();
 		img = new Image();
 		img.src = "img/doneButton.png";
-		var calibratorButton = new Button(img, calibrator.confirmSharedRectangle);
+		//var calibratorButton = new Button(img, calibrator.confirmSharedRectangle);
+		var calibratorButton = new Button(img, this.buttonPressed);
+		var calibratorButton2 = new Button(img, this.buttonPressed2);
+		var calibratorButton3 = new Button(img, this.buttonPressed3);
 		calibratorButton.id = 'done';
+		calibratorButton2.id = 'done2';
+		calibratorButton3.id = 'done3';
 		buttons.addButton(calibratorButton);
+		buttons.addButton(calibratorButton2);
+		buttons.addButton(calibratorButton3);
 		
-		buttons.draw();
-		buttons.start();
-
 		$(document).keypress(function(event) {
 			var keycode = (event.keyCode ? event.keyCode : event.which);
 			if (keycode == 13) {
@@ -189,7 +194,7 @@ function Workspace() {
     
     this.onFinishedCalibration = function (sRect, sPoly) {
 		console.log('finished calibration');
-		buttons.deleteButtonId('done');
+		buttons.deleteButtonId('done2');
 		sharedRect = sRect;
 		sharedPoly = sPoly;
 
@@ -206,6 +211,12 @@ function Workspace() {
 
 	}
 
+	this.buttonPressed3 = function () {
+		console.log('pressed button 3');
+	}
+	this.buttonPressed2 = function () {
+		console.log('pressed button 2');
+	}
 	this.buttonPressed = function () {
 		console.log('pressed button');
 	}
