@@ -925,6 +925,9 @@ function socketserver() {
 		}
 		var call;
 		if (caller.inCall) {
+			console.log("¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤4");
+			console.log(caller.call);
+			console.log("¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤4");
 			call = caller.call.addUser(called);
 			console.log("createNewCall 1");
 		} else {
