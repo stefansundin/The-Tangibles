@@ -27,9 +27,12 @@ function init() {
 	if (PeerConnection) {
 		rtc.createStream({'video': true, 'audio': true}, function(stream){
 			rtc.attachStream(stream, 'you');
+		}, function() {
+			parent.lobby.leaveRoom();
 		});
 	} else {
-		alert('You are not using a browser with webkitRTCPeerConnection support. Either use Canary or wait for Chrome to be updated.');
+		alert('You are not using a browser with webkitRTCPeerConnection support.');
+		parent.lobby.leaveRoom();
 	}
 	var room = window.location.hash.slice(1);
 
