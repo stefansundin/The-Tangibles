@@ -15,9 +15,9 @@
 <script type="text/javascript" src="js/calibration.js"></script>
 <script type="text/javascript" src="js/lib/pixastic.core.js"></script>
 <script type="text/javascript" src="js/lib/blend.js"></script>
-<script type="text/javascript" src="js/utilities.js"></script>    
+<script type="text/javascript" src="js/utilities.js"></script>
 <script type="text/javascript" src="js/videoBucket.js"></script>
-    
+
 <script src="/webrtc.io.js"></script>
 </head>
 <body style="font-family: monospace; background-color: white;">
@@ -28,7 +28,7 @@
 </div>
 <center>
 <canvas id ="myCanvas" style="width: 100%; height: 100%"></canvas>
-<video id="you" autoplay></video> 
+<video id="you" autoplay></video>
 </center>
 <script>
 
@@ -57,23 +57,23 @@ function Workspace() {
 	var cb, cs;
 
     var self = this;
-    
+
 	this.createVideo = function (stream, socketId) {
-        
+
 		var v = document.createElement('video');
     	v.width = CANVAS_WIDTH;
     	v.height = CANVAS_HEIGHT;
     	v.autoplay = true;
 		v.class = "";
 		v.src = URL.createObjectURL(stream);
-        
+
 		if (socketId == 'you') {
             videoObj = new VideoBucket(v, stream.label);
 			v.id = 'you';
 			video = v;
-            
+
             // videos.push(videoObj);
-            
+
 		} else {
             v.id = 'remote' + socketId;
             var bucket = new VideoBucket(v, stream.label);
@@ -95,15 +95,17 @@ function Workspace() {
 		}
 	}
 
-	this.initFullScreen = function () { 
+	this.initFullScreen = function () {
 
 		qr.click(function(event) {
-			//TODO add qr stuff
+			var tangibles2 = window.opener.parent.tangibles;
+			tangibles2.showPicture(tangibles2.sifteos[0],"http://"+ window.location.host +"/img/sifteo_qr188.png");
+			tangibles2.showPicture(tangibles2.sifteos[1],"http://"+ window.location.host +"/img/sifteo_qr956.png");
 		});
 
 		fullscreen.click(function(event) {
 				var element = document.body;
-				var requestMethod = element.requestFullScreen || element.webkitRequestFullScreen || element.mozRequestFullScreen || element.msRequestFullScreen; 
+				var requestMethod = element.requestFullScreen || element.webkitRequestFullScreen || element.mozRequestFullScreen || element.msRequestFullScreen;
 				if (requestMethod) {
 					// TODO enter full screen
 					requestMethod.call(element);
@@ -113,7 +115,7 @@ function Workspace() {
 				qr.hide();
 				self.startCalibration();
 			});
-	} 
+	}
 
 	this.init = function () {
 		// TODO change to c...
@@ -138,7 +140,7 @@ function Workspace() {
 		}
 
 		var room = window.location.hash.slice(1);
-        
+
 		//When using localhost
 		console.log('Connecting');
 		rtc.connect("ws://"+ window.location.host +"/", room);
@@ -180,7 +182,7 @@ function Workspace() {
 		//var calibratorButton = new Button(img, this.buttonPressed);
 		calibratorButton.id = 'done';
 		buttons.addButton(calibratorButton);
-		
+
 		$(document).keypress(function(event) {
 			var keycode = (event.keyCode ? event.keyCode : event.which);
 			if (keycode == 13) {
@@ -192,7 +194,7 @@ function Workspace() {
 			calibrator.confirmSharedRectangle();
 		};
 	}
-    
+
     this.onFinishedCalibration = function (sRect, sPoly) {
 		console.log('finished calibration');
 		buttons.deleteButtonId('done');
@@ -200,9 +202,9 @@ function Workspace() {
 		sharedPoly = sPoly;
 
         videoObj.setTransform(sPoly, sRect);
-        
+
 		// setup listener and broadcast your coordinates
-        
+
 		window.opener.parent.socket.on(window.opener.parent.API_CORNERS, self.onGotCorners);
 		self.sendBroadcast();
 		window.opener.parent.socket.on(window.opener.parent.API_CORNERS_BROADCAST, self.onBroadcast);
@@ -213,7 +215,7 @@ function Workspace() {
 	}
 
 	this.onBroadcast = function (id, nw, ne, se, sw, label) {
-        
+
 		console.log('got broadcast, ' + label);
 
         for (var i = 0; i < videos.length; i++) {
@@ -239,7 +241,7 @@ function Workspace() {
             var v = videos[i];
             if (v.label == label) {
                 v.setTransform([nw, ne, se, sw], sharedRect);
-				
+
 				// enable buttons
 				b = new Button(v.video, v.toggleEnabled, v)
 				b.id = v.video.id;
@@ -257,7 +259,7 @@ function Workspace() {
 			sw: sharedPoly[3],
 			videoLabel: videoObj.label
 		});
-        
+
         console.log('Sending broadcast, ' + videoObj.label);
 		window.opener.parent.socket.send(window.opener.parent.API_CORNERS_BROADCAST, data);
 	}
@@ -277,10 +279,10 @@ function Workspace() {
 	}
 
 	this.mergeVideos = function () {
-		
+
         var transformedVideos = VideoBucket.transformList(videos);
         var mergedImage = Utilities.mergeImages(transformedVideos);
-        
+
 		sharedRect.draw(screenContext);
         if (mergedImage != null) {
             // console.log('drawing merged videos, ' + sharedRect.x + ' ' + sharedRect.width);
@@ -292,7 +294,7 @@ function Workspace() {
         } else {
 			screenContext.clearRect(sharedRect.x, sharedRect.y, sharedRect.width, sharedRect.height);
 		}
-        
+
 		setTimeout(function() {self.mergeVideos();}, 1); // 50);
 	}
 }
