@@ -81,6 +81,7 @@ var pc;
 
 			rtc._socket.onmessage = function(msg) {
 				console.log("CHECK 333 !");
+				console.log(msg.data);
 				var json = JSON.parse(msg.data);
 				rtc.fire(json.eventName, json.data);
 			};
