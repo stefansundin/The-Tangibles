@@ -24,7 +24,6 @@
 <div id="notice">This is the workspace view. Choose the appropriate camera and move this window to where you want it.</div>
 <div>
 <button id="fullscreen">Enter Full Screen</button>
-<button id="qr">QR-code</button>
 </div>
 <center>
 <canvas id ="myCanvas" style="width: 100%; height: 100%"></canvas>
@@ -40,7 +39,6 @@ var c = $('#myCanvas');
 c.hide();
 
 var fullscreen = $('#fullscreen');
-var qr = $('#qr');
 
 var notice = $('#notice');
 
@@ -56,27 +54,27 @@ function Workspace() {
 	var buttons;
 	var cb, cs;
 
-    var self = this;
+	var self = this;
 
 	this.createVideo = function (stream, socketId) {
 
 		var v = document.createElement('video');
-    	v.width = CANVAS_WIDTH;
-    	v.height = CANVAS_HEIGHT;
-    	v.autoplay = true;
+		v.width = CANVAS_WIDTH;
+		v.height = CANVAS_HEIGHT;
+		v.autoplay = true;
 		v.class = "";
 		v.src = URL.createObjectURL(stream);
 
 		if (socketId == 'you') {
-            videoObj = new VideoBucket(v, stream.label);
+			videoObj = new VideoBucket(v, stream.label);
 			v.id = 'you';
 			video = v;
 
-            // videos.push(videoObj);
+			// videos.push(videoObj);
 
 		} else {
-            v.id = 'remote' + socketId;
-            var bucket = new VideoBucket(v, stream.label);
+			v.id = 'remote' + socketId;
+			var bucket = new VideoBucket(v, stream.label);
 			videos.push(bucket);
 		}
 	}
@@ -85,7 +83,7 @@ function Workspace() {
 		var index = -1;
 		for (var i = 0; i < videos.length; i++) {
 			if (videos[i].video.id == 'remote' + socketId) {
-                console.log('Removing stream: ' + videos[i].label);
+				console.log('Removing stream: ' + videos[i].label);
 				index = i;
 				break;
 			}
@@ -96,13 +94,6 @@ function Workspace() {
 	}
 
 	this.initFullScreen = function () {
-
-		qr.click(function(event) {
-			var tangibles2 = window.opener.parent.tangibles;
-			tangibles2.showPicture(tangibles2.sifteos[0],"http://"+ window.location.host +"/img/sifteo_qr188.png");
-			tangibles2.showPicture(tangibles2.sifteos[1],"http://"+ window.location.host +"/img/sifteo_qr956.png");
-		});
-
 		fullscreen.click(function(event) {
 				var element = document.body;
 				var requestMethod = element.requestFullScreen || element.webkitRequestFullScreen || element.mozRequestFullScreen || element.msRequestFullScreen;
@@ -112,7 +103,6 @@ function Workspace() {
 				}
 				notice.hide();
 				fullscreen.hide();
-				qr.hide();
 				self.startCalibration();
 			});
 	}
@@ -154,6 +144,7 @@ function Workspace() {
 				self.removeVideo(data);
 				buttons.deleteButtonId('remote' + data);
 			});
+
 		this.initFullScreen();
 	}
 
@@ -161,6 +152,12 @@ function Workspace() {
 		// start showing fullscreen canvas
 		c.show();
 
+		// Show the qr codes on sifteos
+		var tangibles2 = window.opener.parent.tangibles;
+		if (tangibles2.sifteos.length > 2) {
+			tangibles2.showPicture(tangibles2.sifteos[0],"http://"+ window.location.host +"/img/sifteo_qr188.png");
+			tangibles2.showPicture(tangibles2.sifteos[2],"http://"+ window.location.host +"/img/sifteo_qr956.png");
+		}
 		calibrator = new Calibrator(video, screenCanvas);
 		calibrator.startCalibration(this.onGotTransform, this.onFinishedCalibration, self);
 	}
@@ -195,14 +192,20 @@ function Workspace() {
 		};
 	}
 
-    this.onFinishedCalibration = function (sRect, sPoly) {
+	this.onFinishedCalibration = function (sRect, sPoly) {
 		console.log('finished calibration');
 		buttons.deleteButtonId('done');
 		sharedRect = sRect;
 		sharedPoly = sPoly;
 
-        videoObj.setTransform(sPoly, sRect);
+		videoObj.setTransform(sPoly, sRect);
 
+		// Remove qr codes from sifteos when done
+		var tangibles2 = window.opener.parent.tangibles;
+		if (tangibles2.sifteos.length > 2) {
+			setTimeout(tangibles2.setColor(tangibles2.sifteos[0],"FFFFFF"),10000);
+			setTimeout(tangibles2.setColor(tangibles2.sifteos[2],"FFFFFF"),10000);
+		}
 		// setup listener and broadcast your coordinates
 
 		window.opener.parent.socket.on(window.opener.parent.API_CORNERS, self.onGotCorners);
@@ -218,17 +221,17 @@ function Workspace() {
 
 		console.log('got broadcast, ' + label);
 
-        for (var i = 0; i < videos.length; i++) {
-            var v = videos[i];
-            if (v.label == label) {
-                v.setTransform([nw, ne, se, sw], sharedRect);
+		for (var i = 0; i < videos.length; i++) {
+			var v = videos[i];
+			if (v.label == label) {
+				v.setTransform([nw, ne, se, sw], sharedRect);
 
 				// enable buttons
 				b = new Button(v.video, v.toggleEnabled, v)
 				b.id = v.video.id;
 				buttons.addButton(b);
-            }
-        }
+			}
+		}
 
 		// answer broadcast
 		self.answerBroadcast(id);
@@ -238,16 +241,16 @@ function Workspace() {
 		console.log('got corners, ' + label);
 
 		for (var i = 0; i < videos.length; i++) {
-            var v = videos[i];
-            if (v.label == label) {
-                v.setTransform([nw, ne, se, sw], sharedRect);
+			var v = videos[i];
+			if (v.label == label) {
+				v.setTransform([nw, ne, se, sw], sharedRect);
 
 				// enable buttons
 				b = new Button(v.video, v.toggleEnabled, v)
 				b.id = v.video.id;
 				buttons.addButton(b);
-            }
-        }
+			}
+		}
 	}
 
 	this.sendBroadcast = function () {
@@ -260,7 +263,7 @@ function Workspace() {
 			videoLabel: videoObj.label
 		});
 
-        console.log('Sending broadcast, ' + videoObj.label);
+		console.log('Sending broadcast, ' + videoObj.label);
 		window.opener.parent.socket.send(window.opener.parent.API_CORNERS_BROADCAST, data);
 	}
 
@@ -274,24 +277,24 @@ function Workspace() {
 			videoLabel: videoObj.label
 		});
 
-        console.log('Sending broadcast reply');
+		console.log('Sending broadcast reply');
 		window.opener.parent.socket.send(window.opener.parent.API_CORNERS, data);
 	}
 
 	this.mergeVideos = function () {
 
-        var transformedVideos = VideoBucket.transformList(videos);
-        var mergedImage = Utilities.mergeImages(transformedVideos);
+		var transformedVideos = VideoBucket.transformList(videos);
+		var mergedImage = Utilities.mergeImages(transformedVideos);
 
 		sharedRect.draw(screenContext);
-        if (mergedImage != null) {
-            // console.log('drawing merged videos, ' + sharedRect.x + ' ' + sharedRect.width);
-            screenContext.drawImage(mergedImage,
-                                    sharedRect.x,
-                                    sharedRect.y,
-                                    sharedRect.width,
-                                    sharedRect.height);
-        } else {
+		if (mergedImage != null) {
+			// console.log('drawing merged videos, ' + sharedRect.x + ' ' + sharedRect.width);
+			screenContext.drawImage(mergedImage,
+									sharedRect.x,
+									sharedRect.y,
+									sharedRect.width,
+									sharedRect.height);
+		} else {
 			screenContext.clearRect(sharedRect.x, sharedRect.y, sharedRect.width, sharedRect.height);
 		}
 

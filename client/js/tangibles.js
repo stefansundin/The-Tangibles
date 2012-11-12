@@ -183,11 +183,15 @@ function Tangibles(webRTCSocket) {
 
 			this.webRTCSocket.on(API_INVITE_DECLINED, function() {
 				self.disableSifteos();
+				self.disableSpheros();
 			});
 
 			this.webRTCSocket.on(API_USER_ENTER, function(userId, userName, roomId) {
 				if (userId != lobby.ownId) return;
-				if (!roomId) self.disableSifteos();
+				if (!roomId) {
+					self.disableSifteos();
+					self.disableSpheros();
+				}
 				if (roomId) self.acceptedCall(roomId);
 			});
 		}
