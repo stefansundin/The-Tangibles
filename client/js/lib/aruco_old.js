@@ -26,6 +26,11 @@ References:
   http://www.uco.es/investiga/grupos/ava/node/26
 */
 
+
+/**
+ Edited (a little) by Pitebros
+ */
+
 var AR = AR || {};
 
 AR.Marker = function(id, corners){
@@ -43,17 +48,36 @@ AR.Detector = function(){
   this.candidates = [];
 };
 
-AR.Detector.prototype.detect = function(image){
+/**
+ 
+ */
+AR.Detector.prototype.findRectangles = function(image) {
+    
+    CV.grayscale(image, this.grey);
+    CV.adaptiveThreshold(this.grey, this.thres, 2, 7);
+    
+    this.contours = CV.findContours(this.thres, this.binary);
+    
+    this.candidates = this.findCandidates(this.contours, image.width * 0.20, 0.05, 10);
+    this.candidates = this.clockwiseCorners(this.candidates);
+    this.candidates = this.notTooNear(this.candidates, 10);
+    
+    return this.candidates;
+};
+
+
+AR.Detector.prototype.detect = function(image) {
+    
   CV.grayscale(image, this.grey);
   CV.adaptiveThreshold(this.grey, this.thres, 2, 7);
   
   this.contours = CV.findContours(this.thres, this.binary);
-
-  this.candidates = this.findCandidates(this.contours, image.width * 0.20, 0.05, 10);
+    
+  this.candidates = this.findCandidates(this.contours, image.width * 0.05, 0.05, 10);
   this.candidates = this.clockwiseCorners(this.candidates);
   this.candidates = this.notTooNear(this.candidates, 10);
 
-  return this.findMarkers(this.grey, this.candidates, 49);
+    return this.findMarkers(this.grey, this.candidates, 49);
 };
 
 AR.Detector.prototype.findCandidates = function(contours, minSize, epsilon, minLength){
@@ -159,7 +183,7 @@ AR.Detector.prototype.getMarker = function(imageSrc, candidate){
       minZero = (width * width) >> 1,
       bits = [], rotations = [], distances = [],
       square, pair, inc, i, j;
-
+    
   for (i = 0; i < 7; ++ i){
     inc = (0 === i || 6 === i)? 1: 6;
     
@@ -196,12 +220,12 @@ AR.Detector.prototype.getMarker = function(imageSrc, candidate){
     }
   }
 
-  if (0 !== pair.first){
+  if (0 == pair.first){
     return null;
   }
 
   return new AR.Marker(
-    this.mat2id( rotations[pair.second] ), 
+    this.mat2id( rotations[pair.second] ),
     this.rotate2(candidate, 4 - pair.second) );
 };
 
@@ -265,3 +289,72 @@ AR.Detector.prototype.rotate2 = function(src, rotation){
 
   return dst;
 };
+
+
+//*******
+// Marker drawing functions
+//*******
+
+AR.Detector.prototype.drawCorners = function(ctx) {
+    
+    var corners, corner;
+    
+    ctx.lineWidth = 3;
+
+    corners = this.corners;
+        
+    ctx.strokeStyle = "blue";
+    ctx.beginPath();
+        
+    for (var i = 0; i < corners.length; i++) {
+        corner = this.corners[i];
+        ctx.moveTo(corner.x, corner.y);
+        corner = corners[(i + 1) % this.corners.length];
+        ctx.lineTo(corner.x, corner.y);
+    }
+        
+    ctx.stroke();
+    ctx.closePath();
+    
+    ctx.strokeStyle = "green";
+    for (var i = 0; i < corners.length; i++) {
+        corner = this.corners[i];
+        ctx.strokeRect(corner.x - 1, corner.y - 1, 2, 2);
+    }
+};
+
+AR.Detector.prototype.drawId = function(ctx) {
+    
+    var corner, x, y;
+    
+    ctx.strokeStyle = "blue";
+    ctx.lineWidth = 1;
+     
+    x = Infinity;
+    y = Infinity;
+        
+    for (var i = 0; i < corners.length; i++) {
+            
+        corner = this.corners[i];
+            
+        x = Math.min(x, corner.x);
+        y = Math.min(y, corner.y);
+    }
+        
+    ctx.strokeText(this.id, x, y);
+};
+
+AR.drawMarkers = function(markers, ctx) {
+    for (var i = 0; i < markers.length; i++) {
+        markers[i].drawCorners(ctx);
+        markers[i].drawId(ctx);
+    }
+}
+
+
+
+
+
+
+
+
