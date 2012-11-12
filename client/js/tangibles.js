@@ -204,6 +204,9 @@ function Tangibles(webRTCSocket) {
 		if (!self.registered) return;
 		var enabled = true;
 
+		this.disableSifteos();
+		this.disableSpheros();
+
 		/** Not working do don't show
 		if (this.sifteos.length >= 1) {
 			this.showText(this.sifteos[0], 'Blank Workspace', '000000', 'FFFFFF');
@@ -214,6 +217,9 @@ function Tangibles(webRTCSocket) {
 			});
 		}
 		*/
+
+		// Let sphero show we are in a call
+		self.setColor(self.sphero[0],'00FF00');
 
 		if (this.sifteos.length >= 2) {
 			this.showTextPic(this.sifteos[1], 'http://'+ window.location.host +'/img/deny.png', 'Hangup', '000000', 'FFFFFF');
@@ -285,7 +291,6 @@ function Tangibles(webRTCSocket) {
 					var y = msg.params.y;
 					if ( Math.abs(x) + Math.abs(y) >= 50) { // Emulate an event pushing
 						clearTimeout(self.callTimeout);
-						self.setColor(sphero,'00FF00');
 						self.sphero[0].gyroListeners = [];
 						enabled = false;
 						onAccept(call_id);
