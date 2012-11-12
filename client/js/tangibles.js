@@ -204,7 +204,12 @@ function Tangibles(webRTCSocket) {
 		if (!self.registered) return;
 		var enabled = true;
 
-		this.disableSifteos();
+		self.sifteos[0].pressListeners = [];
+		self.api.showColor(self.sifteos[0].id, 'FFFFFF', undefined, self.err2('Unable to disable sifteo: '+self.sifteos[0].id), false);
+		self.sifteos[2].pressListeners = [];
+		self.api.showColor(self.sifteos[2].id, 'FFFFFF', undefined, self.err2('Unable to disable sifteo: '+self.sifteos[2].id), false);
+
+
 		this.disableSpheros();
 
 		/** Not working do don't show
@@ -222,7 +227,7 @@ function Tangibles(webRTCSocket) {
 		self.setColor(self.sphero[0],'00FF00');
 
 		if (this.sifteos.length >= 2) {
-			this.showTextPic(this.sifteos[1], 'http://'+ window.location.host +'/img/deny.png', 'Hangup', '000000', 'FFFFFF');
+			//this.showTextPic(this.sifteos[1], 'http://'+ window.location.host +'/img/deny.png', 'Hangup', '000000', 'FFFFFF');
 			this.sifteos[1].pressListeners.push(function(msg) {
 				if (enabled) {
 					enabled = false;
