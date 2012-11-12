@@ -224,7 +224,9 @@ function Tangibles(webRTCSocket) {
 		*/
 
 		// Let sphero show we are in a call
-		self.setColor(self.sphero[0],'00FF00');
+		if (this.sphero.length >= 1) {
+			self.setColor(self.sphero[0],'00FF00');
+		}
 
 		if (this.sifteos.length >= 2) {
 			self.sifteos[1].pressListeners = [];
