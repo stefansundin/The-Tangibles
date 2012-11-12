@@ -154,9 +154,10 @@ function Workspace() {
 
 		// Show the qr codes on sifteos
 		var tangibles2 = window.opener.parent.tangibles;
-		tangibles2.showPicture(tangibles2.sifteos[0],"http://"+ window.location.host +"/img/sifteo_qr188.png");
-		tangibles2.showPicture(tangibles2.sifteos[2],"http://"+ window.location.host +"/img/sifteo_qr956.png");
-
+		if (tangibles2.sifteos.length > 2) {
+			tangibles2.showPicture(tangibles2.sifteos[0],"http://"+ window.location.host +"/img/sifteo_qr188.png");
+			tangibles2.showPicture(tangibles2.sifteos[2],"http://"+ window.location.host +"/img/sifteo_qr956.png");
+		}
 		calibrator = new Calibrator(video, screenCanvas);
 		calibrator.startCalibration(this.onGotTransform, this.onFinishedCalibration, self);
 	}
@@ -201,9 +202,10 @@ function Workspace() {
 
 		// Remove qr codes from sifteos when done
 		var tangibles2 = window.opener.parent.tangibles;
-		setTimeout(tangibles2.setColor(tangibles2.sifteos[0],"FFFFFF"),10000);
-		setTimeout(tangibles2.setColor(tangibles2.sifteos[2],"FFFFFF"),10000);
-
+		if (tangibles2.sifteos.length > 2) {
+			setTimeout(tangibles2.setColor(tangibles2.sifteos[0],"FFFFFF"),10000);
+			setTimeout(tangibles2.setColor(tangibles2.sifteos[2],"FFFFFF"),10000);
+		}
 		// setup listener and broadcast your coordinates
 
 		window.opener.parent.socket.on(window.opener.parent.API_CORNERS, self.onGotCorners);
