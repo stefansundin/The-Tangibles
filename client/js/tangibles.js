@@ -227,7 +227,8 @@ function Tangibles(webRTCSocket) {
 		self.setColor(self.sphero[0],'00FF00');
 
 		if (this.sifteos.length >= 2) {
-			//this.showTextPic(this.sifteos[1], 'http://'+ window.location.host +'/img/deny.png', 'Hangup', '000000', 'FFFFFF');
+			self.sifteos[1].pressListeners = [];
+			this.showPicture(this.sifteos[1], 'http://'+ window.location.host +'/img/deny.png');
 			this.sifteos[1].pressListeners.push(function(msg) {
 				if (enabled) {
 					enabled = false;
