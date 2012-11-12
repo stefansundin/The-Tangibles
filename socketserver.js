@@ -794,6 +794,7 @@ function socketserver() {
 
 		// Create some public test rooms
 		// TODO: Should there be more rooms that are non-deletable?
+		createNewRoom("Luleå", ROOM_PUBLIC, "", "");
 		createNewRoom("Paris", ROOM_PUBLIC, "", "");
 		createNewRoom("Berlin", ROOM_PUBLIC, "", "");
 		createNewRoom("Rome", ROOM_PUBLIC, "", "");
