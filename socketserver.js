@@ -23,6 +23,19 @@
  */
 function socketserver() {
 
+	var iolog = function() {};
+	for(var i=0,j=process.argv.length; i<j; i++){
+		var arg = process.argv[i];
+		if (arg === "-debug2") {
+			iolog = function(msg) {
+				console.log(msg);
+			}
+			console.log("Debug mode on! socketserver");
+		}
+	};
+
+
+
 	var WebSocketServer = require('websocket').server;
 	var http = require('http')
 
@@ -85,6 +98,8 @@ function socketserver() {
 	// Lists of objects
 	// # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
+	
+
 	var lRooms = [];
 	var lUsers = [];
 	var lCalls = [];
@@ -143,8 +158,8 @@ function socketserver() {
 	 * @param message {JSON} JSON encoded string containing the parameters for the function TODO: change object to correct one
 	 */
 	function fire(event_name, client, message) {
-		console.log((new Date()) + " Firing: " + event_name);
-		console.log((new Date()) + " Message: " + message);
+		iolog((new Date()) + " Firing: " + event_name);
+		iolog((new Date()) + " Message: " + message);
 		
 		var chain = callbacks[event_name];
 		
@@ -157,8 +172,8 @@ function socketserver() {
 			try {
 				obj = JSON.parse(message);	
 			} catch (err) {
-				console.log((new Date()) + " JSON parsing error:");
-				console.log((new Date()) + message);
+				iolog((new Date()) + " JSON parsing error:");
+				iolog((new Date()) + message);
 				return;
 			}
 		}
@@ -175,9 +190,9 @@ function socketserver() {
 				chain[i].apply(null, args);
 				
 			} else {
-				console.log((new Date()) + " not a function: ");
-				console.log( typeof (chain[i]));
-				console.log(chain[i]);
+				iolog((new Date()) + " not a function: ");
+				iolog( typeof (chain[i]));
+				iolog(chain[i]);
 			}
 		}
 	}
@@ -214,12 +229,12 @@ function socketserver() {
 		if (!originIsAllowed(request.origin)) {
 			// Make sure we only accept requests from an allowed origin
 			request.reject();
-			console.log((new Date()) + ' Connection from origin ' + request.origin + ' rejected.');
+			iolog((new Date()) + ' Connection from origin ' + request.origin + ' rejected.');
 			return;
 		}
 
 		var connection = request.accept('tangibles', request.origin);
-		console.log((new Date()) + ' Connection accepted from ip ' + connection.remoteAddress);
+		iolog((new Date()) + ' Connection accepted from ip ' + connection.remoteAddress);
 
 		connection.on('message', function(message) {
 			if (message.type === 'utf8') {
@@ -229,7 +244,7 @@ function socketserver() {
 		});
 
 		connection.on('close', function(reasonCode, description) {
-			console.log((new Date()) + ' Peer ' + connection.remoteAddress + ' disconnected.');
+			iolog((new Date()) + ' Peer ' + connection.remoteAddress + ' disconnected.');
 			connectionClosed(connection);
 		});
 
@@ -267,7 +282,7 @@ function socketserver() {
 		var user = getUserBySocket(connection);
 
 		if (user == null) {
-			console.log("User not found");
+			iolog("User not found");
 			// TODO: check if therer are two different kinds of connection closed.
 			return;
 		}
@@ -303,7 +318,7 @@ function socketserver() {
 			data : event_data
 		});
 
-		console.log((new Date()) + " send message: " + event_name);
+		iolog((new Date()) + " send message: " + event_name);
 
 		connection.send(payload);
 		// <= send JSON data
@@ -471,7 +486,7 @@ function socketserver() {
 		});
 		
 		if (roomNew.pass != "") {
-			console.log("password is not empty");
+			iolog("password is not empty");
 			
 			if (roomNew.pass == passKey) {
 				// Check if password is correct
@@ -480,7 +495,7 @@ function socketserver() {
 				// Check if passkey is correct
 				
 			} else {
-				console.log("Wrong pass");
+				iolog("Wrong pass");
 				// Wrong pass notify user and abort.
 				sendMessage(con, API_ROOM_REFUSED, JSON.stringify({
 					roomId: newRoomId
@@ -644,7 +659,7 @@ function socketserver() {
 		var call = getCallById(callId);
 
 		if (call == null) {
-			console.log((new Date()) + " call is null, stop hacking! " + con.remoteAddress);
+			iolog((new Date()) + " call is null, stop hacking! " + con.remoteAddress);
 			return;
 		}
 
@@ -722,13 +737,13 @@ function socketserver() {
 		// TODO: add password!
 
 		if (id == 0) {
-			console.log((new Date()) + " trying to remove lobby...");
+			iolog((new Date()) + " trying to remove lobby...");
 			return;
 		}
 
 		for (var i = 0, j = lUsers.length; i < j; i++) {
 			if (lUsers[i].roomId == id) {
-				console.log((new Date()) + " trying to remove non-empty room");
+				iolog((new Date()) + " trying to remove non-empty room");
 				return;
 			}
 		};
