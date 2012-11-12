@@ -98,6 +98,9 @@ var pc;
 
 			rtc.on('get_peers', function(data) {
 				rtc.connections = data.connections;
+				
+				// TODO Did this fix the ICE problems??
+				rtc.createPeerConnections();
 				// fire connections event and pass peers
 				rtc.fire('connections', rtc.connections);
 			});
@@ -300,7 +303,6 @@ var pc;
 	};
 
 	rtc.on('ready', function() {
-		rtc.createPeerConnections();
 		rtc.addStreams();
 		rtc.sendOffers();
 	});
