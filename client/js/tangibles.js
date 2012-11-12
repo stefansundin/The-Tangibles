@@ -204,6 +204,14 @@ function Tangibles(webRTCSocket) {
 		if (!self.registered) return;
 		var enabled = true;
 
+		self.sifteos[0].pressListeners = [];
+		self.api.showColor(self.sifteos[0].id, 'FFFFFF', undefined, self.err2('Unable to disable sifteo: '+self.sifteos[0].id), false);
+		self.sifteos[2].pressListeners = [];
+		self.api.showColor(self.sifteos[2].id, 'FFFFFF', undefined, self.err2('Unable to disable sifteo: '+self.sifteos[2].id), false);
+
+
+		this.disableSpheros();
+
 		/** Not working do don't show
 		if (this.sifteos.length >= 1) {
 			this.showText(this.sifteos[0], 'Blank Workspace', '000000', 'FFFFFF');
@@ -215,8 +223,14 @@ function Tangibles(webRTCSocket) {
 		}
 		*/
 
+		// Let sphero show we are in a call
+		if (this.sphero.length >= 1) {
+			self.setColor(self.sphero[0],'00FF00');
+		}
+
 		if (this.sifteos.length >= 2) {
-			this.showTextPic(this.sifteos[1], 'http://'+ window.location.host +'/img/deny.png', 'Hangup', '000000', 'FFFFFF');
+			self.sifteos[1].pressListeners = [];
+			this.showPicture(this.sifteos[1], 'http://'+ window.location.host +'/img/deny.png');
 			this.sifteos[1].pressListeners.push(function(msg) {
 				if (enabled) {
 					enabled = false;
@@ -285,7 +299,6 @@ function Tangibles(webRTCSocket) {
 					var y = msg.params.y;
 					if ( Math.abs(x) + Math.abs(y) >= 50) { // Emulate an event pushing
 						clearTimeout(self.callTimeout);
-						self.setColor(sphero,'00FF00');
 						self.sphero[0].gyroListeners = [];
 						enabled = false;
 						onAccept(call_id);
