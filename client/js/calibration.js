@@ -10,8 +10,8 @@ const DEFAULT_RATIO = 3.0 / 4.0;
 const BUTTON_RATIO = 0.1;
 const SHARED_RECT_MIN_RATIO = 0.2;
 
-const SCREEN_MARKER_ID = 1012,
-FINAL_MARKER_ID = 1012,
+const SCREEN_MARKER_ID = 933,
+FINAL_MARKER_ID = 933,
 LEFT_MARKER_ID = 188,
 RIGHT_MARKER_ID = 956;
 
@@ -57,7 +57,7 @@ Calibrator = function(video, canvas) {
      fullscreenCanvas.width,
      fullscreenCanvas.height);
      };*/
-	this.qrImg.src = "img/qr1012.png";
+	this.qrImg.src = "img/qr" + SCREEN_MARKER_ID + ".png";
     
 	this.firstStageCallback = null;
 	this.onFinishedCallback = null;
