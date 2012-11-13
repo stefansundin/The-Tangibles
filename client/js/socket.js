@@ -10,7 +10,7 @@ var API_LIST_ROOMS = "listrooms";
 var API_LIST_USERS = "listusers";
 var API_LIST = "listall";
 
-var API_USER_CHANGE = "userchange"
+var API_USER_CHANGE = "userchange";
 var API_USER_NEW = "useradd";
 var API_USER_REMOVE = "userremove";
 var API_ROOM_NEW = "roomadd";
@@ -63,7 +63,7 @@ var Socket = function(url) {
 
 	this.reconnect = function() {
 		// TODO Might be needed to test this function further...
-		console.log("------ RECONNECT!");
+		//console.log("------ RECONNECT!");
 
 		// Create a new socket and reconnect functions
 		var oldconn = self.conn;
@@ -86,7 +86,7 @@ var Socket = function(url) {
 	};
 
 	var fire = function(event_name, message) {
-		console.log("###### Fire: " + event_name);
+		//console.log("###### Fire: " + event_name);
 		var chain = callbacks[event_name];
 		if (typeof chain == 'undefined')
 			return; // no callbacks for this event
