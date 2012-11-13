@@ -16,7 +16,7 @@ Utilities.mergeImages = function(images) {
             tmpImage = Pixastic.process(tmpImage, "blend", 
             {
                 amount : 1, 
-                mode : "hardlight", 
+                mode : "multiply", 
                 image : images[i]
             }
             );
