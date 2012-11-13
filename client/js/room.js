@@ -1,8 +1,7 @@
 var room; // Global room object
 
-// TODO Comments!
-
 $(function() {
+	// Redirect the user if he tried to hack the URL
 	if ($('#roomFrame', window.parent.document).length != 1) {
 		window.location.replace('../');
 		return;
@@ -12,6 +11,9 @@ $(function() {
 	room.init();
 });
 
+/**
+ * Creates a new Room object
+ */
 function Room() {
 	this.videos = [];
 	this.chat_recent_blink = false; // Don't blink too often
@@ -21,6 +23,9 @@ function Room() {
 	this.PeerConnection = window.webkitRTCPeerConnection;
 }
 
+/**
+ * Initializes the room, connects to rtc and stuff.
+ */
 Room.prototype.init = function() {
 	var self = this;
 
@@ -81,6 +86,11 @@ Room.prototype.init = function() {
 	});
 };
 
+/**
+ * Calculates the number of videos to show per row.
+ * 
+ * @returns The number per row
+ */
 Room.prototype.getNumPerRow = function() {
 	var len = this.videos.length;
 
@@ -102,6 +112,9 @@ Room.prototype.getNumPerRow = function() {
 	return biggest;
 };
 
+/**
+ * Updates the position of all videos
+ */
 Room.prototype.subdivideVideos = function() {
 	for ( var i = 0, len = this.videos.length; i < len; i++) {
 		var video = $('#remote' + this.videos[i]);
@@ -109,6 +122,14 @@ Room.prototype.subdivideVideos = function() {
 	}
 };
 
+/**
+ * Sets the size and position of a single video.
+ * 
+ * @param video
+ *            The video to change
+ * @param i
+ *            The index of the video, will determine its position
+ */
 Room.prototype.setWH = function(video, i) {
 	var perRow = this.getNumPerRow();
 	var perColumn = Math.ceil(this.videos.length / perRow);
@@ -123,6 +144,13 @@ Room.prototype.setWH = function(video, i) {
 	});
 };
 
+/**
+ * Creates a video tag and adds it to the list.
+ * 
+ * @param socketId
+ *            The id used for the video
+ * @returns The newly created video
+ */
 Room.prototype.createVideo = function(socketId) {
 	var video = $('<video/>', {
 		id : 'remote' + socketId,
@@ -133,6 +161,12 @@ Room.prototype.createVideo = function(socketId) {
 	return video;
 };
 
+/**
+ * Removes the video with a given id
+ * 
+ * @param socketId
+ *            The id to remove
+ */
 Room.prototype.removeVideo = function(socketId) {
 	if ($('#remote' + socketId).length != 0) {
 		$('#remote' + socketId).remove();
@@ -140,6 +174,14 @@ Room.prototype.removeVideo = function(socketId) {
 	}
 };
 
+/**
+ * Adds a message to the chat box
+ * 
+ * @param msg
+ *            The message to add
+ * @param blink
+ *            True if you want the chat icon to blink
+ */
 Room.prototype.addToChat = function(msg, blink) {
 	var index = msg.indexOf(':');
 	var userName = '';
@@ -172,6 +214,12 @@ Room.prototype.addToChat = function(msg, blink) {
 	}
 };
 
+/**
+ * Sends a chat message to the others in the room.
+ * 
+ * @param msg
+ *            The message to send
+ */
 Room.prototype.writeMessageToChat = function(msg) {
 	parent.socket.send(parent.API_MESSAGE_BROADCAST, JSON.stringify({
 		'msg' : msg
