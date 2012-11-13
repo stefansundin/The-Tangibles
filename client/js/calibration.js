@@ -58,7 +58,7 @@ Calibrator = function(video, canvas) {
      fullscreenCanvas.height);
      };*/
     
-	this.qrImg.src = "/img/qr" + SCREEN_MARKER_ID + ".png";
+	this.qrImg.src = "http://"+ window.location.host +"/img/qr" + SCREEN_MARKER_ID + ".png";
     
 	this.firstStageCallback = null;
 	this.onFinishedCallback = null;
