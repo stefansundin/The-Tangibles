@@ -15,7 +15,7 @@ FINAL_MARKER_ID = 1012,
 LEFT_MARKER_ID = 188,
 RIGHT_MARKER_ID = 956;
 
-const QR_FRAME = 15;
+const QR_FRAME = 30;
 
 /**
  Creates a Calibrator object
