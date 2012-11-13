@@ -22,6 +22,10 @@ app.get('/workspace/img/qr933.png', function(req, res) {
 	res.sendfile(__dirname + '/client/img/qr933.png');
 });
 
+app.get('/img/qr933.png', function(req, res) {
+	res.sendfile(__dirname + '/client/img/qr933.png');
+});
+
 app.get('/favicon.ico', function(req, res) {
 	res.sendfile(__dirname + '/client/img/favicon.ico');
 });
