@@ -99,11 +99,12 @@ function Workspace() {
 
 	this.initFullScreen = function () {
 		fullscreen.click(function(event) {
+				
 				var element = document.body;
 				var requestMethod = element.requestFullScreen || element.webkitRequestFullScreen || element.mozRequestFullScreen || element.msRequestFullScreen;
 				if (requestMethod) {
 					// TODO enter full screen
-					requestMethod.call(element);
+					// requestMethod.call(element);
 				}
 				notice.hide();
 				fullscreen.hide();
