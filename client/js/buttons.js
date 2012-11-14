@@ -1,5 +1,7 @@
 /*
 	Contanier class for handling all the buttons
+
+	For checking buttons pressed is more or less on http://www.adobe.com/devnet/html5/articles/javascript-motion-detection.html
 */
 var Buttons = function (c, transform, v, w, h) {
 	this.video = v;
@@ -117,14 +119,18 @@ var Buttons = function (c, transform, v, w, h) {
 	}
 
 	this.update = function () {
-		//console.log('checking buttons');
-		this.draw();
+		// check if pressed
 		if (this.listOfButtons.length > 0) {
 			this.drawVideo();
 			this.blend();
-
 			this.checkPressed(this.contextBlended)
 		}
+		this.draw();
+		// take snapshot
+		this.drawVideo();
+		var width = this.contextSource.canvas.width;
+		var height = this.contextSource.canvas.height;
+		this.lastImageData = this.contextSource.getImageData(0, 0, width, height);
 		var self = this;
 		this.timeOut = setTimeout(function () {self.update()}, 200);
 	}
@@ -146,8 +152,6 @@ var Buttons = function (c, transform, v, w, h) {
 		this.differenceAccuracy(blendedData.data, sourceData.data, this.lastImageData.data);
 		// draw the result in a canvas
 		this.contextBlended.putImageData(blendedData, 0, 0);
-		// store the current webcam image
-		this.lastImageData = sourceData;
 	}
 
 	this.fastAbs = function (value) {
