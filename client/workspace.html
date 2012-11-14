@@ -307,6 +307,11 @@ function Workspace() {
 			screenContext.clearRect(sharedRect.x, sharedRect.y, sharedRect.width, sharedRect.height);
 		}
 
+		// *****
+		// Test - check if canvas dimensions are correct
+		var rect = new Geometry.Rectangle(0, 0, screenCanvas.width, screenCanvas.height);
+		rect.draw(screenContext);
+		// *****
 		setTimeout(function() {self.mergeVideos();}, 1); // 50);
 	}
 }
