@@ -331,6 +331,7 @@ Lobby.prototype.loadSplash = function() {
  */
 Lobby.prototype.loadMain = function() {
 	$('#title').text('Lobby');
+	document.title = 'Lobby - The Tangibles';
 
 	$('#roomFrame').attr('src', 'about:blank');
 
@@ -568,8 +569,8 @@ Lobby.prototype.enterRoom = function(roomId) {
 	if (index != -1) {
 		roomName = this.rooms[index][1];
 	}
-	$('#title').html(
-			'<span class="room_' + roomId + '">' + roomName + '</span>');
+	$('#title').html('<span class="room_'+roomId+'">'+roomName+'</span>');
+	document.title = roomName+' - The Tangibles';
 
 	$('#room_toolbar').show();
 
@@ -593,6 +594,7 @@ Lobby.prototype.leaveRoom = function() {
 	}));
 
 	$('#title').text('Lobby');
+	document.title = 'Lobby - The Tangibles';
 
 	this.hideRoomHeader = false;
 	this.updateRoomToolbar();
