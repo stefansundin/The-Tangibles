@@ -163,6 +163,10 @@ function Workspace() {
 			tangibles2.showPicture(tangibles2.sifteos[0],"http://"+ window.location.host +"/img/sifteo_qr188.png");
 			tangibles2.showPicture(tangibles2.sifteos[2],"http://"+ window.location.host +"/img/sifteo_qr956.png");
 		}
+		
+		screenCanvas.width = window.innerWidth;
+		screenCanvas.height = window.innerHeight;
+		
 		calibrator = new Calibrator(video, screenCanvas);
 		calibrator.startCalibration(this.onGotTransform, this.onFinishedCalibration, self);
 	}
