@@ -236,7 +236,8 @@ Calibrator.prototype.secondCalibration = function(markers) {
 		if (marker.id == LEFT_MARKER_ID) {
             
             var transformedCorners = this.screenTransform.transformPoly(marker.corners);
-			leftMarkerCorner = transformedCorners[Geometry.findTopLeftCorner(transformedCorners)];
+            // leftMarkerCorner is set to the *lower* left corner
+			leftMarkerCorner = transformedCorners[(Geometry.findTopLeftCorner(transformedCorners) + 3) % 4];
             
             this.sharedRect.x = Math.max(buttonWidth, leftMarkerCorner.x);
             this.sharedRect.y = Math.max(
@@ -254,7 +255,8 @@ Calibrator.prototype.secondCalibration = function(markers) {
         if (marker.id == RIGHT_MARKER_ID) {
             
             var transformedCorners = this.screenTransform.transformPoly(marker.corners);
-            rightMarkerCorner = transformedCorners[Geometry.findTopLeftCorner(transformedCorners)];
+            // rightMarkerCorner is set to the *lower* left corner
+            rightMarkerCorner = transformedCorners[(Geometry.findTopLeftCorner(transformedCorners) + 3) % 4];
             
             if (this.sharedRect.x < rightMarkerCorner.x) {
                 this.sharedRect.width = Math.max(
@@ -262,7 +264,7 @@ Calibrator.prototype.secondCalibration = function(markers) {
                                                  rightMarkerCorner.x - this.sharedRect.x
                                                  );
                 this.sharedRect.width = Math.min(
-                                                 this.canvas.height,
+                                                 this.canvas.width,
                                                  this.sharedRect.width
                                                  );
                 this.sharedRect.height = this.sharedRect.width * DEFAULT_RATIO;
