@@ -88,11 +88,11 @@ VideoBucket.prototype.transformVideo = function() {
      */
 
     this.videoContext.drawImage(this.video, 0, 0, this.video.width, this.video.height);
-    // var imageData = this.videoContext.getImageData(x, y, w, h);
-	var imageData = this.videoContext.getImageData(0, 0, this.video.width, this.video.height);
+    var imageData = this.videoContext.getImageData(x, y, w, h);
+	
     this.transform.transformImage(imageData,
-								  this.transformCanvas); //,
-								  // this.videoCropRect);
+								  this.transformCanvas,
+								  this.videoCropRect);
     
     return this.transformCanvas;
 }
