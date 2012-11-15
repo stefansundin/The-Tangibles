@@ -252,5 +252,8 @@ VideoButton.prototype.draw = function (ctx, x, y, width, height) {
 	
 	ctx.strokeRect(x, y, width, height);
 
-	ctx.drawImage(this.video.transformVideo(), x, y, width, height);
+	var c = this.video.transformVideo();
+	console.log(c);
+
+	ctx.drawImage(c, x, y, width, height);
 }
