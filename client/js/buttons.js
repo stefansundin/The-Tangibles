@@ -230,3 +230,27 @@ Button.prototype.draw = function (ctx, x, y, width, height) {
 	ctx.strokeRect(x, y, width, height);
 	ctx.drawImage(this.image, x, y, width, height);
 }
+
+var VideoButton = function (video, method, target) {
+	this.method = method; // method to invoke when pressed
+	this.video = video; // video to draw
+	this.id = null;
+	this.target = target;
+
+	this.pressed = true;
+	this.enabled = true;
+}
+
+VideoButton.prototype = new Button;
+
+VideoButton.prototype.draw = function (ctx, x, y, width, height) {
+	if (this.enabled) {
+		ctx.strokeStyle = 'red'
+	} else {
+		ctx.strokeStyle = 'black'
+	}
+	
+	ctx.strokeRect(x, y, width, height);
+
+	ctx.drawImage(this.video.transformVideo(), x, y, width, height);
+}

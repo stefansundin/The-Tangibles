@@ -236,7 +236,7 @@ function Workspace() {
 				v.setTransform([nw, ne, se, sw], sharedRect);
 
 				// enable buttons
-				b = new Button(v.video, v.toggleEnabled, v)
+				b = new VideoButton(v, v.toggleEnabled, v)
 				b.id = v.video.id;
 				buttons.addButton(b);
 			}
@@ -255,7 +255,7 @@ function Workspace() {
 				v.setTransform([nw, ne, se, sw], sharedRect);
 
 				// enable buttons
-				b = new Button(v.video, v.toggleEnabled, v)
+				b = new VideoButton(v, v.toggleEnabled, v)
 				b.id = v.video.id;
 				buttons.addButton(b);
 			}
