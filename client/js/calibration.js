@@ -255,8 +255,8 @@ Calibrator.prototype.secondCalibration = function(markers) {
         if (marker.id == RIGHT_MARKER_ID) {
             
             var transformedCorners = this.screenTransform.transformPoly(marker.corners);
-            // rightMarkerCorner is set to the *lower* left corner
-            rightMarkerCorner = transformedCorners[(Geometry.findTopLeftCorner(transformedCorners) + 3) % 4];
+            // rightMarkerCorner is set to the *lower right* corner
+            rightMarkerCorner = transformedCorners[(Geometry.findTopLeftCorner(transformedCorners) + 2) % 4];
             
             if (this.sharedRect.x < rightMarkerCorner.x) {
                 this.sharedRect.width = Math.max(
