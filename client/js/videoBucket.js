@@ -12,17 +12,18 @@ VideoBucket = function(video, label) {
     
     this.transformCanvas = null;
     this.transformContext = null;
+	this.transform = null;
     this.coordinates = [];
     
     this.videoCanvas = null; //MediaExt.createCanvas(video.width, video.height);
     this.videoContext = null; // this.videoCanvas.getContext("2d");
-    
-    this.transform = null;
+	
+	this.lastTransformedTimestamp = -1;
 }
 
 /**
  Call this function after calibration
- @param poly ...
+ @param poly Poly returned by the Calibrator
  @param rect The local shared rectangle
  */
 VideoBucket.prototype.setTransform = function(poly, rect) {
@@ -39,6 +40,8 @@ VideoBucket.prototype.setTransform = function(poly, rect) {
 	this.videoCanvas = MediaExt.createCanvas(this.video.width, this.video.height);
     this.videoContext = this.videoCanvas.getContext("2d");
 	
+	// A rectangle containing the transform polygon -
+	// used for cropping out image data from the video stream
 	var padding = 5;
 	var cropRect = Geometry.rectFromPoly(poly);
 	cropRect.x -= padding;
@@ -71,6 +74,12 @@ VideoBucket.prototype.transformVideo = function() {
 		 */
 		return null;
     }
+	
+	// If the current frame of the video has already been transformed,
+	// just return the transform canvas
+	if (this.lastTransformedTimestamp == this.video.currentTime) {
+		return this.transformCanvas;
+	}
     
     var	x = this.videoCropRect.x,
 		y = this.videoCropRect.y,
@@ -81,22 +90,31 @@ VideoBucket.prototype.transformVideo = function() {
 	 First x, y, w and h need to be relative to the camera's native resolution
 	 in order for this to work..
     
-	 this.videoContext.drawImage(this.video,
-								x, y, w, h,
-								0, 0, w, h);
+	 this.videoContext.drawImage(this.video, x, y, w, h, 0, 0, w, h);
 	 var imageData = this.videoContext.getImageData(0, 0, w, h);
      */
 
+	// Draw the video
     this.videoContext.drawImage(this.video, 0, 0, this.video.width, this.video.height);
+	
+	// Crop out the interesting part of the video
     var imageData = this.videoContext.getImageData(x, y, w, h);
 	
+	// Transform the video
     this.transform.transformImage(imageData,
 								  this.transformCanvas,
 								  this.videoCropRect);
     
+	// Store timestamp
+	this.lastTransformedTimestamp = this.video.currentTime;
+	
     return this.transformCanvas;
 }
 
+/**
+ @param bucketList a list of VideoBucket objects to be transformed
+ @return a list of canvases containing the current video frames transformed
+ */
 VideoBucket.transformList = function(bucketList) {
     var transformedVideos = [];
     for (var i = 0; i < bucketList.length; i++) {
