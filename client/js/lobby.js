@@ -753,7 +753,12 @@ Lobby.prototype.onUserEnterRoom = function(userId, roomId) {
 		var user_index = this.findUserIndex(userId);
 		if (user_index != -1) {
 			this.users[user_index][2] = roomId;
-
+			
+			if (roomId != this.lobbyId) {
+				// Hide delete room button
+				$('#room_list_' + roomId + ' td').last().children().first().css('visibility', 'hidden');
+			}
+			
 			// Make sure each user only exist in one room in the list
 			$('.remote_user_' + this.users[user_index][0]).remove();
 
@@ -782,30 +787,6 @@ Lobby.prototype.onUserEnterRoom = function(userId, roomId) {
 				}))));
 				$('#room_invite_empty').hide();
 			}
-		}
-	}
-};
-
-/**
- * Called when the user leaves a room.
- *
- * @param userId
- *            ID of the user
- */
-Lobby.prototype.onUserLeaveRoom = function(userId) {
-	if (this.DEBUG) {
-		console.debug('onUserLeaveRoom: ' + userId);
-	}
-
-	var user_index = this.findUserIndex(userId);
-	if (user_index != -1) {
-		this.users[user_index][2] = 0;
-
-		// Remove the user from the list
-		$('.remote_user_' + this.users[user_index][0]).remove();
-
-		if ($('#room_userlist_invite').children().length == 0) {
-			$('#room_invite_empty').show();
 		}
 	}
 };
@@ -867,10 +848,17 @@ Lobby.prototype.onUserLeave = function(userId) {
 	// Find remote_user with given id
 	var index = this.findUserIndex(userId);
 	if (index != -1) {
+		var oldRoomId = this.users[index][2];
+		
 		// Remove from list
 		this.users.splice(index, 1);
 		$('.remote_user_' + userId).remove();
 
+		// Show delete room button
+		if (oldRoomId != this.lobbyId && $('#room_user_list_' + oldRoomId).is(':empty')) {
+			$('#room_list_' + oldRoomId + ' td').last().children().first().css('visibility', 'visible');
+		}
+		
 		if ($('#room_userlist_invite').children().length == 0) {
 			$('#room_invite_empty').show();
 		}
@@ -1185,8 +1173,7 @@ Lobby.prototype.test = function() {
 	this.onUserChangeName(4, 'New user 4');
 	console.assert(this.users[this.findUserIndex(4)][1] == 'New user 4',
 			'User has wrong name after change');
+	this.onUserLeave(4);
 	this.onUserEnterRoom(4, 1);
-	this.onUserLeaveRoom(4);
-	console.assert(this.users[this.findUserIndex(4)][2] == 0,
-			'User didnt leave room');
+	console.assert(this.findUserIndex(4) == -1, 'User didnt leave');
 };
