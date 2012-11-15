@@ -59,7 +59,7 @@ VideoBucket.prototype.toggleEnabled = function() {
 
 VideoBucket.prototype.transformVideo = function() {
     
-    if (this.transform == null || !this.enabled) {
+    if (this.transform == null) { //  || !this.enabled) {
 		/*
 		console.log("VideoBucket.prototype.transformVideo returning:");
 		if (this.transform == null) {
@@ -100,7 +100,13 @@ VideoBucket.prototype.transformVideo = function() {
 VideoBucket.transformList = function(bucketList) {
     var transformedVideos = [];
     for (var i = 0; i < bucketList.length; i++) {
-        var tv = bucketList[i].transformVideo();
+        
+		if (!bucketList[i].enabled) {
+			continue;
+		}
+		
+		var tv = bucketList[i].transformVideo();
+		
         if (tv != null) {
             transformedVideos.push(tv);
         } else {
