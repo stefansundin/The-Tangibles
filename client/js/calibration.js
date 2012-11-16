@@ -321,6 +321,7 @@ Calibrator.prototype.thirdCalibration = function(markers) {
 	}
 }
 
+
 /**
  Let the Optimus Prime instance finish the calibration
  before returning
