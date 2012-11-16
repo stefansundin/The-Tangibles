@@ -207,6 +207,127 @@ Geometry.Transform.prototype.transformPoly = function(poly) {
 };
 
 /**
+ Uses a smaller polygon to divide a larger polygon into four
+ (better explanation coming soon!)
+ */
+Geometry.splitIntoFour = function(bigPoly, smallPoly) {
+    
+    /* The coordinate pairs that will be used
+     for as corners in the resulting polyons */
+    var x1, x2, x3, x4, x5, x6, x7, x8, x9;
+    var y1, y2, y3, y4, y5, y6, y7, y8, y8;
+    
+    /* The four corners of the input polygons, going
+     clockwise from northwest to southwest) */
+    var bigNW, bigNE, bigSE, bigSW;
+    var smallNW, smallNE, smallSW;
+    
+    var bigNWIndex = Geometry.findTopLeftCorner(bigPoly);
+    var smallNWIndex = Geometry.findTopLeftCorner(smallPoly);
+    
+    bigNW = bigPoly[bigNWIndex];
+    bigNE = bigPoly[(bigNWIndex + 1) % 4];
+    bigSE = bigPoly[(bigNWIndex + 2) % 4];
+    bigSW = bigPoly[(bigNWIndex + 3) % 4];
+    
+    smallNW = smallPoly[smallNWIndex];
+    smallNE = smallPoly[(smallNWIndex + 1) % 4];
+    // Unused: smallSE = bigSE;
+    smallSW = smallPoly[(smallNWIndex + 3) % 4];
+    
+    x1 = bigNW.x;
+    y1 = bigNW.y;
+    
+    // (x2, y2) unknown at this stage.
+    
+    x3 = bigNE.x;
+    y3 = bigNE.y;
+    
+    // (x4, y4) unknown at this stage.
+    
+    x5 = smallNW.x;
+    y5 = smallNW.y;
+    
+    x6 = smallNE.x;
+    y6 = smallNE.y;
+    
+    x7 = bigSW.x;
+    y7 = bigSW.y;
+    
+    x8 = smallSW.x;
+    y8 = smallSW.y;
+    
+    x9 = bigSE.x;
+    y9 = bigSE.y;
+    
+    var k1, k2, k3, k4;
+    var m1, m2, m3, m4;
+    
+    // Equation for line through (x1, y1), (x2, y2) and (x3, y3)
+    k1 = (y3 - y1) / (x3 - x1);
+    m1 = y1 - k1 * x1;
+    
+    // Equation for line through (x4, y4), (x5, y5) and (x6, y6)
+    k2 = (y6 - y5) / (x6 - x5);
+    m2 = y5 - k2 * x5;
+    
+    // Check if the incline is infinite
+    if (x7 == x1) {
+        x4 = x7;
+    } else {
+        // Equation for line through (x1, y1), (x4, y4) and (x7, y7)
+        k3 = (y7 - y1) / (x7 - x1);
+        m3 = y1 - k3 * x1;
+        
+        x4 = (m3 - m2) / (k2 - k3);
+    }
+    y4 = k2 * x4 + m2;
+    
+    // Check if the incline is infinite
+    if (x8 == x5) {
+        x2 = x8;
+    } else {
+        // Equation for line through (x2, y2), (x5, y8) and (x5, y8)
+        k4 = (y8 - y5) / (x8 - x5);
+        m4 = y5 - k4 * x5;
+        
+        x2 = (m4 - m1) / (k1 - k4);
+    }
+    y2 = k1 * x2 + m1;
+    
+    q1 = [
+          new Geometry.Point(x1, y1),
+          new Geometry.Point(x2, y2),
+          new Geometry.Point(x5, y5),
+          new Geometry.Point(x4, y4)
+          ];
+    
+    q2 = [
+          new Geometry.Point(x2, y2),
+          new Geometry.Point(x3, y3),
+          new Geometry.Point(x6, y6),
+          new Geometry.Point(x5, y5)
+          ];
+    
+    q3 = [
+          new Geometry.Point(x5, y5),
+          new Geometry.Point(x6, y6),
+          new Geometry.Point(x9, y9),
+          new Geometry.Point(x8, y8)
+          ];
+    
+    q4 = [
+          new Geometry.Point(x4, y4),
+          new Geometry.Point(x5, y5),
+          new Geometry.Point(x8, y8),
+          new Geometry.Point(x7, y7)
+          ];
+    
+    return [q1, q2, q3, q4];
+}
+
+
+/**
  @param imageDataIn source data to transform
  @param dstCanvas canvas to put the transformed image into
  @param offset optional offset, if the image data coordinates doesn't match the transform's coordinates
