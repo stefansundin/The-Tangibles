@@ -313,6 +313,17 @@ function socketserver() {
 	 * @param event_data {JSONData} Message payload
 	 */
 	function sendMessage(connection, event_name, event_data) {
+		
+		if (connection == null) {
+			iolog((new Date()) + " send message: connection is null");
+			return;
+		}
+		
+		if (event_name == null || event_name == "") {
+			iolog((new Date()) + " send message: event_name is null");
+			return;
+		}
+		
 		var payload = JSON.stringify({
 			event : event_name,
 			data : event_data
@@ -333,6 +344,10 @@ function socketserver() {
 	 * @param event_data {JSONData} Message payload
 	 */
 	function sendMessageToRoom(userId, roomId, event_name, event_data) {
+		if (userId == null || roomId == null) {
+			iolog((new Date()) + " send message to room: one id is null");
+			return;
+		}
 		for (var i = 0, j = lUsers.length; i < j; i++) {
 			if (lUsers[i].roomId == roomId) {
 				if (lUsers[i].id != userId) {
@@ -408,8 +423,25 @@ function socketserver() {
 	 * @param name {String} New name
 	 */
 	function setName(con, name) {
+		
+		if (name == "") {
+			iolog((new Date()) + " setName: name is null");
+			return;
+		}
+		
 		var user = getUserBySocket(con);
+		
+		if (user == null) {
+			iolog((new Date()) + " setName: user is null");
+			return;
+		}
+		
 		var room = getRoomById(user.roomId);
+
+		if (room == null) {
+			iolog((new Date()) + " setName: room is null");
+			//return;
+		}
 
 		var oldName = user.name;
 
@@ -476,10 +508,21 @@ function socketserver() {
 	 * @param newRoomId {Int} The if of the room to move to
 	 * @param passKey {String} (optional) Passkey for private rooms.
 	 */
-	function userChange(con, newRoomId, passKey) {
+	function userChange(con, newRoomId) {
+		
+		if (newRoomId == null) {
+			iolog((new Date()) + " userChange: newRoomId is null");
+			return;
+		}
+		
 		var user = getUserBySocket(con);
 		var room = getRoomById(user.roomId);
 		var roomNew = getRoomById(newRoomId);
+		
+		if (roomNew == null) {
+			iolog((new Date()) + " userChange: roomNew is null");
+			return;
+		}
 
 		var data = JSON.stringify({
 			id : user.id
@@ -544,7 +587,19 @@ function socketserver() {
 	 * @param message {String} Message to deliver to the recipient
 	 */
 	function message(con, recipientId, message) {
+		
+		if (recipientId == null) {
+			iolog((new Date()) + " message: recipientId is null");
+			return;
+		}
+		
 		var recipient = getUserById(recipientId);
+		
+		if (recipient == null) {
+			iolog((new Date()) + " message: recipient is null");
+			return;
+		}
+		
 		var data = JSON.stringify({
 			msg : message
 		});
@@ -580,7 +635,17 @@ function socketserver() {
 	 * @param label {String} Label of video stream to identify which stream to use
 	 */
 	function corners(con, recipientId, nw, ne, se, sw, label) {
+		if (recipientId == null) {
+			iolog((new Date()) + " corners: recipientId is null");
+			return;
+		}
+		
 		var recipient = getUserById(recipientId);
+
+		if (recipient == null) {
+			iolog((new Date()) + " corners: recipient is null");
+			return;
+		}
 
 		var data = JSON.stringify({
 			nw : nw,
@@ -605,7 +670,12 @@ function socketserver() {
 	 */
 	function cornersBroadcast(con, nw, ne, se, sw, label) {
 		var recipients = getUserBySocket(con);
-
+		
+		if (recipient == null) {
+			iolog((new Date()) + " cornersBroadcast: recipient is null");
+			return;
+		}
+		
 		var data = JSON.stringify({
 			sender : recipients.id,
 			nw : nw,
@@ -614,6 +684,7 @@ function socketserver() {
 			sw : sw,
 			videoLabel : label
 		});
+		
 		sendMessageToRoom(recipients.id, recipients.roomId, API_CORNERS_BROADCAST, data);
 	}
 
@@ -628,14 +699,35 @@ function socketserver() {
 		if (roomId < 1) {
 			return null;
 		}
+		
+		if (recipientId == null) {
+			iolog((new Date()) + " inviteSend: recipientId is null");
+			return;
+		}
+		
+		if (roomId == null) {
+			iolog((new Date()) + " inviteSend: roomId is null");
+			return;
+		}
 
 		var caller = getUserBySocket(con);
 		var recipient = getUserById(recipientId);
 		var room = getRoomById(roomId);
 
+		if (recipient == null) {
+			iolog((new Date()) + " inviteSend: recipient is null");
+			return;
+		}
+		
+		if (room == null) {
+			iolog((new Date()) + " inviteSend: room is null: " + roomId);
+			return;
+		}
+
 		var call = createNewCall(caller, recipient, roomId);
 
-		if (caller == null || recipient == null || room == null || call == null) {
+		if (call == null) {
+			iolog((new Date()) + " inviteSend: call is null");
 			return;
 		}
 
@@ -656,6 +748,17 @@ function socketserver() {
 	 * @param answer {String} id of the room inviting to
 	 */
 	function inviteAnswer(con, callId, answer) {
+		
+		if (callId == null) {
+			iolog((new Date()) + " inviteAnswer: callId is null");
+			return;
+		}
+		
+		if (answer == null) {
+			iolog((new Date()) + " inviteAnswer: answer is null");
+			return;
+		}
+		
 		var call = getCallById(callId);
 
 		if (call == null) {
@@ -704,6 +807,16 @@ function socketserver() {
 	 * @param pass {String} (optional) Password for the new room
 	 */
 	function newRoom(con, name, typeS, desc, pass) {
+		
+		if (name == null || name == "") {
+			iolog((new Date()) + " newRoom: name is null");
+			return;
+		}
+		
+		if (type == null || type== "") {
+			iolog((new Date()) + " newRoom: type is null");
+			return;
+		}
 
 		if (desc == null) {
 			desc = ""
@@ -714,6 +827,11 @@ function socketserver() {
 		}
 
 		var roomId = createNewRoom(name, typeS, desc, pass);
+
+		if (roomId == null) {
+			iolog((new Date()) + " newRoom: roomId is null");
+			return;
+		}
 
 		var data = JSON.stringify({
 			id : roomId,
@@ -736,8 +854,9 @@ function socketserver() {
 	function removeRoom(con, id) {
 		// TODO: add password!
 
-		if (id == 0) {
-			iolog((new Date()) + " trying to remove lobby...");
+
+		if (id == null || id < 1) {
+			iolog((new Date()) + " removeRoom: roomId is null / trying to remove lobby");
 			return;
 		}
 
