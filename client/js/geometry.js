@@ -34,6 +34,18 @@ Geometry.Rectangle.prototype.makePositive = function() {
 	}
 };
 
+
+/*
+ Returns an ordered version of the input poly
+ */
+Geometry.orderPoly = function(poly) {
+    var topLeft = Geometry.findTopLeftCorner(poly);
+    return [poly[topLeft],
+            poly[(topLeft + 1) % 4],
+            poly[(topLeft + 2) % 4],
+            poly[(topLeft + 3) % 4]];
+}
+
 Geometry.Rectangle.prototype.draw = function(ctx) {
 	ctx.lineWidth = 3;
 	ctx.strokeStyle = "red";
