@@ -18,6 +18,10 @@ app.get('/workspace/img/qr1012.png', function(req, res) {
 	res.sendfile(__dirname + '/client/img/qr1012.png');
 });
 
+app.get('/img/qr1012.png', function(req, res) {
+        res.sendfile(__dirname + '/client/img/qr1012.png');
+});
+
 app.get('/workspace/img/qr933.png', function(req, res) {
 	res.sendfile(__dirname + '/client/img/qr933.png');
 });
