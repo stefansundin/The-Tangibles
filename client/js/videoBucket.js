@@ -31,7 +31,6 @@ VideoBucket = function(video, label) {
 VideoBucket.prototype.setTransform = function(prime, rect) {
     
     console.log('creating transform');
-    console.log(poly);
     console.log(rect);
     
     // this.coordinates = poly;
