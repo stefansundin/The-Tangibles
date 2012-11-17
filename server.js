@@ -18,6 +18,10 @@ app.get('/workspace/img/qr1012.png', function(req, res) {
 	res.sendfile(__dirname + '/client/img/qr1012.png');
 });
 
+app.get('/img/qr1012.png', function(req, res) {
+    res.sendfile(__dirname + '/client/img/qr1012.png');
+});
+
 app.get('/workspace/img/qr933.png', function(req, res) {
 	res.sendfile(__dirname + '/client/img/qr933.png');
 });
@@ -134,6 +138,10 @@ app.get('/workspace/js/buttons.js', function(req, res) {
 
 app.get('/workspace/js/calibration.js', function(req, res) {
 	res.sendfile(__dirname + '/client/js/calibration.js');
+});
+
+app.get('/workspace/js/optimus.js', function(req, res) {
+    res.sendfile(__dirname + '/client/js/optimus.js');
 });
 
 app.get('/workspace/js/lib/blend.js', function(req, res) {

@@ -11,11 +11,14 @@ const BUTTON_RATIO = 0.1;
 const SHARED_RECT_MIN_RATIO = 0.2;
 
 const SCREEN_MARKER_ID = 933,
-FINAL_MARKER_ID = 933,
+FINAL_MARKER_ID = 1012,
 LEFT_MARKER_ID = 188,
 RIGHT_MARKER_ID = 956;
 
 const QR_FRAME = 30;
+
+var prime = null;
+const depth = 2;
 
 /**
  Creates a Calibrator object
@@ -51,14 +54,12 @@ Calibrator = function(video, canvas) {
 	// this.buttonImage = new Image();
 	// this.buttonImage.src = 'img/doneButton.png';
     
-	this.qrImg = new Image();
-	/*qrImg.onload = function() {
-     this.context.drawImage(qrImg, 0, 0,
-     fullscreenCanvas.width,
-     fullscreenCanvas.height);
-     };*/
+	this.screenImg = new Image();
+    this.finalImg = new Image();
     
-	this.qrImg.src = "http://"+ window.location.host +"/img/qr" + SCREEN_MARKER_ID + ".png";
+	this.screenImg.src = "http://"+ window.location.host +"/img/qr" + SCREEN_MARKER_ID + ".png";
+    
+    this.finalImg.src = "http://"+ window.location.host +"/img/qr" + FINAL_MARKER_ID + ".png";
     
 	this.firstStageCallback = null;
 	this.onFinishedCallback = null;
@@ -97,7 +98,8 @@ Calibrator.prototype.tick = function() {
 	if (this.isDone()) {
 		if (this.onFinishedCallback != null) {
             // var callback = this.onFinishedCallback;
-            this.onFinishedCallback.call(this.target, this.sharedRect, this.sharedPoly);
+            this.onFinishedCallback.call(this.target, this.sharedRect, this.prime);
+            
 			// this.target.callback(this.sharedRect, this.sharedPoly);
 		}
 	} else {
@@ -108,7 +110,7 @@ Calibrator.prototype.tick = function() {
 }
 
 Calibrator.prototype.isDone = function() {
-	return (this.calibrationStage >= 4 && this.sharedTransform != null);
+	return (this.calibrationStage >= 5 && this.prime != null);
 }
 
 Calibrator.prototype.draw = function() {
@@ -116,7 +118,7 @@ Calibrator.prototype.draw = function() {
 	switch (this.calibrationStage) {
 		case 1:
 			// Draw a fullscreen QR marker
-			this.context.drawImage(this.qrImg, QR_FRAME, QR_FRAME,
+			this.context.drawImage(this.screenImg, QR_FRAME, QR_FRAME,
                                    this.canvas.width - QR_FRAME * 2,
                                    this.canvas.height - QR_FRAME * 2);
 			break;
@@ -130,13 +132,19 @@ Calibrator.prototype.draw = function() {
 			break;
 		case 3:
 			// Draw a marker in the shared rectangle
-			this.context.drawImage(this.qrImg,
+			this.context.drawImage(this.finalImg, // NICKEÄNDRING
                                    this.sharedRect.x,
                                    this.sharedRect.y,
                                    this.sharedRect.width,
                                    this.sharedRect.height);
 			break;
 		case 4:
+            /* Just clear here; Optimus Prime will take care
+            of the drawing */
+            this.context.clearRect(this.sharedRect.x,
+                                   this.sharedRect.y,
+                                   this.sharedRect.width,
+                                   this.sharedRect.height);
 			break;
 		default:
 			break;
@@ -162,6 +170,9 @@ Calibrator.prototype.calibrateWithMarkers = function(markers) {
 		case 3:
 			this.thirdCalibration(markers);
 			break;
+        case 4:
+			this.fourthCalibration();
+			break;
 		default:
 			break;
 	}
@@ -184,13 +195,7 @@ Calibrator.prototype.firstCalibration = function(markers) {
         
 		if (marker.id == SCREEN_MARKER_ID) {
             
-			var topLeft = Geometry.findTopLeftCorner(marker.corners);
-            
-			// Poly of the screen as seen by the camera
-			this.screenPoly = [marker.corners[topLeft],
-                               marker.corners[(topLeft + 1) % 4],
-                               marker.corners[(topLeft + 2) % 4],
-                               marker.corners[(topLeft + 3) % 4]];
+            this.screenPoly = Geometry.orderPoly(marker.corners);
             
 			var canvasRectangle = [{x:QR_FRAME, y:QR_FRAME},
                                    {x:this.canvas.width - QR_FRAME, y:QR_FRAME},
@@ -198,7 +203,7 @@ Calibrator.prototype.firstCalibration = function(markers) {
                                    {x:QR_FRAME, y:this.canvas.height - QR_FRAME}];
             
 			// Transforms points from camera to screen
-			this.screenTransform = new Geometry.Transform(canvasRectangle, this.screenPoly); // new Geometry.PolyToRectTransform(this.screenPoly, new Geometry.Rectangle(5, 5, this.canvas.width - 10, this.canvas.height - 10));
+			this.screenTransform = new Geometry.Transform(canvasRectangle, this.screenPoly);
             
 			if (this.firstStageCallback != null) {
                 this.firstStageCallback.call(this.target, this.screenTransform);
@@ -214,7 +219,7 @@ Calibrator.prototype.firstCalibration = function(markers) {
 
 /**
  --The second calibration step--
- Checks for two markers and draws a rectangle of
+ Checks for two markers and creates a rectangle of
  the area of the workspace that will be shared
  */
 Calibrator.prototype.secondCalibration = function(markers) {
@@ -294,8 +299,7 @@ Calibrator.prototype.secondCalibration = function(markers) {
 
 /**
  -- The third calibration step --
- Finds the final marker to make the transform that
- will be sent to the other users
+ Finds the marker used to create the Optimus Prime instance
  */
 Calibrator.prototype.thirdCalibration = function(markers) {
     
@@ -305,24 +309,28 @@ Calibrator.prototype.thirdCalibration = function(markers) {
 		marker = markers[i];
 		if (marker.id == FINAL_MARKER_ID) {
             
-			var topLeft = Geometry.findTopLeftCorner(marker.corners);
+            this.sharedPoly = Geometry.orderPoly(marker.corners);
             
-			// console.log(markers);
-            
-			this.sharedPoly = [marker.corners[topLeft],
-                               marker.corners[(topLeft + 1) % 4],
-                               marker.corners[(topLeft + 2) % 4],
-                               marker.corners[(topLeft + 3) % 4]];
+            prime = new Transformers.OptimusPrime(this.sharedRect,
+                                                  this.sharedPoly,
+                                                  depth, 0);
             
 			// TODO: Change implementation of Transform.transformImageToRect
-			var r = this.sharedRect.copy();
-			r.x = 0;
-			r.y = 0;
-            
-			this.sharedTransform = Geometry.PolyToRectTransform(this.sharedPoly, r);
 			this.calibrationStage = 4;
 		}
 	}
+}
+
+
+/**
+ Let the Optimus Prime instance finish the calibration
+ before returning
+ */
+Calibrator.prototype.fourthCalibration = function(markers) {
+    if (prime.tick(markers, this.context)) {
+        this.calibrationStage = 5;
+    }
+    break;
 }
 
 /**

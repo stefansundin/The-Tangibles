@@ -1,4 +1,5 @@
 
+// Senaste, riktiga....
 
 /**
  Constructor...
@@ -12,13 +13,14 @@ VideoBucket = function(video, label) {
     
     this.transformCanvas = null;
     this.transformContext = null;
-	this.transform = null;
+	// this.transform = null;
     this.coordinates = [];
     
     this.videoCanvas = null; //MediaExt.createCanvas(video.width, video.height);
     this.videoContext = null; // this.videoCanvas.getContext("2d");
 	
 	this.lastTransformedTimestamp = -1;
+    this.prime = null;
 }
 
 /**
@@ -26,22 +28,26 @@ VideoBucket = function(video, label) {
  @param poly Poly returned by the Calibrator
  @param rect The local shared rectangle
  */
-VideoBucket.prototype.setTransform = function(poly, rect) {
+VideoBucket.prototype.setTransform = function(prime, rect) {
     
     console.log('creating transform');
     console.log(poly);
     console.log(rect);
     
-    this.coordinates = poly;
+    // this.coordinates = poly;
     this.transformCanvas = MediaExt.createCanvas(rect.width, rect.height);
     this.transformContext = this.transformCanvas.getContext("2d");
-    this.transform = new Geometry.PolyToCanvasTransform(poly, this.transformCanvas);
+    // this.transform = new Geometry.PolyToCanvasTransform(poly, this.transformCanvas);
 	
 	this.videoCanvas = MediaExt.createCanvas(this.video.width, this.video.height);
     this.videoContext = this.videoCanvas.getContext("2d");
+    
+    this.prime = prime;
 	
 	// A rectangle containing the transform polygon -
 	// used for cropping out image data from the video stream
+    
+    /*
 	var padding = 5;
 	var cropRect = Geometry.rectFromPoly(poly);
 	cropRect.x -= padding;
@@ -50,7 +56,7 @@ VideoBucket.prototype.setTransform = function(poly, rect) {
 	cropRect.height += padding * 2;
 	
 	this.videoCropRect = cropRect;
-	
+	*/
 	console.log('Crop rectangle:');
 	console.log(cropRect);
 }
@@ -81,12 +87,12 @@ VideoBucket.prototype.transformVideo = function() {
 		return this.transformCanvas;
 	}
     
+    /*
     var	x = this.videoCropRect.x,
 		y = this.videoCropRect.y,
 		w = this.videoCropRect.width,
         h = this.videoCropRect.height;
-	
-	/*
+
 	 First x, y, w and h need to be relative to the camera's native resolution
 	 in order for this to work..
     
@@ -97,15 +103,19 @@ VideoBucket.prototype.transformVideo = function() {
 	// Draw the video
     this.videoContext.drawImage(this.video, 0, 0, this.video.width, this.video.height);
 	
-	// Crop out the interesting part of the video
+	/* Crop out the interesting part of the video
     var imageData = this.videoContext.getImageData(x, y, w, h);
-	
-	// Transform the video
+	*/
+    var imageData = this.videoContext.getImageData(0, 0, this.video.width, this.video.height);
+    
+	/* Transform the video
     this.transform.transformImage(imageData,
 								  this.transformCanvas,
 								  this.videoCropRect);
+     */
     
 	// Store timestamp
+    this.prime.draw(imageData, this.transformContext);
 	this.lastTransformedTimestamp = this.video.currentTime;
 	
     return this.transformCanvas;
