@@ -192,8 +192,6 @@ Calibrator.prototype.firstCalibration = function(markers) {
         
 		var marker = markers[i];
         
-		// console.log(marker.id);
-        
 		if (marker.id == SCREEN_MARKER_ID) {
             
             this.screenPoly = Geometry.orderPoly(marker.corners);
@@ -339,11 +337,8 @@ Calibrator.prototype.fourthCalibration = function(markers) {
  confirm the shared window size
  */
 Calibrator.prototype.confirmSharedRectangle = function() {
-	//console.log("tada " + this.calibrationStage);
 	if (this.calibrationStage == 2) {
-		//console.log("aha");
 		this.calibrationStage = 3;
-		// TODO: Stop drawing buttons
 	}
 }
 

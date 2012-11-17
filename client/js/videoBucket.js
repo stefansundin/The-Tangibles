@@ -55,9 +55,10 @@ VideoBucket.prototype.setTransform = function(prime, rect) {
 	cropRect.height += padding * 2;
 	
 	this.videoCropRect = cropRect;
-	*/
+	
 	console.log('Crop rectangle:');
 	console.log(cropRect);
+    */
 }
 
 VideoBucket.prototype.toggleEnabled = function() {
