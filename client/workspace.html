@@ -318,7 +318,7 @@ function Workspace() {
 
 		console.log('Sending broadcast, ' + videoObj.label);
 		console.log(data);
-		// window.opener.parent.socket.send(window.opener.parent.API_CORNERS_BROADCAST, data);
+		window.opener.parent.socket.send(window.opener.parent.API_CORNERS_BROADCAST, data);
 	}
 
 	/**
@@ -336,7 +336,7 @@ function Workspace() {
 
 		console.log('Sending broadcast reply');
 		console.log(data);
-		// window.opener.parent.socket.send(window.opener.parent.API_CORNERS, data);
+		window.opener.parent.socket.send(window.opener.parent.API_CORNERS, data);
 	}
 
 	/**
