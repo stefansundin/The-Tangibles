@@ -261,7 +261,7 @@ function Workspace() {
 			if (v.label == label) {
 				
 				var dstRect = new Geometry.Rectangle(0, 0, sharedRect.width, sharedRect.height);
-				var transformer = Transformers.OptimusPrime.decode(polyList, dstRect, depth);
+				var transformer = Transformers.OptimusPrime.decode(dstRect, polyList, depth);
 				v.setTransform(/*[nw, ne, se, sw]*/ transformer, sharedRect);
 
 				// enable buttons
@@ -292,7 +292,7 @@ function Workspace() {
 			if (v.label == label) {
 				
 				var dstRect = new Geometry.Rectangle(0, 0, sharedRect.width, sharedRect.height);
-				var transformer = Transformers.OptimusPrime.decode(polyList, dstRect, depth);
+				var transformer = Transformers.OptimusPrime.decode(dstRect, polyList, depth);
 				v.setTransform(/*[nw, ne, se, sw]*/ transformer, sharedRect);
 
 				// enable buttons
