@@ -51,7 +51,7 @@ function Workspace() {
 	var video, screenCanvas, screenContext;
 	var calibrator;
 	var sharedRect, sharedPoly;
-	var sharedTransformer, sharedTransformerEnc = [];
+	var sharedTransformer, sharedTransformerEnc;
 	var videos = [];
 	var videoObj;
 	var PeerConnection = window.webkitRTCPeerConnection;
@@ -225,7 +225,7 @@ function Workspace() {
 		
 		// sharedPoly = sPoly;
 		sharedTransformer = sTransformer;
-		sTransformer.encode(sharedTransformerEnc);
+		sharedTransformerEnc = sTransformer.encode();
 		
 		videoObj.setTransform(sTransformer, sRect);
 
@@ -296,7 +296,7 @@ function Workspace() {
 				v.setTransform(/*[nw, ne, se, sw]*/ transformer, sharedRect);
 
 				// enable buttons
-				b = new VideoButton(v, v.toggleEnabled, v)
+				b = new VideoButton(v, v.toggleEnabled, v);
 				b.id = v.video.id;
 				buttons.addButton(b);
 			}
@@ -317,6 +317,7 @@ function Workspace() {
 		});
 
 		console.log('Sending broadcast, ' + videoObj.label);
+		console.log(data);
 		window.opener.parent.socket.send(window.opener.parent.API_CORNERS_BROADCAST, data);
 	}
 
