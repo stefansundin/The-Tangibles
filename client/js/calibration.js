@@ -17,7 +17,6 @@ RIGHT_MARKER_ID = 956;
 
 const QR_FRAME = 30;
 
-var prime = null;
 const depth = 2;
 
 /**
@@ -64,6 +63,8 @@ Calibrator = function(video, canvas) {
 	this.firstStageCallback = null;
 	this.onFinishedCallback = null;
     this.target = null;
+    
+    this.prime = null;
 }
 
 /**
@@ -311,7 +312,7 @@ Calibrator.prototype.thirdCalibration = function(markers) {
             
             this.sharedPoly = Geometry.orderPoly(marker.corners);
             
-            prime = new Transformers.OptimusPrime(this.sharedRect,
+            this.prime = new Transformers.OptimusPrime(this.sharedRect,
                                                   this.sharedPoly,
                                                   depth, 0);
             
@@ -327,7 +328,7 @@ Calibrator.prototype.thirdCalibration = function(markers) {
  before returning
  */
 Calibrator.prototype.fourthCalibration = function(markers) {
-    if (prime.tick(markers, this.context)) {
+    if (this.prime.tick(markers, this.context)) {
         this.calibrationStage = 5;
     }
 }
