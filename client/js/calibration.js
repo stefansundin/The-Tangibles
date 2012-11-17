@@ -171,7 +171,7 @@ Calibrator.prototype.calibrateWithMarkers = function(markers) {
 			this.thirdCalibration(markers);
 			break;
         case 4:
-			this.fourthCalibration();
+			this.fourthCalibration(markers);
 			break;
 		default:
 			break;
