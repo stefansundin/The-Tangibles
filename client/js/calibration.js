@@ -17,7 +17,6 @@ RIGHT_MARKER_ID = 956;
 
 const QR_FRAME = 30;
 
-var prime = null;
 const depth = 2;
 
 /**
@@ -64,6 +63,8 @@ Calibrator = function(video, canvas) {
 	this.firstStageCallback = null;
 	this.onFinishedCallback = null;
     this.target = null;
+    
+    this.prime = null;
 }
 
 /**
@@ -171,7 +172,7 @@ Calibrator.prototype.calibrateWithMarkers = function(markers) {
 			this.thirdCalibration(markers);
 			break;
         case 4:
-			this.fourthCalibration();
+			this.fourthCalibration(markers);
 			break;
 		default:
 			break;
@@ -190,8 +191,6 @@ Calibrator.prototype.firstCalibration = function(markers) {
 	for (var i = 0; i < markers.length; i++) {
         
 		var marker = markers[i];
-        
-		// console.log(marker.id);
         
 		if (marker.id == SCREEN_MARKER_ID) {
             
@@ -311,7 +310,7 @@ Calibrator.prototype.thirdCalibration = function(markers) {
             
             this.sharedPoly = Geometry.orderPoly(marker.corners);
             
-            prime = new Transformers.OptimusPrime(this.sharedRect,
+            this.prime = new Transformers.OptimusPrime(this.sharedRect,
                                                   this.sharedPoly,
                                                   depth, 0);
             
@@ -327,10 +326,9 @@ Calibrator.prototype.thirdCalibration = function(markers) {
  before returning
  */
 Calibrator.prototype.fourthCalibration = function(markers) {
-    if (prime.tick(markers, this.context)) {
+    if (this.prime.tick(markers, this.context)) {
         this.calibrationStage = 5;
     }
-    break;
 }
 
 /**
@@ -339,11 +337,8 @@ Calibrator.prototype.fourthCalibration = function(markers) {
  confirm the shared window size
  */
 Calibrator.prototype.confirmSharedRectangle = function() {
-	//console.log("tada " + this.calibrationStage);
 	if (this.calibrationStage == 2) {
-		//console.log("aha");
 		this.calibrationStage = 3;
-		// TODO: Stop drawing buttons
 	}
 }
 

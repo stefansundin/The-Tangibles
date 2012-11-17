@@ -31,7 +31,6 @@ VideoBucket = function(video, label) {
 VideoBucket.prototype.setTransform = function(prime, rect) {
     
     console.log('creating transform');
-    console.log(poly);
     console.log(rect);
     
     // this.coordinates = poly;
@@ -56,9 +55,10 @@ VideoBucket.prototype.setTransform = function(prime, rect) {
 	cropRect.height += padding * 2;
 	
 	this.videoCropRect = cropRect;
-	*/
+	
 	console.log('Crop rectangle:');
 	console.log(cropRect);
+    */
 }
 
 VideoBucket.prototype.toggleEnabled = function() {
