@@ -17,6 +17,7 @@
 <script type="text/javascript" src="js/lib/blend.js"></script>
 <script type="text/javascript" src="js/utilities.js"></script>
 <script type="text/javascript" src="js/videoBucket.js"></script>
+<script type="text/javascript" src="js/optimus.js"></script>
 
 <script src="/webrtc.io.js"></script>
 </head>
@@ -46,16 +47,18 @@ var notice = $('#notice');
 $('#you').hide();
 
 function Workspace() {
+	
 	var video, screenCanvas, screenContext;
 	var calibrator;
-	var sharedRect, sharedPoly, transform;
+	var sharedRect, sharedPoly;
+	var sharedTransformer, sharedTransformerEnc = [];
 	var videos = [];
 	var videoObj;
 	var PeerConnection = window.webkitRTCPeerConnection;
 	var buttons;
 	var cb, cs;
 
-	var self = this;
+	var self = this; // Used to avoid faulty this-references in anonymous functions and callbacks
 
 	this.createVideo = function (stream, socketId) {
 
@@ -120,6 +123,8 @@ function Workspace() {
 		screenCanvas.width = window.innerWidth;
 		screenCanvas.height = window.innerHeight;
 
+		// Resize the fullscreen canvas when the window is resized
+		// This is necessary to keep its image data in the same dimensions as its actual size
 		window.onresize = function() {
 			screenCanvas.width = window.innerWidth;
 			screenCanvas.height = window.innerHeight;
@@ -136,7 +141,7 @@ function Workspace() {
 
 		var room = window.location.hash.slice(1);
 
-		//When using localhost
+		// When using localhost
 		console.log('Connecting');
 		rtc.connect("ws://"+ window.location.host +"/", room);
 
@@ -164,17 +169,23 @@ function Workspace() {
 			tangibles2.showPicture(tangibles2.sifteos[2],"http://"+ window.location.host +"/img/sifteo_qr956.png");
 		}
 		
+		// Force correct canvas dimensions before initiating calibration
 		screenCanvas.width = window.innerWidth;
 		screenCanvas.height = window.innerHeight;
 		
+		// Create Calibrator object and start calibration
 		calibrator = new Calibrator(video, screenCanvas);
 		calibrator.startCalibration(this.onGotTransform, this.onFinishedCalibration, self);
 	}
 
 
-	this.onGotTransform = function (trans) {
+	/**
+	 Callback from Calibrator when the camera->screen transform is found
+	 @param trans the transform object
+	 */
+	this.onGotTransform = function (transform) {
 		console.log('got transform');
-		transform = trans;
+		// transform = trans;
 		var inverse = transform.inverse();
 
 		// enable calibration buttons
@@ -201,13 +212,22 @@ function Workspace() {
 		};
 	}
 
-	this.onFinishedCalibration = function (sRect, sPoly) {
+	/** 
+	 Callback from Calibrator when calibration finishes.
+	 @param sRect the rectangle in the screenCanvas that will be shared with the others
+	 @param sTransformer the transformer object that manages the transform polys
+	 */
+	this.onFinishedCalibration = function (sRect, sTransformer) {
+		
 		console.log('finished calibration');
 		buttons.deleteButtonId('done');
 		sharedRect = sRect;
-		sharedPoly = sPoly;
-
-		videoObj.setTransform(sPoly, sRect);
+		
+		// sharedPoly = sPoly;
+		sharedTransformer = sTransformer;
+		sTransformer.encode(sharedTransformerEnc);
+		
+		videoObj.setTransform(sTransformer, sRect);
 
 		// Remove qr codes from sifteos when done
 		var tangibles2 = window.opener.parent.tangibles;
@@ -215,8 +235,8 @@ function Workspace() {
 			setTimeout(tangibles2.setColor(tangibles2.sifteos[0],"FFFFFF"),10000);
 			setTimeout(tangibles2.setColor(tangibles2.sifteos[2],"FFFFFF"),10000);
 		}
+		
 		// setup listener and broadcast your coordinates
-
 		window.opener.parent.socket.on(window.opener.parent.API_CORNERS, self.onGotCorners);
 		self.sendBroadcast();
 		window.opener.parent.socket.on(window.opener.parent.API_CORNERS_BROADCAST, self.onBroadcast);
@@ -226,17 +246,25 @@ function Workspace() {
 
 	}
 
+	/**
+	 Called from the server when someone broadcasts their transform
+	 */
 	this.onBroadcast = function (id, nw, ne, se, sw, label) {
-
 		console.log('got broadcast, ' + label);
 
+		// Changed API, server might need an update :)
+		var polyList = nw;
+		var depth = ne;
+		
 		for (var i = 0; i < videos.length; i++) {
 			var v = videos[i];
 			if (v.label == label) {
-				v.setTransform([nw, ne, se, sw], sharedRect);
+				
+				var transformer = Transformers.OptimusPrime.decode(polyList, sharedRect, depth);
+				v.setTransform(/*[nw, ne, se, sw]*/ transformer, sharedRect);
 
 				// enable buttons
-				b = new VideoButton(v, v.toggleEnabled, v)
+				b = new VideoButton(v, v.toggleEnabled, v);
 				b.id = v.video.id;
 				buttons.addButton(b);
 			}
@@ -246,13 +274,24 @@ function Workspace() {
 		self.answerBroadcast(id);
 	}
 
+	/**
+	 Called from the server when someone sends their transform
+	 @param nw, ne, se, sw - used to be the corners of the shared rectangle in the camera's view
+			Now, nw is a list of polygons and ne is the calibration depth of OptimusPrime
+	 */
 	this.onGotCorners = function (nw, ne, se, sw, label) {
 		console.log('got corners, ' + label);
 
+		// Changed API, server might need an update :)
+		var polyList = nw;
+		var depth = ne;
+		
 		for (var i = 0; i < videos.length; i++) {
 			var v = videos[i];
 			if (v.label == label) {
-				v.setTransform([nw, ne, se, sw], sharedRect);
+				
+				var transformer = Transformers.OptimusPrime.decode(polyList, sharedRect, depth);
+				v.setTransform(/*[nw, ne, se, sw]*/ transformer, sharedRect);
 
 				// enable buttons
 				b = new VideoButton(v, v.toggleEnabled, v)
@@ -262,13 +301,16 @@ function Workspace() {
 		}
 	}
 
+	/**
+	 Send transform information to all participants
+	 */
 	this.sendBroadcast = function () {
 		// data to broadcast
 		var data = JSON.stringify({
-			nw: sharedPoly[0],
-			ne: sharedPoly[1],
-			se: sharedPoly[2],
-			sw: sharedPoly[3],
+			nw: sharedTransformerEnc, // sharedPoly[0],
+			ne: sharedTransformer.depth, // sharedPoly[1],
+			se: 0, // sharedPoly[2],
+			sw: 0, // sharedPoly[3],
 			videoLabel: videoObj.label
 		});
 
@@ -276,13 +318,16 @@ function Workspace() {
 		window.opener.parent.socket.send(window.opener.parent.API_CORNERS_BROADCAST, data);
 	}
 
+	/**
+	 Send local transform in response to broadcast
+	 */
 	this.answerBroadcast = function (id) {
 		var data = JSON.stringify({
 			id: id, // to who we are going to send
-			nw: sharedPoly[0],
-			ne: sharedPoly[1],
-			se: sharedPoly[2],
-			sw: sharedPoly[3],
+			nw: sharedTransformerEnc, // sharedPoly[0],
+			ne: sharedTransformer.depth, // sharedPoly[1],
+			se: 0, // sharedPoly[2],
+			sw: 0, // sharedPoly[3],
 			videoLabel: videoObj.label
 		});
 
@@ -290,12 +335,17 @@ function Workspace() {
 		window.opener.parent.socket.send(window.opener.parent.API_CORNERS, data);
 	}
 
+	/**
+	 Merges the incoming video streams and draws them to screen
+	 */
 	this.mergeVideos = function () {
 
 		var transformedVideos = VideoBucket.transformList(videos);
 		var mergedImage = Utilities.mergeImages(transformedVideos);
 
+		// Draw a fram around the shared rectangle
 		sharedRect.draw(screenContext);
+		
 		if (mergedImage != null) {
 			// console.log('drawing merged videos, ' + sharedRect.x + ' ' + sharedRect.width);
 			screenContext.drawImage(mergedImage,
@@ -304,14 +354,16 @@ function Workspace() {
 									sharedRect.width,
 									sharedRect.height);
 		} else {
+			// If no video is available yet, just clear the area
 			screenContext.clearRect(sharedRect.x, sharedRect.y, sharedRect.width, sharedRect.height);
 		}
 
 		// *****
 		// Test - check if canvas dimensions are correct
-		var rect = new Geometry.Rectangle(0, 0, screenCanvas.width, screenCanvas.height);
-		rect.draw(screenContext);
+		// var rect = new Geometry.Rectangle(0, 0, screenCanvas.width, screenCanvas.height);
+		// rect.draw(screenContext);
 		// *****
+		
 		setTimeout(function() {self.mergeVideos();}, 1); // 50);
 	}
 }
