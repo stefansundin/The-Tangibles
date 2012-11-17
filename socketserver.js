@@ -671,8 +671,8 @@ function socketserver() {
 	function cornersBroadcast(con, nw, ne, se, sw, label) {
 		var recipients = getUserBySocket(con);
 		
-		if (recipient == null) {
-			iolog((new Date()) + " cornersBroadcast: recipient is null");
+		if (recipients == null) {
+			iolog((new Date()) + " cornersBroadcast: recipients is null");
 			return;
 		}
 		
