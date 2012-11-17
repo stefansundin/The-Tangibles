@@ -260,7 +260,8 @@ function Workspace() {
 			var v = videos[i];
 			if (v.label == label) {
 				
-				var transformer = Transformers.OptimusPrime.decode(polyList, sharedRect, depth);
+				var dstRect = new Geometry.Rectangle(0, 0, sharedRect.width, sharedRect.height);
+				var transformer = Transformers.OptimusPrime.decode(polyList, dstRect, depth);
 				v.setTransform(/*[nw, ne, se, sw]*/ transformer, sharedRect);
 
 				// enable buttons
@@ -290,7 +291,8 @@ function Workspace() {
 			var v = videos[i];
 			if (v.label == label) {
 				
-				var transformer = Transformers.OptimusPrime.decode(polyList, sharedRect, depth);
+				var dstRect = new Geometry.Rectangle(0, 0, sharedRect.width, sharedRect.height);
+				var transformer = Transformers.OptimusPrime.decode(polyList, dstRect, depth);
 				v.setTransform(/*[nw, ne, se, sw]*/ transformer, sharedRect);
 
 				// enable buttons

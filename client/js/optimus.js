@@ -1,6 +1,6 @@
 
 /**
- Calibration helper that recursively splits the shared area into 
+ Calibration helper that recursively splits the shared area into
  smaller pieces to make the transform more accurate
  
  Important! The class is NOT named after the horrible Michael Bay version of Transformers!
@@ -13,9 +13,9 @@
 var Transformers = Transformers || {};
 
 /*
-Transformers.init = function() {
-	if (Transformers.MarkerImages)
-		return;
+ Transformers.init = function() {
+ if (Transformers.MarkerImages)
+ return;
  */
 
 // Load AR marker images (is it AR or QR? We haven't really decided on what to call them:)
@@ -23,21 +23,21 @@ if (!Transformers.MarkerImages) {
 	
 	var imgList = [];
 	var img;
-
+	
 	img = new Image();
 	img.src = "img/qr933.png";
 	img.markerId = 933;
 	imgList.push(img);
-
+	
 	img = new Image();
 	img.src = "img/qr1012.png";
 	img.markerId = 1012;
 	imgList.push(img);
-
+	
 	Transformers.MarkerImages = imgList;
 }
 
-/** 
+/**
  Constructor.
  @param rect the shared rectangle
  @param poly rect as seen by the camera
@@ -48,11 +48,13 @@ Transformers.OptimusPrime = function(rect, poly, depth, imageIndex) {
 	
 	// Transformers.init();
 	
+	console.log(poly);
+	
 	this.rect = rect;
 	this.poly = poly;
 	this.depth = depth;
 	this.imageIndex = imageIndex || 0;
-
+	
 	this.children = null;
 	
 	// At depth 0, create a canvas and a transform to draw to
@@ -68,9 +70,9 @@ Transformers.OptimusPrime = function(rect, poly, depth, imageIndex) {
 		this.transform = null;
 		
 		var x = rect.x,
-			y = rect.y,
-			w = rect.width / 2,
-			h = rect.height / 2;
+		y = rect.y,
+		w = rect.width / 2,
+		h = rect.height / 2;
 		
 		// Split the canvas into four regions, one for each child
 		// The order is top left, top right, bottom right, bottom left
@@ -169,38 +171,52 @@ Transformers.OptimusPrime.prototype.draw = function(imageData, context) {
 /**
  Encodes the transforms as a list of lists (of lists...) of polygons
  */
-Transformers.OptimusPrime.prototype.encode = function(list) {
+Transformers.OptimusPrime.prototype.encode = function() {
 	
 	if (this.transform != null) {
-	
-		list.push(this.poly);
-	
+		
+		return this.poly;
+		
 	} else {
 		
-		var childList = [];
+		var list = [];
 		
 		for (var i = 0; i < this.children.length; i++) {
-			this.children[i].encode(childList);
+			list.push(this.children[i].encode());
 		}
 		
-		list.push(childList);
+		return list;
 	}
 }
 
 /**
  Decodes a list produced by {Transformers.OptimusPrime.prototype.encode}
- into an OptimusPrime hierarchy
+ into an OptimusPrime hierarchy.
+ 
+ Usage:
+ var prime1 = new Transformers.OptimusPrime(firstRect, poly, 2);
+ // Run calibration...
+ var prime2 = Transformers.OptimusPrime.decode(secondRect, prime1.encode(), primeObject.depth);
+ 
+ prime2 will perform the same transformation as prime1, but with another
+ destination rectangle. One instance can be encoded, sent over the network
+ and decoded on another client.
+ 
+ @param rect the destination rectangle (canvas rectangle or shared rect)
+ @param polyList an encoded OptimusPrime
+ @param depth the recursion depth of polyList (should maybe figure that out here instead of taking it as input..)
+ @return an OptimusPrime instance
  */
-Transformers.OptimusPrime.decode = function(polyList, rect, depth) {
+Transformers.OptimusPrime.decode = function(rect, polyList, depth) {
 	
-	var prime = new Transformers.OptimusPrime(polyList, rect, depth, 0);
+	var prime = new Transformers.OptimusPrime(rect, polyList, depth);
 	
 	if (depth > 0) {
 		
-		var x = rect.x, // || 0,
-		y = rect.y, // || 0,
-		w = rect.width / 2,
-		h = rect.height / 2;
+		var x = rect.x || 0,
+			y = rect.y || 0,
+			w = rect.width / 2,
+			h = rect.height / 2;
 		
 		var rects = [new Geometry.Rectangle(x, y, w, h),
 					 new Geometry.Rectangle(x + w, y, w, h),
@@ -210,9 +226,9 @@ Transformers.OptimusPrime.decode = function(polyList, rect, depth) {
 		var children = [];
 		
 		for (var i = 0; i < 4; i++) {
-			var child = Transformers.OptimusPrime.decode(polyList[i],
-														 rects[i],
-														 depth - 1, 0);
+			var child = Transformers.OptimusPrime.decode(rects[i],
+														 polyList[i],
+														 depth - 1);
 			children.push(child);
 		}
 		
