@@ -330,7 +330,6 @@ Calibrator.prototype.fourthCalibration = function(markers) {
     if (prime.tick(markers, this.context)) {
         this.calibrationStage = 5;
     }
-    break;
 }
 
 /**
