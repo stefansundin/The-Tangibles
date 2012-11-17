@@ -813,7 +813,7 @@ function socketserver() {
 			return;
 		}
 		
-		if (type == null || type== "") {
+		if (typeS == null || type== "") {
 			iolog((new Date()) + " newRoom: type is null");
 			return;
 		}
