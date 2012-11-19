@@ -41,6 +41,7 @@ var c = $('#myCanvas');
 c.hide();
 
 var fullscreen = $('#fullscreen');
+fullscreen.hide();
 
 var notice = $('#notice');
 
@@ -61,7 +62,8 @@ function Workspace() {
 	var self = this; // Used to avoid faulty this-references in anonymous functions and callbacks
 
 	this.createVideo = function (stream, socketId) {
-
+		fullscreen.show();
+		
 		var v = document.createElement('video');
 		v.width = CANVAS_WIDTH;
 		v.height = CANVAS_HEIGHT;
