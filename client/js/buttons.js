@@ -57,7 +57,7 @@ var Buttons = function (c, transform, v, w, h) {
 			if (y + this.height > this.maxHeight) {
 				break;
 			}
-			y = 10 + i * (this.height + 20);
+			y = 10 + i * (this.height + 80);
 			this.listOfButtons[i].draw(this._ctx, x, y, this.width, this.height);
 		}
 		// clear everything below the last button
@@ -71,7 +71,7 @@ var Buttons = function (c, transform, v, w, h) {
 			if (y + this.height > this.maxHeight) {
 				break;
 			}
-			y = y + i * (this.height + 20);
+			y = y + i * (this.height + 80);
 			var p1 = new Object();
 			p1.x = x;
 			p1.y = y;
@@ -127,13 +127,18 @@ var Buttons = function (c, transform, v, w, h) {
 		}
 		this.draw();
 		// take snapshot
+		var self = this;
+		setTimeout(function () {self.update2()}, 60);
+		this.timeOut = setTimeout(function () {self.update()}, 200);
+	}
+
+	this.update2 = function () {
 		this.drawVideo();
 		var width = this.contextSource.canvas.width;
 		var height = this.contextSource.canvas.height;
 		this.lastImageData = this.contextSource.getImageData(0, 0, width, height);
-		var self = this;
-		this.timeOut = setTimeout(function () {self.update()}, 200);
 	}
+
 
 	this.drawVideo = function () {
 		this.contextSource.drawImage(this.video, this.p1.x, this.p1.y, this.p2.x-this.p1.x, this.p2.y-this.p1.y);
