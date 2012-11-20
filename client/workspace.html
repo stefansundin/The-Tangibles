@@ -351,7 +351,7 @@ function Workspace() {
 		var transformedVideos = VideoBucket.transformList(videos);
 		var mergedImage = Utilities.mergeImages(transformedVideos);
 
-		var localVideo = videoObj.transformedVideo();
+		var localVideo = videoObj.transformVideo();
 		if (localVideo != null) {
 			Utilities.filterDifference(localVideo, mergedImage);
 		}
