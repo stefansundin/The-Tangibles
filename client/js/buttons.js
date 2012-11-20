@@ -127,13 +127,18 @@ var Buttons = function (c, transform, v, w, h) {
 		}
 		this.draw();
 		// take snapshot
+		var self = this;
+		setTimeout(function () {self.update2()}, 30);
+		this.timeOut = setTimeout(function () {self.update()}, 200);
+	}
+
+	this.update2 = function () {
 		this.drawVideo();
 		var width = this.contextSource.canvas.width;
 		var height = this.contextSource.canvas.height;
 		this.lastImageData = this.contextSource.getImageData(0, 0, width, height);
-		var self = this;
-		this.timeOut = setTimeout(function () {self.update()}, 200);
 	}
+
 
 	this.drawVideo = function () {
 		this.contextSource.drawImage(this.video, this.p1.x, this.p1.y, this.p2.x-this.p1.x, this.p2.y-this.p1.y);
