@@ -35,6 +35,10 @@ Utilities.mergeImages = function(images) {
 
 Utilities.filterDifference = function(localImage, remoteImage) {
 	
+	if (!(localImage && remoteImage)) {
+		return;
+	}
+	
 	var diff = Pixastic.process(localImage, "blend",
 					 {
 					 amount:1,
