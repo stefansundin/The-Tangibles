@@ -33,8 +33,49 @@ Utilities.mergeImages = function(images) {
     }	
 }
 
+Utilities.filterDifference = function(localImage, remoteImage) {
+	
+	var diff = Pixastic.process(localImage, "blend",
+					 {
+					 amount:1,
+					 mode:"difference",
+					 image:remoteImage
+					 });
+	
+	console.log(diff);
+	
+	var diffCtx = diff.getContext("2d");
+	var diffPixels = diffCtx.getImageData(0, 0, localImage.width, localImage.height);
+	var diffData = diffPixels.data;
+	
+	console.log(diffPixels);
+	
+	var remCtx = remoteImage.getContext("2d");
+	var remPixels = remCtx.getImageData(0, 0, remoteImage.width, remoteImage.height);
+	var remData = remPixels.data;
+	
+	console.log(remPixels);
+	
+	var rgbaIndex = 0;
+	var threshold = 30;
+	
+	for (var i = 0; i < diffData.length; i++) {
+		if (diffData[rgbaIndex + 0] < threshold &&
+			diffData[rgbaIndex + 1] < threshold &&
+			diffData[rgbaIndex + 2] < threshold) {
+			remData[rgbaIndex + 0] = 255;
+			remData[rgbaIndex + 1] = 255;
+			remData[rgbaIndex + 2] = 255;
+		}
+		rgbaIndex += 4;
+	}
+	
+	remCtx.putImageData(remPixels, 0, 0);
+}
+
+
 /*
- * Downloads the data of the given canvas as filename.PNG or 
+ * Downloads the data of the given canvas as filename.PNG or
  * <TODAYSDATE>.png if no argument is supplied.
  *
  */
