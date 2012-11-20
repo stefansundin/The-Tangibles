@@ -46,6 +46,10 @@ Utilities.filterDifference = function(localImage, remoteImage) {
 					 image:remoteImage
 					 });
 	
+	if (!diff) {
+		return;
+	}
+	
 	console.log(diff);
 	
 	var diffCtx = diff.getContext("2d");
