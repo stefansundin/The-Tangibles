@@ -339,6 +339,12 @@ Calibrator.prototype.fourthCalibration = function(markers) {
 Calibrator.prototype.confirmSharedRectangle = function() {
 	if (this.calibrationStage == 2) {
 		this.calibrationStage = 3;
+		
+		// Clear the red frame
+		this.context.clearRect(this.sharedRectPrev.x - 2,
+							   this.sharedRectPrev.y - 2,
+							   this.sharedRectPrev.width + 4,
+							   this.sharedRectPrev.height + 4);
 	}
 }
 
