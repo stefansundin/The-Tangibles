@@ -68,6 +68,27 @@ app.get('/css/lobbystyle.css', function(req, res) {
 	res.sendfile(__dirname + '/client/css/lobbystyle.css');
 });
 
+app.get('/css/lib/jquery-ui.css', function(req, res) {
+	res.sendfile(__dirname + '/client/css/lib/jquery-ui.css');
+});
+
+app.get('/css/lib/images/:id', function(req, res) {
+	res.sendfile(__dirname + '/client/css/lib/images/' + req.params.id);
+});
+
+
+app.get('/js/lib/jquery.min.js', function(req, res) {
+	res.sendfile(__dirname + '/client/js/lib/jquery.min.js');
+});
+
+app.get('/js/lib/jquery-ui.min.js', function(req, res) {
+	res.sendfile(__dirname + '/client/js/lib/jquery-ui.min.js');
+});
+
+app.get('/js/lib/heartcode-canvasloader-min-0.9.1.js', function(req, res) {
+	res.sendfile(__dirname + '/client/js/lib/heartcode-canvasloader-min-0.9.1.js');
+});
+
 app.get('/js/socket.js', function(req, res) {
 	res.sendfile(__dirname + '/client/js/socket.js');
 });
