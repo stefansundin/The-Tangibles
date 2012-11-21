@@ -65,11 +65,11 @@ Utilities.filterDifference = function(localImage, remoteImage) {
 	console.log(remPixels);
 	
 	var rgbaIndex = 0;
-	var threshold = 30;
+	var threshold = 128;
 	
 	for (var i = 0; i < diffData.length; i++) {
-		if (diffData[rgbaIndex + 0] < threshold &&
-			diffData[rgbaIndex + 1] < threshold &&
+		if (diffData[rgbaIndex + 0] +
+			diffData[rgbaIndex + 1] +
 			diffData[rgbaIndex + 2] < threshold) {
 			remData[rgbaIndex + 0] = 255;
 			remData[rgbaIndex + 1] = 255;
