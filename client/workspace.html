@@ -373,17 +373,22 @@ function Workspace() {
 		// Draw a fram around the shared rectangle
 		sharedRect.draw(screenContext);
 		
+		screenContext.clearRect(sharedRect.x, sharedRect.y, sharedRect.width, sharedRect.height);
+		
 		if (mergedImage != null) {
 			// console.log('drawing merged videos, ' + sharedRect.x + ' ' + sharedRect.width);
+			
+			mergedImage.alpha = 0.5;
 			screenContext.drawImage(mergedImage,
 									sharedRect.x,
 									sharedRect.y,
 									sharedRect.width,
 									sharedRect.height);
-		} else {
+			mergedImage.alpha = 1.0;
+		} /* else {
 			// If no video is available yet, just clear the area
 			screenContext.clearRect(sharedRect.x, sharedRect.y, sharedRect.width, sharedRect.height);
-		}
+		} */
 
 		// *****
 		// Test - check if canvas dimensions are correct
