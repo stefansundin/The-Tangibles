@@ -68,13 +68,6 @@ video {
 	padding: 0;
 }
 
-#ltu_logo {
-	position: absolute;
-	bottom: 0;
-	left: 0;
-	z-index: 2;
-}
-
 #you {
 	position: absolute;
 	bottom: 0;
