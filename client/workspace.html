@@ -59,7 +59,7 @@ function Workspace() {
 	var videos = [];
 	var videoObj;
 	var PeerConnection = window.webkitRTCPeerConnection;
-	var buttons;
+	var buttons = null;
 	var cb, cs;
 
 	var logo;
@@ -166,7 +166,8 @@ function Workspace() {
 		rtc.on('disconnect stream', function(data) {
 				console.log('remove ' + data);
 				self.removeVideo(data);
-				buttons.deleteButtonId('remote' + data);
+				if (buttons)
+					buttons.deleteButtonId('remote' + data);
 			});
 
 		this.initFullScreen();
