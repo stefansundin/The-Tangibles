@@ -813,8 +813,8 @@ function socketserver() {
 			return;
 		}
 		
-		if (typeS == null || type== "") {
-			type = "";
+		if (typeS == null || typeS== "") {
+			typeS = "";
 		}
 
 		if (desc == null) {
