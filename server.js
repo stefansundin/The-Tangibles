@@ -18,6 +18,10 @@ app.get('/workspace/img/qr1012.png', function(req, res) {
 	res.sendfile(__dirname + '/client/img/qr1012.png');
 });
 
+app.get('/img/ltu_logo.jpg', function(req, res) {
+    res.sendfile(__dirname + '/client/img/ltu_logo.jpg');
+});
+
 app.get('/img/qr1012.png', function(req, res) {
     res.sendfile(__dirname + '/client/img/qr1012.png');
 });
