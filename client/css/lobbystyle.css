@@ -199,6 +199,14 @@ ol {
 	margin: 10px;
 }
 
+#ltu_logo {
+	max-width: 10%;
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	z-index: 2;
+}
+
 .ui-icon-tangiblestatus-ok {
 	background-image: url(../img/status.png) !important;
 }
