@@ -141,7 +141,7 @@ function Workspace() {
 			screenCanvas.width = window.innerWidth;
 			screenCanvas.height = window.innerHeight;
 			
-			self.drawLogo();
+			// self.drawLogo();
 		};
 
 		if (PeerConnection) {
@@ -224,6 +224,8 @@ function Workspace() {
 		screenCanvas.onclick = function() {
 			calibrator.confirmSharedRectangle();
 		};
+		
+		self.drawLogo();
 	}
 
 	/** 
