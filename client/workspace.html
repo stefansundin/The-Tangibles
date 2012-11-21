@@ -126,7 +126,7 @@ function Workspace() {
 		
 		// Load LTU logo image
 		logo = new Image();
-		logo.src = "img/ltu_logo.png";
+		logo.src = "../img/ltu_logo.jpg";
 		
 		// TODO change to c...
 		screenCanvas = document.getElementById("myCanvas");
@@ -396,7 +396,7 @@ function Workspace() {
 	
 	this.drawLogo = function() {
 		screenContext.drawImage(logo,
-								5, screenCanvas.height - logo.height - 5,
+								0, screenCanvas.height - logo.height,
 								logo.width, logo.height);
 	}
 }
