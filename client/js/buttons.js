@@ -9,10 +9,10 @@ var Buttons = function (c, transform, v, w, h) {
 	this.listOfButtons = [];
 	this.trans = transform;
 	this.i = null; // handle to cancel out draw...
-	console.log(h);
 	this.maxHeight = h; // height of canvas
-	this.height = Math.round(this.maxHeight*0.15); // 15% of maxHeight 
-	this.width = this.height; // same as height
+	this.maxWidth = w;
+	this.height = Math.round(this.maxHeight*0.10); // 10% of maxWidth
+	this.width = this.height*4/3; // 4x3 format
 
 	this.addButton = function (button) {
 		this.listOfButtons.push(button)
@@ -128,7 +128,7 @@ var Buttons = function (c, transform, v, w, h) {
 		this.draw();
 		// take snapshot
 		var self = this;
-		setTimeout(function () {self.update2()}, 60);
+		setTimeout(function () {self.update2()}, 100);
 		this.timeOut = setTimeout(function () {self.update()}, 200);
 	}
 
