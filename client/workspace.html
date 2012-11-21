@@ -36,7 +36,7 @@
 
 // What???
 // const CANVAS_WIDTH = 640, CANVAS_HEIGHT = 360;
-const CANVAS_WIDTH = 1280, CANVAS_HEIGHT = 720;
+const CANVAS_WIDTH = 800, CANVAS_HEIGHT = 600;
 // const CANVAS_WIDTH = 1920, CANVAS_HEIGHT = 1080;
 
 // hide and show correct html elements
@@ -112,7 +112,7 @@ function Workspace() {
 				var requestMethod = element.requestFullScreen || element.webkitRequestFullScreen || element.mozRequestFullScreen || element.msRequestFullScreen;
 				if (requestMethod) {
 					// TODO enter full screen
-					// requestMethod.call(element);
+					requestMethod.call(element);
 				}
 				notice.hide();
 				fullscreen.remove();
