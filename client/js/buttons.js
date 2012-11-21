@@ -48,7 +48,7 @@ var Buttons = function (c, transform, v, w, h) {
 
 	this.draw = function () {
 		if (this.listOfButtons.length < 1) {
-			this._ctx.clearRect(0, 0, this.width + 20, this.maxHeight);
+			this._ctx.clearRect(0, 0, this.width + 20, this.maxHeight-200);
 			return;
 		}
 		var x = 10;
@@ -129,7 +129,7 @@ var Buttons = function (c, transform, v, w, h) {
 		// take snapshot
 		var self = this;
 		setTimeout(function () {self.update2()}, 100);
-		this.timeOut = setTimeout(function () {self.update()}, 200);
+		this.timeOut = setTimeout(function () {self.update()}, 500);
 	}
 
 	this.update2 = function () {
