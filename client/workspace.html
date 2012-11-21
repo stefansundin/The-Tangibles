@@ -62,6 +62,8 @@ function Workspace() {
 	var buttons;
 	var cb, cs;
 
+	var logo;
+	
 	var self = this; // Used to avoid faulty this-references in anonymous functions and callbacks
 
 	this.createVideo = function (stream, socketId) {
@@ -121,6 +123,11 @@ function Workspace() {
 	}
 
 	this.init = function () {
+		
+		// Load LTU logo image
+		logo = new Image();
+		logo.src = "img/ltu_logo.png";
+		
 		// TODO change to c...
 		screenCanvas = document.getElementById("myCanvas");
 		screenContext = screenCanvas.getContext("2d");
@@ -133,6 +140,8 @@ function Workspace() {
 		window.onresize = function() {
 			screenCanvas.width = window.innerWidth;
 			screenCanvas.height = window.innerHeight;
+			
+			self.drawLogo();
 		};
 
 		if (PeerConnection) {
@@ -380,7 +389,15 @@ function Workspace() {
 		// rect.draw(screenContext);
 		// *****
 		
+		self.drawLogo();
+		
 		setTimeout(function() {self.mergeVideos();}, 1); // 50);
+	}
+	
+	this.drawLogo = function() {
+		screenContext.drawImage(logo,
+								5, screenCanvas.height - logo.height - 5,
+								logo.width, logo.height);
 	}
 }
 
