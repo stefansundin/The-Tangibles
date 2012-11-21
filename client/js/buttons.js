@@ -48,7 +48,7 @@ var Buttons = function (c, transform, v, w, h) {
 
 	this.draw = function () {
 		if (this.listOfButtons.length < 1) {
-			this._ctx.clearRect(0, 0, this.width + 20, this.maxHeight-200);
+			this._ctx.clearRect(0, 0, this.width + 20, this.maxHeight-300);
 			return;
 		}
 		var x = 10;
@@ -61,7 +61,7 @@ var Buttons = function (c, transform, v, w, h) {
 			this.listOfButtons[i].draw(this._ctx, x, y, this.width, this.height);
 		}
 		// clear everything below the last button
-		this._ctx.clearRect(0, y + this.height + 2, this.width + 20, this.maxHeight-200);
+		this._ctx.clearRect(0, y + this.height + 2, this.width + 20, this.maxHeight-300);
 	}
 
 	this.checkPressed = function (contextBlended) {
