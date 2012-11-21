@@ -35,7 +35,8 @@
 <script>
 
 // What???
-const CANVAS_WIDTH = 640, CANVAS_HEIGHT = 360;
+// const CANVAS_WIDTH = 640, CANVAS_HEIGHT = 360;
+const CANVAS_WIDTH = 1280, CANVAS_HEIGHT = 720;
 // const CANVAS_WIDTH = 1920, CANVAS_HEIGHT = 1080;
 
 // hide and show correct html elements
@@ -351,11 +352,12 @@ function Workspace() {
 		var transformedVideos = VideoBucket.transformList(videos);
 		var mergedImage = Utilities.mergeImages(transformedVideos);
 
-		
+		/*
 		var localVideo = videoObj.transformVideo();
 		if (localVideo != null) {
 			Utilities.filterDifference(localVideo, mergedImage);
 		}
+		 */
 		
 		// Draw a fram around the shared rectangle
 		sharedRect.draw(screenContext);
