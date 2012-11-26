@@ -201,7 +201,7 @@ ol {
 
 #ltu_logo {
 	max-width: 10%;
-	position: absolute;
+	position: fixed;
 	bottom: 0;
 	left: 0;
 	z-index: 2;
