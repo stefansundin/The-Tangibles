@@ -4,10 +4,10 @@
 <meta charset="utf-8" />
 <title>The Tangibles</title>
 
-<link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel="stylesheet" type="text/css" />
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8/jquery.min.js"></script>
-<script	src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
-<script src="http://heartcode-canvasloader.googlecode.com/files/heartcode-canvasloader-min-0.9.1.js"></script>
+<link href="css/lib/jquery-ui.css" rel="stylesheet" type="text/css" />
+<script src="js/lib/jquery.min.js"></script>
+<script	src="js/lib/jquery-ui.min.js"></script>
+<script src="js/lib/heartcode-canvasloader-min-0.9.1.js"></script>
 
 <script type="text/javascript">
 $(function() {
@@ -63,6 +63,7 @@ $(function() {
 		Sifteos: <b id="numSifteos">0</b>
 		Spheros: <b id="numSpheros">0</b>
 		<br />
+		<p><button id="show_qr_codes">Show Sifteo QR-codes</button></p>
 		<br />
 	</div>
 
@@ -130,6 +131,8 @@ $(function() {
 			</tfoot>
 		</table>
 	</div>
+	
+	<img id="ltu_logo" alt="" src="img/ltu_logo_white.png" />
 
 	<div id="call_list"></div>
 

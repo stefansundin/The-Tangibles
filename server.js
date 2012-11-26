@@ -18,6 +18,14 @@ app.get('/workspace/img/qr1012.png', function(req, res) {
 	res.sendfile(__dirname + '/client/img/qr1012.png');
 });
 
+app.get('/img/ltu_logo.jpg', function(req, res) {
+    res.sendfile(__dirname + '/client/img/ltu_logo.jpg');
+});
+
+app.get('/img/ltu_logo_white.png', function(req, res) {
+        res.sendfile(__dirname + '/client/img/ltu_logo_white.png');
+        });
+
 app.get('/img/qr1012.png', function(req, res) {
     res.sendfile(__dirname + '/client/img/qr1012.png');
 });
@@ -66,6 +74,27 @@ app.get('/workspace/css/workspacestyle.css', function(req, res) {
 
 app.get('/css/lobbystyle.css', function(req, res) {
 	res.sendfile(__dirname + '/client/css/lobbystyle.css');
+});
+
+app.get('/css/lib/jquery-ui.css', function(req, res) {
+	res.sendfile(__dirname + '/client/css/lib/jquery-ui.css');
+});
+
+app.get('/css/lib/images/:id', function(req, res) {
+	res.sendfile(__dirname + '/client/css/lib/images/' + req.params.id);
+});
+
+
+app.get('/js/lib/jquery.min.js', function(req, res) {
+	res.sendfile(__dirname + '/client/js/lib/jquery.min.js');
+});
+
+app.get('/js/lib/jquery-ui.min.js', function(req, res) {
+	res.sendfile(__dirname + '/client/js/lib/jquery-ui.min.js');
+});
+
+app.get('/js/lib/heartcode-canvasloader-min-0.9.1.js', function(req, res) {
+	res.sendfile(__dirname + '/client/js/lib/heartcode-canvasloader-min-0.9.1.js');
 });
 
 app.get('/js/socket.js', function(req, res) {

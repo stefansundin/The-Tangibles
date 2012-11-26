@@ -9,10 +9,10 @@ var Buttons = function (c, transform, v, w, h) {
 	this.listOfButtons = [];
 	this.trans = transform;
 	this.i = null; // handle to cancel out draw...
-	console.log(h);
 	this.maxHeight = h; // height of canvas
-	this.height = Math.round(this.maxHeight*0.15); // 15% of maxHeight 
-	this.width = this.height; // same as height
+	this.maxWidth = w;
+	this.height = Math.round(this.maxHeight*0.10); // 10% of maxWidth
+	this.width = this.height*4/3; // 4x3 format
 
 	this.addButton = function (button) {
 		this.listOfButtons.push(button)
@@ -48,7 +48,7 @@ var Buttons = function (c, transform, v, w, h) {
 
 	this.draw = function () {
 		if (this.listOfButtons.length < 1) {
-			this._ctx.clearRect(0, 0, this.width + 20, this.maxHeight);
+			this._ctx.clearRect(0, 0, this.width + 20, this.maxHeight-300);
 			return;
 		}
 		var x = 10;
@@ -57,11 +57,11 @@ var Buttons = function (c, transform, v, w, h) {
 			if (y + this.height > this.maxHeight) {
 				break;
 			}
-			y = 10 + i * (this.height + 20);
+			y = 10 + i * (this.height + 80);
 			this.listOfButtons[i].draw(this._ctx, x, y, this.width, this.height);
 		}
 		// clear everything below the last button
-		this._ctx.clearRect(0, y + this.height + 2, this.width + 20, this.maxHeight);
+		this._ctx.clearRect(0, y + this.height + 2, this.width + 20, this.maxHeight-y-300);
 	}
 
 	this.checkPressed = function (contextBlended) {
@@ -71,7 +71,7 @@ var Buttons = function (c, transform, v, w, h) {
 			if (y + this.height > this.maxHeight) {
 				break;
 			}
-			y = y + i * (this.height + 20);
+			y = y + i * (this.height + 80);
 			var p1 = new Object();
 			p1.x = x;
 			p1.y = y;
@@ -127,13 +127,18 @@ var Buttons = function (c, transform, v, w, h) {
 		}
 		this.draw();
 		// take snapshot
+		var self = this;
+		setTimeout(function () {self.update2()}, 100);
+		this.timeOut = setTimeout(function () {self.update()}, 500);
+	}
+
+	this.update2 = function () {
 		this.drawVideo();
 		var width = this.contextSource.canvas.width;
 		var height = this.contextSource.canvas.height;
 		this.lastImageData = this.contextSource.getImageData(0, 0, width, height);
-		var self = this;
-		this.timeOut = setTimeout(function () {self.update()}, 200);
 	}
+
 
 	this.drawVideo = function () {
 		this.contextSource.drawImage(this.video, this.p1.x, this.p1.y, this.p2.x-this.p1.x, this.p2.y-this.p1.y);

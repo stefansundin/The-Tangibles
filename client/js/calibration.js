@@ -7,7 +7,7 @@ const DEFAULT_RATIO = 3.0 / 4.0;
 /*const MINI_CANVAS_WIDTH = 640,
  MINI_CANVAS_HEIGHT = 480;*/
 
-const BUTTON_RATIO = 0.1;
+const BUTTON_RATIO = 0.15;
 const SHARED_RECT_MIN_RATIO = 0.2;
 
 const SCREEN_MARKER_ID = 933,
@@ -15,7 +15,7 @@ FINAL_MARKER_ID = 1012,
 LEFT_MARKER_ID = 188,
 RIGHT_MARKER_ID = 956;
 
-const QR_FRAME = 30;
+const QR_FRAME = 50;
 
 const depth = 2;
 
@@ -339,6 +339,12 @@ Calibrator.prototype.fourthCalibration = function(markers) {
 Calibrator.prototype.confirmSharedRectangle = function() {
 	if (this.calibrationStage == 2) {
 		this.calibrationStage = 3;
+		
+		// Clear the red frame
+		this.context.clearRect(this.sharedRectPrev.x - 2,
+							   this.sharedRectPrev.y - 2,
+							   this.sharedRectPrev.width + 4,
+							   this.sharedRectPrev.height + 4);
 	}
 }
 

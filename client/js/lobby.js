@@ -203,6 +203,13 @@ Lobby.prototype.init = function() {
 	}).click(function() {
 		$('#dialog_tangible_status').dialog('open');
 	});
+	$('#show_qr_codes').button().click(function() {
+		if (tangibles.sifteos.length > 2) {
+			tangibles.showPicture(tangibles.sifteos[0],"http://"+ window.location.host +"/img/sifteo_qr188.png");
+			tangibles.showPicture(tangibles.sifteos[2],"http://"+ window.location.host +"/img/sifteo_qr956.png");
+		}
+		else alert('You need two sifteos connected!');
+	});
 
 
 	$('#toggle_workspace').button({
