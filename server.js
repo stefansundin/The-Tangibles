@@ -173,6 +173,10 @@ app.get('/workspace/js/optimus.js', function(req, res) {
     res.sendfile(__dirname + '/client/js/optimus.js');
 });
 
+app.get('/workspace/js/webgl-utils.js', function(req, res) {
+	res.sendfile(__dirname + '/client/js/webgl-utils.js');
+});
+
 app.get('/workspace/js/lib/blend.js', function(req, res) {
 	res.sendfile(__dirname + '/client/js/lib/blend.js');
 });
