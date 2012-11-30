@@ -16,7 +16,6 @@ import se.nicklasgavelin.bluetooth.Bluetooth.EVENT;
 import se.nicklasgavelin.bluetooth.BluetoothDevice;
 import se.nicklasgavelin.bluetooth.BluetoothDiscoveryListener;
 import se.nicklasgavelin.sphero.Robot;
-import se.nicklasgavelin.sphero.command.SpinRightCommand;
 import utils.SpheroConfig;
 
 public class SpheroDriver extends Thread implements BluetoothDiscoveryListener {
@@ -99,8 +98,6 @@ public class SpheroDriver extends Thread implements BluetoothDiscoveryListener {
 						AliveListener aliveListener = new AliveListener(this);
 						s.addListener(aliveListener);
 						
-						s.sendCommand(new SpinRightCommand(0),2000);
-						
 						System.out.println( btd.getConnectionURL() );
 					} else {
 						throw new Exception("Sphero not connected");
@@ -151,8 +148,6 @@ public class SpheroDriver extends Thread implements BluetoothDiscoveryListener {
 					
 					AliveListener aliveListener = new AliveListener(this);
 					s.addListener(aliveListener);
-					
-					s.sendCommand(new SpinRightCommand(0),2000);
 					
 					addShutdownHook();
 				} else {
