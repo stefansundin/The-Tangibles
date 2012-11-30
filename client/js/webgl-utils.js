@@ -125,6 +125,21 @@ var setupWebGL = function(canvas, opt_attribs) {
 };
 
 /**
+ * Same as above, but creates a context without depth buffer and antialiasing
+ */
+var setupWebGL2D = function(canvas) {
+	return setupWebGL(canvas, {
+					  // alpha: true,
+					  depth: false, // true,
+					  // stencil: false,
+					  antialias: false, // true,
+					  // premultipliedAlpha: true,
+					  // preserveDrawingBuffer: false,
+					  });
+};
+	
+	
+/**
  * Creates a webgl context.
  * @param {!Canvas} canvas The canvas tag to get context
  *     from. If one is not passed in one will be created.
@@ -192,6 +207,7 @@ var createTexture = function(gl) {
 return {
 	create3DContext: create3DContext,
 	setupWebGL: setupWebGL,
+	setupWebGL2D: setupWebGL2D,
 	createTexture: createTexture,
 	createProgram: createProgram,
 	createShader: createShader,

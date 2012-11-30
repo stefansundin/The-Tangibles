@@ -21,7 +21,8 @@
 <script type="text/javascript" src="js/utilities.js"></script>
 <script type="text/javascript" src="js/videoBucket.js"></script>
 <script type="text/javascript" src="js/optimus.js"></script>
-
+<script type="text/javascript" src="js/blend-gl.js"></script>
+	
 <script src="/webrtc.io.js"></script>
 </head>
 <body style="font-family: monospace; background-color: white;">
@@ -362,44 +363,50 @@ function Workspace() {
 	 */
 	this.mergeVideos = function () {
 
+		// Transform the video streams
 		var transformedVideos = VideoBucket.transformList(videos);
-		var mergedImage = Utilities.mergeImages(transformedVideos);
-
-		/*
-		var localVideo = videoObj.transformVideo();
-		if (localVideo != null) {
-			Utilities.filterDifference(localVideo, mergedImage);
+		var mergedImage = null;
+		
+		// Try merging images with WebGL, use the old method as fallback
+		try {
+			BlendGL.mergeImages(transformedVideos);
+		} catch (err) {
+			Utilities.mergeImages(transformedVideos);
 		}
+		
+		/*
+		 
+		 TODO:
+		 Add some filters to improve the merged image somehow.. :)
+		 
+		 var localVideo = videoObj.transformVideo();
+		 if (localVideo != null) {
+			Utilities.filterDifference(localVideo, mergedImage);
+		 }
 		 */
 		
 		// Draw a fram around the shared rectangle
 		sharedRect.draw(screenContext);
-		
-		screenContext.clearRect(sharedRect.x, sharedRect.y, sharedRect.width, sharedRect.height);
-		
+
 		if (mergedImage != null) {
-			// console.log('drawing merged videos, ' + sharedRect.x + ' ' + sharedRect.width);
-			
-			mergedImage.alpha = 0.5;
+			// Draw the merged image in the shared rectangle
 			screenContext.drawImage(mergedImage,
 									sharedRect.x,
 									sharedRect.y,
 									sharedRect.width,
 									sharedRect.height);
-			mergedImage.alpha = 1.0;
-		} /* else {
+		} else {
 			// If no video is available yet, just clear the area
 			screenContext.clearRect(sharedRect.x, sharedRect.y, sharedRect.width, sharedRect.height);
-		} */
+		}
 
-		// *****
-		// Test - check if canvas dimensions are correct
-		// var rect = new Geometry.Rectangle(0, 0, screenCanvas.width, screenCanvas.height);
-		// rect.draw(screenContext);
-		// *****
-		
+		// Draw the LTU logo (unnecessary to do each update?)
 		self.drawLogo();
 		
+		/*
+		 TODO:
+		 Use window.requestAnimFrame instead of setTimeout
+		 */
 		setTimeout(function() {self.mergeVideos();}, 1); // 50);
 	}
 	

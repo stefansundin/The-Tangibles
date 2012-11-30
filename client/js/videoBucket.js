@@ -88,7 +88,12 @@ VideoBucket.prototype.initWebGL = function() {
 				 ].join("\n");
 	
 	
-	var gl = WebGLUtils.setupWebGL(this.transformCanvas);
+	var gl = WebGLUtils.setupWebGL2D(this.transformCanvas);
+	
+	if (!gl) {
+		// WebGL is unavailable
+		return;
+	}
 	
 	// Create the shader program from the source code at the top of the page
 	// var vsStr = document.getElementById("shader-vs").text;
@@ -118,6 +123,9 @@ VideoBucket.prototype.initWebGL = function() {
 	console.log(prog);
 }
 
+/**
+ Not used atm, will be removed (probably :)
+ */
 VideoBucket.prototype.generateBuffers = function() {
 	
 	var depth = this.prime.depth,
@@ -194,17 +202,18 @@ VideoBucket.prototype.setTransform = function(prime, rect) {
     console.log('creating transform');
     console.log(rect);
     
-    // this.coordinates = poly;
     this.transformCanvas = MediaExt.createCanvas(rect.width, rect.height);
-    this.transformContext = null; // this.transformCanvas.getContext("2d");
-    // this.transform = new Geometry.PolyToCanvasTransform(poly, this.transformCanvas);
+	this.initWebGL();
 	
-	this.videoCanvas = MediaExt.createCanvas(this.video.width, this.video.height);
-    this.videoContext = this.videoCanvas.getContext("2d");
+	if (!this.glContext) {
+		// If WebGL failed to initialize,
+		// use the old method as fallback
+		this.transformContext = this.transformCanvas.getContext("2d");
+		this.videoCanvas = MediaExt.createCanvas(this.video.width, this.video.height);
+		this.videoContext = this.videoCanvas.getContext("2d");
+    }
     
     this.prime = prime;
-	
-	this.initWebGL();
 	
 	// A rectangle containing the transform polygon -
 	// used for cropping out image data from the video stream
@@ -232,106 +241,57 @@ VideoBucket.prototype.toggleEnabled = function() {
 VideoBucket.prototype.transformVideo = function() {
     
     if (this.prime == null) { //  || !this.enabled) {
-		/*
-		console.log("VideoBucket.prototype.transformVideo returning:");
-		if (this.transform == null) {
-			console.log("transform is null");
-		}
-		if (!this.enabled) {
-			console.log("not enabled");
-		}
-		 */
 		return null;
     }
 	
 	// If the current frame of the video has already been transformed,
 	// just return the transform canvas
-	
 	if (this.lastTransformedTimestamp == this.video.currentTime) {
 		return this.transformCanvas;
 	}
 
 	this.lastTransformedTimestamp = this.video.currentTime;
 	
-	/*
-	 TODO: Render to a frame buffer instead and merge the videos
-	 using another shader program
-	 */
+	// Use WebGL if available, otherwise use the old method
+	if (this.glContext) {
+		var prog = this.program;
+		var gl = this.glContext;
 	
-	var prog = this.program;
-	var gl = this.glContext;
-	
-	gl.activeTexture(gl.TEXTURE0);
-	
-	// Bind texture and buffers
-	gl.bindTexture(gl.TEXTURE_2D, this.texture);
-	
-	/*
-	gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
-	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
-	*/
-	
-	// Generate a new texture from video stream
-	gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this.video);
+		// Generate a new texture from video stream
+		gl.activeTexture(gl.TEXTURE0);
+		gl.bindTexture(gl.TEXTURE_2D, this.texture);
+		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this.video);
 		
-	// Activate shaders
-	gl.useProgram(prog);
+		// Activate shaders
+		gl.useProgram(prog);
 		
-	// Send values to the shaders
-	gl.uniform1i(prog.unifLocTex, 0);
-	gl.uniform1f(prog.unifLocWidthOut, this.video.width);
-	gl.uniform1f(prog.unifLocHeightOut, this.video.height);
-	
-	/*
-	gl.enableVertexAttribArray(prog.attrLocVertex);
-	gl.enableVertexAttribArray(prog.attrLocTexCoord);
-		
-	gl.vertexAttribPointer(prog.attrLocVertex, 2, gl.FLOAT, false, 16, 0);
-	gl.vertexAttribPointer(prog.attrLocTexCoord, 2, gl.FLOAT, false, 16, 8);
-	*/
-	
-	// Render the transformed video
-	this.prime.render(prog, gl);
-		
-	/*
-	// Unbind texture and buffers
-	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
-	gl.bindBuffer(gl.ARRAY_BUFFER, null);
-	*/
-	
-	gl.bindTexture(gl.TEXTURE_2D, null);
-	
-	return this.transformCanvas;
-	
-    /*
-    var	x = this.videoCropRect.x,
-		y = this.videoCropRect.y,
-		w = this.videoCropRect.width,
-        h = this.videoCropRect.height;
+		// Send values to the shaders
+		gl.uniform1i(prog.unifLocTex, 0);
+		gl.uniform1f(prog.unifLocWidthOut, this.video.width);
+		gl.uniform1f(prog.unifLocHeightOut, this.video.height);
 
-	 First x, y, w and h need to be relative to the camera's native resolution
-	 in order for this to work..
-    
-	 this.videoContext.drawImage(this.video, x, y, w, h, 0, 0, w, h);
-	 var imageData = this.videoContext.getImageData(0, 0, w, h);
-     */
-
-	// Draw the video
-    this.videoContext.drawImage(this.video, 0, 0, this.video.width, this.video.height);
+		// Render the transformed video
+		this.prime.render(prog, gl);
 	
-	/* Crop out the interesting part of the video
-    var imageData = this.videoContext.getImageData(x, y, w, h);
-	*/
-    var imageData = this.videoContext.getImageData(0, 0, this.video.width, this.video.height);
-    
-	/* Transform the video
-    this.transform.transformImage(imageData,
-								  this.transformCanvas,
-								  this.videoCropRect);
-     */
-    
-	// Store timestamp
-    this.prime.draw(imageData, this.transformContext);
+		gl.bindTexture(gl.TEXTURE_2D, null);
+	
+	} else {
+
+		// Draw the video
+		this.videoContext.drawImage(this.video, 0, 0, this.video.width, this.video.height);
+
+		// Get the image data
+		var imageData = this.videoContext.getImageData(0, 0, this.video.width, this.video.height);
+		
+		/* Transform the video
+		this.transform.transformImage(imageData,
+									  this.transformCanvas,
+									  this.videoCropRect);
+		 */
+		
+		// Let Optimus Prime transform the video
+		this.prime.draw(imageData, this.transformContext);
+	}
 	
     return this.transformCanvas;
 }
