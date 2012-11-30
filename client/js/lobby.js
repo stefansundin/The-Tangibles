@@ -17,8 +17,9 @@ function Lobby() {
 	this.workspaceOpen = false;
 	this.chatOpen = false;
 	this.workspaceWindow = undefined;
-	if (sessionStorage.ownName) { // TODO Change all session to localStorage?
-		this.ownName = sessionStorage.ownName;
+	this.storage = sessionStorage; // TODO Change to localStorage?
+	if (this.storage.ownName) {
+		this.ownName = this.storage.ownName;
 	} else {
 		this.ownName = 'User#' + Math.floor((Math.random() * 999) + 1);
 	}
@@ -175,7 +176,11 @@ Lobby.prototype.init = function() {
 		var name = $('#splash_name').val();
 		if (name != '') {
 			self.changeOwnName(name);
+			var roomId = window.location.hash.slice(1);
 			self.loadMain();
+			if (roomId.length > 0) {
+				self.enterRoom(roomId);
+			}
 		} else {
 			// TODO Better error handling in the input boxes
 			$('#splash_name').addClass('ui-state-error');
@@ -361,11 +366,16 @@ Lobby.prototype.onSocketOpen = function() {
 
 	$('#server_loading').hide();
 
-	if (sessionStorage.ownName) {
+	if (this.storage.ownName) {
 		this.changeOwnName(this.ownName);
-		lobby.loadMain();
+		var roomId = window.location.hash.slice(1);
+		if (roomId.length > 0) {
+			this.enterRoom(roomId);
+		} else {
+			this.loadMain();
+		}
 	} else {
-		lobby.loadSplash();
+		this.loadSplash();
 	}
 
 	// request stuff
@@ -383,8 +393,11 @@ Lobby.prototype.onSocketClose = function() {
 	$('#server_loading').show();
 
 	if (this.ownRoomId != this.lobbyId) {
-		this.leaveRoom();
-		// TODO Fix so it stays in the room? (will requre changes in webrtc files...)
+		this.closeWorkspace();
+
+		$('#roomFrame').attr('src', 'about:blank');
+		// TODO Fix so it stays in the room with exisiting peerconnection?
+		// (will requre changes in webrtc files...)
 	}
 
 	$('#main, #top, #call_list, #roomFrame, #splash, #tangible_status').hide();
@@ -458,7 +471,7 @@ Lobby.prototype.changeOwnName = function(newName) {
 
 	if (newName != '') {
 		this.ownName = newName;
-		sessionStorage.ownName = newName;
+		this.storage.ownName = newName;
 		$('#display_user_name').text(this.ownName);
 
 		socket.send(API_NAME_SET, JSON.stringify({
@@ -570,8 +583,10 @@ Lobby.prototype.enterRoom = function(roomId) {
 	socket.send(API_USER_CHANGE, JSON.stringify({
 		id : roomId
 	}));
+	
+	window.location.hash = '#' + roomId;
 
-	var roomName = 'Room';
+	var roomName = 'Unknown room';
 	var index = this.findRoomIndex(roomId);
 	if (index != -1) {
 		roomName = this.rooms[index][1];
@@ -602,6 +617,7 @@ Lobby.prototype.leaveRoom = function() {
 
 	$('#title').text('Lobby');
 	document.title = 'Lobby - The Tangibles';
+	window.location.hash = '';
 
 	this.hideRoomHeader = false;
 	this.updateRoomToolbar();
@@ -629,6 +645,10 @@ Lobby.prototype.onRoomChangeName = function(roomId, roomName) {
 	}
 
 	$('.room_' + roomId).text(roomName);
+	
+	if (this.ownRoomId != this.lobbyId && this.ownRoomId == roomId) {
+		document.title = roomName+' - The Tangibles';
+	}
 
 	var index = this.findRoomIndex(roomId);
 	if (index != -1) {
@@ -695,6 +715,8 @@ Lobby.prototype.onRoomAdd = function(roomId, roomName, roomDesc, roomType) {
 		event.stopPropagation();
 		self.deleteRoom(roomId);
 	}))));
+	
+	this.onRoomChangeName(roomId, roomName);
 };
 
 /**

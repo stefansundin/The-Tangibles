@@ -62,7 +62,7 @@ Transformers.OptimusPrime = function(rect, poly, depth, imageIndex) {
 	if (depth <= 0) {
 		this.canvas = MediaExt.createCanvas(rect.width, rect.height);
 		this.transform = Geometry.PolyToCanvasTransform(poly, this.canvas);
-		
+		// this.transform = Geometry.PolyToRectTransform(poly, new Geometry.Rectangle(0, 0, 1, 1));
 	} else {
 		
 		// Only leaf nodes need canvas and transform
@@ -70,9 +70,9 @@ Transformers.OptimusPrime = function(rect, poly, depth, imageIndex) {
 		this.transform = null;
 		
 		var x = rect.x,
-		y = rect.y,
-		w = rect.width / 2,
-		h = rect.height / 2;
+			y = rect.y,
+			w = rect.width / 2,
+			h = rect.height / 2;
 		
 		// Split the canvas into four regions, one for each child
 		// The order is top left, top right, bottom right, bottom left
@@ -240,4 +240,95 @@ Transformers.OptimusPrime.decode = function(rect, polyList, depth) {
 
 
 
+Transformers.OptimusPrime.prototype.prepareForRendering = function(indexList, canvas, gl, arrayWidth) {
+	
+	/*
+	 OBS!!!
+	 Make the transforms to Rectangle(-1, -1, 2, 2);??
+	 */
+	
+	if (this.transform == null) {
+		// Only leaf nodes have transforms (and do actual rendering)
+		for (var i = 0; i < 4; i++) {
+			var child = this.children[i];
+			child.prepareForRendering(indexList, canvas, gl, arrayWidth);
+		}
+	} else {
+		
+		// Calculate an index into the vertex array
+		var ix = Math.round(this.rect.x / canvas.width * (arrayWidth - 1));
+		var iy = Math.round(this.rect.y / canvas.height * (arrayWidth - 1));
+		var startIndex = iy * arrayWidth + ix;
+		
+		console.log(startIndex);
+		
+		// Offset into the index array, in bytes
+		// Each index is 2 bytes long
+		this.indexBufferOffset = indexList.length * 2;
+		
+		// Triangle strip indices
+		indexList.push(startIndex);
+		indexList.push(startIndex + 1);
+		indexList.push(startIndex + arrayWidth);
+		indexList.push(startIndex + arrayWidth + 1);
+		
+		var minX = -1 + 2 * this.rect.x / canvas.width,
+			maxX = minX + 2 * this.rect.width / canvas.width,
+			minY = -1 + 2 * this.rect.y / canvas.height,
+			maxY = minY + 2 * this.rect.height / canvas.height;
+		
+		var data = [minX, minY,
+					0,  0,
+					maxX, minY,
+					1,  0,
+					minX, maxY,
+					0,  1,
+					maxX, maxY,
+					1,  1];
+		
+		this.vertexBuffer = gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
+		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data), gl.STATIC_DRAW);
+		gl.bindBuffer(gl.ARRAY_BUFFER, null);
+		
+		this.uniformA = new Float32Array(this.transform._a);
+		this.uniformB = new Float32Array(this.transform._b);
+	}
+}
+
+Transformers.OptimusPrime.prototype.render = function(program, gl) {
+	if (this.transform == null) {
+		// Only leaf nodes have transforms (and do actual rendering)
+		for (var i = 0; i < this.children.length; i++) {
+			var child = this.children[i];
+			child.render(program, gl);
+		}
+	} else {
+
+		gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
+
+		gl.enableVertexAttribArray(program.attrLocVertex);
+		gl.enableVertexAttribArray(program.attrLocTexCoord);
+		gl.vertexAttribPointer(program.attrLocVertex, 2, gl.FLOAT, false, 16, 0);
+		gl.vertexAttribPointer(program.attrLocTexCoord, 2, gl.FLOAT, false, 16, 8);
+		
+		gl.uniform4fv(program.unifLocA, this.uniformA);
+		gl.uniform4fv(program.unifLocB, this.uniformB);
+		gl.uniform1f(program.unifLocWidthIn, this.rect.width);
+		gl.uniform1f(program.unifLocHeightIn, this.rect.height);
+
+		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+		
+		// Unbind texture and buffers
+		gl.bindBuffer(gl.ARRAY_BUFFER, null);
+		
+		/*
+		gl.uniform4fv(program.unifLocA, this.uniformA);
+		gl.uniform4fv(program.unifLocB, this.uniformB);
+		gl.uniform1f(program.unifLocWidth, this.rect.width);
+		gl.uniform1f(program.unifLocHeight, this.rect.height);
+		gl.drawElements(gl.TRIANGLE_STRIP, 4, gl.UNSIGNED_SHORT, this.indexBufferOffset);
+		 */
+	}
+}
 
