@@ -14,11 +14,17 @@ var Buttons = function (c, transform, v, w, h) {
 	this.height = Math.round(this.maxHeight*0.10); // 10% of maxWidth
 	this.width = this.height*4/3; // 4x3 format
 
+	/*
+		Adding button to a list of buttons
+	*/
 	this.addButton = function (button) {
 		this.listOfButtons.push(button)
 		setTimeout(function () { button.pressed = false; console.log('enable button ' + button.id); }, 3000);
 	}
 
+	/*
+		Remove button by id
+	*/
 	this.deleteButtonId = function (id) {
 		var index = -1;
 		for (i in this.listOfButtons) {
@@ -33,6 +39,9 @@ var Buttons = function (c, transform, v, w, h) {
 		}
 	}
 
+	/*
+		Remove button by suppling button to remove	
+	*/
 	this.deleteButton = function(button) {
 		var index = -1;
 		for (i in this.listOfButtons) {
@@ -46,6 +55,9 @@ var Buttons = function (c, transform, v, w, h) {
 		}
 	}
 
+	/*
+		Draw all buttons
+	*/
 	this.draw = function () {
 		if (this.listOfButtons.length < 1) {
 			this._ctx.clearRect(0, 0, this.width + 20, this.maxHeight-300);
@@ -64,6 +76,9 @@ var Buttons = function (c, transform, v, w, h) {
 		this._ctx.clearRect(0, y + this.height + 2, this.width + 20, this.maxHeight-y-300);
 	}
 
+	/*
+		Check if any button is pressed
+	*/
 	this.checkPressed = function (contextBlended) {
 		var x = 10;
 		var y = 20;
@@ -93,7 +108,10 @@ var Buttons = function (c, transform, v, w, h) {
 			this.listOfButtons[i].checkPressed(this.contextBlended, p1, p2);
 		}
 	}
-
+	
+	/*
+		Activate the buttons
+	*/
 	this.start = function () {
 		// only use a subset of video
 		this.p1 = new Object();
@@ -118,6 +136,13 @@ var Buttons = function (c, transform, v, w, h) {
 		this.update();
 	}
 
+	/*
+		take snapshot
+		check if pressed
+		draw new image on button
+		take new snapshot after 100ms
+		do this recursive
+	*/
 	this.update = function () {
 		// check if pressed
 		if (this.listOfButtons.length > 0) {
@@ -132,6 +157,9 @@ var Buttons = function (c, transform, v, w, h) {
 		this.timeOut = setTimeout(function () {self.update()}, 500);
 	}
 
+	/*
+		Take snapshot
+	*/
 	this.update2 = function () {
 		this.drawVideo();
 		var width = this.contextSource.canvas.width;
@@ -139,11 +167,17 @@ var Buttons = function (c, transform, v, w, h) {
 		this.lastImageData = this.contextSource.getImageData(0, 0, width, height);
 	}
 
-
+	/*
+		Draw video from image to canvas
+	*/
 	this.drawVideo = function () {
 		this.contextSource.drawImage(this.video, this.p1.x, this.p1.y, this.p2.x-this.p1.x, this.p2.y-this.p1.y);
 	}
 
+	/*
+		Calculate the difference between two images
+		This code and down in this class is pretty much borrowed
+	*/
 	this.blend = function () {
 		var width = this.contextSource.canvas.width;
 		var height = this.contextSource.canvas.height;
@@ -198,6 +232,9 @@ var Button = function (image, method, target) {
 	this.enabled = true;
 }
 
+/*
+	Check if button is pressed
+*/
 Button.prototype.checkPressed = function (contextBlended, p1, p4) {
 	var blendedData = contextBlended.getImageData(p1.x, p1.y, p4.x-p1.x, p4.y-p1.y);
 
@@ -225,6 +262,9 @@ Button.prototype.checkPressed = function (contextBlended, p1, p4) {
 	}
 }
 
+/*
+	Draw the button
+*/
 Button.prototype.draw = function (ctx, x, y, width, height) {
 	if (this.enabled) {
 		ctx.strokeStyle = 'red'
@@ -236,6 +276,9 @@ Button.prototype.draw = function (ctx, x, y, width, height) {
 	ctx.drawImage(this.image, x, y, width, height);
 }
 
+/*
+	VideoButton
+*/
 var VideoButton = function (video, method, target) {
 	this.method = method; // method to invoke when pressed
 	this.video = video; // video to draw
@@ -248,6 +291,9 @@ var VideoButton = function (video, method, target) {
 
 VideoButton.prototype = new Button;
 
+/*
+	Draw video on button
+*/
 VideoButton.prototype.draw = function (ctx, x, y, width, height) {
 	if (this.enabled) {
 		ctx.strokeStyle = 'red'
