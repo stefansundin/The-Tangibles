@@ -369,9 +369,9 @@ function Workspace() {
 		
 		// Try merging images with WebGL, use the old method as fallback
 		try {
-			BlendGL.mergeImages(transformedVideos);
+			mergedImage = BlendGL.mergeImages(transformedVideos);
 		} catch (err) {
-			Utilities.mergeImages(transformedVideos);
+			mergedImage = Utilities.mergeImages(transformedVideos);
 		}
 		
 		/*
