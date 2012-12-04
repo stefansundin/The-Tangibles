@@ -202,6 +202,7 @@ VideoBucket.prototype.setTransform = function(prime, rect) {
     console.log('creating transform');
     console.log(rect);
     
+	this.prime = prime;
     this.transformCanvas = MediaExt.createCanvas(rect.width, rect.height);
 	this.initWebGL();
 	
@@ -212,8 +213,6 @@ VideoBucket.prototype.setTransform = function(prime, rect) {
 		this.videoCanvas = MediaExt.createCanvas(this.video.width, this.video.height);
 		this.videoContext = this.videoCanvas.getContext("2d");
     }
-    
-    this.prime = prime;
 	
 	// A rectangle containing the transform polygon -
 	// used for cropping out image data from the video stream
