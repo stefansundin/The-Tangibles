@@ -197,9 +197,7 @@ VideoBucket.prototype.generateBuffers = function() {
  @param poly Poly returned by the Calibrator
  @param rect The local shared rectangle
  */
-VideoBucket.prototype.setTransform = function(prime, rect,
-											  detectionWidth,
-											  detectionHeight) {
+VideoBucket.prototype.setTransform = function(prime, rect) {
     
     console.log('creating transform');
     console.log(rect);
@@ -207,8 +205,6 @@ VideoBucket.prototype.setTransform = function(prime, rect,
 	this.prime = prime;
     this.transformCanvas = MediaExt.createCanvas(rect.width, rect.height);
 	this.initWebGL();
-	this.detectionWidth = detectionWidth;
-	this.detectionHeight = detectionHeight;
 	
 	if (!this.glContext) {
 		// If WebGL failed to initialize,
@@ -270,8 +266,8 @@ VideoBucket.prototype.transformVideo = function() {
 		
 		// Send values to the shaders
 		gl.uniform1i(prog.unifLocTex, 0);
-		gl.uniform1f(prog.unifLocWidthOut, this.detectionWidth); // video.width);
-		gl.uniform1f(prog.unifLocHeightOut, this.detectionHeight); // video.height);
+		gl.uniform1f(prog.unifLocWidthOut, this.video.width);
+		gl.uniform1f(prog.unifLocHeightOut, this.video.height);
 
 		// Render the transformed video
 		this.prime.render(prog, gl);
