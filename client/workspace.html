@@ -246,7 +246,9 @@ function Workspace() {
 		sharedTransformer = sTransformer;
 		sharedTransformerEnc = sTransformer.encode();
 		
-		videoObj.setTransform(sTransformer, sRect);
+		videoObj.setTransform(sTransformer, sRect,
+							  DETECTOR_CANVAS_WIDTH,
+							  DETECTOR_CANVAS_HEIGHT);
 
 		// Remove qr codes from sifteos when done
 		var tangibles2 = window.opener.parent.tangibles;
@@ -281,7 +283,10 @@ function Workspace() {
 				
 				var dstRect = new Geometry.Rectangle(0, 0, sharedRect.width, sharedRect.height);
 				var transformer = Transformers.OptimusPrime.decode(dstRect, polyList, depth);
-				v.setTransform(/*[nw, ne, se, sw]*/ transformer, sharedRect);
+				v.setTransform(/*[nw, ne, se, sw]*/
+							   transformer, sharedRect,
+							   DETECTOR_CANVAS_WIDTH,
+							   DETECTOR_CANVAS_HEIGHT);
 
 				// enable buttons
 				b = new VideoButton(v, v.toggleEnabled, v);
@@ -312,7 +317,10 @@ function Workspace() {
 				
 				var dstRect = new Geometry.Rectangle(0, 0, sharedRect.width, sharedRect.height);
 				var transformer = Transformers.OptimusPrime.decode(dstRect, polyList, depth);
-				v.setTransform(/*[nw, ne, se, sw]*/ transformer, sharedRect);
+				v.setTransform(/*[nw, ne, se, sw]*/
+							   transformer, sharedRect,
+							   DETECTOR_CANVAS_WIDTH,
+							   DETECTOR_CANVAS_HEIGHT);
 
 				// enable buttons
 				b = new VideoButton(v, v.toggleEnabled, v);
