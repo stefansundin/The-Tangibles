@@ -22,7 +22,7 @@ const depth = 2;
 /**
  Creates a Calibrator object
  */
-Calibrator = function(video, canvas) {
+Calibrator = function(video, canvas, detectionWidth, detectionHeight) {
     
 	this.video = video;
 	this.detector = new AR.Detector();
@@ -43,10 +43,11 @@ Calibrator = function(video, canvas) {
 	this.canvas = canvas;
 	this.context = canvas.getContext("2d");
 	
-	this.videoCanvas = MediaExt.createCanvas(video.width, video.height);
+	this.videoCanvas = MediaExt.createCanvas(detectionWidth, detectionHeight);
+											 // video.width, video.height);
 	this.videoContext = this.videoCanvas.getContext("2d");
-	this.videoWidth = video.width;
-	this.videoHeight = video.height;
+	this.videoWidth = detectionWidth; // video.width;
+	this.videoHeight = detectionHeight; // video.height;
 	
 	this.calibrationStage = 1;
     
