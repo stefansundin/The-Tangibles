@@ -28,7 +28,7 @@ Calibrator = function(video, canvas) {
 	this.detector = new AR.Detector();
     
 	// The default shared rectangle is 400x300px centered in the canvas
-	var w = canvas.width / 1.5,
+	var w = canvas.width / 1.7,
     h = w * DEFAULT_RATIO;
 	this.sharedRect = new Geometry.Rectangle(canvas.width / 2 - w / 2,
                                              canvas.height / 2 - h / 2, w, h);
