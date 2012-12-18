@@ -84,7 +84,7 @@ function Workspace() {
 
 			// *****
 			// Test - draw own video
-			videos.push(videoObj);
+			// videos.push(videoObj);
 			// *****
 
 		} else {
@@ -245,11 +245,11 @@ function Workspace() {
 		sharedTransformer = sTransformer;
 		sharedTransformerEnc = sTransformer.encode();
 		
-		// *******
+		/*/ *******
 		// Stupid test :)
 		var dstRect = new Geometry.Rectangle(0, 0, sharedRect.width, sharedRect.height);
 		videoObj.setTransform(Transformers.OptimusPrime.decode(dstRect, sharedTransformerEnc, 2), sRect);
-		// *******
+		// *******/
 		
 		// Remove qr codes from sifteos when done
 		var tangibles2 = window.opener.parent.tangibles;
@@ -399,13 +399,14 @@ function Workspace() {
 									sharedRect.width,
 									sharedRect.height);
 			
-			// *******
+			/*/ *******
+			 TEST
 			var x = screenCanvas.width * 0.15 + 5,
 				w = sharedRect.x - x, //  sharedRect.x - 10,
 				h = w / 4.0 * 3.0,
 				y = screenCanvas.height / 2 - w / 2;
 			screenContext.drawImage(mergedImage, x, y, w, h);
-			// ******* /
+			// *******/
 			
 		} else {
 			// If no video is available yet, just clear the area
