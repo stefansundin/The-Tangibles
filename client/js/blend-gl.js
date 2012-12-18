@@ -43,7 +43,7 @@ BlendGL = function() {
 					"vec4 c1 = texture2D(tex1, uv);",
 					"vec4 c2 = texture2D(tex2, uv);",
 					// Blend function (probably not quite right): 
-					"gl_FragColor = vec4(min(c2.rgb * c1.a, c1.rgb * c2.a) + c2.rgb * (1.0 - c1.a) + c1.rgb * (1.0 - c2.a), 1.0) * 3.0;",
+					"gl_FragColor = vec4(min(c2.rgb * c1.a, c1.rgb * c2.a) + c2.rgb * (1.0 - c1.a) + c1.rgb * (1.0 - c2.a), 1.0);",
 				 "}"
 				 ].join("\n");
 	
