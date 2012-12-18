@@ -245,8 +245,12 @@ function Workspace() {
 		sharedTransformer = sTransformer;
 		sharedTransformerEnc = sTransformer.encode();
 		
-		videoObj.setTransform(sTransformer, sRect);
-
+		// *******
+		// Stupid test :)
+		var dstRect = new Geometry.Rectangle(0, 0, sharedRect.width, sharedRect.height);
+		videoObj.setTransform(Transformers.OptimusPrime.decode(dstRect, sharedTransformerEnc, 2), sRect);
+		// *******
+		
 		// Remove qr codes from sifteos when done
 		var tangibles2 = window.opener.parent.tangibles;
 		if (tangibles2.sifteos.length > 2) {
