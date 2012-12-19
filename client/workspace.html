@@ -27,8 +27,8 @@
 </head>
 <body style="font-family: monospace; background-color: white;">
 <center>
-<div id="notice" style="margin:20%; font-size:150%";>This is the workspace view. Choose the appropriate camera and move this window to where you want it.<br>
-<button id="fullscreen">Enter Full Screen</button>
+<div id="notice" style="margin:20%; font-size:125%";>This is the workspace view. Choose the appropriate camera and move this window to where you want it.<br><br>
+<button id="fullscreen" style="margin:10%; font-size:125%">Enter Full Screen</button>
 </div>
 	
 <canvas id ="myCanvas" style="width: 100%; height: 100%"></canvas>
@@ -224,8 +224,8 @@ function Workspace() {
 					
 				// *****
 				// Temporary: toggle video with enter
-				for (var i = 0; i < buttons.length; i++) {
-					buttons[i].toggleEnabled();
+				for (var i = 0; i < buttons.listOfButtons.length; i++) {
+					buttons.listOfButtons[i].toggleEnabled();
 				}
 				// *****
 							 
@@ -328,11 +328,14 @@ function Workspace() {
 				var dstRect = new Geometry.Rectangle(0, 0, sharedRect.width, sharedRect.height);
 				var transformer = Transformers.OptimusPrime.decode(dstRect, polyList, depth);
 				v.setTransform(/*[nw, ne, se, sw]*/ transformer, sharedRect);
-
+				
+				// *****
+				// Temporary: Video buttons don't enable/disable video streams
 				// enable buttons
-				b = new VideoButton(v, v.toggleEnabled, v);
+				b = new VideoButton(v, function() {}, v); // v.toggleEnabled, v);
 				b.id = v.video.id;
 				buttons.addButton(b);
+				// *****
 			}
 		}
 	}
