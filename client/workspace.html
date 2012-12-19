@@ -27,7 +27,7 @@
 </head>
 <body style="font-family: monospace; background-color: white;">
 <center>
-<div id="notice" style="margin:20%; font-size:125%";>This is the workspace view. Choose the appropriate camera and move this window to where you want it.<br><br>
+<div id="notice" style="margin:20%; font-size:125%";>This is the workspace view. Choose the appropriate camera and move this window to where you want it.<br>
 <button id="fullscreen" style="margin:10%; font-size:125%">Enter Full Screen</button>
 </div>
 	
@@ -224,11 +224,10 @@ function Workspace() {
 					
 				// *****
 				// Temporary: toggle video with enter
-				for (var i = 0; i < buttons.listOfButtons.length; i++) {
-					buttons.listOfButtons[i].toggleEnabled();
+				for (var i = 0; i < videos.length; i++) {
+					videos[i].toggleEnabled();
 				}
 				// *****
-							 
 			}
 			// TODO remove keypress
 		});
