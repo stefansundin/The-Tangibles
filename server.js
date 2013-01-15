@@ -59,6 +59,11 @@ app.get('/room', function(req, res) {
 	res.sendfile(__dirname + '/client/room.html');
 });
 
+app.get('/docs', function(req, res) {
+	//  console.log('Opening room');
+	res.sendfile(__dirname + '/assets/APIDOC/index.html');
+});
+
 app.get('/workspace', function(req, res) {
 	//  console.log('Opening workspace');
 	res.sendfile(__dirname + '/client/workspace.html');
