@@ -16,7 +16,7 @@ The people involved:
 * Samuel Sjödin
 * [Stefan Sundin](http://stefansundin.com/)
 * Alexandra Tsampikakis
-* John Viklund
+* [John Viklund](http://www.linkedin.com/pub/john-viklund/61/76/390/en)
 * Karl Öhman
 
 Supervisor: [Prof. Peter Parnes](http://parnes.com)
