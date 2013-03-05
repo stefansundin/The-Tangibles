@@ -13,7 +13,7 @@ The people involved:
 * Jimmy Nyström
 * Nicklas Nyström
 * Elias Näslund
-* Samuel Sjödin
+* [Samuel Sjödin] (http://se.linkedin.com/pub/samuel-sj%C3%B6din/67/257/205/)
 * [Stefan Sundin](http://stefansundin.com/)
 * Alexandra Tsampikakis
 * [John Viklund](http://www.linkedin.com/pub/john-viklund/61/76/390/en)
