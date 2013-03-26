@@ -17,6 +17,6 @@ The people involved:
 * [Stefan Sundin](http://stefansundin.com/)
 * Alexandra Tsampikakis
 * [John Viklund](http://www.linkedin.com/pub/john-viklund/61/76/390/en)
-* Karl Öhman
+* [Karl Öhman](http://www.linkedin.com/pub/karl-%C3%B6hman/61/79/86a)
 
 Supervisor: [Prof. Peter Parnes](http://parnes.com)
