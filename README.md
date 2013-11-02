@@ -15,7 +15,7 @@ The people involved:
 * Elias Näslund
 * [Samuel Sjödin] (http://se.linkedin.com/pub/samuel-sj%C3%B6din/67/257/205/)
 * [Stefan Sundin](http://stefansundin.com/)
-* Alexandra Tsampikakis
+* [Alexandra Tsampikakis] (http://tsampikakis.com)
 * [John Viklund](http://www.linkedin.com/pub/john-viklund/61/76/390/en)
 * [Karl Öhman](http://www.linkedin.com/pub/karl-%C3%B6hman/61/79/86a)
 
